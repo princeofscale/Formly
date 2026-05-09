@@ -1,0 +1,31 @@
+import type { Exercise, SetEntry, MuscleVolume, MuscleGroup } from '@/lib/types/models'
+
+export interface ExerciseWithSets {
+  exercise: Exercise
+  sets: SetEntry[]
+}
+
+export function calculateSessionVolume(items: ExerciseWithSets[]): MuscleVolume[] {
+  if (items.length === 0) return []
+
+  const map = new Map<MuscleGroup, { direct: number; indirect: number }>()
+
+  for (const { exercise, sets } of items) {
+    const n = sets.length
+
+    const primary = map.get(exercise.primary_muscle) ?? { direct: 0, indirect: 0 }
+    map.set(exercise.primary_muscle, { ...primary, direct: primary.direct + n })
+
+    for (const muscle of exercise.secondary_muscles) {
+      const sec = map.get(muscle) ?? { direct: 0, indirect: 0 }
+      map.set(muscle, { ...sec, indirect: sec.indirect + n * 0.5 })
+    }
+  }
+
+  return Array.from(map.entries()).map(([muscle, { direct, indirect }]) => ({
+    muscle,
+    direct_sets: direct,
+    indirect_sets: indirect,
+    total_sets: direct + indirect,
+  }))
+}
