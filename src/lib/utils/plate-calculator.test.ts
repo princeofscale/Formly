@@ -4,12 +4,11 @@ import { calculatePlates } from './plate-calculator'
 describe('calculatePlates', () => {
   it('calculates plates for 100kg with 20kg bar', () => {
     // 100 - 20 = 80kg total, 40kg per side
-    // 40 = 1×25 + 1×10 + 1×5
+    // 40 = 1×25 + 1×15
     const result = calculatePlates(100, 20)
     expect(result).toEqual([
       { weight: 25, count: 1 },
-      { weight: 10, count: 1 },
-      { weight: 5, count: 1 },
+      { weight: 15, count: 1 },
     ])
   })
 
