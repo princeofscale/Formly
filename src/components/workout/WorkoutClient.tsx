@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function WorkoutClient({ session, initialExercises, allExercises }: Props) {
+  const t = useTranslations('workout')
   const [exercises, setExercises] = useState<ExerciseWithSets[]>(initialExercises)
 
   function addExercise(exercise: Exercise) {
@@ -33,8 +35,8 @@ export function WorkoutClient({ session, initialExercises, allExercises }: Props
     <div className="space-y-6 pb-24">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Workout</h1>
-          <p className="text-sm text-zinc-400">{duration}m elapsed</p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-sm text-zinc-400">{t('elapsed', { minutes: duration })}</p>
         </div>
         <FinishWorkoutButton sessionId={session.id} />
       </div>
@@ -43,7 +45,7 @@ export function WorkoutClient({ session, initialExercises, allExercises }: Props
 
       {exercises.length === 0 && (
         <p className="text-center text-zinc-500 py-12">
-          Search for an exercise above to start logging
+          {t('emptyHint')}
         </p>
       )}
 
