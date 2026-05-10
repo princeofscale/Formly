@@ -22,13 +22,25 @@ export async function getExercises(
 export async function searchExercises(
   supabase: SupabaseClient,
   userId: string,
-  query: string
+  query: string,
+  locale: string = 'en'
 ): Promise<Exercise[]> {
+  const filter = `is_custom.eq.false,created_by.eq.${userId}`
+  if (locale === 'ru') {
+    const { data } = await supabase
+      .from('exercises')
+      .select('*')
+      .or(`name.ilike.%${query}%,name_ru.ilike.%${query}%`)
+      .or(filter)
+      .order('name')
+      .limit(20)
+    return (data as Exercise[]) ?? []
+  }
   const { data } = await supabase
     .from('exercises')
     .select('*')
     .ilike('name', `%${query}%`)
-    .or(`is_custom.eq.false,created_by.eq.${userId}`)
+    .or(filter)
     .order('name')
     .limit(20)
   return (data as Exercise[]) ?? []

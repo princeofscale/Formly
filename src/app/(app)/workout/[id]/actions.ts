@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets'
 import { finishSession } from '@/lib/db/workouts'
+import { searchExercises } from '@/lib/db/exercises'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import type { Exercise, SetEntry, PRResult } from '@/lib/types/models'
@@ -40,19 +41,10 @@ export async function saveSetAction(data: {
   return { set, prResult }
 }
 
-export async function searchExercisesAction(query: string): Promise<Exercise[]> {
+export async function searchExercisesAction(query: string, locale: string = 'en'): Promise<Exercise[]> {
   const { user } = await verifySession()
   const supabase = await createClient()
-
-  const { data } = await supabase
-    .from('exercises')
-    .select('*')
-    .ilike('name', `%${query}%`)
-    .or(`is_custom.eq.false,created_by.eq.${user.id}`)
-    .order('name')
-    .limit(20)
-
-  return (data as Exercise[]) ?? []
+  return searchExercises(supabase, user.id, query, locale)
 }
 
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
