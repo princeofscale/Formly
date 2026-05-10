@@ -40,7 +40,7 @@ export default async function DashboardPage() {
               {sessions.map(s => (
                 <li key={s.id} className="flex justify-between text-sm">
                   <span>{new Date(s.started_at).toLocaleDateString()}</span>
-                  <span className="text-zinc-400">{s.total_volume_kg.toFixed(0)} kg total</span>
+                  <span className="text-zinc-400">{(s.total_volume_kg ?? 0).toFixed(0)} kg total</span>
                 </li>
               ))}
             </ul>
