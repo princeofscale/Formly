@@ -43,4 +43,8 @@ describe('calculate1RM', () => {
   it('throws for zero reps', () => {
     expect(() => calculate1RM(100, 0)).toThrow('Reps must be positive')
   })
+
+  it('throws for non-integer reps', () => {
+    expect(() => calculate1RM(100, 5.5)).toThrow('Reps must be a whole number')
+  })
 })

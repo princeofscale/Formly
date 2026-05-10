@@ -1,4 +1,5 @@
 export function calculateBMI(weightKg: number, heightCm: number): number {
+  if (heightCm <= 0 || weightKg <= 0) throw new Error('Height and weight must be positive')
   const heightM = heightCm / 100
   return weightKg / (heightM * heightM)
 }

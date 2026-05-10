@@ -7,6 +7,7 @@ export function selectFormula(reps: number): Formula {
 export function calculate1RM(weightKg: number, reps: number): number {
   if (weightKg <= 0) throw new Error('Weight must be positive')
   if (reps <= 0) throw new Error('Reps must be positive')
+  if (!Number.isInteger(reps)) throw new Error('Reps must be a whole number')
   if (reps === 1) return weightKg
 
   if (selectFormula(reps) === 'brzycki') {

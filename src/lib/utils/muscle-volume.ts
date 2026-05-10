@@ -11,6 +11,7 @@ export function calculateSessionVolume(items: ExerciseWithSets[]): MuscleVolume[
   const map = new Map<MuscleGroup, { direct: number; indirect: number }>()
 
   for (const { exercise, sets } of items) {
+    if (sets.length === 0) continue
     const n = sets.length
 
     const primary = map.get(exercise.primary_muscle) ?? { direct: 0, indirect: 0 }
