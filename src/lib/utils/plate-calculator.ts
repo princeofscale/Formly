@@ -1,4 +1,4 @@
-const PLATE_SIZES = [25, 20, 10, 5, 2.5, 1.25]
+const PLATE_SIZES = [25, 20, 15, 10, 5, 2.5, 1.25]
 
 export interface PlateCount {
   weight: number
