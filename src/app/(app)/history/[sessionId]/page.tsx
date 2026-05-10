@@ -5,7 +5,9 @@ import { getSession } from '@/lib/db/workouts'
 import { getSetsForSession } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getTranslations, getLocale } from 'next-intl/server'
 import type { ExerciseWithSets } from '@/lib/types/models'
+import { DeleteWorkoutButton } from './DeleteWorkoutButton'
 
 export default async function SessionDetailPage({
   params,
@@ -18,6 +20,8 @@ export default async function SessionDetailPage({
   const { finished } = await searchParams
   const { user } = await verifySession()
   const supabase = await createClient()
+  const t = await getTranslations('history')
+  const locale = await getLocale()
 
   const session = await getSession(supabase, sessionId)
   if (!session || session.user_id !== user.id) notFound()
@@ -40,22 +44,37 @@ export default async function SessionDetailPage({
     ? Math.round((new Date(session.finished_at).getTime() - date.getTime()) / 60000)
     : null
 
+  const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+
   return (
     <div className="space-y-6">
       {finished === '1' && (
         <div className="bg-green-900/30 border border-green-800 rounded-lg p-4 text-green-400 text-sm font-medium">
-          Workout complete! Great work 💪
+          {t('finishedBanner')}
         </div>
       )}
 
-      <div>
-        <h1 className="text-2xl font-bold">
-          {date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </h1>
-        <p className="text-zinc-400 text-sm">
-          {(session.total_volume_kg ?? 0).toFixed(0)}kg total volume
-          {duration ? ` · ${duration} minutes` : ''}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold capitalize">{dateStr}</h1>
+          <p className="text-zinc-400 text-sm">
+            {(session.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
+            {duration ? ` · ${duration} ${t('minutes')}` : ''}
+          </p>
+        </div>
+        <DeleteWorkoutButton
+          sessionId={sessionId}
+          labels={{
+            deleteWorkout: t('deleteWorkout'),
+            deleteConfirmText: t('deleteConfirmText'),
+            deleteConfirm: t('deleteConfirm'),
+            deleteCancel: t('deleteCancel'),
+          }}
+        />
       </div>
 
       {exercises.map(ex => (
@@ -68,11 +87,11 @@ export default async function SessionDetailPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-zinc-500 text-xs">
-                  <th className="text-left pb-1">Set</th>
-                  <th className="text-left pb-1">Weight</th>
-                  <th className="text-left pb-1">Reps</th>
-                  <th className="text-left pb-1">e1RM</th>
-                  <th className="text-left pb-1">RPE</th>
+                  <th className="text-left pb-1">{t('table.set')}</th>
+                  <th className="text-left pb-1">{t('table.weight')}</th>
+                  <th className="text-left pb-1">{t('table.reps')}</th>
+                  <th className="text-left pb-1">{t('table.e1rm')}</th>
+                  <th className="text-left pb-1">{t('table.rpe')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -92,7 +111,7 @@ export default async function SessionDetailPage({
       ))}
 
       {exercises.length === 0 && (
-        <p className="text-zinc-500 text-center py-8">No exercises logged in this session.</p>
+        <p className="text-zinc-500 text-center py-8">{t('noExercises')}</p>
       )}
     </div>
   )
