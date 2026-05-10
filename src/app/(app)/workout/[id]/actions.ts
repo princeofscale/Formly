@@ -8,7 +8,7 @@ import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets
 import { finishSession } from '@/lib/db/workouts'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
-import type { Exercise, SetEntry, PRResult } from '@/lib/types/models'
+import type { Exercise, PRResult } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
   sessionId: string
@@ -55,10 +55,7 @@ export async function searchExercisesAction(query: string): Promise<Exercise[]> 
   return (data as Exercise[]) ?? []
 }
 
-export async function finishWorkoutAction(
-  sessionId: string,
-  exercisesWithSets: Array<{ exercise: Exercise; sets: SetEntry[] }>
-): Promise<void> {
+export async function finishWorkoutAction(sessionId: string): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
 

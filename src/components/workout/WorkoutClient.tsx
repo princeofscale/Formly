@@ -36,7 +36,7 @@ export function WorkoutClient({ session, initialExercises, allExercises }: Props
           <h1 className="text-2xl font-bold">Workout</h1>
           <p className="text-sm text-zinc-400">{duration}m elapsed</p>
         </div>
-        <FinishWorkoutButton sessionId={session.id} exercises={exercises} />
+        <FinishWorkoutButton sessionId={session.id} />
       </div>
 
       <ExerciseSearch onSelect={addExercise} />

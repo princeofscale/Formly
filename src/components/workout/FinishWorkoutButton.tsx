@@ -4,19 +4,17 @@ import { useTransition } from 'react'
 import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { finishWorkoutAction } from '@/app/(app)/workout/[id]/actions'
-import type { Exercise, SetEntry } from '@/lib/types/models'
 
 interface Props {
   sessionId: string
-  exercises: Array<{ exercise: Exercise; sets: SetEntry[] }>
 }
 
-export function FinishWorkoutButton({ sessionId, exercises }: Props) {
+export function FinishWorkoutButton({ sessionId }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleFinish() {
     startTransition(async () => {
-      await finishWorkoutAction(sessionId, exercises)
+      await finishWorkoutAction(sessionId)
     })
   }
 
