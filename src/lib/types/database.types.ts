@@ -45,9 +45,13 @@ export type Database = {
           created_by: string | null
           equipment: Database["public"]["Enums"]["equipment_type"]
           id: string
+          image_urls: string[] | null
+          instructions_en: string | null
+          instructions_ru: string | null
           is_custom: boolean
           mechanic: string
           name: string
+          name_ru: string | null
           primary_muscle: Database["public"]["Enums"]["muscle_group"]
           secondary_muscles: Database["public"]["Enums"]["muscle_group"][]
           slug: string
@@ -57,9 +61,13 @@ export type Database = {
           created_by?: string | null
           equipment: Database["public"]["Enums"]["equipment_type"]
           id?: string
+          image_urls?: string[] | null
+          instructions_en?: string | null
+          instructions_ru?: string | null
           is_custom?: boolean
           mechanic: string
           name: string
+          name_ru?: string | null
           primary_muscle: Database["public"]["Enums"]["muscle_group"]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           slug: string
@@ -69,9 +77,13 @@ export type Database = {
           created_by?: string | null
           equipment?: Database["public"]["Enums"]["equipment_type"]
           id?: string
+          image_urls?: string[] | null
+          instructions_en?: string | null
+          instructions_ru?: string | null
           is_custom?: boolean
           mechanic?: string
           name?: string
+          name_ru?: string | null
           primary_muscle?: Database["public"]["Enums"]["muscle_group"]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           slug?: string

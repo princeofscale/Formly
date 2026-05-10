@@ -32,6 +32,10 @@ export interface Exercise {
   equipment: Equipment
   is_custom: boolean
   created_by: string | null
+  name_ru?: string | null
+  instructions_en?: string | null
+  instructions_ru?: string | null
+  image_urls?: string[]
 }
 
 export interface WorkoutSession {
