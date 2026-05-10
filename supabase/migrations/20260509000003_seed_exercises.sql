@@ -33,4 +33,5 @@ insert into exercises (name, slug, primary_muscle, secondary_muscles, mechanic, 
 -- Core
 ('Plank', 'plank', 'core', array[]::muscle_group[], 'isolation', 'bodyweight'),
 ('Crunch', 'crunch', 'core', array[]::muscle_group[], 'isolation', 'bodyweight'),
-('Ab Wheel Rollout', 'ab-wheel-rollout', 'core', array[]::muscle_group[], 'isolation', 'other');
+('Ab Wheel Rollout', 'ab-wheel-rollout', 'core', array[]::muscle_group[], 'isolation', 'other')
+ON CONFLICT (slug) DO NOTHING;

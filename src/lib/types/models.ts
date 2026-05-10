@@ -1,5 +1,5 @@
 export type MuscleGroup =
-  | 'chest' | 'back' | 'shoulders' | 'biceps' | 'triceps'
+  | 'chest' | 'back' | 'biceps' | 'triceps'
   | 'forearms' | 'core' | 'quads' | 'hamstrings' | 'glutes'
   | 'calves' | 'traps' | 'lats' | 'rear_delts' | 'front_delts' | 'side_delts'
 
