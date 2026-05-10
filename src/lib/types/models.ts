@@ -18,6 +18,7 @@ export interface Profile {
   training_since: string | null
   training_location: TrainingLocation | null
   training_schedule: number[]
+  locale: string | null
   created_at: string
 }
 
