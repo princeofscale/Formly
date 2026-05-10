@@ -15,6 +15,7 @@ export default async function DashboardPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('dashboard')
+  const tHistory = await getTranslations('history')
 
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
@@ -168,7 +169,28 @@ export default async function DashboardPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <MuscleHeatmap muscleVolumes={muscleVolumes} />
+          <MuscleHeatmap
+            muscleVolumes={muscleVolumes}
+            muscleLabels={{
+              chest: tHistory('muscleLabel.chest'),
+              back: tHistory('muscleLabel.back'),
+              biceps: tHistory('muscleLabel.biceps'),
+              triceps: tHistory('muscleLabel.triceps'),
+              forearms: tHistory('muscleLabel.forearms'),
+              core: tHistory('muscleLabel.core'),
+              quads: tHistory('muscleLabel.quads'),
+              hamstrings: tHistory('muscleLabel.hamstrings'),
+              glutes: tHistory('muscleLabel.glutes'),
+              calves: tHistory('muscleLabel.calves'),
+              traps: tHistory('muscleLabel.traps'),
+              lats: tHistory('muscleLabel.lats'),
+              rear_delts: tHistory('muscleLabel.rear_delts'),
+              front_delts: tHistory('muscleLabel.front_delts'),
+              side_delts: tHistory('muscleLabel.side_delts'),
+            }}
+            clickHint={tHistory('muscleClickHint')}
+            setsLabel={tHistory('sets')}
+          />
         </CardContent>
       </Card>
     </div>
