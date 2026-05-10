@@ -1,0 +1,93 @@
+{
+  "auth": {
+    "slogan": "Every rep gets you closer",
+    "features": {
+      "log": "Log workouts in seconds",
+      "track": "Track personal records",
+      "ai": "AI-powered progression tips"
+    },
+    "login": {
+      "title": "SIGN IN",
+      "subtitle": "Welcome back",
+      "submit": "SIGN IN",
+      "submitting": "Signing in...",
+      "noAccount": "No account?",
+      "registerLink": "Register"
+    },
+    "register": {
+      "title": "REGISTER",
+      "subtitle": "Start tracking your progress",
+      "submit": "CREATE ACCOUNT",
+      "submitting": "Creating...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "passwordPlaceholder": "Min. 8 characters"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "history": "History",
+    "library": "Library",
+    "analytics": "Analytics",
+    "profile": "Profile",
+    "signOut": "Sign out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "startWorkout": "WORKOUT",
+    "week": {
+      "tonnage": "kg tonnage",
+      "sessions": "sessions",
+      "bestE1rm": "best e1RM"
+    },
+    "today": {
+      "trainingDay": "Training Day",
+      "restDay": "Rest Day",
+      "next": "Next",
+      "days": {
+        "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri", "6": "Sat", "7": "Sun"
+      },
+      "noSchedule": "No schedule set"
+    },
+    "recentTraining": "Recent Training",
+    "noWorkouts": "No workouts yet. Start your first session!",
+    "muscleActivity": "Muscle Activity (7 days)",
+    "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap."
+  },
+  "profile": {
+    "title": "PROFILE",
+    "stats": {
+      "bmi": "BMI",
+      "trainingAge": "Training age",
+      "location": "Location"
+    },
+    "form": {
+      "editProfile": "Edit Profile",
+      "weight": "Weight (kg)",
+      "height": "Height (cm)",
+      "age": "Age",
+      "trainingSince": "Training since",
+      "location": "Location",
+      "locationSelect": "Select...",
+      "locationGym": "Gym",
+      "locationHome": "Home",
+      "locationBoth": "Both",
+      "schedule": "Training days",
+      "save": "SAVE"
+    },
+    "language": "Interface language",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete account",
+    "days": {
+      "1": "MON", "2": "TUE", "3": "WED", "4": "THU", "5": "FRI", "6": "SAT", "7": "SUN"
+    },
+    "daysFull": {
+      "1": "Monday", "2": "Tuesday", "3": "Wednesday",
+      "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday"
+    }
+  }
+}
