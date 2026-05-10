@@ -32,10 +32,14 @@ export async function getMonthlyTonnage(
 export async function getWeeklyMuscleVolume(
   supabase: SupabaseClient,
   userId: string,
-  weeks = 4
+  _weeks = 1
 ): Promise<MuscleVolume[]> {
-  const since = new Date()
-  since.setDate(since.getDate() - weeks * 7)
+  const now = new Date()
+  const dayOfWeek = now.getUTCDay()
+  const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+  const since = new Date(now)
+  since.setUTCDate(now.getUTCDate() - daysSinceMonday)
+  since.setUTCHours(0, 0, 0, 0)
 
   const { data } = await supabase
     .from('set_entries')
@@ -45,7 +49,6 @@ export async function getWeeklyMuscleVolume(
 
   if (!data) return []
 
-  // Count sets per exercise
   const exerciseMap = new Map<string, { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }>()
 
   for (const row of data) {
@@ -59,7 +62,6 @@ export async function getWeeklyMuscleVolume(
     }
   }
 
-  // Build ExerciseSetPair-compatible objects for calculateSessionVolume
   const fakeExercises = Array.from(exerciseMap.values()).map(ex => ({
     exercise: { primary_muscle: ex.primary_muscle, secondary_muscles: ex.secondary_muscles } as any,
     sets: Array.from({ length: ex.setCount }, () => ({}) as any),
