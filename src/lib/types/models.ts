@@ -70,3 +70,21 @@ export interface PRResult {
   current_1rm: number
   improvement_pct: number | null
 }
+
+export interface ExerciseWithSets extends Exercise {
+  sets: SetEntry[]
+}
+
+export interface ProgressionSuggestion {
+  exercise_id: string
+  exercise_name: string
+  current_weight_kg: number
+  suggested_weight_kg: number
+  reason: string
+}
+
+export interface VolumeLandmark {
+  muscle: MuscleGroup
+  weekly_sets: number
+  status: 'mv' | 'optimal' | 'mrv'
+}
