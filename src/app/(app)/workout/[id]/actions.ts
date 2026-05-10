@@ -8,8 +8,7 @@ import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets
 import { finishSession } from '@/lib/db/workouts'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
-import { getProgressionSuggestion } from '@/lib/services/progression.service'
-import type { Exercise, SetEntry, PRResult, ProgressionSuggestion } from '@/lib/types/models'
+import type { Exercise, SetEntry, PRResult } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
   sessionId: string
