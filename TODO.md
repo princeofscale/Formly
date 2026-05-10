@@ -1,46 +1,46 @@
-# GymLog — Roadmap
+# GymLog — Дорожная карта
 
-## Phase 1: Infrastructure + Auth ✅ DONE
-- [x] Initialize Next.js 16 project
-- [x] Set up Supabase (schema, RLS, 29 seed exercises)
-- [x] Auth: login / register / logout (Server Actions + useActionState)
-- [x] Core utilities: 1RM, muscle volume, BMI (23 tests passing)
-- [x] Dashboard skeleton
-- [x] Deploy to Vercel → https://training-ar.vercel.app
+## Фаза 1: Инфраструктура + Авторизация ✅ ГОТОВО
+- [x] Инициализация проекта Next.js 16
+- [x] Настройка Supabase (схема, RLS, 29 упражнений в базе)
+- [x] Авторизация: вход / регистрация / выход (Server Actions + useActionState)
+- [x] Основные утилиты: 1ПМ, объём мышц, ИМТ (23 теста проходят)
+- [x] Скелет дашборда
+- [x] Деплой на Vercel → https://training-ar.vercel.app
 
-## Phase 2: Active Workout Logging ← NEXT
-- [ ] Create / resume workout session
-- [ ] Exercise search + add from library
-- [ ] Set entry: weight, reps, RPE
-- [ ] Last Time Hints (auto-fill from previous session)
-- [ ] PR detection (e1RM vs historical best)
-- [ ] Rest timer (auto-start after set save)
-- [ ] Quick input buttons (+/-2.5kg, +/-1 rep)
-- [ ] Plate calculator
-- [ ] Finish workout + total volume calculation
+## Фаза 2: Логирование тренировки ✅ ГОТОВО
+- [x] Создание / возобновление тренировочной сессии
+- [x] Поиск упражнений + добавление из библиотеки
+- [x] Ввод подхода: вес, повторения, RPE
+- [x] Подсказки «В прошлый раз» (авто-заполнение из предыдущей сессии)
+- [x] Определение личного рекорда (e1ПМ vs исторический максимум)
+- [x] Таймер отдыха (запускается автоматически после сохранения подхода)
+- [x] Кнопки быстрого ввода (+/-2.5кг, +/-1 повтор)
+- [x] Калькулятор блинов
+- [x] Завершение тренировки + расчёт общего объёма
 
-## Phase 3: Exercise Library
-- [ ] Browse all global exercises
-- [ ] Filter by muscle group / equipment
-- [ ] Create custom exercises
-- [ ] Edit / delete custom exercises
+## Фаза 3: Библиотека упражнений ✅ ГОТОВО
+- [x] Просмотр всех глобальных упражнений
+- [x] Фильтр по группе мышц / оборудованию
+- [x] Создание пользовательских упражнений
+- [x] Редактирование / удаление пользовательских упражнений
 
-## Phase 4: History
-- [ ] Sessions list (chronological)
-- [ ] Session detail: all exercises, sets, volume
+## Фаза 4: История ✅ ГОТОВО
+- [x] Список сессий (хронологический)
+- [x] Детали сессии: все упражнения, подходы, объём
 
-## Phase 5: Dashboard (full)
-- [ ] Training schedule: today = gym or rest?
-- [ ] Last 3 sessions summary
-- [ ] 7-day muscle heatmap (react-body-highlighter)
+## Фаза 5: Дашборд (полный) ✅ ГОТОВО
+- [x] Расписание тренировок: сегодня зал или отдых?
+- [x] Сводка по последним 3 сессиям
+- [x] 7-дневная мышечная тепловая карта (react-body-highlighter)
 
-## Phase 6: Analytics
-- [ ] e1RM trend chart per exercise (Recharts)
-- [ ] Monthly total tonnage chart
-- [ ] Muscle group volume distribution (last 4 weeks)
-- [ ] Volume Landmarks: MV / MEV–MRV / MRV+ per muscle
+## Фаза 6: Аналитика ✅ ГОТОВО
+- [x] График e1ПМ по упражнению (Recharts, линейный)
+- [x] График общего тоннажа за месяц
+- [x] Распределение объёма по группам мышц (последние 4 недели)
+- [x] Объёмные ориентиры: МО / МЭО–МВО / МВО+ по мышцам
 
-## Phase 7: Profile + Progression
-- [ ] Edit profile: weight, height, age, training_since, location, schedule
-- [ ] Auto-display: BMI, training age
-- [ ] Double progression suggestions after workout
+## Фаза 7: Профиль + Прогрессия ✅ ГОТОВО
+- [x] Редактирование профиля: вес, рост, возраст, дата начала, локация, расписание
+- [x] Авто-отображение: ИМТ, тренировочный стаж
+- [x] Предложения двойной прогрессии после тренировки
