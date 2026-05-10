@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { useTranslations } from 'next-intl'
 import { searchExercisesAction } from '@/app/(app)/workout/[id]/actions'
 import type { Exercise } from '@/lib/types/models'
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ExerciseSearch({ onSelect }: Props) {
+  const t = useTranslations('workout')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Exercise[]>([])
   const [isPending, startTransition] = useTransition()
@@ -35,7 +37,7 @@ export function ExerciseSearch({ onSelect }: Props) {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
         <Input
-          placeholder="Search exercises..."
+          placeholder={t('searchPlaceholder')}
           className="pl-9 bg-zinc-900 border-zinc-700"
           value={query}
           onChange={e => handleChange(e.target.value)}

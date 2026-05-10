@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 import { finishWorkoutAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function FinishWorkoutButton({ sessionId }: Props) {
+  const t = useTranslations('workout')
   const [isPending, startTransition] = useTransition()
 
   function handleFinish() {
@@ -27,7 +29,7 @@ export function FinishWorkoutButton({ sessionId }: Props) {
       className="border-green-700 text-green-400 hover:bg-green-900"
     >
       <CheckCircle className="h-4 w-4 mr-1" />
-      {isPending ? 'Finishing...' : 'Finish'}
+      {isPending ? t('finishing') : t('finish')}
     </Button>
   )
 }
