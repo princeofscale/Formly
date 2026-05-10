@@ -40,9 +40,9 @@
     "title": "Dashboard",
     "startWorkout": "WORKOUT",
     "week": {
-      "tonnage": "kg tonnage",
+      "tonnage": "Tonnage (kg)",
       "sessions": "sessions",
-      "bestE1rm": "best e1RM"
+      "bestE1rm": "Best e1RM"
     },
     "today": {
       "trainingDay": "Training Day",
@@ -55,7 +55,8 @@
     },
     "recentTraining": "Recent Training",
     "noWorkouts": "No workouts yet. Start your first session!",
-    "muscleActivity": "Muscle Activity (7 days)",
+    "muscleActivity": "Muscle Activity (week)",
+    "profileLink": "Profile",
     "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap."
   },
   "profile": {
@@ -89,5 +90,43 @@
       "1": "Monday", "2": "Tuesday", "3": "Wednesday",
       "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday"
     }
+  },
+  "history": {
+    "title": "History",
+    "noWorkouts": "No finished workouts yet.",
+    "volume": "kg total",
+    "minutes": "min",
+    "deleteWorkout": "Delete Workout",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "deleteConfirmText": "Permanently delete this workout?",
+    "finishedBanner": "Workout complete! Great work 💪",
+    "noExercises": "No exercises logged in this session.",
+    "table": {
+      "set": "Set",
+      "weight": "Weight",
+      "reps": "Reps",
+      "e1rm": "e1RM",
+      "rpe": "RPE"
+    },
+    "muscleLabel": {
+      "chest": "Chest",
+      "back": "Back",
+      "biceps": "Biceps",
+      "triceps": "Triceps",
+      "forearms": "Forearms",
+      "core": "Core",
+      "quads": "Quads",
+      "hamstrings": "Hamstrings",
+      "glutes": "Glutes",
+      "calves": "Calves",
+      "traps": "Traps",
+      "lats": "Lats",
+      "rear_delts": "Rear Delts",
+      "front_delts": "Front Delts",
+      "side_delts": "Side Delts"
+    },
+    "muscleClickHint": "Tap a muscle",
+    "sets": "sets"
   }
 }
