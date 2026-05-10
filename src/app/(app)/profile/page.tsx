@@ -45,14 +45,16 @@ export default async function ProfilePage() {
         <div className="flex flex-col items-center justify-center py-3 bg-zinc-900">
           <span className="font-mono text-xl font-bold">{bmi ? bmi.toFixed(1) : '—'}</span>
           <span className="text-xs text-zinc-500 mt-0.5">{t('stats.bmi')}</span>
-          {bmiCat && <span className="text-xs text-zinc-600">{bmiCat}</span>}
+          {bmiCat && <span className="text-xs text-zinc-600">{t(`bmiCat.${bmiCat.toLowerCase()}`)}</span>}
         </div>
         <div className="flex flex-col items-center justify-center py-3 bg-zinc-900 border-x border-zinc-800">
           <span className="font-mono text-xl font-bold">{trainingAge ? `${trainingAge}y` : '—'}</span>
           <span className="text-xs text-zinc-500 mt-0.5">{t('stats.trainingAge')}</span>
         </div>
         <div className="flex flex-col items-center justify-center py-3 bg-zinc-900">
-          <span className="font-mono text-xl font-bold capitalize">{p?.training_location ?? '—'}</span>
+          <span className="font-mono text-xl font-bold">
+            {p?.training_location ? t(`locationDisplay.${p.training_location}`) : '—'}
+          </span>
           <span className="text-xs text-zinc-500 mt-0.5">{t('stats.location')}</span>
         </div>
       </div>
