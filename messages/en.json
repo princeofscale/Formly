@@ -83,6 +83,17 @@
     "language": "Interface language",
     "signOut": "Sign out",
     "deleteAccount": "Delete account",
+    "bmiCat": {
+      "underweight": "Underweight",
+      "normal": "Normal",
+      "overweight": "Overweight",
+      "obese": "Obese"
+    },
+    "locationDisplay": {
+      "gym": "Gym",
+      "home": "Home",
+      "both": "Both"
+    },
     "days": {
       "1": "MON", "2": "TUE", "3": "WED", "4": "THU", "5": "FRI", "6": "SAT", "7": "SUN"
     },
@@ -128,5 +139,17 @@
     },
     "muscleClickHint": "Tap a muscle",
     "sets": "sets"
+  },
+  "workout": {
+    "title": "Workout",
+    "newTitle": "Start Workout",
+    "activeSession": "Active Session",
+    "resumeWorkout": "Resume Workout",
+    "startNewWorkout": "Start New Workout",
+    "elapsed": "{minutes}m elapsed",
+    "searchPlaceholder": "Search exercises...",
+    "emptyHint": "Search for an exercise above to start logging",
+    "finish": "Finish",
+    "finishing": "Finishing..."
   }
 }

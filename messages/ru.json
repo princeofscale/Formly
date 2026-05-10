@@ -83,6 +83,17 @@
     "language": "Язык интерфейса",
     "signOut": "Выйти",
     "deleteAccount": "Удалить аккаунт",
+    "bmiCat": {
+      "underweight": "Дефицит веса",
+      "normal": "Норма",
+      "overweight": "Избыточный вес",
+      "obese": "Ожирение"
+    },
+    "locationDisplay": {
+      "gym": "Зал",
+      "home": "Дома",
+      "both": "Оба"
+    },
     "days": {
       "1": "ПН", "2": "ВТ", "3": "СР", "4": "ЧТ", "5": "ПТ", "6": "СБ", "7": "ВС"
     },
@@ -128,5 +139,17 @@
     },
     "muscleClickHint": "Нажми на мышцу",
     "sets": "подх."
+  },
+  "workout": {
+    "title": "Тренировка",
+    "newTitle": "Начать тренировку",
+    "activeSession": "Активная сессия",
+    "resumeWorkout": "Продолжить",
+    "startNewWorkout": "Начать новую тренировку",
+    "elapsed": "{minutes}м прошло",
+    "searchPlaceholder": "Найти упражнение...",
+    "emptyHint": "Найди упражнение выше чтобы начать",
+    "finish": "Завершить",
+    "finishing": "Завершаем..."
   }
 }
