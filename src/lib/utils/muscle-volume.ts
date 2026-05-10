@@ -1,11 +1,11 @@
 import type { Exercise, SetEntry, MuscleVolume, MuscleGroup } from '@/lib/types/models'
 
-export interface ExerciseWithSets {
+interface ExerciseSetPair {
   exercise: Exercise
   sets: SetEntry[]
 }
 
-export function calculateSessionVolume(items: ExerciseWithSets[]): MuscleVolume[] {
+export function calculateSessionVolume(items: ExerciseSetPair[]): MuscleVolume[] {
   if (items.length === 0) return []
 
   const map = new Map<MuscleGroup, { direct: number; indirect: number }>()
