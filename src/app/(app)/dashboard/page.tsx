@@ -4,18 +4,32 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dumbbell, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
+import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
+import { getWeeklyMuscleVolume } from '@/lib/services/analytics.service'
 
 export default async function DashboardPage() {
   const { user } = await verifySession()
-
   const supabase = await createClient()
 
-  const { data: sessions } = await supabase
-    .from('workout_sessions')
-    .select('id, started_at, total_volume_kg')
-    .eq('user_id', user.id)
-    .order('started_at', { ascending: false })
-    .limit(3)
+  const [sessionsResult, profileResult] = await Promise.all([
+    supabase
+      .from('workout_sessions')
+      .select('id, started_at, total_volume_kg, finished_at')
+      .eq('user_id', user.id)
+      .not('finished_at', 'is', null)
+      .order('started_at', { ascending: false })
+      .limit(3),
+    supabase
+      .from('profiles')
+      .select('training_schedule')
+      .eq('id', user.id)
+      .single(),
+  ])
+
+  const sessions = sessionsResult.data ?? []
+  const schedule: number[] = profileResult.data?.training_schedule ?? []
+  const muscleVolumes = await getWeeklyMuscleVolume(supabase, user.id, 1)
 
   return (
     <div className="space-y-6">
@@ -27,6 +41,8 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
+      <ScheduleStatus schedule={schedule} />
+
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -35,14 +51,19 @@ export default async function DashboardPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {sessions && sessions.length > 0 ? (
+          {sessions.length > 0 ? (
             <ul className="space-y-2">
-              {sessions.map(s => (
-                <li key={s.id} className="flex justify-between text-sm">
-                  <span>{new Date(s.started_at).toLocaleDateString()}</span>
-                  <span className="text-zinc-400">{(s.total_volume_kg ?? 0).toFixed(0)} kg total</span>
-                </li>
-              ))}
+              {sessions.map(s => {
+                const date = new Date(s.started_at)
+                return (
+                  <li key={s.id} className="flex justify-between text-sm">
+                    <Link href={`/history/${s.id}`} className="hover:text-zinc-200">
+                      {date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    </Link>
+                    <span className="text-zinc-400">{(s.total_volume_kg ?? 0).toFixed(0)} kg</span>
+                  </li>
+                )
+              })}
             </ul>
           ) : (
             <p className="text-sm text-zinc-400">No workouts yet. Start your first session!</p>
@@ -55,9 +76,7 @@ export default async function DashboardPage() {
           <CardTitle className="text-base">Muscle Activity (7 days)</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-zinc-400">
-            Log workouts to see your muscle heatmap here.
-          </p>
+          <MuscleHeatmap muscleVolumes={muscleVolumes} />
         </CardContent>
       </Card>
     </div>
