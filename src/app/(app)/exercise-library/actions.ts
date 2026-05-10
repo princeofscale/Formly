@@ -5,10 +5,13 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { deleteExercise } from '@/lib/db/exercises'
+import type { MuscleGroup } from '@/lib/types/models'
+
+const MUSCLE_VALUES = ['chest','back','biceps','triceps','forearms','core','quads','hamstrings','glutes','calves','traps','lats','rear_delts','front_delts','side_delts'] as const
 
 const exerciseSchema = z.object({
   name: z.string().min(2).max(100),
-  primary_muscle: z.string(),
+  primary_muscle: z.enum(MUSCLE_VALUES),
   secondary_muscles: z.array(z.string()).default([]),
   mechanic: z.enum(['compound', 'isolation']),
   equipment: z.enum(['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']),
@@ -34,7 +37,7 @@ export async function createExerciseAction(formData: FormData): Promise<void> {
       name: parsed.name,
       slug,
       primary_muscle: parsed.primary_muscle,
-      secondary_muscles: parsed.secondary_muscles,
+      secondary_muscles: parsed.secondary_muscles as MuscleGroup[],
       mechanic: parsed.mechanic,
       equipment: parsed.equipment,
       is_custom: true,

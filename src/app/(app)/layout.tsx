@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Dumbbell, BarChart2, History, User } from 'lucide-react'
+import { Dumbbell, BarChart2, History, User, BookOpen } from 'lucide-react'
 import { signOutAction } from './actions'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -28,6 +28,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Link href="/history" className="flex flex-col items-center gap-1 text-xs text-zinc-400 hover:text-zinc-50 py-1">
           <History className="h-5 w-5" />
           History
+        </Link>
+        <Link href="/exercise-library" className="flex flex-col items-center gap-1 text-xs text-zinc-400 hover:text-zinc-50 py-1">
+          <BookOpen className="h-5 w-5" />
+          Library
         </Link>
         <Link href="/analytics" className="flex flex-col items-center gap-1 text-xs text-zinc-400 hover:text-zinc-50 py-1">
           <BarChart2 className="h-5 w-5" />

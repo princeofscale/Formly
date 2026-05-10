@@ -1,9 +1,10 @@
 'use client'
 
 import Model from 'react-body-highlighter'
+import type { Muscle, IExerciseData } from 'react-body-highlighter'
 import type { MuscleVolume } from '@/lib/types/models'
 
-const MUSCLE_MAP: Record<string, string> = {
+const MUSCLE_MAP: Record<string, Muscle> = {
   chest: 'chest',
   back: 'upper-back',
   lats: 'back-deltoids',
@@ -16,8 +17,8 @@ const MUSCLE_MAP: Record<string, string> = {
   hamstrings: 'hamstring',
   glutes: 'gluteal',
   calves: 'calves',
-  front_delts: 'deltoids',
-  side_delts: 'deltoids',
+  front_delts: 'front-deltoids',
+  side_delts: 'front-deltoids',
   rear_delts: 'back-deltoids',
 }
 
@@ -26,11 +27,11 @@ interface Props {
 }
 
 export function MuscleHeatmap({ muscleVolumes }: Props) {
-  const data = muscleVolumes
-    .filter(mv => mv.total_sets > 0)
+  const data: IExerciseData[] = muscleVolumes
+    .filter(mv => mv.total_sets > 0 && MUSCLE_MAP[mv.muscle])
     .map(mv => ({
-      name: 'Session',
-      muscles: [MUSCLE_MAP[mv.muscle]].filter(Boolean),
+      name: mv.muscle,
+      muscles: [MUSCLE_MAP[mv.muscle]],
     }))
 
   if (data.length === 0) {

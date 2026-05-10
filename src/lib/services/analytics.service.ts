@@ -49,7 +49,7 @@ export async function getWeeklyMuscleVolume(
   const exerciseMap = new Map<string, { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }>()
 
   for (const row of data) {
-    const ex = row.exercises as { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[] } | null
+    const ex = row.exercises as unknown as { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[] } | null
     if (!ex) continue
     const existing = exerciseMap.get(row.exercise_id)
     if (existing) {

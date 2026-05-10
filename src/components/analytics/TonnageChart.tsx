@@ -17,7 +17,7 @@ export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
           <YAxis tick={{ fill: '#71717a', fontSize: 11 }} unit="kg" width={55} />
           <Tooltip
             contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '6px' }}
-            formatter={(v: number) => [`${v.toFixed(0)}kg`, 'Volume']}
+            formatter={(v) => [`${Number(v ?? 0).toFixed(0)}kg`, 'Volume']}
           />
           <Bar dataKey="total_kg" fill="#3b82f6" radius={[3, 3, 0, 0]} />
         </BarChart>
