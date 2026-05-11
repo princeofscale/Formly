@@ -18,7 +18,7 @@ async function translateBatch(exercises: ExerciseRow[]): Promise<Record<string, 
 
   const response = await mistral.chat.complete({
     model: 'mistral-medium-3-5',
-    max_tokens: 2048,
+    maxTokens: 2048,
     messages: [
       {
         role: 'user',
