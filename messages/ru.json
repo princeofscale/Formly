@@ -140,6 +140,26 @@
     "muscleClickHint": "Нажми на мышцу",
     "sets": "подх."
   },
+  "analytics": {
+    "title": "Аналитика",
+    "e1rmProgress": "Прогресс 1ПМ",
+    "monthlyVolume": "Объём по месяцам",
+    "volumeLandmarks": "Ориентиры объёма (4 недели)"
+  },
+  "exerciseLibrary": {
+    "title": "Библиотека упражнений",
+    "custom": "Своё",
+    "noExercises": "Упражнения не найдены.",
+    "clearFilter": "Сбросить",
+    "equipment": {
+      "barbell": "Штанга",
+      "dumbbell": "Гантели",
+      "machine": "Тренажёр",
+      "cable": "Блок",
+      "bodyweight": "Собственный вес",
+      "other": "Другое"
+    }
+  },
   "workout": {
     "title": "Тренировка",
     "newTitle": "Начать тренировку",

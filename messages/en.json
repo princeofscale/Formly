@@ -140,6 +140,26 @@
     "muscleClickHint": "Tap a muscle",
     "sets": "sets"
   },
+  "analytics": {
+    "title": "Analytics",
+    "e1rmProgress": "e1RM Progress",
+    "monthlyVolume": "Monthly Volume",
+    "volumeLandmarks": "Volume Landmarks (4 weeks)"
+  },
+  "exerciseLibrary": {
+    "title": "Exercise Library",
+    "custom": "Custom",
+    "noExercises": "No exercises found.",
+    "clearFilter": "Clear",
+    "equipment": {
+      "barbell": "Barbell",
+      "dumbbell": "Dumbbell",
+      "machine": "Machine",
+      "cable": "Cable",
+      "bodyweight": "Bodyweight",
+      "other": "Other"
+    }
+  },
   "workout": {
     "title": "Workout",
     "newTitle": "Start Workout",

@@ -3,7 +3,15 @@
 import { useRouter } from 'next/navigation'
 import type { Exercise } from '@/lib/types/models'
 
-export function ExerciseSelector({ exercises, selected }: { exercises: Exercise[]; selected?: string }) {
+export function ExerciseSelector({
+  exercises,
+  selected,
+  locale,
+}: {
+  exercises: Exercise[]
+  selected?: string
+  locale?: string
+}) {
   const router = useRouter()
   return (
     <select
@@ -12,7 +20,9 @@ export function ExerciseSelector({ exercises, selected }: { exercises: Exercise[
       onChange={e => router.push(`/analytics?exercise=${e.target.value}`)}
     >
       {exercises.map(e => (
-        <option key={e.id} value={e.id}>{e.name}</option>
+        <option key={e.id} value={e.id}>
+          {locale === 'ru' ? (e.name_ru ?? e.name) : e.name}
+        </option>
       ))}
     </select>
   )

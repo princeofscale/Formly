@@ -8,6 +8,7 @@ import { ExerciseSelector } from '@/components/analytics/ExerciseSelector'
 import { getMonthlyTonnage, getWeeklyMuscleVolume, getVolumeLandmarks } from '@/lib/services/analytics.service'
 import { getE1RMHistory } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
+import { getTranslations, getLocale } from 'next-intl/server'
 
 export default async function AnalyticsPage({
   searchParams,
@@ -17,6 +18,8 @@ export default async function AnalyticsPage({
   const { exercise: exerciseId } = await searchParams
   const { user } = await verifySession()
   const supabase = await createClient()
+  const t = await getTranslations('analytics')
+  const locale = await getLocale()
 
   const [exercises, tonnage, muscleVolumes] = await Promise.all([
     getExercises(supabase, user.id),
@@ -31,31 +34,34 @@ export default async function AnalyticsPage({
     ? await getE1RMHistory(supabase, user.id, selectedExercise.id)
     : []
 
+  const displayName = (ex: typeof selectedExercise) =>
+    locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Analytics</h1>
+      <h1 className="text-2xl font-bold">{t('title')}</h1>
 
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">e1RM Progress</CardTitle>
-            <ExerciseSelector exercises={exercises} selected={selectedExercise?.id} />
+            <CardTitle className="text-base">{t('e1rmProgress')}</CardTitle>
+            <ExerciseSelector exercises={exercises} selected={selectedExercise?.id} locale={locale} />
           </div>
         </CardHeader>
         <CardContent>
-          <ProgressChart data={e1rmHistory} exerciseName={selectedExercise?.name ?? ''} />
+          <ProgressChart data={e1rmHistory} exerciseName={displayName(selectedExercise)} />
         </CardContent>
       </Card>
 
       <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader><CardTitle className="text-base">Monthly Volume</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t('monthlyVolume')}</CardTitle></CardHeader>
         <CardContent>
           <TonnageChart data={tonnage} />
         </CardContent>
       </Card>
 
       <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader><CardTitle className="text-base">Volume Landmarks (4 weeks)</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t('volumeLandmarks')}</CardTitle></CardHeader>
         <CardContent>
           <VolumeLandmarks landmarks={landmarks} />
         </CardContent>

@@ -5,7 +5,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dumbbell, Plus, User } from 'lucide-react'
 import Link from 'next/link'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
 import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
@@ -16,6 +16,7 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const t = await getTranslations('dashboard')
   const tHistory = await getTranslations('history')
+  const locale = await getLocale()
 
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
@@ -62,11 +63,12 @@ export default async function DashboardPage() {
   if (sessionIds.length > 0) {
     const { data: setsData } = await supabase
       .from('set_entries')
-      .select('session_id, exercises(name)')
+      .select('session_id, exercises(name, name_ru)')
       .in('session_id', sessionIds)
 
     for (const row of setsData ?? []) {
-      const name = (row.exercises as { name: string } | null)?.name
+      const ex = row.exercises as { name: string; name_ru?: string | null } | null
+      const name = locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name
       if (!name) continue
       if (!exerciseTagsMap[row.session_id]) exerciseTagsMap[row.session_id] = []
       if (!exerciseTagsMap[row.session_id].includes(name) && exerciseTagsMap[row.session_id].length < 3) {

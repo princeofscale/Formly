@@ -80,8 +80,10 @@ export default async function SessionDetailPage({
       {exercises.map(ex => (
         <Card key={ex.id} className="bg-zinc-900 border-zinc-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">{ex.name}</CardTitle>
-            <p className="text-xs text-zinc-500 capitalize">{ex.primary_muscle}</p>
+            <CardTitle className="text-base">
+              {locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
+            </CardTitle>
+            <p className="text-xs text-zinc-500">{t(`muscleLabel.${ex.primary_muscle}`)}</p>
           </CardHeader>
           <CardContent>
             <table className="w-full text-sm">
