@@ -26,6 +26,11 @@
       "email": "Email",
       "password": "Пароль",
       "passwordPlaceholder": "Мин. 8 символов"
+    },
+    "errors": {
+      "emailNotConfirmed": "Email не подтверждён. Проверьте почту.",
+      "invalidCredentials": "Неверный email или пароль.",
+      "default": "Произошла ошибка. Попробуйте ещё раз."
     }
   },
   "nav": {
@@ -219,6 +224,20 @@
     "weightLabel": "Вес",
     "repsLabel": "Повт.",
     "rpeLabel": "Усилие",
-    "setLabel": "Подход #{n}"
+    "setLabel": "Подход #{n}",
+    "rpeOutOfRange": "Усилие должно быть от 1 до 10."
+  },
+  "onboarding": {
+    "step1Title": "Какая цель?",
+    "goal": {
+      "mass": "Набрать массу",
+      "lean": "Похудеть",
+      "strength": "Развить силу"
+    },
+    "step2Title": "Ваши данные",
+    "step3Title": "Дни тренировок",
+    "next": "Далее",
+    "skip": "Пропустить",
+    "start": "Начнём!"
   }
 }

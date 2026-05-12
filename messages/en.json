@@ -26,6 +26,11 @@
       "email": "Email",
       "password": "Password",
       "passwordPlaceholder": "Min. 8 characters"
+    },
+    "errors": {
+      "emailNotConfirmed": "Email not confirmed. Check your inbox.",
+      "invalidCredentials": "Invalid email or password.",
+      "default": "An error occurred. Please try again."
     }
   },
   "nav": {
@@ -219,6 +224,20 @@
     "weightLabel": "Weight",
     "repsLabel": "Reps",
     "rpeLabel": "Effort",
-    "setLabel": "Set #{n}"
+    "setLabel": "Set #{n}",
+    "rpeOutOfRange": "Effort must be between 1 and 10."
+  },
+  "onboarding": {
+    "step1Title": "What's your goal?",
+    "goal": {
+      "mass": "Build Muscle",
+      "lean": "Lose Fat",
+      "strength": "Build Strength"
+    },
+    "step2Title": "Your stats",
+    "step3Title": "Training days",
+    "next": "Next",
+    "skip": "Skip",
+    "start": "Let's go!"
   }
 }
