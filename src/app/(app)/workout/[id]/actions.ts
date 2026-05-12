@@ -8,7 +8,7 @@ import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets
 import { finishSession } from '@/lib/db/workouts'
 import { searchExercises } from '@/lib/db/exercises'
 import { getLastSetsForExercise } from '@/lib/db/sets'
-import { createTemplate } from '@/lib/db/templates'
+import { createTemplate, updateTemplate } from '@/lib/db/templates'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
@@ -59,6 +59,12 @@ export async function saveTemplateAction(name: string, exercises: TemplateExerci
   const { user } = await verifySession()
   const supabase = await createClient()
   await createTemplate(supabase, user.id, name, exercises)
+}
+
+export async function updateTemplateAction(templateId: string, exercises: TemplateExercise[]): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  await updateTemplate(supabase, user.id, templateId, exercises)
 }
 
 export async function finishWorkoutAction(sessionId: string): Promise<void> {

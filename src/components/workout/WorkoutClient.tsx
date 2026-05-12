@@ -7,13 +7,14 @@ import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
-import { getLastSetsForExerciseAction, saveTemplateAction } from '@/app/(app)/workout/[id]/actions'
+import { getLastSetsForExerciseAction, saveTemplateAction, updateTemplateAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
   session: WorkoutSession
   initialExercises: ExerciseWithSets[]
   allExercises: Exercise[]
   lastSetsMap?: Record<string, SetEntry[]>
+  sourceTemplate?: { id: string; name: string }
 }
 
 function useElapsed(startedAt: string) {
@@ -29,7 +30,7 @@ function useElapsed(startedAt: string) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets }: Props) {
+export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
   const locale = useLocale()
@@ -42,6 +43,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
   const [showTplInput, setShowTplInput] = useState(false)
   const [tplName, setTplName] = useState('')
   const [tplSaved, setTplSaved] = useState(false)
+  const [saveAsNew, setSaveAsNew] = useState(false)
   const [, startFetch] = useTransition()
   const [, startSave] = useTransition()
 
@@ -64,16 +66,29 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
     setExercises(prev => prev.filter(e => e.id !== exerciseId))
   }
 
+  function buildExerciseList() {
+    return exercises.map(ex => ({
+      exercise_id: ex.id,
+      name: ex.name,
+      name_ru: ex.name_ru,
+      default_weight_kg: ex.sets[ex.sets.length - 1]?.weight_kg ?? null,
+      default_reps: ex.sets[ex.sets.length - 1]?.reps ?? null,
+    }))
+  }
+
+  function handleUpdateTemplate() {
+    if (!sourceTemplate) return
+    startSave(async () => {
+      await updateTemplateAction(sourceTemplate.id, buildExerciseList())
+      setTplSaved(true)
+      setTimeout(() => { setShowTplInput(false); setTplSaved(false) }, 1800)
+    })
+  }
+
   function handleSaveTemplate() {
     if (!tplName.trim()) return
     startSave(async () => {
-      await saveTemplateAction(tplName.trim(), exercises.map(ex => ({
-        exercise_id: ex.id,
-        name: ex.name,
-        name_ru: ex.name_ru,
-        default_weight_kg: ex.sets[ex.sets.length - 1]?.weight_kg ?? null,
-        default_reps: ex.sets[ex.sets.length - 1]?.reps ?? null,
-      })))
+      await saveTemplateAction(tplName.trim(), buildExerciseList())
       setTplSaved(true)
       setTimeout(() => { setShowTplInput(false); setTplSaved(false); setTplName('') }, 1800)
     })
@@ -97,7 +112,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
         <div className="flex items-center gap-2">
           {exercises.length > 0 && (
             <button
-              onClick={() => setShowTplInput(v => !v)}
+              onClick={() => { setShowTplInput(v => !v); setSaveAsNew(false) }}
               className="h-9 w-9 flex items-center justify-center rounded-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
               title={tTpl('saveAsTemplate')}
             >
@@ -114,6 +129,21 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
           {tplSaved ? (
             <div className="flex items-center gap-2 text-green-400 text-sm px-3 py-2 bg-zinc-900 rounded-sm border border-zinc-800 w-full">
               <Check className="h-4 w-4" /> {tTpl('saved')}
+            </div>
+          ) : sourceTemplate && !saveAsNew ? (
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={handleUpdateTemplate}
+                className="flex-1 h-9 px-4 bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm rounded-sm transition-colors truncate"
+              >
+                {tTpl('update', { name: sourceTemplate.name })}
+              </button>
+              <button
+                onClick={() => setSaveAsNew(true)}
+                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs rounded-sm transition-colors whitespace-nowrap"
+              >
+                {tTpl('saveAsNew')}
+              </button>
             </div>
           ) : (
             <>

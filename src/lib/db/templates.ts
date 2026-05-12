@@ -35,6 +35,20 @@ export async function createTemplate(
   return data as WorkoutTemplate
 }
 
+export async function updateTemplate(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+  exercises: TemplateExercise[]
+): Promise<void> {
+  const { error } = await supabase
+    .from('workout_templates')
+    .update({ exercises })
+    .eq('id', id)
+    .eq('user_id', userId)
+  if (error) throw new Error(error.message)
+}
+
 export async function deleteTemplate(supabase: SupabaseClient, userId: string, id: string): Promise<void> {
   const { error } = await supabase
     .from('workout_templates')

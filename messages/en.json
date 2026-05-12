@@ -52,7 +52,9 @@
     "saved": "Saved!",
     "start": "Start",
     "delete": "Delete",
-    "exercises": "{n} exercises"
+    "exercises": "{n} exercises",
+    "update": "Update \"{name}\"",
+    "saveAsNew": "Save as new"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -67,7 +69,13 @@
       "restDay": "Rest Day",
       "next": "Next",
       "days": {
-        "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri", "6": "Sat", "7": "Sun"
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat",
+        "7": "Sun"
       },
       "noSchedule": "No schedule set"
     },
@@ -75,7 +83,8 @@
     "noWorkouts": "No workouts yet. Start your first session!",
     "muscleActivity": "Muscle Activity (week)",
     "profileLink": "Profile",
-    "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap."
+    "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap.",
+    "recordsLink": "Records"
   },
   "profile": {
     "title": "PROFILE",
@@ -113,11 +122,22 @@
       "both": "Both"
     },
     "days": {
-      "1": "MON", "2": "TUE", "3": "WED", "4": "THU", "5": "FRI", "6": "SAT", "7": "SUN"
+      "1": "MON",
+      "2": "TUE",
+      "3": "WED",
+      "4": "THU",
+      "5": "FRI",
+      "6": "SAT",
+      "7": "SUN"
     },
     "daysFull": {
-      "1": "Monday", "2": "Tuesday", "3": "Wednesday",
-      "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday"
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
     }
   },
   "history": {

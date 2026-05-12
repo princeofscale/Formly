@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dumbbell, Plus, User } from 'lucide-react'
+import { Dumbbell, Plus, Trophy, User } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
@@ -87,6 +87,13 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-black uppercase tracking-wider">{t('title')}</h1>
         <div className="flex items-center gap-2">
+          <Link
+            href="/records"
+            className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 hover:border-amber-500 transition-colors"
+            title={t('recordsLink')}
+          >
+            <Trophy className="h-4 w-4 text-zinc-400" />
+          </Link>
           <Link
             href="/profile"
             className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 hover:border-amber-500 transition-colors"

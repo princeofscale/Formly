@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GymLog
 
-## Getting Started
+Personal workout tracker built with Next.js 16, Supabase, and next-intl. Tracks sets, reps, weight, rest periods, and personal records. Supports English and Russian.
 
-First, run the development server:
+## Features
+
+- Log workouts with exercises, sets, weight, reps, and RPE
+- Rest timer with haptic feedback and circular progress indicator
+- Personal records (1RM tracking) with PR detection
+- Workout templates — save and reuse workout structures
+- Last-session hints — shows previous sets when starting an exercise
+- Exercise library with images and instructions (RU/EN)
+- Workout history with volume tracking
+- Muscle heatmap — visualizes which muscles were trained this week
+- Weekly stats dashboard
+- Training schedule
+- Russian/English interface
+
+## Stack
+
+- **Next.js 16** — App Router, server components, server actions
+- **Supabase** — PostgreSQL database, auth, RLS policies
+- **next-intl v4** — i18n (Russian + English)
+- **Tailwind CSS** + shadcn/ui
+- **Vercel** — deployment
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local   # fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Apply DB migrations:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+supabase db push
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/(app)/          # authenticated pages
+    dashboard/        # home screen with stats
+    workout/          # active workout session
+    history/          # past sessions
+    records/          # personal records (best 1RM per exercise)
+    analytics/        # exercise-specific progress charts
+    library/          # exercise catalog
+    profile/          # user settings
+  components/
+    workout/          # ExerciseBlock, SetRow, RestTimer, PRBadge, etc.
+    dashboard/        # WeeklyStats, MuscleHeatmap, ScheduleStatus
+  lib/
+    db/               # Supabase query functions
+    services/         # analytics, PR detection
+    utils/            # 1RM calculation, plate calculator
+  messages/           # en.json, ru.json
+```

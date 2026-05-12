@@ -43,9 +43,11 @@ export default async function WorkoutPage({
 
   // If template provided, also include its exercise IDs for last-sets prefetch
   let templateExercises: ExerciseWithSets[] = []
+  let sourceTemplate: { id: string; name: string } | undefined
   if (templateId) {
     const template = await getTemplate(supabase, user.id, templateId)
     if (template) {
+      sourceTemplate = { id: template.id, name: template.name }
       for (const te of template.exercises) {
         if (exerciseMap.has(te.exercise_id)) continue
         const ex = allExercises.find(e => e.id === te.exercise_id)
@@ -71,6 +73,7 @@ export default async function WorkoutPage({
       initialExercises={initialExercises}
       allExercises={allExercises}
       lastSetsMap={lastSetsMap}
+      sourceTemplate={sourceTemplate}
     />
   )
 }
