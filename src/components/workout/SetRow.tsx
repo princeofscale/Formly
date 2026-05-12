@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
 import { PRBadge } from './PRBadge'
 import { RestTimer } from './RestTimer'
@@ -19,6 +18,37 @@ interface Props {
   onSaved: (set: SetEntry) => void
 }
 
+function Stepper({ value, onChange, step = 1, min = 0, suffix = '' }: {
+  value: string
+  onChange: (v: string) => void
+  step?: number
+  min?: number
+  suffix?: string
+}) {
+  const num = parseFloat(value) || 0
+  return (
+    <div className="flex items-center">
+      <button
+        type="button"
+        onClick={() => onChange(String(Math.max(min, num - step)))}
+        className="w-8 h-9 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-300 text-base font-bold rounded-l-sm transition-colors flex items-center justify-center"
+      >−</button>
+      <Input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-16 h-9 text-center bg-zinc-900 border-x-0 border-zinc-700 rounded-none text-sm font-mono font-bold focus-visible:ring-0 focus-visible:border-amber-500"
+        placeholder="—"
+      />
+      <button
+        type="button"
+        onClick={() => onChange(String(num + step))}
+        className="w-8 h-9 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-300 text-base font-bold rounded-r-sm transition-colors flex items-center justify-center"
+      >+</button>
+      {suffix && <span className="ml-1 text-[11px] text-zinc-600">{suffix}</span>}
+    </div>
+  )
+}
+
 export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, onSaved }: Props) {
   const t = useTranslations('workout')
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
@@ -28,6 +58,8 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
   const [pr, setPr] = useState<PRResult | null>(null)
   const [showTimer, setShowTimer] = useState(false)
   const [isPending, startTransition] = useTransition()
+
+  const canSave = !!(parseFloat(weight) && parseInt(reps))
 
   function handleSave() {
     const w = parseFloat(weight)
@@ -53,13 +85,11 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
   if (saved) {
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-zinc-500 w-8">#{setNumber}</span>
-          <span className="font-medium">{weight}kg × {reps}</span>
-          {rpe && <span className="text-zinc-500">{t('rpe')} {rpe}</span>}
-          <Check className="h-4 w-4 text-green-500 ml-auto" />
-          {pr && <PRBadge pr={pr} />}
-        </div>
+        {pr && (
+          <div className="animate-in zoom-in-50 duration-300">
+            <PRBadge pr={pr} />
+          </div>
+        )}
         {showTimer && <RestTimer seconds={90} onDone={() => setShowTimer(false)} />}
       </div>
     )
@@ -67,24 +97,30 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-zinc-500 text-sm w-8">#{setNumber}</span>
-      <div className="flex gap-2 items-center flex-1">
-        <div className="flex items-center gap-1">
-          <button onClick={() => setWeight(v => String(Math.max(0, parseFloat(v || '0') - 2.5)))} className="px-2 py-1 bg-zinc-800 rounded text-sm hover:bg-zinc-700">−</button>
-          <Input value={weight} onChange={e => setWeight(e.target.value)} className="w-20 text-center bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder="kg" />
-          <button onClick={() => setWeight(v => String(parseFloat(v || '0') + 2.5))} className="px-2 py-1 bg-zinc-800 rounded text-sm hover:bg-zinc-700">+</button>
-        </div>
-        <span className="text-zinc-600">×</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => setReps(v => String(Math.max(1, parseInt(v || '1') - 1)))} className="px-2 py-1 bg-zinc-800 rounded text-sm hover:bg-zinc-700">−</button>
-          <Input value={reps} onChange={e => setReps(e.target.value)} className="w-16 text-center bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder="reps" />
-          <button onClick={() => setReps(v => String(parseInt(v || '0') + 1))} className="px-2 py-1 bg-zinc-800 rounded text-sm hover:bg-zinc-700">+</button>
-        </div>
-        <Input value={rpe} onChange={e => setRpe(e.target.value)} className="w-16 bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder={t('rpe')} />
+      <span className="text-zinc-600 font-mono text-xs w-5">#{setNumber}</span>
+      <div className="flex items-center gap-2 flex-1 flex-wrap">
+        <Stepper value={weight} onChange={setWeight} step={2.5} suffix="kg" />
+        <span className="text-zinc-700">×</span>
+        <Stepper value={reps} onChange={setReps} step={1} min={1} />
+        <Input
+          value={rpe}
+          onChange={e => setRpe(e.target.value)}
+          className="w-14 h-9 text-center bg-zinc-900 border-zinc-700 text-sm font-mono rounded-sm focus-visible:border-amber-500"
+          placeholder={t('rpe')}
+        />
       </div>
-      <Button size="sm" onClick={handleSave} disabled={isPending || !weight || !reps}>
-        <Check className="h-4 w-4" />
-      </Button>
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={isPending || !canSave}
+        className={`h-9 w-9 flex-shrink-0 rounded-sm flex items-center justify-center transition-colors ${
+          canSave && !isPending
+            ? 'bg-amber-500 hover:bg-amber-400 text-black'
+            : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+        }`}
+      >
+        <Check className="h-4 w-4" strokeWidth={3} />
+      </button>
     </div>
   )
 }
