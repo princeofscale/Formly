@@ -118,7 +118,7 @@
       "weight": "Вес",
       "reps": "Повторения",
       "e1rm": "1ПМ",
-      "rpe": "RPE"
+      "rpe": "Усилие"
     },
     "muscleLabel": {
       "chest": "Грудь",
@@ -170,6 +170,8 @@
     "searchPlaceholder": "Найти упражнение...",
     "emptyHint": "Найди упражнение выше чтобы начать",
     "finish": "Завершить",
-    "finishing": "Завершаем..."
+    "finishing": "Завершаем...",
+    "rpe": "Усилие",
+    "deleteExercise": "Убрать"
   }
 }

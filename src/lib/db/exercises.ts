@@ -19,18 +19,23 @@ export async function getExercises(
   return (data as Exercise[]) ?? []
 }
 
+function normalizeYo(s: string): string {
+  return s.replace(/[ёЁ]/g, m => m === 'ё' ? 'е' : 'Е')
+}
+
 export async function searchExercises(
   supabase: SupabaseClient,
   userId: string,
   query: string,
   locale: string = 'en'
 ): Promise<Exercise[]> {
+  const q = normalizeYo(query)
   const filter = `is_custom.eq.false,created_by.eq.${userId}`
   if (locale === 'ru') {
     const { data } = await supabase
       .from('exercises')
       .select('*')
-      .or(`name.ilike.%${query}%,name_ru.ilike.%${query}%`)
+      .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%`)
       .or(filter)
       .order('name')
       .limit(20)
@@ -39,7 +44,7 @@ export async function searchExercises(
   const { data } = await supabase
     .from('exercises')
     .select('*')
-    .ilike('name', `%${query}%`)
+    .ilike('name', `%${q}%`)
     .or(filter)
     .order('name')
     .limit(20)

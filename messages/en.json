@@ -170,6 +170,8 @@
     "searchPlaceholder": "Search exercises...",
     "emptyHint": "Search for an exercise above to start logging",
     "finish": "Finish",
-    "finishing": "Finishing..."
+    "finishing": "Finishing...",
+    "rpe": "RPE",
+    "deleteExercise": "Remove"
   }
 }

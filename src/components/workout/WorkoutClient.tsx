@@ -28,6 +28,10 @@ export function WorkoutClient({ session, initialExercises, allExercises }: Props
     )
   }
 
+  function removeExercise(exerciseId: string) {
+    setExercises(prev => prev.filter(e => e.id !== exerciseId))
+  }
+
   const started = new Date(session.started_at)
   const duration = Math.round((Date.now() - started.getTime()) / 60000)
 
@@ -55,6 +59,7 @@ export function WorkoutClient({ session, initialExercises, allExercises }: Props
           exercise={ex}
           sessionId={session.id}
           onSetSaved={(set) => appendSet(ex.id, set)}
+          onDelete={() => removeExercise(ex.id)}
         />
       ))}
     </div>

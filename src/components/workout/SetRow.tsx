@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, onSaved }: Props) {
+  const t = useTranslations('workout')
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
   const [reps, setReps] = useState(String(defaultReps))
   const [rpe, setRpe] = useState('')
@@ -54,7 +56,7 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
         <div className="flex items-center gap-3 text-sm">
           <span className="text-zinc-500 w-8">#{setNumber}</span>
           <span className="font-medium">{weight}kg × {reps}</span>
-          {rpe && <span className="text-zinc-500">RPE {rpe}</span>}
+          {rpe && <span className="text-zinc-500">{t('rpe')} {rpe}</span>}
           <Check className="h-4 w-4 text-green-500 ml-auto" />
           {pr && <PRBadge pr={pr} />}
         </div>
@@ -78,7 +80,7 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
           <Input value={reps} onChange={e => setReps(e.target.value)} className="w-16 text-center bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder="reps" />
           <button onClick={() => setReps(v => String(parseInt(v || '0') + 1))} className="px-2 py-1 bg-zinc-800 rounded text-sm hover:bg-zinc-700">+</button>
         </div>
-        <Input value={rpe} onChange={e => setRpe(e.target.value)} className="w-16 bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder="RPE" />
+        <Input value={rpe} onChange={e => setRpe(e.target.value)} className="w-16 bg-zinc-900 border-zinc-700 h-8 text-sm" placeholder={t('rpe')} />
       </div>
       <Button size="sm" onClick={handleSave} disabled={isPending || !weight || !reps}>
         <Check className="h-4 w-4" />

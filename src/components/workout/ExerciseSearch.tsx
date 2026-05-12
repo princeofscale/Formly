@@ -13,6 +13,7 @@ interface Props {
 
 export function ExerciseSearch({ onSelect }: Props) {
   const t = useTranslations('workout')
+  const tHistory = useTranslations('history')
   const locale = useLocale()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Exercise[]>([])
@@ -49,18 +50,28 @@ export function ExerciseSearch({ onSelect }: Props) {
         />
       </div>
       {results.length > 0 && (
-        <ul className="absolute z-10 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md shadow-lg max-h-64 overflow-y-auto">
-          {results.map(ex => (
-            <li key={ex.id}>
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-zinc-800 text-sm"
-                onClick={() => select(ex)}
-              >
-                <span className="font-medium">{displayName(ex)}</span>
-                <span className="text-zinc-500 ml-2">{ex.primary_muscle}</span>
-              </button>
-            </li>
-          ))}
+        <ul className="absolute z-10 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md shadow-lg max-h-72 overflow-y-auto">
+          {results.map(ex => {
+            const thumb = ex.image_urls?.[0]
+            return (
+              <li key={ex.id}>
+                <button
+                  className="w-full text-left px-3 py-2 hover:bg-zinc-800 flex items-center gap-3"
+                  onClick={() => select(ex)}
+                >
+                  {thumb ? (
+                    <img src={thumb} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0 bg-zinc-700" />
+                  ) : (
+                    <div className="w-10 h-10 rounded bg-zinc-800 flex-shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{displayName(ex)}</p>
+                    <p className="text-xs text-zinc-500">{tHistory(`muscleLabel.${ex.primary_muscle}`)}</p>
+                  </div>
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

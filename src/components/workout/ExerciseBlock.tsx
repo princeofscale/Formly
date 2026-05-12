@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { X } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SetRow } from './SetRow'
 import { LastTimeHint } from './LastTimeHint'
@@ -13,11 +14,13 @@ interface Props {
   exercise: ExerciseWithSets
   sessionId: string
   onSetSaved: (set: SetEntry) => void
+  onDelete: () => void
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved }: Props) {
+export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
+  const t = useTranslations('workout')
   const [sets, setSets] = useState<SetEntry[]>(exercise.sets)
   const [showCalc, setShowCalc] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
@@ -61,6 +64,17 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved }: Props) {
             <Button variant="ghost" size="sm" onClick={() => setShowCalc(v => !v)}>
               🏋️
             </Button>
+            {sets.length === 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-zinc-500 hover:text-red-400"
+                title={t('deleteExercise')}
+                onClick={onDelete}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
         {showCalc && lastWeight && <PlateCalculator weightKg={lastWeight} />}
