@@ -172,6 +172,14 @@
     "finish": "Завершить",
     "finishing": "Завершаем...",
     "rpe": "Усилие",
-    "deleteExercise": "Убрать"
+    "deleteExercise": "Убрать",
+    "firstSet": "🏆 Первый подход!",
+    "prImproved": "Рекорд +{pct}%",
+    "restSkip": "Пропустить",
+    "resting": "Отдых",
+    "weightLabel": "Вес",
+    "repsLabel": "Повт.",
+    "rpeLabel": "Усилие",
+    "setLabel": "Подход #{n}"
   }
 }

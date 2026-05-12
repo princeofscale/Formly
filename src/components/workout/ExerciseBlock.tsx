@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
 import { SetRow } from './SetRow'
-import { PlateCalculator } from './PlateCalculator'
+import { RestTimer } from './RestTimer'
+import { PRBadge } from './PRBadge'
 import { Button } from '@/components/ui/button'
-import type { ExerciseWithSets, SetEntry } from '@/lib/types/models'
+import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
 interface Props {
   exercise: ExerciseWithSets
@@ -20,12 +21,11 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
   const [sets, setSets] = useState<SetEntry[]>(exercise.sets)
-  const [showCalc, setShowCalc] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [showTimer, setShowTimer] = useState(false)
+  const [lastPR, setLastPR] = useState<PRResult | null>(null)
 
-  const lastWeight = sets[sets.length - 1]?.weight_kg
-  const lastReps = sets[sets.length - 1]?.reps
-
+  const lastSet = sets[sets.length - 1]
   const displayName = locale === 'ru' ? (exercise.name_ru ?? exercise.name) : exercise.name
   const muscleLabel = tHistory(`muscleLabel.${exercise.primary_muscle}`)
   const thumbnail = exercise.image_urls?.[0]
@@ -33,19 +33,20 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
     ? (exercise.instructions_ru ?? exercise.instructions_en)
     : exercise.instructions_en
 
-  function handleSetSaved(set: SetEntry) {
+  function handleSetSaved(set: SetEntry, prResult: PRResult) {
     setSets(prev => [...prev, set])
     onSetSaved(set)
+    setShowTimer(true)
+    setLastPR(prResult.is_pr ? prResult : null)
   }
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-sm overflow-hidden">
-      {/* exercise header */}
+
+      {/* header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800">
         {thumbnail && (
-          <img
-            src={thumbnail}
-            alt={displayName}
+          <img src={thumbnail} alt={displayName}
             className="w-11 h-11 rounded-sm object-cover flex-shrink-0 bg-zinc-800"
           />
         )}
@@ -53,7 +54,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
           <div className="flex items-center gap-2">
             <p className="font-bold text-sm truncate">{displayName}</p>
             {sets.length > 0 && (
-              <span className="text-[10px] font-mono font-bold bg-amber-500 text-black px-1.5 py-0.5 rounded-sm flex-shrink-0">
+              <span className="text-[10px] font-mono font-black bg-amber-500 text-black px-1.5 py-0.5 rounded-sm flex-shrink-0">
                 {sets.length}
               </span>
             )}
@@ -62,17 +63,15 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
         </div>
         <div className="flex items-center gap-0.5 flex-shrink-0">
           {instructions && (
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-200" onClick={() => setShowInfo(v => !v)}>
+            <Button variant="ghost" size="sm"
+              className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-200"
+              onClick={() => setShowInfo(v => !v)}
+            >
               {showInfo ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           )}
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-200" onClick={() => setShowCalc(v => !v)}>
-            🏋️
-          </Button>
           {sets.length === 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <Button variant="ghost" size="sm"
               className="h-8 w-8 p-0 text-zinc-600 hover:text-red-400"
               title={t('deleteExercise')}
               onClick={onDelete}
@@ -90,34 +89,29 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
         </div>
       )}
 
-      {/* plate calc */}
-      {showCalc && lastWeight && (
-        <div className="px-4 pb-3 pt-2 border-b border-zinc-800 animate-in fade-in duration-150">
-          <PlateCalculator weightKg={lastWeight} />
-        </div>
-      )}
-
       {/* logged sets */}
       {sets.length > 0 && (
-        <div className="px-4 pt-2 pb-1 space-y-0.5">
+        <div className="px-4 pt-3 pb-1 space-y-0.5">
           {sets.map((set, i) => {
             const isLast = i === sets.length - 1
             return (
               <div
                 key={set.id}
-                className={`flex items-center gap-3 py-1 text-sm animate-in fade-in slide-in-from-top-1 duration-200 ${isLast ? 'border-l-2 border-amber-500 pl-2 -ml-2' : 'text-zinc-500'}`}
+                className={`flex items-center gap-3 py-1 text-sm animate-in fade-in slide-in-from-top-1 duration-200 ${
+                  isLast ? 'border-l-2 border-amber-500 pl-2 -ml-2' : ''
+                }`}
               >
-                <span className="font-mono text-[11px] text-zinc-600 w-5">#{set.set_number}</span>
-                <span className={`font-mono font-bold ${isLast ? 'text-zinc-100' : 'text-zinc-400'}`}>
-                  {set.weight_kg}<span className="text-zinc-600 font-normal text-[11px]">kg</span>
-                  <span className="text-zinc-600 mx-1">×</span>
+                <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
+                <span className={`font-mono font-bold ${isLast ? 'text-zinc-100' : 'text-zinc-500'}`}>
+                  {set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span>
+                  <span className="text-zinc-700 mx-1.5">×</span>
                   {set.reps}
                 </span>
-                {set.rpe && (
-                  <span className="text-[11px] text-zinc-600">{t('rpe')} {set.rpe}</span>
+                {set.rpe != null && (
+                  <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
                 )}
-                {set.calculated_1rm && isLast && (
-                  <span className="text-[11px] text-zinc-600 ml-auto">1ПМ {set.calculated_1rm.toFixed(0)}</span>
+                {set.calculated_1rm != null && isLast && (
+                  <span className="text-[10px] text-zinc-600 ml-auto">1ПМ {set.calculated_1rm.toFixed(0)}</span>
                 )}
               </div>
             )
@@ -125,17 +119,28 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
         </div>
       )}
 
-      {/* new set row */}
-      <div className="px-4 py-3">
+      {/* PR + rest timer — owned by ExerciseBlock, above the new set input */}
+      {(lastPR || showTimer) && (
+        <div className="px-4 pt-2 pb-1 space-y-1 border-t border-zinc-800/50">
+          {lastPR && <PRBadge pr={lastPR} />}
+          {showTimer && (
+            <RestTimer seconds={90} onDone={() => setShowTimer(false)} />
+          )}
+        </div>
+      )}
+
+      {/* always-visible new set row */}
+      <div className="px-4 py-4 border-t border-zinc-800">
         <SetRow
           sessionId={sessionId}
           exerciseId={exercise.id}
           setNumber={sets.length + 1}
-          defaultWeight={lastWeight}
-          defaultReps={lastReps}
+          defaultWeight={lastSet?.weight_kg}
+          defaultReps={lastSet?.reps}
           onSaved={handleSetSaved}
         />
       </div>
+
     </div>
   )
 }

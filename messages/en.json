@@ -172,6 +172,14 @@
     "finish": "Finish",
     "finishing": "Finishing...",
     "rpe": "RPE",
-    "deleteExercise": "Remove"
+    "deleteExercise": "Remove",
+    "firstSet": "🏆 First set!",
+    "prImproved": "PR +{pct}%",
+    "restSkip": "Skip",
+    "resting": "Rest",
+    "weightLabel": "Weight",
+    "repsLabel": "Reps",
+    "rpeLabel": "Effort",
+    "setLabel": "Set #{n}"
   }
 }

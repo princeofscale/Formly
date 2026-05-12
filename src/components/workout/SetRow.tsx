@@ -2,12 +2,71 @@
 
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { Check } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
-import { PRBadge } from './PRBadge'
-import { RestTimer } from './RestTimer'
 import type { SetEntry, PRResult } from '@/lib/types/models'
+
+interface StepperProps {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  step?: number
+  min?: number
+  max?: number
+  suffix?: string
+  optional?: boolean
+}
+
+function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional }: StepperProps) {
+  const num = parseFloat(value) || 0
+
+  function decrement() {
+    if (optional && !value) return
+    const next = Math.round((num - step) * 100) / 100
+    if (min !== undefined && next < min) {
+      if (optional) onChange('')
+      return
+    }
+    onChange(String(next))
+  }
+
+  function increment() {
+    const base = optional && !value ? (min ?? 1) - step : num
+    const next = Math.round((base + step) * 100) / 100
+    if (max !== undefined && next > max) return
+    onChange(String(next))
+  }
+
+  return (
+    <div className="space-y-1">
+      <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">{label}</p>
+      <div className="flex items-center h-11 bg-zinc-900 border border-zinc-800 rounded-sm overflow-hidden focus-within:border-amber-500/50 transition-colors">
+        <button
+          type="button"
+          onClick={decrement}
+          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors text-lg flex-shrink-0 select-none"
+        >−</button>
+        <div className="flex-1 flex items-center justify-center min-w-0">
+          <input
+            type="number"
+            inputMode="decimal"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            placeholder={optional ? '—' : ''}
+            className="w-full text-center font-mono font-bold text-base bg-transparent border-none outline-none text-white placeholder:text-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+          {value && suffix && (
+            <span className="text-[10px] text-zinc-600 mr-2 flex-shrink-0">{suffix}</span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={increment}
+          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors text-lg flex-shrink-0 select-none"
+        >+</button>
+      </div>
+    </div>
+  )
+}
 
 interface Props {
   sessionId: string
@@ -15,38 +74,7 @@ interface Props {
   setNumber: number
   defaultWeight?: number
   defaultReps?: number
-  onSaved: (set: SetEntry) => void
-}
-
-function Stepper({ value, onChange, step = 1, min = 0, suffix = '' }: {
-  value: string
-  onChange: (v: string) => void
-  step?: number
-  min?: number
-  suffix?: string
-}) {
-  const num = parseFloat(value) || 0
-  return (
-    <div className="flex items-center">
-      <button
-        type="button"
-        onClick={() => onChange(String(Math.max(min, num - step)))}
-        className="w-8 h-9 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-300 text-base font-bold rounded-l-sm transition-colors flex items-center justify-center"
-      >−</button>
-      <Input
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-16 h-9 text-center bg-zinc-900 border-x-0 border-zinc-700 rounded-none text-sm font-mono font-bold focus-visible:ring-0 focus-visible:border-amber-500"
-        placeholder="—"
-      />
-      <button
-        type="button"
-        onClick={() => onChange(String(num + step))}
-        className="w-8 h-9 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-300 text-base font-bold rounded-r-sm transition-colors flex items-center justify-center"
-      >+</button>
-      {suffix && <span className="ml-1 text-[11px] text-zinc-600">{suffix}</span>}
-    </div>
-  )
+  onSaved: (set: SetEntry, prResult: PRResult) => void
 }
 
 export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, onSaved }: Props) {
@@ -54,9 +82,6 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
   const [reps, setReps] = useState(String(defaultReps))
   const [rpe, setRpe] = useState('')
-  const [saved, setSaved] = useState(false)
-  const [pr, setPr] = useState<PRResult | null>(null)
-  const [showTimer, setShowTimer] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const canSave = !!(parseFloat(weight) && parseInt(reps))
@@ -65,62 +90,43 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
     const w = parseFloat(weight)
     const r = parseInt(reps)
     if (!w || !r) return
-
     startTransition(async () => {
       const { set, prResult } = await saveSetAction({
-        sessionId,
-        exerciseId,
-        setNumber,
-        weightKg: w,
-        reps: r,
+        sessionId, exerciseId, setNumber,
+        weightKg: w, reps: r,
         rpe: rpe ? parseFloat(rpe) : undefined,
       })
-      setSaved(true)
-      setPr(prResult)
-      setShowTimer(true)
-      onSaved(set)
+      onSaved(set, prResult)
     })
   }
 
-  if (saved) {
-    return (
-      <div className="space-y-2">
-        {pr && (
-          <div className="animate-in zoom-in-50 duration-300">
-            <PRBadge pr={pr} />
-          </div>
-        )}
-        {showTimer && <RestTimer seconds={90} onDone={() => setShowTimer(false)} />}
-      </div>
-    )
-  }
-
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-zinc-600 font-mono text-xs w-5">#{setNumber}</span>
-      <div className="flex items-center gap-2 flex-1 flex-wrap">
-        <Stepper value={weight} onChange={setWeight} step={2.5} suffix="kg" />
-        <span className="text-zinc-700">×</span>
-        <Stepper value={reps} onChange={setReps} step={1} min={1} />
-        <Input
-          value={rpe}
-          onChange={e => setRpe(e.target.value)}
-          className="w-14 h-9 text-center bg-zinc-900 border-zinc-700 text-sm font-mono rounded-sm focus-visible:border-amber-500"
-          placeholder={t('rpe')}
-        />
+    <div className="space-y-2">
+      <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">
+        {t('setLabel', { n: setNumber })}
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <Stepper label={t('weightLabel')} value={weight} onChange={setWeight} step={2.5} min={0} suffix="кг" />
+        <Stepper label={t('repsLabel')} value={reps} onChange={setReps} step={1} min={1} />
       </div>
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={isPending || !canSave}
-        className={`h-9 w-9 flex-shrink-0 rounded-sm flex items-center justify-center transition-colors ${
-          canSave && !isPending
-            ? 'bg-amber-500 hover:bg-amber-400 text-black'
-            : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-        }`}
-      >
-        <Check className="h-4 w-4" strokeWidth={3} />
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <Stepper label={t('rpeLabel')} value={rpe} onChange={setRpe} step={1} min={1} max={10} optional />
+        <div className="space-y-1">
+          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 opacity-0 select-none">_</p>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave || isPending}
+            className={`w-full h-11 rounded-sm font-black text-sm tracking-wider transition-all ${
+              canSave && !isPending
+                ? 'bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-black'
+                : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+            }`}
+          >
+            {isPending ? '…' : '✓'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
