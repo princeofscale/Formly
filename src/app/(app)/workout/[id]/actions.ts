@@ -7,9 +7,11 @@ import { verifySession } from '@/lib/dal'
 import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets'
 import { finishSession } from '@/lib/db/workouts'
 import { searchExercises } from '@/lib/db/exercises'
+import { getLastSetsForExercise } from '@/lib/db/sets'
+import { createTemplate } from '@/lib/db/templates'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
-import type { Exercise, SetEntry, PRResult } from '@/lib/types/models'
+import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
   sessionId: string
@@ -45,6 +47,18 @@ export async function searchExercisesAction(query: string, locale: string = 'en'
   const { user } = await verifySession()
   const supabase = await createClient()
   return searchExercises(supabase, user.id, query, locale)
+}
+
+export async function getLastSetsForExerciseAction(exerciseId: string, sessionId: string): Promise<SetEntry[]> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  return getLastSetsForExercise(supabase, user.id, exerciseId, sessionId)
+}
+
+export async function saveTemplateAction(name: string, exercises: TemplateExercise[]): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  await createTemplate(supabase, user.id, name, exercises)
 }
 
 export async function finishWorkoutAction(sessionId: string): Promise<void> {

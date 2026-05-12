@@ -6,6 +6,7 @@ import { X, ChevronDown, ChevronUp } from 'lucide-react'
 import { SetRow } from './SetRow'
 import { RestTimer } from './RestTimer'
 import { PRBadge } from './PRBadge'
+import { LastTimeHint } from './LastTimeHint'
 import { Button } from '@/components/ui/button'
 import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
@@ -14,9 +15,10 @@ interface Props {
   sessionId: string
   onSetSaved: (set: SetEntry) => void
   onDelete: () => void
+  lastSets?: SetEntry[]
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Props) {
+export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [] }: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
@@ -130,13 +132,16 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete }: Pro
       )}
 
       {/* always-visible new set row */}
-      <div className="px-4 py-4 border-t border-zinc-800">
+      <div className="px-4 pt-3 pb-4 border-t border-zinc-800 space-y-2">
+        {sets.length === 0 && lastSets.length > 0 && (
+          <LastTimeHint sets={lastSets} />
+        )}
         <SetRow
           sessionId={sessionId}
           exerciseId={exercise.id}
           setNumber={sets.length + 1}
-          defaultWeight={lastSet?.weight_kg}
-          defaultReps={lastSet?.reps}
+          defaultWeight={lastSet?.weight_kg ?? lastSets[0]?.weight_kg}
+          defaultReps={lastSet?.reps ?? lastSets[0]?.reps}
           onSaved={handleSetSaved}
         />
       </div>

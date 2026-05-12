@@ -80,6 +80,22 @@ export interface ExerciseWithSets extends Exercise {
   sets: SetEntry[]
 }
 
+export interface TemplateExercise {
+  exercise_id: string
+  name: string
+  name_ru?: string | null
+  default_weight_kg?: number | null
+  default_reps?: number | null
+}
+
+export interface WorkoutTemplate {
+  id: string
+  user_id: string
+  name: string
+  exercises: TemplateExercise[]
+  created_at: string
+}
+
 export interface ProgressionSuggestion {
   exercise_id: string
   exercise_name: string

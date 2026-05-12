@@ -33,8 +33,26 @@
     "history": "История",
     "library": "Библиотека",
     "analytics": "Аналитика",
+    "records": "Рекорды",
     "profile": "Профиль",
     "signOut": "Выйти"
+  },
+  "records": {
+    "title": "Личные рекорды",
+    "noRecords": "Рекордов пока нет. Начни тренироваться!",
+    "e1rm": "1ПМ",
+    "date": "Дата"
+  },
+  "templates": {
+    "title": "Шаблоны",
+    "noTemplates": "Шаблонов пока нет. Сохрани первую тренировку.",
+    "saveAsTemplate": "Сохранить как шаблон",
+    "namePlaceholder": "Напр. День жима",
+    "save": "Сохранить",
+    "saved": "Сохранено!",
+    "start": "Начать",
+    "delete": "Удалить",
+    "exercises": "{n} упражнений"
   },
   "dashboard": {
     "title": "Дашборд",
@@ -173,6 +191,7 @@
     "finishing": "Завершаем...",
     "rpe": "Усилие",
     "deleteExercise": "Убрать",
+    "lastTime": "Прошлый раз",
     "firstSet": "🏆 Первый подход!",
     "prImproved": "Рекорд +{pct}%",
     "restSkip": "Пропустить",

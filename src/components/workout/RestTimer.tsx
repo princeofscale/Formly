@@ -16,7 +16,11 @@ export function RestTimer({ seconds, onDone }: Props) {
   const [remaining, setRemaining] = useState(seconds)
 
   useEffect(() => {
-    if (remaining <= 0) { onDone(); return }
+    if (remaining <= 0) {
+      navigator.vibrate?.([200, 100, 200])
+      onDone()
+      return
+    }
     const id = setTimeout(() => setRemaining(r => r - 1), 1000)
     return () => clearTimeout(id)
   }, [remaining, onDone])

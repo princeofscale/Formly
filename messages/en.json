@@ -33,8 +33,26 @@
     "history": "History",
     "library": "Library",
     "analytics": "Analytics",
+    "records": "Records",
     "profile": "Profile",
     "signOut": "Sign out"
+  },
+  "records": {
+    "title": "Personal Records",
+    "noRecords": "No records yet. Start lifting!",
+    "e1rm": "e1RM",
+    "date": "Date"
+  },
+  "templates": {
+    "title": "Templates",
+    "noTemplates": "No templates yet. Save your first workout.",
+    "saveAsTemplate": "Save as template",
+    "namePlaceholder": "e.g. Push day",
+    "save": "Save",
+    "saved": "Saved!",
+    "start": "Start",
+    "delete": "Delete",
+    "exercises": "{n} exercises"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -173,6 +191,7 @@
     "finishing": "Finishing...",
     "rpe": "RPE",
     "deleteExercise": "Remove",
+    "lastTime": "Last",
     "firstSet": "🏆 First set!",
     "prImproved": "PR +{pct}%",
     "restSkip": "Skip",
