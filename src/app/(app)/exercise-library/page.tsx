@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getExercises } from '@/lib/db/exercises'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseForm } from '@/components/exercise/ExerciseForm'
+import { ExerciseCard } from '@/components/exercise/ExerciseCard'
 import Link from 'next/link'
 import type { MuscleGroup, Equipment } from '@/lib/types/models'
 import { getTranslations, getLocale } from 'next-intl/server'
@@ -61,21 +61,15 @@ export default async function ExerciseLibraryPage({
 
       <div className="space-y-2">
         {exercises.map(ex => (
-          <Card key={ex.id} className="bg-zinc-900 border-zinc-800">
-            <CardContent className="py-3 flex items-center justify-between">
-              <div>
-                <p className="font-medium">
-                  {locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
-                </p>
-                <p className="text-xs text-zinc-500">
-                  {tHistory(`muscleLabel.${ex.primary_muscle}`)} · {t(`equipment.${ex.equipment}`)} · {ex.mechanic}
-                </p>
-              </div>
-              {ex.is_custom && (
-                <Badge variant="outline" className="text-xs">{t('custom')}</Badge>
-              )}
-            </CardContent>
-          </Card>
+          <ExerciseCard
+            key={ex.id}
+            exercise={ex}
+            displayName={locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
+            muscleLabel={tHistory(`muscleLabel.${ex.primary_muscle}`)}
+            equipmentLabel={t(`equipment.${ex.equipment}`)}
+            customLabel={t('custom')}
+            locale={locale}
+          />
         ))}
         {exercises.length === 0 && (
           <p className="text-zinc-500 text-center py-8">{t('noExercises')}</p>
