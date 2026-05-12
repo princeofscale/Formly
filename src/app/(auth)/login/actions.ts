@@ -10,6 +10,15 @@ const schema = z.object({
   password: z.string().min(6),
 })
 
+const SUPABASE_ERROR_MAP: Record<string, string> = {
+  'Email not confirmed': 'auth.errors.emailNotConfirmed',
+  'Invalid login credentials': 'auth.errors.invalidCredentials',
+}
+
+function mapAuthError(message: string): string {
+  return SUPABASE_ERROR_MAP[message] ?? 'auth.errors.default'
+}
+
 export async function loginAction(_: unknown, formData: FormData) {
   const parsed = schema.safeParse({
     email: formData.get('email'),
@@ -17,13 +26,13 @@ export async function loginAction(_: unknown, formData: FormData) {
   })
 
   if (!parsed.success) {
-    return { error: 'Invalid email or password' }
+    return { errorKey: 'auth.errors.invalidCredentials' }
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword(parsed.data)
 
-  if (error) return { error: error.message }
+  if (error) return { errorKey: mapAuthError(error.message) }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
