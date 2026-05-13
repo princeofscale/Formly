@@ -23,8 +23,8 @@ export interface GrokContext {
 
 export async function generateInsights(ctx: GrokContext): Promise<AIInsights> {
   const client = new OpenAI({
-    apiKey: process.env.XAI_API_KEY,
-    baseURL: 'https://api.x.ai/v1',
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: 'https://api.groq.com/openai/v1',
   })
 
   const systemPrompt = `You are a personal fitness coach AI for a workout tracking app.
@@ -50,7 +50,7 @@ Return ONLY a valid JSON array. No markdown. No explanation outside the JSON.`
   })
 
   const response = await client.chat.completions.create({
-    model: 'grok-3-mini',
+    model: 'llama-3.3-70b-versatile',
     temperature: 0.3,
     max_tokens: 800,
     messages: [
@@ -66,7 +66,7 @@ Return ONLY a valid JSON array. No markdown. No explanation outside the JSON.`
     items = JSON.parse(raw)
     if (!Array.isArray(items)) throw new Error('not an array')
   } catch {
-    throw new Error(`Grok returned invalid JSON: ${raw.slice(0, 200)}`)
+    throw new Error(`AI returned invalid JSON: ${raw.slice(0, 200)}`)
   }
 
   return {
