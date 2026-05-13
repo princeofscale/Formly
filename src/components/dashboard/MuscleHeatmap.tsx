@@ -1,29 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import Model from 'react-body-highlighter'
-import type { Muscle, IExerciseData, IMuscleStats } from 'react-body-highlighter'
 import type { MuscleVolume } from '@/lib/types/models'
 
-const HIGHLIGHT_COLORS = ['#fde68a', '#fbbf24', '#d97706', '#b45309', '#92400e']
+// ─── Константы ────────────────────────────────────────────────────────────────
 
-const MUSCLE_MAP: Record<string, Muscle> = {
-  chest: 'chest',
-  back: 'upper-back',
-  lats: 'back-deltoids',
-  traps: 'trapezius',
-  biceps: 'biceps',
-  triceps: 'triceps',
-  forearms: 'forearm',
-  core: 'abs',
-  quads: 'quadriceps',
-  hamstrings: 'hamstring',
-  glutes: 'gluteal',
-  calves: 'calves',
-  front_delts: 'front-deltoids',
-  side_delts: 'front-deltoids',
-  rear_delts: 'back-deltoids',
-}
+const HIGHLIGHT_COLORS = ['#fde68a', '#fbbf24', '#d97706', '#b45309', '#92400e']
+const NEUTRAL = '#3f3f50'
 
 function setsToFrequency(sets: number): number {
   if (sets <= 2) return 1
@@ -33,6 +16,72 @@ function setsToFrequency(sets: number): number {
   return 5
 }
 
+function muscleColor(name: string, volumes: MuscleVolume[]): string {
+  const vol = volumes.find(mv => mv.muscle === name)
+  if (!vol || vol.total_sets === 0) return NEUTRAL
+  return HIGHLIGHT_COLORS[setsToFrequency(vol.total_sets) - 1]
+}
+
+// ─── Radar chart ──────────────────────────────────────────────────────────────
+
+const RADAR_GROUPS = [
+  { key: 'push',   label: 'Грудь/Пл', muscles: ['chest', 'front_delts', 'side_delts'] },
+  { key: 'back',   label: 'Спина',    muscles: ['back', 'lats', 'traps', 'rear_delts'] },
+  { key: 'arms',   label: 'Руки',     muscles: ['biceps', 'triceps', 'forearms'] },
+  { key: 'core',   label: 'Пресс',    muscles: ['core'] },
+  { key: 'legs',   label: 'Ноги',     muscles: ['quads', 'hamstrings', 'calves'] },
+  { key: 'glutes', label: 'Ягодицы',  muscles: ['glutes'] },
+] as const
+
+const RADAR_ANGLES = [-90, -30, 30, 90, 150, 210].map(d => (d * Math.PI) / 180)
+const MAX_R = 42
+
+function radarPoint(angle: number, r: number): string {
+  return `${(r * Math.cos(angle)).toFixed(2)},${(r * Math.sin(angle)).toFixed(2)}`
+}
+
+function hexPoints(r: number): string {
+  return RADAR_ANGLES.map(a => radarPoint(a, r)).join(' ')
+}
+
+function RadarChart({ volumes }: { volumes: MuscleVolume[] }) {
+  const groupSets = RADAR_GROUPS.map(g =>
+    g.muscles.reduce((sum, m) => sum + (volumes.find(mv => mv.muscle === m)?.total_sets ?? 0), 0)
+  )
+  const maxSets = Math.max(...groupSets, 1)
+
+  const dataPoints = RADAR_ANGLES.map((angle, i) =>
+    radarPoint(angle, (groupSets[i] / maxSets) * MAX_R)
+  ).join(' ')
+
+  return (
+    <svg viewBox="-60 -60 120 120" width="110" height="110" className="overflow-visible">
+      {[14, 28, MAX_R].map(r => (
+        <polygon key={r} points={hexPoints(r)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+      ))}
+      {RADAR_ANGLES.map((a, i) => (
+        <line key={i} x1="0" y1="0" x2={(MAX_R * Math.cos(a)).toFixed(2)} y2={(MAX_R * Math.sin(a)).toFixed(2)} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+      ))}
+      <polygon points={dataPoints} fill="rgba(245,158,11,0.18)" stroke="#f59e0b" strokeWidth="1.5" />
+      {RADAR_ANGLES.map((a, i) => (
+        <circle key={i} cx={(((groupSets[i] / maxSets) * MAX_R) * Math.cos(a)).toFixed(2)} cy={(((groupSets[i] / maxSets) * MAX_R) * Math.sin(a)).toFixed(2)} r="2.5" fill="#f59e0b" />
+      ))}
+      {RADAR_ANGLES.map((a, i) => {
+        const lx = 52 * Math.cos(a)
+        const ly = 52 * Math.sin(a)
+        const anchor = lx > 5 ? 'start' : lx < -5 ? 'end' : 'middle'
+        return (
+          <text key={i} x={lx.toFixed(1)} y={(ly + 2).toFixed(1)} textAnchor={anchor} fontSize="6.5" fill="rgba(255,255,255,0.45)">
+            {RADAR_GROUPS[i].label}
+          </text>
+        )
+      })}
+    </svg>
+  )
+}
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
 interface Props {
   muscleVolumes: MuscleVolume[]
   muscleLabels: Record<string, string>
@@ -40,52 +89,60 @@ interface Props {
   setsLabel: string
 }
 
+// ─── Заглушки тела (заполним в Task 2 и 3) ───────────────────────────────────
+
+function BodyFront({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMuscleClick: (name: string) => void }) {
+  return <svg viewBox="0 0 65 138" width="65" height="138"><text x="32" y="70" textAnchor="middle" fontSize="8" fill="#71717a">front</text></svg>
+}
+
+function BodyBack({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMuscleClick: (name: string) => void }) {
+  return <svg viewBox="0 0 65 138" width="65" height="138"><text x="32" y="70" textAnchor="middle" fontSize="8" fill="#71717a">back</text></svg>
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export function MuscleHeatmap({ muscleVolumes, muscleLabels, clickHint, setsLabel }: Props) {
+  const [view, setView] = useState<'front' | 'back'>('front')
   const [selected, setSelected] = useState<{ name: string; sets: number } | null>(null)
 
-  const activeVolumes = muscleVolumes.filter(mv => mv.total_sets > 0 && MUSCLE_MAP[mv.muscle])
-
-  const data: IExerciseData[] = activeVolumes.map(mv => ({
-    name: mv.muscle,
-    muscles: [MUSCLE_MAP[mv.muscle]],
-    frequency: setsToFrequency(mv.total_sets),
-  }))
-
-  function handleClick(stats: IMuscleStats) {
-    const match = activeVolumes.find(mv => MUSCLE_MAP[mv.muscle] === stats.muscle)
-    if (!match) return
-    setSelected({ name: match.muscle, sets: match.total_sets })
+  function handleMuscleClick(name: string) {
+    const vol = muscleVolumes.find(mv => mv.muscle === name)
+    if (!vol || vol.total_sets === 0) return
+    setSelected(prev => prev?.name === name ? null : { name, sets: vol.total_sets })
   }
-
-  if (data.length === 0) {
-    return <p className="text-sm text-zinc-400">{clickHint}</p>
-  }
-
-  const topMuscles = [...activeVolumes].sort((a, b) => b.total_sets - a.total_sets).slice(0, 8)
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-center items-start gap-6">
-        <Model
-          data={data}
-          style={{ width: '160px', padding: '5px' }}
-          highlightedColors={HIGHLIGHT_COLORS}
-          onClick={handleClick}
-          bodyColor="#3f3f46"
-        />
-        <Model
-          data={data}
-          type="posterior"
-          style={{ width: '160px', padding: '5px' }}
-          highlightedColors={HIGHLIGHT_COLORS}
-          onClick={handleClick}
-          bodyColor="#3f3f46"
-        />
+    <div className="space-y-3">
+      <div className="flex gap-4 items-start">
+        <div className="flex-shrink-0 space-y-2">
+          <div className="flex gap-1">
+            {(['front', 'back'] as const).map(v => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={`h-6 px-2.5 text-[9px] rounded-md border transition-colors ${
+                  view === v
+                    ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+                    : 'bg-white/5 border-white/10 text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {v === 'front' ? 'Спереди' : 'Сзади'}
+              </button>
+            ))}
+          </div>
+          {view === 'front'
+            ? <BodyFront volumes={muscleVolumes} onMuscleClick={handleMuscleClick} />
+            : <BodyBack volumes={muscleVolumes} onMuscleClick={handleMuscleClick} />
+          }
+        </div>
+        <div className="flex-1 space-y-1 pt-8">
+          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">Баланс нагрузки</p>
+          <RadarChart volumes={muscleVolumes} />
+        </div>
       </div>
-
       <div className="min-h-[32px] flex items-center justify-center">
         {selected ? (
-          <div className="flex items-center gap-2 bg-white/10 border border-amber-500/40 rounded px-3 py-1.5 text-sm">
+          <div className="flex items-center gap-2 bg-white/10 border border-amber-500/40 rounded-lg px-3 py-1.5 text-sm">
             <span className="font-semibold text-amber-400">
               {muscleLabels[selected.name] ?? selected.name}
             </span>
@@ -96,25 +153,6 @@ export function MuscleHeatmap({ muscleVolumes, muscleLabels, clickHint, setsLabe
         ) : (
           <p className="text-xs text-zinc-500">{clickHint}</p>
         )}
-      </div>
-
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-        {topMuscles.map(mv => {
-          const freq = setsToFrequency(mv.total_sets)
-          const color = HIGHLIGHT_COLORS[freq - 1]
-          return (
-            <div key={mv.muscle} className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-zinc-300">{muscleLabels[mv.muscle] ?? mv.muscle}</span>
-              </div>
-              <span className="font-mono text-zinc-500">{mv.total_sets}</span>
-            </div>
-          )
-        })}
       </div>
     </div>
   )
