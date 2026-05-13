@@ -17,7 +17,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className="dark">
-      <body className={`${inter.className} bg-zinc-950 text-zinc-50 min-h-screen`}>
+      <body className={`${inter.className} text-zinc-50 min-h-screen relative`}>
+        {/* Aurora background */}
+        <div className="aurora-blob aurora-blob-1" aria-hidden="true" />
+        <div className="aurora-blob aurora-blob-2" aria-hidden="true" />
+        <div className="aurora-blob aurora-blob-3" aria-hidden="true" />
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>
