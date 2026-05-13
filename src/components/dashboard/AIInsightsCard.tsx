@@ -34,7 +34,8 @@ export function AIInsightsCard({ initialInsights }: Props) {
       try {
         const result = await refreshAIInsightsAction(goal)
         setInsights(result)
-      } catch {
+      } catch (e) {
+        console.error('[AIInsights] generation failed:', e)
         setError(t('error'))
       }
     })
