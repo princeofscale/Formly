@@ -172,7 +172,81 @@ function BodyFront({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMusc
 }
 
 function BodyBack({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMuscleClick: (name: string) => void }) {
-  return <svg viewBox="0 0 65 138" width="65" height="138"><text x="32" y="70" textAnchor="middle" fontSize="8" fill="#71717a">back</text></svg>
+  const c = (name: string) => muscleColor(name, volumes)
+  const isActive = (name: string) => (volumes.find(mv => mv.muscle === name)?.total_sets ?? 0) > 0
+  const clickable = (name: string) => isActive(name) ? 'cursor-pointer' : 'cursor-default'
+
+  return (
+    <svg viewBox="0 0 65 138" width="65" height="138" className="overflow-visible">
+      {/* ── Body base ── */}
+      <ellipse cx="32.5" cy="11" rx="10" ry="10.5" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
+      <rect x="29" y="21" width="7" height="6" rx="2" fill="#18182a" stroke="#3f3f50" strokeWidth="1" />
+      <path d="M17 27 Q11 31 10 51 L10 75 Q10 79 17 79 L48 79 Q55 79 55 75 L55 51 Q54 31 48 27 Q42 24 32.5 24 Q23 24 17 27Z" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
+
+      {/* ── Left arm (triceps + forearm) ── */}
+      <path d="M10 28 Q3 35 2 47 Q1 56 3 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M10 28 Q3 35 2 47 Q1 56 3 63"
+        stroke={c('triceps')} strokeWidth="11" strokeLinecap="round" fill="none"
+        className={clickable('triceps')} onClick={() => onMuscleClick('triceps')} />
+      <path d="M3 63 Q2 71 3 79 Q4 84 5 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <path d="M3 63 Q2 71 3 79 Q4 84 5 87"
+        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
+        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
+
+      {/* ── Right arm ── */}
+      <path d="M55 28 Q62 35 63 47 Q64 56 62 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M55 28 Q62 35 63 47 Q64 56 62 63"
+        stroke={c('triceps')} strokeWidth="11" strokeLinecap="round" fill="none"
+        className={clickable('triceps')} onClick={() => onMuscleClick('triceps')} />
+      <path d="M62 63 Q63 71 62 79 Q61 84 60 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
+      <path d="M62 63 Q63 71 62 79 Q61 84 60 87"
+        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
+        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
+
+      {/* ── Left leg (hamstrings + calves) ── */}
+      <path d="M21 79 Q18 98 18 114 Q18 127 19 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M21 79 Q18 98 18 112"
+        stroke={c('hamstrings')} strokeWidth="13" strokeLinecap="round" fill="none"
+        className={clickable('hamstrings')} onClick={() => onMuscleClick('hamstrings')} />
+      <path d="M18 116 Q18 127 19 137"
+        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
+        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
+
+      {/* ── Right leg ── */}
+      <path d="M44 79 Q47 98 47 114 Q47 127 46 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d="M44 79 Q47 98 47 112"
+        stroke={c('hamstrings')} strokeWidth="13" strokeLinecap="round" fill="none"
+        className={clickable('hamstrings')} onClick={() => onMuscleClick('hamstrings')} />
+      <path d="M47 116 Q47 127 46 137"
+        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
+        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
+
+      {/* ── Muscles on top of torso ── */}
+      {/* Rear deltoids */}
+      <ellipse cx="10" cy="30" rx="8" ry="6.5"
+        fill={c('rear_delts')} className={clickable('rear_delts')} onClick={() => onMuscleClick('rear_delts')} />
+      <ellipse cx="55" cy="30" rx="8" ry="6.5"
+        fill={c('rear_delts')} className={clickable('rear_delts')} onClick={() => onMuscleClick('rear_delts')} />
+      {/* Back (general) */}
+      <path d="M19 28 Q13 46 13 68 L52 68 Q52 46 46 28 Z"
+        fill={c('back')} className={clickable('back')} onClick={() => onMuscleClick('back')} />
+      {/* Lats */}
+      <path d="M10 33 Q7 50 10 70"
+        stroke={c('lats')} strokeWidth="7" strokeLinecap="round" fill="none"
+        className={clickable('lats')} onClick={() => onMuscleClick('lats')} />
+      <path d="M55 33 Q58 50 55 70"
+        stroke={c('lats')} strokeWidth="7" strokeLinecap="round" fill="none"
+        className={clickable('lats')} onClick={() => onMuscleClick('lats')} />
+      {/* Traps */}
+      <path d="M17 27 Q32.5 21 48 27 Q40 34 32.5 35 Q25 34 17 27Z"
+        fill={c('traps')} className={clickable('traps')} onClick={() => onMuscleClick('traps')} />
+      {/* Glutes */}
+      <ellipse cx="23" cy="80" rx="9.5" ry="7"
+        fill={c('glutes')} className={clickable('glutes')} onClick={() => onMuscleClick('glutes')} />
+      <ellipse cx="42" cy="80" rx="9.5" ry="7"
+        fill={c('glutes')} className={clickable('glutes')} onClick={() => onMuscleClick('glutes')} />
+    </svg>
+  )
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
