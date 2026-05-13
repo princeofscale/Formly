@@ -11,6 +11,7 @@ import { getLastSetsForExercise } from '@/lib/db/sets'
 import { createTemplate, updateTemplate } from '@/lib/db/templates'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
+import { detectAndSaveAchievements } from '@/lib/services/achievements.service'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
@@ -76,7 +77,12 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
 
   await finishSession(supabase, sessionId, totalVolume)
 
+  const newAchievements = await detectAndSaveAchievements(supabase, user.id)
+
   revalidatePath('/dashboard')
   revalidatePath('/history')
-  redirect('/history/' + sessionId + '?finished=1')
+
+  const codes = newAchievements.map(a => a.code).join(',')
+  const suffix = codes ? '?finished=1&unlocked=' + encodeURIComponent(codes) : '?finished=1'
+  redirect('/history/' + sessionId + suffix)
 }
