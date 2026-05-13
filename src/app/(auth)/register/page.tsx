@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [state, formAction, pending] = useActionState(registerAction, null)
   const t = useTranslations('auth.register')
   const tf = useTranslations('auth.fields')
+  const te = useTranslations()
 
   return (
     <div className="w-full max-w-sm space-y-8">
@@ -30,7 +31,7 @@ export default function RegisterPage() {
             type="email"
             placeholder="you@example.com"
             required
-            className="bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500 h-11"
+            className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
           />
         </div>
         <div className="space-y-2">
@@ -41,15 +42,15 @@ export default function RegisterPage() {
             type="password"
             placeholder={tf('passwordPlaceholder')}
             required
-            className="bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500 h-11"
+            className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
           />
         </div>
-        {state?.error && (
-          <p className="text-sm text-red-400">{state.error}</p>
+        {state?.errorKey && (
+          <p className="text-sm text-red-400">{te(state.errorKey)}</p>
         )}
         <Button
           type="submit"
-          className="w-full h-12 uppercase tracking-wider font-bold text-sm"
+          className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-400 text-black hover:from-amber-400 hover:to-amber-300 border-0"
           disabled={pending}
         >
           {pending ? t('submitting') : t('submit')}

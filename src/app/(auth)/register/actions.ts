@@ -7,8 +7,17 @@ import { z } from 'zod'
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(8),
 })
+
+const SUPABASE_ERROR_MAP: Record<string, string> = {
+  'User already registered': 'auth.errors.default',
+  'Email not confirmed': 'auth.errors.emailNotConfirmed',
+}
+
+function mapAuthError(message: string): string {
+  return SUPABASE_ERROR_MAP[message] ?? 'auth.errors.default'
+}
 
 export async function registerAction(_: unknown, formData: FormData) {
   const parsed = schema.safeParse({
@@ -17,13 +26,13 @@ export async function registerAction(_: unknown, formData: FormData) {
   })
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message }
+    return { errorKey: 'auth.errors.invalidCredentials' }
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signUp(parsed.data)
 
-  if (error) return { error: error.message }
+  if (error) return { errorKey: mapAuthError(error.message) }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
