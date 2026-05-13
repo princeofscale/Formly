@@ -15,7 +15,7 @@ export function ExerciseSelector({
   const router = useRouter()
   return (
     <select
-      className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm text-zinc-200"
+      className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm text-zinc-200"
       defaultValue={selected}
       onChange={e => router.push(`/analytics?exercise=${e.target.value}`)}
     >

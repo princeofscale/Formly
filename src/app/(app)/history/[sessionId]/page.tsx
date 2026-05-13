@@ -78,7 +78,7 @@ export default async function SessionDetailPage({
       </div>
 
       {exercises.map(ex => (
-        <Card key={ex.id} className="bg-zinc-900 border-zinc-800">
+        <Card key={ex.id}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
               {locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
@@ -98,7 +98,7 @@ export default async function SessionDetailPage({
               </thead>
               <tbody>
                 {ex.sets.map(s => (
-                  <tr key={s.id} className="border-t border-zinc-800">
+                  <tr key={s.id} className="border-t border-white/10">
                     <td className="py-1 text-zinc-500">#{s.set_number}</td>
                     <td className="py-1">{s.weight_kg}kg</td>
                     <td className="py-1">{s.reps}</td>

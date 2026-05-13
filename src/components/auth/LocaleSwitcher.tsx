@@ -19,7 +19,7 @@ export function LocaleSwitcher({ current }: Props) {
           className={`px-3 py-1 text-xs font-bold uppercase transition-colors ${
             current === loc
               ? 'bg-amber-500 text-black'
-              : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
+              : 'bg-white/5 text-zinc-400 hover:text-zinc-200'
           }`}
         >
           {loc}

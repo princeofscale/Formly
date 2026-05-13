@@ -23,7 +23,7 @@ export function ExerciseForm() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 w-full max-w-md space-y-4">
+      <div className="bg-black/80 border border-white/10 rounded-lg p-6 w-full max-w-md space-y-4 backdrop-blur-sm">
         <h2 className="text-lg font-bold">Create Custom Exercise</h2>
         <form
           action={async (fd) => {
@@ -34,11 +34,11 @@ export function ExerciseForm() {
         >
           <div>
             <Label>Name</Label>
-            <Input name="name" placeholder="Exercise name" className="mt-1 bg-zinc-800 border-zinc-700" required />
+            <Input name="name" placeholder="Exercise name" className="mt-1 bg-white/5 border-zinc-700" required />
           </div>
           <div>
             <Label>Primary Muscle</Label>
-            <select name="primary_muscle" className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm" required>
+            <select name="primary_muscle" className="w-full mt-1 bg-white/5 border border-zinc-700 rounded-md px-3 py-2 text-sm" required>
               {MUSCLES.map(m => (
                 <option key={m} value={m} className="capitalize">{m.replace('_', ' ')}</option>
               ))}
@@ -46,14 +46,14 @@ export function ExerciseForm() {
           </div>
           <div>
             <Label>Mechanic</Label>
-            <select name="mechanic" className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm">
+            <select name="mechanic" className="w-full mt-1 bg-white/5 border border-zinc-700 rounded-md px-3 py-2 text-sm">
               <option value="compound">Compound</option>
               <option value="isolation">Isolation</option>
             </select>
           </div>
           <div>
             <Label>Equipment</Label>
-            <select name="equipment" className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm">
+            <select name="equipment" className="w-full mt-1 bg-white/5 border border-zinc-700 rounded-md px-3 py-2 text-sm">
               {EQUIPMENT.map(e => (
                 <option key={e} value={e} className="capitalize">{e}</option>
               ))}

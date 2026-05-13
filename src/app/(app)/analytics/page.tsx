@@ -41,7 +41,7 @@ export default async function AnalyticsPage({
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('title')}</h1>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">{t('e1rmProgress')}</CardTitle>
@@ -53,14 +53,14 @@ export default async function AnalyticsPage({
         </CardContent>
       </Card>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardHeader><CardTitle className="text-base">{t('monthlyVolume')}</CardTitle></CardHeader>
         <CardContent>
           <TonnageChart data={tonnage} />
         </CardContent>
       </Card>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardHeader><CardTitle className="text-base">{t('volumeLandmarks')}</CardTitle></CardHeader>
         <CardContent>
           <VolumeLandmarks landmarks={landmarks} />

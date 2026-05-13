@@ -44,25 +44,25 @@ export function ExerciseSearch({ onSelect }: Props) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
         <Input
           placeholder={t('searchPlaceholder')}
-          className="pl-9 bg-zinc-900 border-zinc-700"
+          className="pl-9 bg-white/5 border-zinc-700"
           value={query}
           onChange={e => handleChange(e.target.value)}
         />
       </div>
       {results.length > 0 && (
-        <ul className="absolute z-10 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md shadow-lg max-h-72 overflow-y-auto">
+        <ul className="absolute z-10 w-full mt-1 bg-black/80 border border-white/10 rounded-md shadow-lg max-h-72 overflow-y-auto backdrop-blur-sm">
           {results.map(ex => {
             const thumb = ex.image_urls?.[0]
             return (
               <li key={ex.id}>
                 <button
-                  className="w-full text-left px-3 py-2 hover:bg-zinc-800 flex items-center gap-3"
+                  className="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-3"
                   onClick={() => select(ex)}
                 >
                   {thumb ? (
-                    <img src={thumb} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0 bg-zinc-700" />
+                    <img src={thumb} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0 bg-white/5" />
                   ) : (
-                    <div className="w-10 h-10 rounded bg-zinc-800 flex-shrink-0" />
+                    <div className="w-10 h-10 rounded bg-white/5 flex-shrink-0" />
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{displayName(ex)}</p>

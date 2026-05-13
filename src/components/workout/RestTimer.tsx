@@ -52,7 +52,7 @@ export function RestTimer({ seconds, onDone }: Props) {
       <button
         type="button"
         onClick={onDone}
-        className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors px-2 py-1 rounded-sm hover:bg-zinc-800"
+        className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors px-2 py-1 rounded-sm hover:bg-white/10"
       >
         {t('restSkip')}
       </button>

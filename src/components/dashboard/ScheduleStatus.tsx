@@ -27,7 +27,7 @@ export function ScheduleStatus({ schedule, labels }: Props) {
     <div className={`flex items-center gap-3 p-4 rounded-sm border-l-4 ${
       isGymDay
         ? 'bg-green-900/20 border-l-green-500 border border-green-900/50'
-        : 'bg-zinc-900 border-l-zinc-600 border border-zinc-800'
+        : 'bg-white/5 border-l-zinc-600 border border-white/10'
     }`}>
       {isGymDay
         ? <Dumbbell className="h-5 w-5 text-green-400 shrink-0" />

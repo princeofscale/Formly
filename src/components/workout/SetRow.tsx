@@ -39,11 +39,11 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
   return (
     <div className="space-y-1">
       <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">{label}</p>
-      <div className="flex items-center h-11 bg-zinc-900 border border-zinc-800 rounded-sm overflow-hidden focus-within:border-amber-500/50 transition-colors">
+      <div className="flex items-center h-11 bg-white/5 border border-white/10 rounded-sm overflow-hidden focus-within:border-amber-500/50 transition-colors">
         <button
           type="button"
           onClick={decrement}
-          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors text-lg flex-shrink-0 select-none"
+          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
         >−</button>
         <div className="flex-1 flex items-center justify-center min-w-0">
           <input
@@ -63,7 +63,7 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
         <button
           type="button"
           onClick={increment}
-          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors text-lg flex-shrink-0 select-none"
+          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
         >+</button>
       </div>
     </div>
@@ -124,7 +124,7 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
             className={`w-full h-11 rounded-sm font-black text-sm tracking-wider transition-all ${
               canSave && !isPending
                 ? 'bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-black'
-                : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                : 'bg-white/5 text-zinc-600 cursor-not-allowed'
             }`}
           >
             {isPending ? '…' : '✓'}

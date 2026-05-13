@@ -61,7 +61,7 @@ export default async function RecordsPage() {
 
           return (
             <Link key={r.exercise_id} href={`/analytics?exercise=${r.exercise_id}`}>
-              <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+              <Card className="hover:border-white/20 transition-colors">
                 <CardContent className="py-3 flex items-center gap-3">
                   <span className="font-mono text-xs text-zinc-600 w-6 flex-shrink-0">
                     {i + 1}

@@ -85,7 +85,7 @@ export function MuscleHeatmap({ muscleVolumes, muscleLabels, clickHint, setsLabe
 
       <div className="min-h-[32px] flex items-center justify-center">
         {selected ? (
-          <div className="flex items-center gap-2 bg-zinc-800 border border-amber-500/40 rounded px-3 py-1.5 text-sm">
+          <div className="flex items-center gap-2 bg-white/10 border border-amber-500/40 rounded px-3 py-1.5 text-sm">
             <span className="font-semibold text-amber-400">
               {muscleLabels[selected.name] ?? selected.name}
             </span>

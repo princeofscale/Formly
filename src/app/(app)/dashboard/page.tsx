@@ -134,7 +134,7 @@ export default async function DashboardPage() {
                 const tags = exerciseTagsMap[s.id] ?? []
                 return (
                   <Link key={s.id} href={`/history/${s.id}`} className="block group">
-                    <div className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 group-hover:border-amber-500/30 transition-colors">
+                    <div className="flex items-center justify-between py-2 border-b border-white/10 last:border-0 group-hover:border-amber-500/30 transition-colors">
                       <div>
                         <p className="font-mono text-sm font-bold">
                           {date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}

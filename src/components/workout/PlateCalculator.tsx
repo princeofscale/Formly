@@ -14,7 +14,7 @@ export function PlateCalculator({ weightKg, barWeightKg = 20 }: Props) {
   const plates = calculatePlates(weightKg, barWeightKg)
 
   return (
-    <div className="mt-2 p-3 bg-zinc-800 rounded-lg">
+    <div className="mt-2 p-3 bg-white/5 rounded-lg">
       <p className="text-xs text-zinc-400 mb-2">Plates per side ({barWeightKg}kg bar):</p>
       {plates.length === 0 ? (
         <p className="text-xs text-zinc-500">Bar only</p>

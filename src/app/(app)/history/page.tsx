@@ -36,7 +36,7 @@ export default async function HistoryPage() {
 
         return (
           <Link key={s.id} href={`/history/${s.id}`}>
-            <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
+            <Card className="hover:border-white/20 transition-colors">
               <CardContent className="py-3 flex items-center justify-between">
                 <div>
                   <p className="font-medium capitalize">{dateStr}</p>

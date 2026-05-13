@@ -23,7 +23,7 @@ export function LanguageSelector({ current, label }: Props) {
             className={`px-5 py-2 text-sm font-bold uppercase rounded-sm transition-colors ${
               current === loc
                 ? 'bg-amber-500 text-black'
-                : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                : 'bg-white/5 text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {loc === 'ru' ? 'РУС' : 'ENG'}

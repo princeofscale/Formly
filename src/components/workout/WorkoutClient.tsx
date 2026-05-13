@@ -113,7 +113,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
           {exercises.length > 0 && (
             <button
               onClick={() => { setShowTplInput(v => !v); setSaveAsNew(false) }}
-              className="h-9 w-9 flex items-center justify-center rounded-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
+              className="h-9 w-9 flex items-center justify-center rounded-sm bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-100 transition-colors"
               title={tTpl('saveAsTemplate')}
             >
               <BookmarkPlus className="h-4 w-4" />
@@ -127,7 +127,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       {showTplInput && (
         <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-150">
           {tplSaved ? (
-            <div className="flex items-center gap-2 text-green-400 text-sm px-3 py-2 bg-zinc-900 rounded-sm border border-zinc-800 w-full">
+            <div className="flex items-center gap-2 text-green-400 text-sm px-3 py-2 bg-white/5 rounded-sm border border-white/10 w-full">
               <Check className="h-4 w-4" /> {tTpl('saved')}
             </div>
           ) : sourceTemplate && !saveAsNew ? (
@@ -140,7 +140,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
               </button>
               <button
                 onClick={() => setSaveAsNew(true)}
-                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs rounded-sm transition-colors whitespace-nowrap"
+                className="h-9 px-3 bg-white/5 hover:bg-white/10 text-zinc-400 text-xs rounded-sm transition-colors whitespace-nowrap"
               >
                 {tTpl('saveAsNew')}
               </button>
@@ -153,12 +153,12 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
                 onChange={e => setTplName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSaveTemplate()}
                 placeholder={tTpl('namePlaceholder')}
-                className="flex-1 h-9 px-3 bg-zinc-900 border border-zinc-700 rounded-sm text-sm focus:border-amber-500 outline-none"
+                className="flex-1 h-9 px-3 bg-white/5 border border-white/10 rounded-sm text-sm focus:border-amber-500 outline-none"
               />
               <button
                 onClick={handleSaveTemplate}
                 disabled={!tplName.trim()}
-                className="h-9 px-4 bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-bold text-sm rounded-sm transition-colors"
+                className="h-9 px-4 bg-amber-500 hover:bg-amber-400 disabled:bg-white/5 disabled:text-zinc-600 text-black font-bold text-sm rounded-sm transition-colors"
               >
                 {tTpl('save')}
               </button>
@@ -168,7 +168,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       )}
 
       {/* sticky search */}
-      <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-background/95 backdrop-blur border-b border-zinc-800/50">
+      <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-background/95 backdrop-blur border-b border-white/10">
         <ExerciseSearch onSelect={addExercise} />
       </div>
 

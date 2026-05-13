@@ -43,13 +43,13 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-sm overflow-hidden">
+    <div className="bg-white/5 border border-white/10 rounded-sm overflow-hidden">
 
       {/* header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         {thumbnail && (
           <img src={thumbnail} alt={displayName}
-            className="w-11 h-11 rounded-sm object-cover flex-shrink-0 bg-zinc-800"
+            className="w-11 h-11 rounded-sm object-cover flex-shrink-0 bg-white/5"
           />
         )}
         <div className="flex-1 min-w-0">
@@ -86,7 +86,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
 
       {/* instructions */}
       {showInfo && instructions && (
-        <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/50 animate-in fade-in duration-150">
+        <div className="px-4 py-3 border-b border-white/10 bg-black/30 animate-in fade-in duration-150">
           <p className="text-xs text-zinc-400 leading-relaxed">{instructions}</p>
         </div>
       )}
@@ -123,7 +123,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
 
       {/* PR + rest timer — owned by ExerciseBlock, above the new set input */}
       {(lastPR || showTimer) && (
-        <div className="px-4 pt-2 pb-1 space-y-1 border-t border-zinc-800/50">
+        <div className="px-4 pt-2 pb-1 space-y-1 border-t border-white/10">
           {lastPR && <PRBadge pr={lastPR} />}
           {showTimer && (
             <RestTimer seconds={90} onDone={() => setShowTimer(false)} />
@@ -132,7 +132,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
       )}
 
       {/* always-visible new set row */}
-      <div className="px-4 pt-3 pb-4 border-t border-zinc-800 space-y-2">
+      <div className="px-4 pt-3 pb-4 border-t border-white/10 space-y-2">
         {sets.length === 0 && lastSets.length > 0 && (
           <LastTimeHint sets={lastSets} />
         )}

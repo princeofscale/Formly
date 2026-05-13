@@ -24,7 +24,7 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
   const hasDetails = !!(instructions || (exercise.image_urls && exercise.image_urls.length > 0))
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card>
       <CardContent className="py-3">
         <button
           className="w-full flex items-center gap-3 text-left"
@@ -34,7 +34,7 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
             <img
               src={thumbnail}
               alt={displayName}
-              className="w-12 h-12 rounded object-cover flex-shrink-0 bg-zinc-800"
+              className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5"
             />
           )}
           <div className="flex-1 min-w-0">
@@ -52,7 +52,7 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
         </button>
 
         {open && (
-          <div className="mt-3 pt-3 border-t border-zinc-800 space-y-3">
+          <div className="mt-3 pt-3 border-t border-white/10 space-y-3">
             {exercise.image_urls && exercise.image_urls.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {exercise.image_urls.map((url, i) => (
@@ -60,7 +60,7 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
                     key={i}
                     src={url}
                     alt={`${displayName} ${i + 1}`}
-                    className="w-28 h-28 rounded object-cover flex-shrink-0 bg-zinc-800"
+                    className="w-28 h-28 rounded object-cover flex-shrink-0 bg-white/5"
                   />
                 ))}
               </div>

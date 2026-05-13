@@ -25,7 +25,7 @@ export default async function NewWorkoutPage() {
       <h1 className="text-2xl font-black uppercase tracking-wider">{t('newTitle')}</h1>
 
       {active && (
-        <Card className="bg-zinc-900 border-amber-800">
+        <Card className="border-amber-800/60">
           <CardHeader>
             <CardTitle className="text-base text-amber-400">{t('activeSession')}</CardTitle>
           </CardHeader>
@@ -38,7 +38,7 @@ export default async function NewWorkoutPage() {
       )}
 
       {/* Quick start */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardContent className="pt-6">
           <form action={startWorkoutAction}>
             <button type="submit" className={buttonVariants({ size: 'lg', className: 'w-full uppercase tracking-wider font-bold' })}>
@@ -60,7 +60,7 @@ export default async function NewWorkoutPage() {
             const overflow = tpl.exercises.length > 4 ? ` +${tpl.exercises.length - 4}` : ''
 
             return (
-              <Card key={tpl.id} className="bg-zinc-900 border-zinc-800">
+              <Card key={tpl.id}>
                 <CardContent className="py-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -84,7 +84,7 @@ export default async function NewWorkoutPage() {
                         <input type="hidden" name="templateId" value={tpl.id} />
                         <button
                           type="submit"
-                          className="h-8 w-8 flex items-center justify-center text-zinc-600 hover:text-red-400 rounded-sm hover:bg-zinc-800 transition-colors"
+                          className="h-8 w-8 flex items-center justify-center text-zinc-600 hover:text-red-400 rounded-sm hover:bg-white/5 transition-colors"
                           title={tTpl('delete')}
                         >
                           <Trash2 className="h-3.5 w-3.5" />

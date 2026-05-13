@@ -41,17 +41,17 @@ export default async function ProfilePage() {
       <ProfileAvatar email={user.email ?? ''} />
 
       {/* Стат-полоса */}
-      <div className="grid grid-cols-3 rounded-sm overflow-hidden border border-zinc-800">
-        <div className="flex flex-col items-center justify-center py-3 bg-zinc-900">
+      <div className="grid grid-cols-3 rounded-sm overflow-hidden border border-white/10">
+        <div className="flex flex-col items-center justify-center py-3 bg-white/5">
           <span className="font-mono text-xl font-bold">{bmi ? bmi.toFixed(1) : '—'}</span>
           <span className="text-xs text-zinc-500 mt-0.5">{t('stats.bmi')}</span>
           {bmiCat && <span className="text-xs text-zinc-600">{t(`bmiCat.${bmiCat.toLowerCase()}`)}</span>}
         </div>
-        <div className="flex flex-col items-center justify-center py-3 bg-zinc-900 border-x border-zinc-800">
+        <div className="flex flex-col items-center justify-center py-3 bg-white/5 border-x border-white/10">
           <span className="font-mono text-xl font-bold">{trainingAge ? `${trainingAge}y` : '—'}</span>
           <span className="text-xs text-zinc-500 mt-0.5">{t('stats.trainingAge')}</span>
         </div>
-        <div className="flex flex-col items-center justify-center py-3 bg-zinc-900">
+        <div className="flex flex-col items-center justify-center py-3 bg-white/5">
           <span className="font-mono text-xl font-bold">
             {p?.training_location ? t(`locationDisplay.${p.training_location}`) : '—'}
           </span>
@@ -60,7 +60,7 @@ export default async function ProfilePage() {
       </div>
 
       {/* Форма редактирования */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardHeader>
           <CardTitle className="text-sm uppercase tracking-wider font-bold">
             {t('form.editProfile')}
@@ -73,25 +73,25 @@ export default async function ProfilePage() {
                 <Label>{t('form.weight')}</Label>
                 <Input name="weight_kg" type="number" step="0.1"
                   defaultValue={p?.weight_kg ?? ''}
-                  className="mt-1 bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500" />
+                  className="mt-1 bg-white/5 border-zinc-700 focus-visible:ring-amber-500" />
               </div>
               <div>
                 <Label>{t('form.height')}</Label>
                 <Input name="height_cm" type="number" step="0.1"
                   defaultValue={p?.height_cm ?? ''}
-                  className="mt-1 bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500" />
+                  className="mt-1 bg-white/5 border-zinc-700 focus-visible:ring-amber-500" />
               </div>
               <div>
                 <Label>{t('form.age')}</Label>
                 <Input name="age" type="number"
                   defaultValue={p?.age ?? ''}
-                  className="mt-1 bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500" />
+                  className="mt-1 bg-white/5 border-zinc-700 focus-visible:ring-amber-500" />
               </div>
               <div>
                 <Label>{t('form.trainingSince')}</Label>
                 <Input name="training_since" type="date"
                   defaultValue={p?.training_since ?? ''}
-                  className="mt-1 bg-zinc-800 border-zinc-700 focus-visible:ring-amber-500" />
+                  className="mt-1 bg-white/5 border-zinc-700 focus-visible:ring-amber-500" />
               </div>
             </div>
 
@@ -99,7 +99,7 @@ export default async function ProfilePage() {
               <Label>{t('form.location')}</Label>
               <select
                 name="training_location"
-                className="w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full mt-1 bg-white/5 border border-zinc-700 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 defaultValue={p?.training_location ?? ''}
               >
                 <option value="">{t('form.locationSelect')}</option>
@@ -143,14 +143,14 @@ export default async function ProfilePage() {
       </Card>
 
       {/* Переключатель языка */}
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card>
         <CardContent className="pt-4">
           <LanguageSelector current={locale} label={t('language')} />
         </CardContent>
       </Card>
 
       {/* Опасная зона */}
-      <div className="border-t border-zinc-800 pt-4 flex gap-3">
+      <div className="border-t border-white/10 pt-4 flex gap-3">
         <form action={signOutAction} className="flex-1">
           <Button variant="ghost" type="submit" className="w-full uppercase tracking-wider text-sm">
             {t('signOut')}
