@@ -49,6 +49,8 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
           <input
             type="number"
             inputMode="decimal"
+            min={min}
+            max={max}
             value={value}
             onChange={e => onChange(e.target.value)}
             placeholder={optional ? '—' : ''}
@@ -90,11 +92,13 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
     const w = parseFloat(weight)
     const r = parseInt(reps)
     if (!w || !r) return
+    // Clamp RPE to DB constraint [1, 10] — user may type directly bypassing stepper limits
+    const rpeVal = rpe ? Math.max(1, Math.min(10, parseFloat(rpe))) : undefined
     startTransition(async () => {
       const { set, prResult } = await saveSetAction({
         sessionId, exerciseId, setNumber,
         weightKg: w, reps: r,
-        rpe: rpe ? parseFloat(rpe) : undefined,
+        rpe: rpeVal,
       })
       onSaved(set, prResult)
     })
