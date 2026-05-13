@@ -121,3 +121,26 @@ export interface AIInsights {
   items: AIInsightItem[]
   generated_at: string
 }
+
+export type AchievementCode =
+  | 'first_workout'
+  | 'sessions_10' | 'sessions_50' | 'sessions_100'
+  | 'tonnage_1000' | 'tonnage_10000' | 'tonnage_100000'
+  | 'streak_7' | 'streak_30'
+  | 'first_pr'
+
+export interface Achievement {
+  code: AchievementCode
+  unlocked_at: string
+}
+
+export interface StreakInfo {
+  current: number
+  longest: number
+  last_workout_date: string | null
+}
+
+export interface DayActivity {
+  date: string  // YYYY-MM-DD
+  sets: number
+}
