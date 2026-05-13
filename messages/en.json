@@ -239,5 +239,19 @@
     "next": "Next",
     "skip": "Skip",
     "start": "Let's go!"
+  },
+  "aiInsights": {
+    "title": "AI Coach",
+    "updating": "AI is analyzing your training data...",
+    "updated": "updated",
+    "refresh": "Refresh",
+    "error": "Failed to load AI recommendations",
+    "retry": "Try again",
+    "types": {
+      "today": "TODAY",
+      "progression": "PROGRESSION",
+      "prediction": "1RM FORECAST",
+      "warning": "WARNING"
+    }
   }
 }
