@@ -1,4 +1,3 @@
-// src/app/(auth)/layout.tsx
 import { Dumbbell, TrendingUp, Brain } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { LocaleSwitcher } from '@/components/auth/LocaleSwitcher'
@@ -8,18 +7,21 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   const t = await getTranslations('auth')
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
-      {/* Левая панель — только на md+ */}
-      <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-zinc-900 to-black border-r border-amber-500/20">
+    <div className="min-h-screen grid md:grid-cols-2 relative z-10">
+      {/* Left panel */}
+      <div
+        className="hidden md:flex flex-col justify-between p-12 border-r"
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(5,5,16,0.5)', backdropFilter: 'blur(12px)' }}
+      >
         <div className="flex items-center gap-2">
-          <Dumbbell className="h-6 w-6 text-amber-500" />
+          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center">
+            <Dumbbell className="h-4 w-4 text-white" />
+          </div>
           <span className="font-black text-xl tracking-wider">GYMLOG</span>
         </div>
 
         <div className="space-y-10">
-          <p className="text-4xl font-black leading-tight">
-            {t('slogan')}
-          </p>
+          <p className="text-4xl font-black leading-tight">{t('slogan')}</p>
           <div className="space-y-5">
             <div className="flex items-center gap-3 text-zinc-400">
               <Dumbbell className="h-5 w-5 text-amber-500 shrink-0" />
@@ -39,7 +41,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         <p className="text-xs text-zinc-700">© 2026 GymLog</p>
       </div>
 
-      {/* Правая панель — форма */}
+      {/* Right panel — form */}
       <div className="flex flex-col min-h-screen">
         <div className="flex justify-end p-4">
           <LocaleSwitcher current={locale} />
