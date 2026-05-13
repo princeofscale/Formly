@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { AppNav } from '@/components/AppNav'
 import { OnboardingModal } from '@/components/OnboardingModal'
-import { signOutAction } from './actions'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = await verifySession()
