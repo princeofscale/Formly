@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { AppNav } from '@/components/AppNav'
 import { OnboardingModal } from '@/components/OnboardingModal'
+import { PageWrapper } from '@/components/PageWrapper'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = await verifySession()
@@ -22,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       {/* Main content — left margin on desktop for sidebar, bottom padding on mobile for bottom bar */}
       <main className="flex-1 md:ml-14 pb-20 md:pb-0 relative z-10">
         <div className="container max-w-2xl mx-auto px-4 py-6">
-          {children}
+          <PageWrapper>{children}</PageWrapper>
         </div>
       </main>
 
