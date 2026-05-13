@@ -109,3 +109,15 @@ export interface VolumeLandmark {
   weekly_sets: number
   status: 'mv' | 'optimal' | 'mrv'
 }
+
+export interface AIInsightItem {
+  type: 'today' | 'progression' | 'prediction' | 'warning'
+  title: string
+  body: string
+  detail?: string
+}
+
+export interface AIInsights {
+  items: AIInsightItem[]
+  generated_at: string
+}
