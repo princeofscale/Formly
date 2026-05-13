@@ -11,6 +11,9 @@ import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { getWeeklyMuscleVolume } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
 import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
+import { getFinishedSessionDates, getCalendarActivity } from '@/lib/db/streak'
+import { calculateStreak } from '@/lib/services/streak.service'
+import { StreakCard } from '@/components/dashboard/StreakCard'
 
 export default async function DashboardPage() {
   const { user } = await verifySession()
@@ -22,7 +25,7 @@ export default async function DashboardPage() {
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
 
-  const [sessionsResult, profileResult, weekResult, prResult, initialInsights] = await Promise.all([
+  const [sessionsResult, profileResult, weekResult, prResult, initialInsights, workoutDates, calendarActivity] = await Promise.all([
     supabase
       .from('workout_sessions')
       .select('id, started_at, total_volume_kg, finished_at')
@@ -50,10 +53,13 @@ export default async function DashboardPage() {
       .limit(1)
       .maybeSingle(),
     getTodayInsights(supabase, user.id),
+    getFinishedSessionDates(supabase, user.id),
+    getCalendarActivity(supabase, user.id),
   ])
 
   const sessions = sessionsResult.data ?? []
   const schedule: number[] = profileResult.data?.training_schedule ?? []
+  const streakInfo = calculateStreak(workoutDates, schedule)
   const weekTonnage = (weekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const weekSessions = (weekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
@@ -99,6 +105,8 @@ export default async function DashboardPage() {
         <Dumbbell className="h-5 w-5" />
         {t('startWorkout')}
       </Link>
+
+      <StreakCard streak={streakInfo} activity={calendarActivity} />
 
       <WeeklyStats
         tonnage={weekTonnage}
