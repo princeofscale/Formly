@@ -1,9 +1,8 @@
 // src/app/(app)/dashboard/page.tsx
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dumbbell, Plus, Trophy, User } from 'lucide-react'
+import { Dumbbell } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
@@ -84,32 +83,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300">
         <h1 className="text-3xl font-black uppercase tracking-wider">{t('title')}</h1>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/records"
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 hover:border-amber-500 transition-colors"
-            title={t('recordsLink')}
-          >
-            <Trophy className="h-4 w-4 text-zinc-400" />
-          </Link>
-          <Link
-            href="/profile"
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 hover:border-amber-500 transition-colors"
-            title={t('profileLink')}
-          >
-            <User className="h-4 w-4 text-zinc-400" />
-          </Link>
-          <Link
-            href="/workout/new"
-            className={buttonVariants({ className: 'uppercase tracking-wider font-bold' })}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            {t('startWorkout')}
-          </Link>
-        </div>
       </div>
+
+      {/* Gradient CTA */}
+      <Link
+        href="/workout/new"
+        className="flex items-center justify-center gap-3 w-full h-14 rounded-xl font-black text-base uppercase tracking-wider text-black transition-all hover:opacity-90 active:scale-[0.98] animate-in fade-in slide-in-from-bottom-4 duration-300 delay-75"
+        style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)', boxShadow: '0 8px 32px rgba(245,158,11,0.3)' }}
+      >
+        <Dumbbell className="h-5 w-5" />
+        {t('startWorkout')}
+      </Link>
 
       <WeeklyStats
         tonnage={weekTonnage}
@@ -133,7 +119,7 @@ export default async function DashboardPage() {
         }}
       />
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-150">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider font-bold">
             <Dumbbell className="h-4 w-4 text-amber-500" />
@@ -171,7 +157,7 @@ export default async function DashboardPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
         <CardHeader>
           <CardTitle className="text-sm uppercase tracking-wider font-bold">
             {t('muscleActivity')}
