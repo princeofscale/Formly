@@ -12,11 +12,16 @@ import { ProfileAvatar } from '@/components/profile/ProfileAvatar'
 import { LanguageSelector } from '@/components/profile/LanguageSelector'
 import { signOutAction } from '@/app/(app)/actions'
 import type { Profile } from '@/lib/types/models'
+import Link from 'next/link'
+import { Trophy, ChevronRight } from 'lucide-react'
+import { getAchievements } from '@/lib/db/achievements'
+import { ALL_ACHIEVEMENT_CODES } from '@/lib/services/achievements.service'
 
 export default async function ProfilePage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('profile')
+  const tAch = await getTranslations('achievements')
   const locale = await getLocale()
 
   const { data: profile } = await supabase
@@ -26,6 +31,9 @@ export default async function ProfilePage() {
     .single()
 
   const p = profile as Profile | null
+
+  const unlockedAchievements = await getAchievements(supabase, user.id)
+  const unlockedCount = unlockedAchievements.length
   const bmi = p?.weight_kg && p?.height_cm ? calculateBMI(p.weight_kg, p.height_cm) : null
   const bmiCat = bmi ? bmiCategory(bmi) : null
   const trainingAge = p?.training_since
@@ -148,6 +156,23 @@ export default async function ProfilePage() {
           <LanguageSelector current={locale} label={t('language')} />
         </CardContent>
       </Card>
+
+      {/* Achievements link */}
+      <Link
+        href="/profile/achievements"
+        className="flex items-center justify-between p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Trophy className="h-5 w-5 text-amber-500" />
+          <div>
+            <div className="font-bold text-sm">{tAch('achievementsLink')}</div>
+            <div className="text-xs text-zinc-500">
+              {unlockedCount} / {ALL_ACHIEVEMENT_CODES.length}
+            </div>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-zinc-500" />
+      </Link>
 
       {/* Опасная зона */}
       <div className="border-t border-white/10 pt-4 flex gap-3">
