@@ -9,6 +9,8 @@ import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
 import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { getWeeklyMuscleVolume } from '@/lib/services/analytics.service'
+import { getTodayInsights } from '@/lib/db/ai-insights'
+import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 
 export default async function DashboardPage() {
   const { user } = await verifySession()
@@ -20,7 +22,7 @@ export default async function DashboardPage() {
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
 
-  const [sessionsResult, profileResult, weekResult, prResult] = await Promise.all([
+  const [sessionsResult, profileResult, weekResult, prResult, initialInsights] = await Promise.all([
     supabase
       .from('workout_sessions')
       .select('id, started_at, total_volume_kg, finished_at')
@@ -47,6 +49,7 @@ export default async function DashboardPage() {
       .order('calculated_1rm', { ascending: false })
       .limit(1)
       .maybeSingle(),
+    getTodayInsights(supabase, user.id),
   ])
 
   const sessions = sessionsResult.data ?? []
@@ -107,6 +110,8 @@ export default async function DashboardPage() {
           bestE1rm: t('week.bestE1rm'),
         }}
       />
+
+      <AIInsightsCard initialInsights={initialInsights} />
 
       <ScheduleStatus
         schedule={schedule}
