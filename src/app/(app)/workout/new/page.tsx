@@ -5,6 +5,7 @@ import { getTemplates } from '@/lib/db/templates'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { startWorkoutAction, startFromTemplateAction, deleteTemplateAction } from './actions'
+import { PresetPrograms } from '@/components/workout/PresetPrograms'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { Trash2 } from 'lucide-react'
@@ -47,6 +48,9 @@ export default async function NewWorkoutPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Built-in programs */}
+      <PresetPrograms />
 
       {/* Templates */}
       {templates.length > 0 && (

@@ -61,6 +61,48 @@
     "update": "Update \"{name}\"",
     "saveAsNew": "Save as new"
   },
+  "presets": {
+    "title": "Ready Programs",
+    "subtitle": "Pre-built workouts to start instantly",
+    "startDay": "Start",
+    "exercises": "{n} exercises",
+    "fullbody": {
+      "title": "Full Body",
+      "subtitle": "3×/week · alternate A and B",
+      "days": {
+        "a": "Day A",
+        "b": "Day B"
+      }
+    },
+    "upperlower": {
+      "title": "Upper / Lower",
+      "subtitle": "4×/week · split by half of the body",
+      "days": {
+        "upper": "Upper Body",
+        "lower": "Lower Body"
+      }
+    },
+    "ppl": {
+      "title": "Push / Pull / Legs",
+      "subtitle": "3-6×/week · classic 3-day rotation",
+      "days": {
+        "push": "Push",
+        "pull": "Pull",
+        "legs": "Legs"
+      }
+    },
+    "split5": {
+      "title": "5-Day Split",
+      "subtitle": "One muscle group per day",
+      "days": {
+        "chest": "Chest",
+        "back": "Back",
+        "shoulders": "Shoulders",
+        "arms": "Arms",
+        "legs": "Legs"
+      }
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "startWorkout": "WORKOUT",
