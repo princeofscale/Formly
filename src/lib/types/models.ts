@@ -144,3 +144,19 @@ export interface DayActivity {
   date: string  // YYYY-MM-DD
   sets: number
 }
+
+export interface BodyMeasurement {
+  id: string
+  user_id: string
+  date: string
+  weight_kg: number | null
+  chest_cm: number | null
+  waist_cm: number | null
+  hips_cm: number | null
+  biceps_cm: number | null
+  body_fat_pct: number | null
+  created_at: string
+}
+
+export type MeasurementField =
+  | 'weight_kg' | 'chest_cm' | 'waist_cm' | 'hips_cm' | 'biceps_cm' | 'body_fat_pct'

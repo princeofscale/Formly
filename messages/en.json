@@ -277,5 +277,43 @@
       "streak_30":      { "title": "Iron Will",       "desc": "30-workout streak",            "condition": "30 workouts in a row" },
       "first_pr":       { "title": "Record Breaker",  "desc": "Set your first 1RM record",    "condition": "Set a personal record" }
     }
+  },
+  "body": {
+    "title": "Body Measurements",
+    "linkTitle": "Body Measurements",
+    "linkSub": "Track weight, size, body fat",
+    "addEntry": "Add Measurement",
+    "save": "Save",
+    "saved": "Saved!",
+    "saving": "Saving...",
+    "today": "Today",
+    "noData": "No measurements yet",
+    "deleteConfirm": "Delete this measurement?",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "labels": {
+      "weight": "Weight",
+      "chest": "Chest",
+      "waist": "Waist",
+      "hips": "Hips",
+      "biceps": "Biceps",
+      "bodyFat": "Body Fat"
+    },
+    "units": {
+      "kg": "kg",
+      "cm": "cm",
+      "pct": "%"
+    },
+    "bmi": {
+      "title": "BMI",
+      "setHeightHint": "Set your height in profile to see BMI",
+      "underweight": "Underweight",
+      "normal": "Normal",
+      "overweight": "Overweight",
+      "obese": "Obese"
+    },
+    "history": {
+      "title": "History"
+    }
   }
 }
