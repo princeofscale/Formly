@@ -222,6 +222,7 @@
     "deleteCancel": "Cancel",
     "deleteConfirmText": "Permanently delete this workout?",
     "finishedBanner": "Workout complete! Great work 💪",
+    "notesLabel": "Notes",
     "noExercises": "No exercises logged in this session.",
     "table": {
       "set": "Set",
@@ -293,7 +294,13 @@
     "repsLabel": "Reps",
     "rpeLabel": "Effort",
     "setLabel": "Set #{n}",
-    "rpeOutOfRange": "Effort must be between 1 and 10."
+    "rpeOutOfRange": "Effort must be between 1 and 10.",
+    "notes": {
+      "label": "Notes",
+      "add": "Add note for this workout",
+      "placeholder": "How did it feel? Any observations…",
+      "saved": "Saved"
+    }
   },
   "onboarding": {
     "step1Title": "What's your goal?",

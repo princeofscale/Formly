@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets'
-import { finishSession } from '@/lib/db/workouts'
+import { finishSession, updateSessionNotes } from '@/lib/db/workouts'
 import { searchExercises } from '@/lib/db/exercises'
 import { getLastSetsForExercise } from '@/lib/db/sets'
 import { createTemplate, updateTemplate } from '@/lib/db/templates'
@@ -48,6 +48,13 @@ export async function searchExercisesAction(query: string, locale: string = 'en'
   const { user } = await verifySession()
   const supabase = await createClient()
   return searchExercises(supabase, user.id, query, locale)
+}
+
+export async function updateNotesAction(sessionId: string, notes: string): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  const trimmed = notes.length > 2000 ? notes.slice(0, 2000) : notes
+  await updateSessionNotes(supabase, sessionId, user.id, trimmed)
 }
 
 export async function getLastSetsForExerciseAction(exerciseId: string, sessionId: string): Promise<SetEntry[]> {

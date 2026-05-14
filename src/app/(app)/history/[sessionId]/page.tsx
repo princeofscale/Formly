@@ -82,6 +82,23 @@ export default async function SessionDetailPage({
         />
       </div>
 
+      {session.notes && (
+        <div
+          className="p-3 rounded-xl"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
+            {t('notesLabel')}
+          </div>
+          <p className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">
+            {session.notes}
+          </p>
+        </div>
+      )}
+
       {exercises.map(ex => (
         <Card key={ex.id}>
           <CardHeader className="pb-2">

@@ -7,6 +7,7 @@ import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
+import { WorkoutNotes } from './WorkoutNotes'
 import { getLastSetsForExerciseAction, saveTemplateAction, updateTemplateAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
@@ -191,6 +192,10 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
           </div>
         ))}
       </div>
+
+      {exercises.length > 0 && (
+        <WorkoutNotes sessionId={session.id} initialNotes={session.notes} />
+      )}
     </div>
   )
 }

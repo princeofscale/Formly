@@ -67,3 +67,17 @@ export async function finishSession(
     .eq('id', sessionId)
   if (error) throw new Error(error.message)
 }
+
+export async function updateSessionNotes(
+  supabase: SupabaseClient,
+  sessionId: string,
+  userId: string,
+  notes: string | null
+): Promise<void> {
+  const { error } = await supabase
+    .from('workout_sessions')
+    .update({ notes: notes && notes.trim().length > 0 ? notes : null })
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+  if (error) throw new Error(error.message)
+}
