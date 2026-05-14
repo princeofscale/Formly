@@ -156,7 +156,9 @@
     "muscleActivity": "Активность мышц (неделя)",
     "profileLink": "Профиль",
     "logWorkoutsHeatmap": "Залогируй тренировки чтобы увидеть хитмап.",
-    "recordsLink": "Рекорды"
+    "recordsLink": "Рекорды",
+    "streakAtRiskTitle": "Стрик {n} под угрозой!",
+    "streakAtRiskSub": "Сегодня тренировочный день — не разрывай серию"
   },
   "profile": {
     "title": "ПРОФИЛЬ",

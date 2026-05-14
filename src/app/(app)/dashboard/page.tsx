@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dumbbell } from 'lucide-react'
+import { Dumbbell, Flame } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
@@ -70,6 +70,15 @@ export default async function DashboardPage() {
   const sessions = sessionsResult.data ?? []
   const schedule: number[] = profileResult.data?.training_schedule ?? []
   const streakInfo = calculateStreak(workoutDates, schedule)
+
+  // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
+  const now = new Date()
+  const todayIso = now.toISOString().slice(0, 10)
+  const jsDay = now.getUTCDay()
+  const todayIsoDay = jsDay === 0 ? 7 : jsDay
+  const scheduledToday = schedule.includes(todayIsoDay)
+  const workedOutToday = workoutDates.includes(todayIso)
+  const streakAtRisk = scheduledToday && !workedOutToday && streakInfo.current >= 3
   const weekTonnage = (weekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const weekSessions = (weekResult.data ?? []).length
   const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
@@ -107,6 +116,22 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300">
         <h1 className="text-3xl font-black uppercase tracking-wider">{t('title')}</h1>
       </div>
+
+      {streakAtRisk && (
+        <div
+          className="flex items-center gap-3 p-3 rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-300"
+          style={{
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15))',
+            border: '1px solid rgba(239,68,68,0.35)',
+          }}
+        >
+          <Flame className="h-5 w-5 text-orange-400 flex-shrink-0" />
+          <div className="flex-1 min-w-0 text-xs">
+            <div className="font-bold text-red-300">{t('streakAtRiskTitle', { n: streakInfo.current })}</div>
+            <div className="text-zinc-400 text-[11px]">{t('streakAtRiskSub')}</div>
+          </div>
+        </div>
+      )}
 
       {/* Gradient CTA */}
       <Link

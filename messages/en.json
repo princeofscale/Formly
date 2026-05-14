@@ -156,7 +156,9 @@
     "muscleActivity": "Muscle Activity (week)",
     "profileLink": "Profile",
     "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap.",
-    "recordsLink": "Records"
+    "recordsLink": "Records",
+    "streakAtRiskTitle": "Streak {n} at risk!",
+    "streakAtRiskSub": "Today is a training day — don't break the chain"
   },
   "profile": {
     "title": "PROFILE",
