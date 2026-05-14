@@ -13,7 +13,7 @@ import { LanguageSelector } from '@/components/profile/LanguageSelector'
 import { signOutAction } from '@/app/(app)/actions'
 import type { Profile } from '@/lib/types/models'
 import Link from 'next/link'
-import { Trophy, ChevronRight } from 'lucide-react'
+import { Trophy, ChevronRight, Activity } from 'lucide-react'
 import { getAchievements } from '@/lib/db/achievements'
 import { ALL_ACHIEVEMENT_CODES } from '@/lib/services/achievements.service'
 
@@ -22,6 +22,7 @@ export default async function ProfilePage() {
   const supabase = await createClient()
   const t = await getTranslations('profile')
   const tAch = await getTranslations('achievements')
+  const tBody = await getTranslations('body')
   const locale = await getLocale()
 
   const { data: profile } = await supabase
@@ -156,6 +157,21 @@ export default async function ProfilePage() {
           <LanguageSelector current={locale} label={t('language')} />
         </CardContent>
       </Card>
+
+      {/* Body Measurements link */}
+      <Link
+        href="/body"
+        className="flex items-center justify-between p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Activity className="h-5 w-5 text-amber-500" />
+          <div>
+            <div className="font-bold text-sm">{tBody('linkTitle')}</div>
+            <div className="text-xs text-zinc-500">{tBody('linkSub')}</div>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-zinc-500" />
+      </Link>
 
       {/* Achievements link */}
       <Link
