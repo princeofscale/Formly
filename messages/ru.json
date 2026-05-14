@@ -191,6 +191,7 @@
   },
   "exerciseLibrary": {
     "title": "Библиотека упражнений",
+    "targetArea": "Область внимания",
     "custom": "Своё",
     "noExercises": "Упражнения не найдены.",
     "clearFilter": "Сбросить",

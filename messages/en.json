@@ -191,6 +191,7 @@
   },
   "exerciseLibrary": {
     "title": "Exercise Library",
+    "targetArea": "Target Area",
     "custom": "Custom",
     "noExercises": "No exercises found.",
     "clearFilter": "Clear",
