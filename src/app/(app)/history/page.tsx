@@ -3,8 +3,13 @@ import { verifySession } from '@/lib/dal'
 import { getRecentSessions } from '@/lib/db/workouts'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Dumbbell } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
+
+interface SetRow {
+  session_id: string
+  exercises: { name: string; name_ru: string | null } | null
+}
 
 export default async function HistoryPage() {
   const { user } = await verifySession()
@@ -14,12 +19,39 @@ export default async function HistoryPage() {
 
   const sessions = await getRecentSessions(supabase, user.id, 50)
 
+  // Batch-fetch exercise tags for all sessions in one query
+  const sessionIds = sessions.map(s => s.id)
+  const exerciseTags = new Map<string, string[]>()
+  const setCounts = new Map<string, number>()
+
+  if (sessionIds.length > 0) {
+    const { data } = await supabase
+      .from('set_entries')
+      .select('session_id, exercises(name, name_ru)')
+      .in('session_id', sessionIds)
+
+    for (const row of (data ?? []) as unknown as SetRow[]) {
+      setCounts.set(row.session_id, (setCounts.get(row.session_id) ?? 0) + 1)
+      const ex = row.exercises
+      const name = locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name
+      if (!name) continue
+      const list = exerciseTags.get(row.session_id) ?? []
+      if (!list.includes(name) && list.length < 3) {
+        list.push(name)
+        exerciseTags.set(row.session_id, list)
+      }
+    }
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t('title')}</h1>
 
       {sessions.length === 0 && (
-        <p className="text-zinc-500 text-center py-12">{t('noWorkouts')}</p>
+        <div className="text-center py-16 space-y-3">
+          <Dumbbell className="h-10 w-10 text-zinc-700 mx-auto" />
+          <p className="text-zinc-500 text-sm">{t('noWorkouts')}</p>
+        </div>
       )}
 
       {sessions.map(s => {
@@ -34,18 +66,29 @@ export default async function HistoryPage() {
           month: 'short',
         })
 
+        const tags = exerciseTags.get(s.id) ?? []
+        const setCount = setCounts.get(s.id) ?? 0
+
         return (
           <Link key={s.id} href={`/history/${s.id}`}>
             <Card className="hover:border-white/20 transition-colors">
-              <CardContent className="py-3 flex items-center justify-between">
-                <div>
-                  <p className="font-medium capitalize">{dateStr}</p>
-                  <p className="text-xs text-zinc-500">
-                    {(s.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
-                    {duration ? ` · ${duration} ${t('minutes')}` : ''}
-                  </p>
+              <CardContent className="py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium capitalize">{dateStr}</p>
+                    {tags.length > 0 && (
+                      <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
+                        {tags.join(' · ')}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-zinc-600 mt-1">
+                      {(s.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
+                      {setCount > 0 ? ` · ${setCount} ${t('sets')}` : ''}
+                      {duration ? ` · ${duration} ${t('minutes')}` : ''}
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0" />
                 </div>
-                <ChevronRight className="h-4 w-4 text-zinc-600" />
               </CardContent>
             </Card>
           </Link>
