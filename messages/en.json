@@ -286,6 +286,7 @@
     "elapsed": "{minutes}m elapsed",
     "searchPlaceholder": "Search exercises...",
     "emptyHint": "Search for an exercise above to start logging",
+    "quickAdd": "Quick add",
     "finish": "Finish",
     "finishing": "Finishing...",
     "rpe": "RPE",

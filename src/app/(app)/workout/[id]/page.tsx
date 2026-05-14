@@ -6,7 +6,7 @@ import { getSetsForSession, getLastSetsForExercise } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
 import { getTemplate } from '@/lib/db/templates'
 import { WorkoutClient } from '@/components/workout/WorkoutClient'
-import type { ExerciseWithSets, SetEntry } from '@/lib/types/models'
+import type { Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 
 export default async function WorkoutPage({
   params,
@@ -67,6 +67,28 @@ export default async function WorkoutPage({
 
   const initialExercises = [...exerciseMap.values(), ...templateExercises]
 
+  // Build top-used exercises suggestion list from last 30 days (excluding ones already in session)
+  const since30days = new Date()
+  since30days.setDate(since30days.getDate() - 30)
+  const { data: recentSetsForSuggestions } = await supabase
+    .from('set_entries')
+    .select('exercise_id')
+    .eq('user_id', user.id)
+    .gte('created_at', since30days.toISOString())
+
+  const exerciseFreq = new Map<string, number>()
+  for (const row of recentSetsForSuggestions ?? []) {
+    if (exerciseMap.has(row.exercise_id)) continue
+    exerciseFreq.set(row.exercise_id, (exerciseFreq.get(row.exercise_id) ?? 0) + 1)
+  }
+  const topExerciseIds = Array.from(exerciseFreq.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([id]) => id)
+  const suggestedExercises: Exercise[] = topExerciseIds
+    .map(id => allExercises.find(e => e.id === id))
+    .filter((e): e is Exercise => e !== undefined)
+
   return (
     <WorkoutClient
       session={session}
@@ -74,6 +96,7 @@ export default async function WorkoutPage({
       allExercises={allExercises}
       lastSetsMap={lastSetsMap}
       sourceTemplate={sourceTemplate}
+      suggestedExercises={suggestedExercises}
     />
   )
 }

@@ -17,6 +17,7 @@ interface Props {
   allExercises: Exercise[]
   lastSetsMap?: Record<string, SetEntry[]>
   sourceTemplate?: { id: string; name: string }
+  suggestedExercises?: Exercise[]
 }
 
 function useElapsed(startedAt: string) {
@@ -32,7 +33,7 @@ function useElapsed(startedAt: string) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate }: Props) {
+export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate, suggestedExercises = [] }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
   const locale = useLocale()
@@ -175,8 +176,32 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       </div>
 
       {exercises.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-zinc-400 text-sm">{t('emptyHint')}</p>
+        <div className="space-y-4 py-8">
+          <p className="text-center text-zinc-400 text-sm">{t('emptyHint')}</p>
+          {suggestedExercises.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest text-center font-bold">
+                {t('quickAdd')}
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {suggestedExercises
+                  .filter(ex => !exercises.some(e => e.id === ex.id))
+                  .map(ex => {
+                    const name = locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name
+                    return (
+                      <button
+                        key={ex.id}
+                        type="button"
+                        onClick={() => addExercise(ex)}
+                        className="h-9 px-3 rounded-full text-xs font-medium bg-white/5 border border-white/10 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+                      >
+                        + {name}
+                      </button>
+                    )
+                  })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
