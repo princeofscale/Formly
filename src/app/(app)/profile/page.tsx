@@ -10,6 +10,7 @@ import { calculateBMI, bmiCategory } from '@/lib/utils/bmi'
 import { updateProfileAction } from './actions'
 import { ProfileAvatar } from '@/components/profile/ProfileAvatar'
 import { LanguageSelector } from '@/components/profile/LanguageSelector'
+import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
 import { signOutAction } from '@/app/(app)/actions'
 import type { Profile } from '@/lib/types/models'
 import Link from 'next/link'
@@ -157,6 +158,9 @@ export default async function ProfilePage() {
           <LanguageSelector current={locale} label={t('language')} />
         </CardContent>
       </Card>
+
+      {/* Push notifications */}
+      <NotificationsToggle vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ''} />
 
       {/* Body Measurements link */}
       <Link

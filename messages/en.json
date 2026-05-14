@@ -111,6 +111,23 @@
     "iosInstructions": "On iPhone: open the share menu",
     "iosShareHint": "Share → Add to Home Screen"
   },
+  "notifications": {
+    "title": "Notifications",
+    "subOn": "Receiving training reminders",
+    "subOff": "Stay on top of your workouts",
+    "enable": "Enable",
+    "disable": "Disable",
+    "sendTest": "Send test notification",
+    "testSent": "Sent to {n} device(s)",
+    "testNoSubs": "No active subscriptions",
+    "unsupported": "Not supported",
+    "denied": "Blocked",
+    "deniedHint": "Notifications are blocked in browser settings. Allow them for this site to enable.",
+    "errorEnable": "Could not enable notifications",
+    "errorDisable": "Could not disable",
+    "errorTest": "Could not send test",
+    "errorNoKey": "Push not configured by server"
+  },
   "dashboard": {
     "title": "Dashboard",
     "startWorkout": "WORKOUT",
