@@ -24,8 +24,10 @@ export default async function DashboardPage() {
 
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
+  const since14days = new Date()
+  since14days.setDate(since14days.getDate() - 14)
 
-  const [sessionsResult, profileResult, weekResult, prResult, initialInsights, workoutDates, calendarActivity] = await Promise.all([
+  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, calendarActivity] = await Promise.all([
     supabase
       .from('workout_sessions')
       .select('id, started_at, total_volume_kg, finished_at')
@@ -45,6 +47,13 @@ export default async function DashboardPage() {
       .not('finished_at', 'is', null)
       .gte('started_at', since7days.toISOString()),
     supabase
+      .from('workout_sessions')
+      .select('total_volume_kg')
+      .eq('user_id', user.id)
+      .not('finished_at', 'is', null)
+      .gte('started_at', since14days.toISOString())
+      .lt('started_at', since7days.toISOString()),
+    supabase
       .from('set_entries')
       .select('calculated_1rm')
       .eq('user_id', user.id)
@@ -62,6 +71,8 @@ export default async function DashboardPage() {
   const streakInfo = calculateStreak(workoutDates, schedule)
   const weekTonnage = (weekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const weekSessions = (weekResult.data ?? []).length
+  const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
+  const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
   const muscleVolumes = await getWeeklyMuscleVolume(supabase, user.id, 1)
 
@@ -112,6 +123,8 @@ export default async function DashboardPage() {
         tonnage={weekTonnage}
         sessions={weekSessions}
         bestE1rm={bestE1rm}
+        prevTonnage={prevWeekTonnage}
+        prevSessions={prevWeekSessions}
         labels={{
           tonnage: t('week.tonnage'),
           sessions: t('week.sessions'),
