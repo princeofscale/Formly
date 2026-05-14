@@ -14,6 +14,7 @@ import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 import { getFinishedSessionDates, getCalendarActivity } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { StreakCard } from '@/components/dashboard/StreakCard'
+import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 export default async function DashboardPage() {
   const { user } = await verifySession()
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
   const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, calendarActivity] = await Promise.all([
     supabase
       .from('workout_sessions')
-      .select('id, started_at, total_volume_kg, finished_at')
+      .select('id, started_at, total_volume_kg, finished_at, mood_score')
       .eq('user_id', user.id)
       .not('finished_at', 'is', null)
       .order('started_at', { ascending: false })
@@ -158,18 +159,22 @@ export default async function DashboardPage() {
               {sessions.map(s => {
                 const date = new Date(s.started_at)
                 const tags = exerciseTagsMap[s.id] ?? []
+                const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
                 return (
                   <Link key={s.id} href={`/history/${s.id}`} className="block group">
                     <div className="flex items-center justify-between py-2 border-b border-white/10 last:border-0 group-hover:border-amber-500/30 transition-colors">
-                      <div>
-                        <p className="font-mono text-sm font-bold">
-                          {date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
-                        </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-mono text-sm font-bold">
+                            {date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
+                          </p>
+                          {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
+                        </div>
                         {tags.length > 0 && (
-                          <p className="text-xs text-zinc-500 mt-0.5">{tags.join(' · ')}</p>
+                          <p className="text-xs text-zinc-500 mt-0.5 truncate">{tags.join(' · ')}</p>
                         )}
                       </div>
-                      <span className="text-sm text-amber-500 font-mono font-bold">
+                      <span className="text-sm text-amber-500 font-mono font-bold flex-shrink-0">
                         {(s.total_volume_kg ?? 0).toFixed(0)} кг
                       </span>
                     </div>
