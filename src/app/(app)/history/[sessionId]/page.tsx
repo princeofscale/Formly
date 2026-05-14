@@ -9,6 +9,8 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import type { ExerciseWithSets, AchievementCode } from '@/lib/types/models'
 import { DeleteWorkoutButton } from './DeleteWorkoutButton'
 import { AchievementToast } from '@/components/AchievementToast'
+import { repeatWorkoutAction } from '../actions'
+import { RotateCcw } from 'lucide-react'
 
 export default async function SessionDetailPage({
   params,
@@ -71,15 +73,27 @@ export default async function SessionDetailPage({
             {duration ? ` · ${duration} ${t('minutes')}` : ''}
           </p>
         </div>
-        <DeleteWorkoutButton
-          sessionId={sessionId}
-          labels={{
-            deleteWorkout: t('deleteWorkout'),
-            deleteConfirmText: t('deleteConfirmText'),
-            deleteConfirm: t('deleteConfirm'),
-            deleteCancel: t('deleteCancel'),
-          }}
-        />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <form action={async () => { 'use server'; await repeatWorkoutAction(sessionId) }}>
+            <button
+              type="submit"
+              className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 text-xs font-bold transition-colors"
+              title={t('repeat')}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {t('repeat')}
+            </button>
+          </form>
+          <DeleteWorkoutButton
+            sessionId={sessionId}
+            labels={{
+              deleteWorkout: t('deleteWorkout'),
+              deleteConfirmText: t('deleteConfirmText'),
+              deleteConfirm: t('deleteConfirm'),
+              deleteCancel: t('deleteCancel'),
+            }}
+          />
+        </div>
       </div>
 
       {session.notes && (

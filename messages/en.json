@@ -225,6 +225,7 @@
     "deleteConfirmText": "Permanently delete this workout?",
     "finishedBanner": "Workout complete! Great work 💪",
     "notesLabel": "Notes",
+    "repeat": "Repeat",
     "noExercises": "No exercises logged in this session.",
     "table": {
       "set": "Set",
