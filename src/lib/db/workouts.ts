@@ -81,3 +81,18 @@ export async function updateSessionNotes(
     .eq('user_id', userId)
   if (error) throw new Error(error.message)
 }
+
+export async function updateSessionMood(
+  supabase: SupabaseClient,
+  sessionId: string,
+  userId: string,
+  mood: number | null
+): Promise<void> {
+  const safeMood = mood !== null && mood >= 1 && mood <= 5 ? mood : null
+  const { error } = await supabase
+    .from('workout_sessions')
+    .update({ mood_score: safeMood })
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+  if (error) throw new Error(error.message)
+}

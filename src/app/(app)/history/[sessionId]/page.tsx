@@ -11,6 +11,7 @@ import { DeleteWorkoutButton } from './DeleteWorkoutButton'
 import { AchievementToast } from '@/components/AchievementToast'
 import { repeatWorkoutAction } from '../actions'
 import { RotateCcw } from 'lucide-react'
+import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 export default async function SessionDetailPage({
   params,
@@ -67,7 +68,14 @@ export default async function SessionDetailPage({
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold capitalize">{dateStr}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold capitalize">{dateStr}</h1>
+            {session.mood_score && MOOD_EMOJIS[session.mood_score] && (
+              <span className="text-2xl" title={`Mood: ${session.mood_score}/5`}>
+                {MOOD_EMOJIS[session.mood_score]}
+              </span>
+            )}
+          </div>
           <p className="text-zinc-400 text-sm">
             {(session.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
             {duration ? ` · ${duration} ${t('minutes')}` : ''}

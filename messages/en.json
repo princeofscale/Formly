@@ -303,6 +303,14 @@
       "add": "Add note for this workout",
       "placeholder": "How did it feel? Any observations…",
       "saved": "Saved"
+    },
+    "mood": {
+      "label": "How was the workout?",
+      "bad": "Rough",
+      "meh": "Meh",
+      "ok": "OK",
+      "good": "Good",
+      "great": "On fire"
     }
   },
   "onboarding": {

@@ -8,6 +8,7 @@ import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
+import { MoodSelector } from './MoodSelector'
 import { getLastSetsForExerciseAction, saveTemplateAction, updateTemplateAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
@@ -194,7 +195,10 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       </div>
 
       {exercises.length > 0 && (
-        <WorkoutNotes sessionId={session.id} initialNotes={session.notes} />
+        <div className="space-y-3">
+          <MoodSelector sessionId={session.id} initialMood={session.mood_score} />
+          <WorkoutNotes sessionId={session.id} initialNotes={session.notes} />
+        </div>
       )}
     </div>
   )
