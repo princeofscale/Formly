@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendPushToMany } from '@/lib/services/web-push.service'
+import { sendPushToSubscription } from '@/lib/services/web-push.service'
 import { deletePushSubscriptionByEndpoint, type PushSubscriptionRow } from '@/lib/db/push-subscriptions'
+import { getFinishedSessionDates } from '@/lib/db/streak'
+import { calculateStreak } from '@/lib/services/streak.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +14,25 @@ interface ProfileRow {
 
 interface SessionRow {
   user_id: string
+}
+
+function pickMessage(streak: number): { title: string; body: string } {
+  if (streak >= 7) {
+    return {
+      title: `GymLog 🔥 ${streak}`,
+      body: `Серия ${streak} тренировок. Не разрывай — сегодня день тренировки!`,
+    }
+  }
+  if (streak >= 3) {
+    return {
+      title: 'GymLog 💪',
+      body: `Стрик ${streak}. Сегодня день тренировки — продолжай серию!`,
+    }
+  }
+  return {
+    title: 'GymLog 💪',
+    body: 'Сегодня день тренировки. Не пропусти!',
+  }
 }
 
 function isoDayOfWeek(date: Date): number {
@@ -87,26 +108,39 @@ export async function GET(request: Request) {
     })
   }
 
-  // 4. Send push notifications
-  const results = await sendPushToMany(subs, {
-    title: 'GymLog 💪',
-    body: 'Сегодня день тренировки. Не пропусти!',
-    url: '/dashboard',
-  })
+  // Group subs by user, compute streak once per user
+  const subsByUser = new Map<string, PushSubscriptionRow[]>()
+  for (const s of subs) {
+    const list = subsByUser.get(s.user_id) ?? []
+    list.push(s)
+    subsByUser.set(s.user_id, list)
+  }
 
-  // 5. Clean up expired subscriptions
-  for (const r of results) {
-    if (r.expired) {
-      const sub = subs.find(s => s.endpoint === r.endpoint)
-      if (sub) {
-        await deletePushSubscriptionByEndpoint(supabase, sub.user_id, sub.endpoint)
+  const scheduleByUser = new Map<string, number[]>()
+  for (const c of candidates) {
+    scheduleByUser.set(c.id, c.training_schedule ?? [])
+  }
+
+  let sentCount = 0
+  let failedCount = 0
+  let expiredCount = 0
+
+  for (const [userId, userSubs] of subsByUser) {
+    const workoutDates = await getFinishedSessionDates(supabase, userId)
+    const streak = calculateStreak(workoutDates, scheduleByUser.get(userId) ?? [])
+    const payload = { ...pickMessage(streak.current), url: '/dashboard' }
+
+    for (const sub of userSubs) {
+      const result = await sendPushToSubscription(sub, payload)
+      if (result.ok) sentCount++
+      else if (result.expired) {
+        expiredCount++
+        await deletePushSubscriptionByEndpoint(supabase, userId, sub.endpoint)
+      } else {
+        failedCount++
       }
     }
   }
-
-  const sentCount = results.filter(r => r.ok).length
-  const failedCount = results.filter(r => !r.ok && !r.expired).length
-  const expiredCount = results.filter(r => r.expired).length
 
   return NextResponse.json({
     scheduled: candidates.length,

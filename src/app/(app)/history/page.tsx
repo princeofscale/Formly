@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import { ChevronRight, Dumbbell } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
+import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 interface SetRow {
   session_id: string
@@ -69,13 +70,17 @@ export default async function HistoryPage() {
         const tags = exerciseTags.get(s.id) ?? []
         const setCount = setCounts.get(s.id) ?? 0
 
+        const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
         return (
           <Link key={s.id} href={`/history/${s.id}`}>
             <Card className="hover:border-white/20 transition-colors">
               <CardContent className="py-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium capitalize">{dateStr}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium capitalize">{dateStr}</p>
+                      {moodEmoji && <span className="text-base leading-none">{moodEmoji}</span>}
+                    </div>
                     {tags.length > 0 && (
                       <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
                         {tags.join(' · ')}
