@@ -77,12 +77,18 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
 
   await finishSession(supabase, sessionId, totalVolume)
 
-  const newAchievements = await detectAndSaveAchievements(supabase, user.id)
+  // Achievement detection is a bonus feature — never let it fail the workout
+  let codes = ''
+  try {
+    const newAchievements = await detectAndSaveAchievements(supabase, user.id)
+    codes = newAchievements.map(a => a.code).join(',')
+  } catch (e) {
+    console.error('[finishWorkout] achievement detection failed:', e)
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/history')
 
-  const codes = newAchievements.map(a => a.code).join(',')
   const suffix = codes ? '?finished=1&unlocked=' + encodeURIComponent(codes) : '?finished=1'
   redirect('/history/' + sessionId + suffix)
 }
