@@ -103,6 +103,14 @@
       }
     }
   },
+  "install": {
+    "title": "Установи GymLog",
+    "subtitle": "Добавь на главный экран для быстрого доступа",
+    "cta": "Установить",
+    "later": "Позже",
+    "iosInstructions": "На iPhone: открой меню поделиться",
+    "iosShareHint": "Поделиться → На экран «Домой»"
+  },
   "dashboard": {
     "title": "Дашборд",
     "startWorkout": "ТРЕНИРОВКА",

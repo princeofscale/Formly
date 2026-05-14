@@ -103,6 +103,14 @@
       }
     }
   },
+  "install": {
+    "title": "Install GymLog",
+    "subtitle": "Add to your home screen for quick access",
+    "cta": "Install",
+    "later": "Later",
+    "iosInstructions": "On iPhone: open the share menu",
+    "iosShareHint": "Share → Add to Home Screen"
+  },
   "dashboard": {
     "title": "Dashboard",
     "startWorkout": "WORKOUT",
