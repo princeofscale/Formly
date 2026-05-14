@@ -14,7 +14,7 @@ import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
 import { signOutAction } from '@/app/(app)/actions'
 import type { Profile } from '@/lib/types/models'
 import Link from 'next/link'
-import { Trophy, ChevronRight, Activity } from 'lucide-react'
+import { Trophy, ChevronRight, Activity, Download } from 'lucide-react'
 import { getAchievements } from '@/lib/db/achievements'
 import { ALL_ACHIEVEMENT_CODES } from '@/lib/services/achievements.service'
 
@@ -193,6 +193,22 @@ export default async function ProfilePage() {
         </div>
         <ChevronRight className="h-4 w-4 text-zinc-500" />
       </Link>
+
+      {/* Export CSV */}
+      <a
+        href="/api/export/csv"
+        download
+        className="flex items-center justify-between p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Download className="h-5 w-5 text-amber-500" />
+          <div>
+            <div className="font-bold text-sm">{t('exportCsv')}</div>
+            <div className="text-xs text-zinc-500">{t('exportCsvSub')}</div>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-zinc-500" />
+      </a>
 
       {/* Опасная зона */}
       <div className="border-t border-white/10 pt-4 flex gap-3">
