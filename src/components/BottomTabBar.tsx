@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useEffect, useState, useTransition } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Dumbbell, TrendingUp, ClipboardList, User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -19,14 +19,44 @@ const TABS: TabDef[] = [
   { href: '/profile',           icon: User,          labelKey: 'profile',  altMatches: ['/body'] },
 ]
 
-function isActive(pathname: string, tab: TabDef): boolean {
+function matchesTab(pathname: string, tab: TabDef): boolean {
   if (pathname === tab.href || pathname.startsWith(tab.href + '/')) return true
   return (tab.altMatches ?? []).some(p => pathname === p || pathname.startsWith(p + '/'))
 }
 
 export function BottomTabBar() {
+  const router = useRouter()
   const pathname = usePathname()
   const t = useTranslations('nav')
+  const [isPending, startTransition] = useTransition()
+  const [pendingHref, setPendingHref] = useState<string | null>(null)
+
+  // Prefetch all tabs on mount so navigation is instant after first paint
+  useEffect(() => {
+    for (const tab of TABS) {
+      router.prefetch(tab.href)
+    }
+  }, [router])
+
+  // Clear pending target once pathname catches up to it
+  useEffect(() => {
+    if (pendingHref && (pathname === pendingHref || pathname.startsWith(pendingHref + '/'))) {
+      setPendingHref(null)
+    }
+  }, [pathname, pendingHref])
+
+  // Effective "active tab" = pending click target (if any) or actual route match
+  const pendingTab = pendingHref ? TABS.find(t => t.href === pendingHref) : null
+  const routeTab = TABS.find(tab => matchesTab(pathname, tab))
+  const activeTab = pendingTab ?? routeTab
+
+  function handleClick(href: string) {
+    if (href === activeTab?.href) return
+    setPendingHref(href)
+    startTransition(() => {
+      router.push(href)
+    })
+  }
 
   return (
     <nav
@@ -40,17 +70,20 @@ export function BottomTabBar() {
     >
       <div className="max-w-2xl mx-auto flex items-stretch justify-around h-16 px-2">
         {TABS.map(tab => {
-          const active = isActive(pathname, tab)
+          const active = activeTab?.href === tab.href
+          const isLoading = isPending && pendingHref === tab.href
           const Icon = tab.icon
           return (
-            <Link
+            <button
               key={tab.href}
-              href={tab.href}
-              className="flex-1 flex flex-col items-center justify-center gap-1 transition-all"
+              type="button"
+              onClick={() => handleClick(tab.href)}
+              onMouseEnter={() => router.prefetch(tab.href)}
+              className="flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-95"
               aria-label={t(tab.labelKey)}
             >
               <div
-                className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-[10px] transition-all duration-200"
+                className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-[10px] transition-all duration-150"
                 style={
                   active
                     ? {
@@ -61,7 +94,7 @@ export function BottomTabBar() {
                 }
               >
                 <Icon
-                  className="h-5 w-5 transition-colors"
+                  className={`h-5 w-5 transition-colors ${isLoading ? 'animate-pulse' : ''}`}
                   style={{ color: active ? '#FF3B47' : 'rgba(255,255,255,0.5)' }}
                 />
                 <span
@@ -71,7 +104,7 @@ export function BottomTabBar() {
                   {t(tab.labelKey)}
                 </span>
               </div>
-            </Link>
+            </button>
           )
         })}
       </div>
