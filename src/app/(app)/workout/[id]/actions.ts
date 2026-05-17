@@ -13,7 +13,6 @@ import { upsertExerciseNote } from '@/lib/db/exercise-notes'
 import { upsertExerciseVideo } from '@/lib/db/exercise-videos'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
-import { detectAndSaveAchievements } from '@/lib/services/achievements.service'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
@@ -96,7 +95,7 @@ export async function updateTemplateAction(templateId: string, exercises: Templa
 }
 
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
-  const { user } = await verifySession()
+  await verifySession()
   const supabase = await createClient()
 
   const allSets = await getSetsForSession(supabase, sessionId)
@@ -104,18 +103,8 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
 
   await finishSession(supabase, sessionId, totalVolume)
 
-  // Achievement detection is a bonus feature — never let it fail the workout
-  let codes = ''
-  try {
-    const newAchievements = await detectAndSaveAchievements(supabase, user.id)
-    codes = newAchievements.map(a => a.code).join(',')
-  } catch (e) {
-    console.error('[finishWorkout] achievement detection failed:', e)
-  }
-
   revalidatePath('/dashboard')
   revalidatePath('/history')
 
-  const suffix = codes ? '?finished=1&unlocked=' + encodeURIComponent(codes) : '?finished=1'
-  redirect('/history/' + sessionId + suffix)
+  redirect('/history/' + sessionId + '?finished=1')
 }

@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { RefreshCw, Sparkles, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { refreshAIInsightsAction } from '@/app/(app)/dashboard/actions'
 import type { AIInsights, AIInsightItem } from '@/lib/types/models'
 
 const SECTION_COLORS: Record<AIInsightItem['type'], { border: string; color: string }> = {
-  today:       { border: '#f59e0b', color: '#fbbf24' },
-  progression: { border: '#a78bfa', color: '#c4b5fd' },
-  prediction:  { border: '#4ade80', color: '#86efac' },
-  warning:     { border: '#f87171', color: '#fca5a5' },
+  today:       { border: '#FF3B47', color: '#FF7A82' },
+  progression: { border: '#F97316', color: '#FDBA74' },
+  prediction:  { border: '#34D399', color: '#86EFAC' },
+  warning:     { border: '#F87171', color: '#FCA5A5' },
 }
 
 interface Props {
@@ -20,6 +20,7 @@ interface Props {
 
 export function AIInsightsCard({ initialInsights }: Props) {
   const t = useTranslations('aiInsights')
+  const locale = useLocale()
   const [insights, setInsights] = useState<AIInsights | null>(initialInsights)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -43,13 +44,18 @@ export function AIInsightsCard({ initialInsights }: Props) {
 
   useEffect(() => {
     if (!initialInsights) {
-      runGeneration()
+      const id = window.setTimeout(runGeneration, 0)
+      return () => window.clearTimeout(id)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const updatedTime = insights?.generated_at
-    ? new Date(insights.generated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    ? new Date(insights.generated_at).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: locale !== 'ru',
+      })
     : null
 
   return (
@@ -58,10 +64,9 @@ export function AIInsightsCard({ initialInsights }: Props) {
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #8b5cf6)' }}
+              className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary/15"
             >
-              <Sparkles className="h-3 w-3 text-white" />
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="uppercase tracking-wider font-bold text-xs">{t('title')}</span>
           </div>
@@ -75,10 +80,10 @@ export function AIInsightsCard({ initialInsights }: Props) {
               <button
                 onClick={runGeneration}
                 disabled={isPending}
-                className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-xl transition-colors hover:bg-white/10 disabled:opacity-40"
                 title={t('refresh')}
               >
-                <RefreshCw className={`h-3 w-3 text-zinc-500 ${isPending ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-3.5 w-3.5 text-white/45 ${isPending ? 'animate-spin' : ''}`} />
               </button>
             )}
           </div>
@@ -91,7 +96,7 @@ export function AIInsightsCard({ initialInsights }: Props) {
           <div className="space-y-2">
             <p className="text-xs text-zinc-500 animate-pulse">{t('updating')}</p>
             {[0, 1, 2].map(i => (
-              <div key={i} className="h-12 rounded-lg bg-white/5 animate-pulse" />
+              <div key={i} className="h-12 animate-pulse rounded-2xl bg-white/5" />
             ))}
           </div>
         )}
@@ -118,7 +123,7 @@ export function AIInsightsCard({ initialInsights }: Props) {
               return (
                 <div
                   key={i}
-                  className="pl-3 space-y-0.5"
+                  className="rounded-r-2xl bg-white/[0.025] py-1.5 pl-3 pr-2"
                   style={{ borderLeft: `2px solid ${style.border}` }}
                 >
                   <p

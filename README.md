@@ -1,61 +1,97 @@
 # GymLog
 
-Personal workout tracker built with Next.js 16, Supabase, and next-intl. Tracks sets, reps, weight, rest periods, and personal records. Supports English and Russian.
+GymLog is a bilingual workout tracker for logging training sessions, tracking progress, and getting AI coaching signals from recent workout data.
 
 ## Features
 
-- Log workouts with exercises, sets, weight, reps, and RPE
-- Rest timer with haptic feedback and circular progress indicator
-- Personal records (1RM tracking) with PR detection
-- Workout templates — save and reuse workout structures
-- Last-session hints — shows previous sets when starting an exercise
-- Exercise library with images and instructions (RU/EN)
-- Workout history with volume tracking
-- Muscle heatmap — visualizes which muscles were trained this week
-- Weekly stats dashboard
-- Training schedule
-- Russian/English interface
+- Workout logging with exercises, sets, weight, reps, RPE, rest time, notes, and mood
+- Active workout flow with rest timer, last-session hints, personal record detection, and template updates
+- Dashboard with weekly volume, streak status, recent workouts, AI coach insights, and muscle activity periods
+- Progress page with 1RM charts, monthly volume, body weight, and height synced with the profile
+- Exercise library with localized names, instructions, images, notes, and YouTube technique links
+- Workout history, session details, deletion, repeat flow, and CSV export
+- Profile settings for weight, height, age, training start date, location, schedule, language, and push notifications
+- Bottom navigation for Dashboard, Workouts, Progress, Plan, and Profile
+- Russian and English UI via next-intl
 
 ## Stack
 
-- **Next.js 16** — App Router, server components, server actions
-- **Supabase** — PostgreSQL database, auth, RLS policies
-- **next-intl v4** — i18n (Russian + English)
-- **Tailwind CSS** + shadcn/ui
-- **Vercel** — deployment
+- Next.js 16 App Router
+- React 19
+- Supabase Auth, PostgreSQL, and RLS policies
+- next-intl v4
+- Tailwind CSS and shadcn/ui
+- Mistral AI for training recommendations
+- Vitest and Testing Library
 
 ## Setup
 
+Install dependencies:
+
 ```bash
-pnpm install
-cp .env.example .env.local   # fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
-pnpm dev
+npm install
 ```
 
-Apply DB migrations:
+Create local environment variables:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Fill in the Supabase keys, Mistral key, and optional VAPID push keys in `.env.local`.
+
+Apply database migrations:
 
 ```bash
 supabase db push
 ```
 
-## Project structure
+Run the development server:
 
+```bash
+npm run dev
 ```
+
+Open `http://localhost:3000`.
+
+## Scripts
+
+```bash
+npm run dev      # start local Next.js server
+npm run build    # production build
+npm run lint     # lint the project
+npm test         # run unit tests
+```
+
+## Project Structure
+
+```text
 src/
-  app/(app)/          # authenticated pages
-    dashboard/        # home screen with stats
-    workout/          # active workout session
-    history/          # past sessions
-    records/          # personal records (best 1RM per exercise)
-    analytics/        # exercise-specific progress charts
-    library/          # exercise catalog
-    profile/          # user settings
+  app/(app)/          authenticated app routes
+    dashboard/        main dashboard
+    workout/          workout creation and active session
+    history/          completed sessions
+    progress/         charts and body metrics
+    records/          personal records
+    profile/          user settings
   components/
-    workout/          # ExerciseBlock, SetRow, RestTimer, PRBadge, etc.
-    dashboard/        # WeeklyStats, MuscleHeatmap, ScheduleStatus
+    dashboard/        dashboard widgets and muscle activity
+    progress/         progress charts and body metrics
+    workout/          workout logging UI
+    profile/          profile settings widgets
   lib/
-    db/               # Supabase query functions
-    services/         # analytics, PR detection
-    utils/            # 1RM calculation, plate calculator
-  messages/           # en.json, ru.json
+    db/               Supabase query helpers
+    services/         analytics, AI insights, PR detection
+    types/            shared model types
+    utils/            BMI, 1RM, plates, formatting helpers
+  messages/           English and Russian translations
+supabase/
+  migrations/         database schema changes and RLS policies
 ```
+
+## Notes
+
+- Server actions verify the current user session before mutating data.
+- Supabase RLS keeps user-owned data scoped by `user_id`.
+- AI recommendations use `MISTRAL_API_KEY`.
+- Achievements and body measurement pages were removed; profile and progress now own body weight and height.

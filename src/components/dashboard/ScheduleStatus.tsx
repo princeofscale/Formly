@@ -24,21 +24,21 @@ export function ScheduleStatus({ schedule, labels }: Props) {
   }
 
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-sm border-l-4 ${
+    <div className={`flex h-full min-h-[68px] items-center gap-3 rounded-[18px] px-3 py-2.5 ring-1 ${
       isGymDay
-        ? 'bg-green-900/20 border-l-green-500 border border-green-900/50'
-        : 'bg-white/5 border-l-zinc-600 border border-white/10'
+        ? 'bg-emerald-400/10 ring-emerald-300/15'
+        : 'bg-card ring-white/[0.06]'
     }`}>
       {isGymDay
-        ? <Dumbbell className="h-5 w-5 text-green-400 shrink-0" />
-        : <Moon className="h-5 w-5 text-zinc-500 shrink-0" />
+        ? <Dumbbell className="h-4 w-4 shrink-0 text-emerald-300" />
+        : <Moon className="h-4 w-4 shrink-0 text-white/40" />
       }
       <div>
-        <p className="font-bold text-sm uppercase tracking-wide">
+        <p className="text-xs font-bold uppercase tracking-wide">
           {isGymDay ? labels.trainingDay : labels.restDay}
         </p>
         {!isGymDay && (
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <p className="mt-0.5 text-[11px] text-white/40">
             {schedule.length === 0 ? labels.noSchedule : nextDayLabel}
           </p>
         )}

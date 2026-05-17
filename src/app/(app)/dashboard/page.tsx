@@ -2,13 +2,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dumbbell, Flame } from 'lucide-react'
+import { Activity, Dumbbell, Flame, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
 import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
-import { getWeeklyMuscleVolume } from '@/lib/services/analytics.service'
+import { getMuscleVolumeForDays } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
 import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 import { getFinishedSessionDates, getCalendarActivity } from '@/lib/db/streak'
@@ -16,7 +16,19 @@ import { calculateStreak } from '@/lib/services/streak.service'
 import { StreakCard } from '@/components/dashboard/StreakCard'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
-export default async function DashboardPage() {
+const MUSCLE_PERIOD_DAYS: Record<string, number> = {
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ musclePeriod?: string }>
+}) {
+  const { musclePeriod = '7d' } = await searchParams
+  const safeMusclePeriod = MUSCLE_PERIOD_DAYS[musclePeriod] ? musclePeriod : '7d'
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('dashboard')
@@ -84,7 +96,7 @@ export default async function DashboardPage() {
   const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
-  const muscleVolumes = await getWeeklyMuscleVolume(supabase, user.id, 1)
+  const muscleVolumes = await getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod])
 
   // Get exercise names for each session (first 3 distinct per session)
   const sessionIds = sessions.map(s => s.id)
@@ -112,116 +124,130 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <h1 className="text-3xl font-black uppercase tracking-wider">{t('title')}</h1>
-      </div>
+    <div className="space-y-4 sm:space-y-5">
+      <section className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-stretch">
+        <div className="rounded-[28px] bg-card p-4 ring-1 ring-white/[0.06] sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+                {t('overview')}
+              </p>
+              <h1 className="mt-1 text-[28px] font-extrabold leading-none tracking-tight sm:text-4xl">
+                {t('title')}
+              </h1>
+            </div>
+            <Link
+              href="/workout/new"
+              className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98]"
+            >
+              <Dumbbell className="h-4 w-4" />
+              {t('startWorkout')}
+            </Link>
+          </div>
 
-      {streakAtRisk && (
-        <div
-          className="flex items-center gap-3 p-3 rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-300"
-          style={{
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15))',
-            border: '1px solid rgba(239,68,68,0.35)',
-          }}
-        >
-          <Flame className="h-5 w-5 text-orange-400 flex-shrink-0" />
-          <div className="flex-1 min-w-0 text-xs">
-            <div className="font-bold text-red-300">{t('streakAtRiskTitle', { n: streakInfo.current })}</div>
-            <div className="text-zinc-400 text-[11px]">{t('streakAtRiskSub')}</div>
+          {streakAtRisk && (
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 p-3">
+              <Flame className="h-5 w-5 shrink-0 text-red-300" />
+              <div className="min-w-0 text-xs">
+                <div className="font-bold text-red-200">{t('streakAtRiskTitle', { n: streakInfo.current })}</div>
+                <div className="text-white/45">{t('streakAtRiskSub')}</div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-5">
+            <WeeklyStats
+              tonnage={weekTonnage}
+              sessions={weekSessions}
+              bestE1rm={bestE1rm}
+              prevTonnage={prevWeekTonnage}
+              prevSessions={prevWeekSessions}
+              labels={{
+                tonnage: t('week.tonnage'),
+                sessions: t('week.sessions'),
+                bestE1rm: t('week.bestE1rm'),
+              }}
+            />
           </div>
         </div>
-      )}
 
-      {/* Gradient CTA */}
-      <Link
-        href="/workout/new"
-        className="flex items-center justify-center gap-3 w-full h-14 rounded-xl font-black text-base uppercase tracking-wider text-black transition-all hover:opacity-90 active:scale-[0.98] animate-in fade-in slide-in-from-bottom-4 duration-300 delay-75"
-        style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)', boxShadow: '0 8px 32px rgba(245,158,11,0.3)' }}
-      >
-        <Dumbbell className="h-5 w-5" />
-        {t('startWorkout')}
-      </Link>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <StreakCard streak={streakInfo} activity={calendarActivity} />
+          <ScheduleStatus
+            schedule={schedule}
+            labels={{
+              trainingDay: t('today.trainingDay'),
+              restDay: t('today.restDay'),
+              next: t('today.next'),
+              noSchedule: t('today.noSchedule'),
+              days: dayLabels,
+            }}
+          />
+        </div>
+      </section>
 
-      <StreakCard streak={streakInfo} activity={calendarActivity} />
-
-      <WeeklyStats
-        tonnage={weekTonnage}
-        sessions={weekSessions}
-        bestE1rm={bestE1rm}
-        prevTonnage={prevWeekTonnage}
-        prevSessions={prevWeekSessions}
-        labels={{
-          tonnage: t('week.tonnage'),
-          sessions: t('week.sessions'),
-          bestE1rm: t('week.bestE1rm'),
-        }}
-      />
-
-      <AIInsightsCard initialInsights={initialInsights} />
-
-      <ScheduleStatus
-        schedule={schedule}
-        labels={{
-          trainingDay: t('today.trainingDay'),
-          restDay: t('today.restDay'),
-          next: t('today.next'),
-          noSchedule: t('today.noSchedule'),
-          days: dayLabels,
-        }}
-      />
-
-      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-150">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider font-bold">
-            <Dumbbell className="h-4 w-4 text-amber-500" />
-            {t('recentTraining')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sessions.length > 0 ? (
-            <div className="space-y-2">
-              {sessions.map(s => {
-                const date = new Date(s.started_at)
-                const tags = exerciseTagsMap[s.id] ?? []
-                const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
-                return (
-                  <Link key={s.id} href={`/history/${s.id}`} className="block group">
-                    <div className="flex items-center justify-between py-2 border-b border-white/10 last:border-0 group-hover:border-amber-500/30 transition-colors">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-mono text-sm font-bold">
-                            {date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
-                          </p>
-                          {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-150">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+              <Dumbbell className="h-4 w-4 text-primary" />
+              {t('recentTraining')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {sessions.length > 0 ? (
+              <div className="space-y-1.5">
+                {sessions.map(s => {
+                  const date = new Date(s.started_at)
+                  const tags = exerciseTagsMap[s.id] ?? []
+                  const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
+                  return (
+                    <Link key={s.id} href={`/history/${s.id}`} className="block rounded-2xl transition hover:bg-white/[0.04]">
+                      <div className="flex items-center justify-between gap-3 px-1 py-2.5">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-mono text-sm font-bold">
+                              {date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            </p>
+                            {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
+                          </div>
+                          {tags.length > 0 && (
+                            <p className="mt-0.5 truncate text-xs text-white/40">{tags.join(' · ')}</p>
+                          )}
                         </div>
-                        {tags.length > 0 && (
-                          <p className="text-xs text-zinc-500 mt-0.5 truncate">{tags.join(' · ')}</p>
-                        )}
+                        <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+                          {(s.total_volume_kg ?? 0).toFixed(0)} кг
+                        </span>
                       </div>
-                      <span className="text-sm text-amber-500 font-mono font-bold flex-shrink-0">
-                        {(s.total_volume_kg ?? 0).toFixed(0)} кг
-                      </span>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-zinc-400">{t('noWorkouts')}</p>
-          )}
-        </CardContent>
-      </Card>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-white/45">{t('noWorkouts')}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <AIInsightsCard initialInsights={initialInsights} />
+      </section>
 
       <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
         <CardHeader>
-          <CardTitle className="text-sm uppercase tracking-wider font-bold">
+          <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+            <Activity className="h-4 w-4 text-primary" />
             {t('muscleActivity')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <MuscleHeatmap
             muscleVolumes={muscleVolumes}
+            currentPeriod={safeMusclePeriod}
+            periodLabels={{
+              '7d': t('musclePeriods.7d'),
+              '30d': t('musclePeriods.30d'),
+              '90d': t('musclePeriods.90d'),
+            }}
             muscleLabels={{
               chest: tHistory('muscleLabel.chest'),
               back: tHistory('muscleLabel.back'),
@@ -244,6 +270,11 @@ export default async function DashboardPage() {
           />
         </CardContent>
       </Card>
+
+      <div className="flex items-center justify-center gap-2 pb-1 text-[10px] uppercase tracking-[0.2em] text-white/25">
+        <Sparkles className="h-3 w-3" />
+        {t('coachFooter')}
+      </div>
     </div>
   )
 }

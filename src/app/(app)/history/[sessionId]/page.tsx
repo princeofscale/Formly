@@ -6,9 +6,8 @@ import { getSetsForSession } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getTranslations, getLocale } from 'next-intl/server'
-import type { ExerciseWithSets, AchievementCode } from '@/lib/types/models'
+import type { ExerciseWithSets } from '@/lib/types/models'
 import { DeleteWorkoutButton } from './DeleteWorkoutButton'
-import { AchievementToast } from '@/components/AchievementToast'
 import { repeatWorkoutAction } from '../actions'
 import { RotateCcw } from 'lucide-react'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
@@ -18,10 +17,10 @@ export default async function SessionDetailPage({
   searchParams,
 }: {
   params: Promise<{ sessionId: string }>
-  searchParams: Promise<{ finished?: string; unlocked?: string }>
+  searchParams: Promise<{ finished?: string }>
 }) {
   const { sessionId } = await params
-  const { finished, unlocked } = await searchParams
+  const { finished } = await searchParams
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('history')
@@ -56,10 +55,6 @@ export default async function SessionDetailPage({
 
   return (
     <div className="space-y-6">
-      {unlocked && (
-        <AchievementToast codes={unlocked.split(',') as AchievementCode[]} />
-      )}
-
       {finished === '1' && (
         <div className="bg-green-900/30 border border-green-800 rounded-lg p-4 text-green-400 text-sm font-medium">
           {t('finishedBanner')}

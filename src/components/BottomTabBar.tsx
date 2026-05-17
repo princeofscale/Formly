@@ -2,21 +2,22 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { Dumbbell, TrendingUp, ClipboardList, User } from 'lucide-react'
+import { Dumbbell, Home, TrendingUp, ClipboardList, User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface TabDef {
   href: string
   altMatches?: string[]
   icon: typeof Dumbbell
-  labelKey: 'workouts' | 'progress' | 'plan' | 'profile'
+  labelKey: 'home' | 'workouts' | 'progress' | 'plan' | 'profile'
 }
 
 const TABS: TabDef[] = [
-  { href: '/history',           icon: Dumbbell,      labelKey: 'workouts', altMatches: ['/dashboard'] },
+  { href: '/dashboard',         icon: Home,          labelKey: 'home' },
+  { href: '/history',           icon: Dumbbell,      labelKey: 'workouts' },
   { href: '/progress',          icon: TrendingUp,    labelKey: 'progress' },
   { href: '/workout/new',       icon: ClipboardList, labelKey: 'plan',     altMatches: ['/exercise-library', '/workout'] },
-  { href: '/profile',           icon: User,          labelKey: 'profile',  altMatches: ['/body'] },
+  { href: '/profile',           icon: User,          labelKey: 'profile' },
 ]
 
 function matchesTab(pathname: string, tab: TabDef): boolean {
@@ -41,7 +42,8 @@ export function BottomTabBar() {
   // Clear pending target once pathname catches up to it
   useEffect(() => {
     if (pendingHref && (pathname === pendingHref || pathname.startsWith(pendingHref + '/'))) {
-      setPendingHref(null)
+      const id = window.setTimeout(() => setPendingHref(null), 0)
+      return () => window.clearTimeout(id)
     }
   }, [pathname, pendingHref])
 
@@ -68,7 +70,7 @@ export function BottomTabBar() {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
-      <div className="max-w-2xl mx-auto flex items-stretch justify-around h-16 px-2">
+      <div className="mx-auto flex h-16 max-w-2xl items-stretch justify-around px-1">
         {TABS.map(tab => {
           const active = activeTab?.href === tab.href
           const isLoading = isPending && pendingHref === tab.href
@@ -83,7 +85,7 @@ export function BottomTabBar() {
               aria-label={t(tab.labelKey)}
             >
               <div
-                className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-[10px] transition-all duration-150"
+                className="relative flex flex-col items-center gap-1 rounded-[10px] px-2 py-1.5 transition-all duration-150 sm:px-3"
                 style={
                   active
                     ? {

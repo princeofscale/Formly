@@ -55,50 +55,52 @@ export default async function HistoryPage() {
         </div>
       )}
 
-      {sessions.map(s => {
-        const date = new Date(s.started_at)
-        const duration = s.finished_at
-          ? Math.round((new Date(s.finished_at).getTime() - date.getTime()) / 60000)
-          : null
+      <div className="space-y-3">
+        {sessions.map(s => {
+          const date = new Date(s.started_at)
+          const duration = s.finished_at
+            ? Math.round((new Date(s.finished_at).getTime() - date.getTime()) / 60000)
+            : null
 
-        const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB', {
-          weekday: 'short',
-          day: 'numeric',
-          month: 'short',
-        })
+          const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+          })
 
-        const tags = exerciseTags.get(s.id) ?? []
-        const setCount = setCounts.get(s.id) ?? 0
+          const tags = exerciseTags.get(s.id) ?? []
+          const setCount = setCounts.get(s.id) ?? 0
 
-        const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
-        return (
-          <Link key={s.id} href={`/history/${s.id}`}>
-            <Card className="hover:border-white/20 transition-colors">
-              <CardContent className="py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium capitalize">{dateStr}</p>
-                      {moodEmoji && <span className="text-base leading-none">{moodEmoji}</span>}
-                    </div>
-                    {tags.length > 0 && (
-                      <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
-                        {tags.join(' · ')}
+          const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
+          return (
+            <Link key={s.id} href={`/history/${s.id}`} className="block">
+              <Card className="transition-colors hover:border-white/20">
+                <CardContent className="py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium capitalize">{dateStr}</p>
+                        {moodEmoji && <span className="text-base leading-none">{moodEmoji}</span>}
+                      </div>
+                      {tags.length > 0 && (
+                        <p className="mt-0.5 truncate text-[11px] text-zinc-400">
+                          {tags.join(' · ')}
+                        </p>
+                      )}
+                      <p className="mt-1 text-[10px] text-zinc-600">
+                        {(s.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
+                        {setCount > 0 ? ` · ${setCount} ${t('sets')}` : ''}
+                        {duration ? ` · ${duration} ${t('minutes')}` : ''}
                       </p>
-                    )}
-                    <p className="text-[10px] text-zinc-600 mt-1">
-                      {(s.total_volume_kg ?? 0).toFixed(0)} {t('volume')}
-                      {setCount > 0 ? ` · ${setCount} ${t('sets')}` : ''}
-                      {duration ? ` · ${duration} ${t('minutes')}` : ''}
-                    </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 flex-shrink-0 text-zinc-600" />
                   </div>
-                  <ChevronRight className="h-4 w-4 text-zinc-600 flex-shrink-0" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        )
-      })}
+                </CardContent>
+              </Card>
+            </Link>
+          )
+        })}
+      </div>
     </div>
   )
 }

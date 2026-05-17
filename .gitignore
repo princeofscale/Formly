@@ -42,3 +42,8 @@ next-env.d.ts
 
 # superpowers brainstorm sessions
 .superpowers/
+
+# claude code
+.claude/
+AGENTS.md
+CLAUDE.md

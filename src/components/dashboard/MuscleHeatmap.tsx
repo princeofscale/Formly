@@ -1,308 +1,272 @@
 'use client'
 
-import { useState } from 'react'
-import type { MuscleVolume } from '@/lib/types/models'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useMemo, useState } from 'react'
+import type { MuscleGroup, MuscleVolume } from '@/lib/types/models'
 
-// ─── Константы ────────────────────────────────────────────────────────────────
+const PERIODS = ['7d', '30d', '90d'] as const
+type MusclePeriod = typeof PERIODS[number]
 
-const HIGHLIGHT_COLORS = ['#fde68a', '#fbbf24', '#d97706', '#b45309', '#92400e']
-const NEUTRAL = '#3f3f50'
+const MUSCLE_GROUPS: MuscleGroup[] = [
+  'chest', 'back', 'lats', 'traps',
+  'front_delts', 'side_delts', 'rear_delts',
+  'biceps', 'triceps', 'forearms',
+  'core', 'quads', 'hamstrings', 'glutes', 'calves',
+]
 
-function setsToFrequency(sets: number): number {
-  if (sets <= 2) return 1
-  if (sets <= 5) return 2
-  if (sets <= 9) return 3
-  if (sets <= 14) return 4
-  return 5
+const FRONT_MUSCLES: MuscleGroup[] = ['front_delts', 'chest', 'biceps', 'forearms', 'core', 'quads', 'calves']
+const BACK_MUSCLES: MuscleGroup[] = ['rear_delts', 'traps', 'back', 'lats', 'triceps', 'forearms', 'glutes', 'hamstrings', 'calves']
+
+const HEAT = ['#272733', '#451F25', '#723036', '#B63C45', '#FF3B47', '#FF7A82']
+
+function volumeFor(muscle: MuscleGroup, volumes: MuscleVolume[]): number {
+  return volumes.find(mv => mv.muscle === muscle)?.total_sets ?? 0
 }
 
-function muscleColor(name: string, volumes: MuscleVolume[]): string {
-  const vol = volumes.find(mv => mv.muscle === name)
-  if (!vol || vol.total_sets === 0) return NEUTRAL
-  return HIGHLIGHT_COLORS[setsToFrequency(vol.total_sets) - 1]
+function colorFor(sets: number): string {
+  if (sets <= 0) return HEAT[0]
+  if (sets <= 2) return HEAT[1]
+  if (sets <= 5) return HEAT[2]
+  if (sets <= 9) return HEAT[3]
+  if (sets <= 14) return HEAT[4]
+  return HEAT[5]
 }
 
-// ─── Radar chart ──────────────────────────────────────────────────────────────
-
-const RADAR_GROUPS = [
-  { key: 'push',   label: 'Грудь/Пл', muscles: ['chest', 'front_delts', 'side_delts'] },
-  { key: 'back',   label: 'Спина',    muscles: ['back', 'lats', 'traps', 'rear_delts'] },
-  { key: 'arms',   label: 'Руки',     muscles: ['biceps', 'triceps', 'forearms'] },
-  { key: 'core',   label: 'Пресс',    muscles: ['core'] },
-  { key: 'legs',   label: 'Ноги',     muscles: ['quads', 'hamstrings', 'calves'] },
-  { key: 'glutes', label: 'Ягодицы',  muscles: ['glutes'] },
-] as const
-
-const RADAR_ANGLES = [-90, -30, 30, 90, 150, 210].map(d => (d * Math.PI) / 180)
-const MAX_R = 42
-
-function radarPoint(angle: number, r: number): string {
-  return `${(r * Math.cos(angle)).toFixed(2)},${(r * Math.sin(angle)).toFixed(2)}`
+function opacityFor(sets: number): number {
+  return sets <= 0 ? 0.68 : 1
 }
 
-function hexPoints(r: number): string {
-  return RADAR_ANGLES.map(a => radarPoint(a, r)).join(' ')
-}
-
-function RadarChart({ volumes }: { volumes: MuscleVolume[] }) {
-  const groupSets = RADAR_GROUPS.map(g =>
-    g.muscles.reduce((sum, m) => sum + (volumes.find(mv => mv.muscle === m)?.total_sets ?? 0), 0)
-  )
-  const maxSets = Math.max(...groupSets, 1)
-
-  const dataPoints = RADAR_ANGLES.map((angle, i) =>
-    radarPoint(angle, (groupSets[i] / maxSets) * MAX_R)
-  ).join(' ')
+function BodyMap({
+  side,
+  volumes,
+  onPick,
+}: {
+  side: 'front' | 'back'
+  volumes: MuscleVolume[]
+  onPick: (muscle: MuscleGroup) => void
+}) {
+  const activeSet = new Set(side === 'front' ? FRONT_MUSCLES : BACK_MUSCLES)
+  const paint = (muscle: MuscleGroup) => colorFor(volumeFor(muscle, volumes))
+  const opacity = (muscle: MuscleGroup) => opacityFor(volumeFor(muscle, volumes))
+  const segmentClass = 'cursor-pointer transition duration-150 hover:brightness-125'
 
   return (
-    <svg viewBox="-60 -60 120 120" width="110" height="110" className="overflow-visible">
-      {[14, 28, MAX_R].map(r => (
-        <polygon key={r} points={hexPoints(r)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+    <svg viewBox="0 0 148 220" className="mx-auto h-[260px] max-h-[40vh] w-full max-w-[210px] sm:h-[300px]" role="img" aria-label={side}>
+      <g fill="#15151C" stroke="rgba(255,255,255,0.14)" strokeWidth="2">
+        <circle cx="74" cy="20" r="16" />
+        <rect x="67" y="37" width="14" height="13" rx="5" />
+      </g>
+
+      <g stroke="rgba(255,255,255,0.11)" strokeWidth="2">
+        <path d="M43 56 C52 48 96 48 105 56 L113 118 C103 128 45 128 35 118 Z" fill="#15151C" />
+        <path d="M51 124 L68 124 L65 206 L48 206 Z" fill="#15151C" />
+        <path d="M80 124 L97 124 L100 206 L83 206 Z" fill="#15151C" />
+        <path d="M33 61 C19 76 14 105 20 136" fill="none" stroke="#15151C" strokeLinecap="round" strokeWidth="18" />
+        <path d="M115 61 C129 76 134 105 128 136" fill="none" stroke="#15151C" strokeLinecap="round" strokeWidth="18" />
+      </g>
+
+      {side === 'front' ? (
+        <>
+          <g onClick={() => onPick('front_delts')} className={segmentClass} opacity={opacity('front_delts')}>
+            <path d="M36 57 C25 60 20 70 19 82 C30 80 39 73 43 62 Z" fill={paint('front_delts')} />
+            <path d="M112 57 C123 60 128 70 129 82 C118 80 109 73 105 62 Z" fill={paint('front_delts')} />
+          </g>
+          <g onClick={() => onPick('chest')} className={segmentClass} opacity={opacity('chest')}>
+            <path d="M45 61 C55 55 70 57 72 69 L72 91 C56 92 45 82 43 68 Z" fill={paint('chest')} />
+            <path d="M103 61 C93 55 78 57 76 69 L76 91 C92 92 103 82 105 68 Z" fill={paint('chest')} />
+          </g>
+          <g onClick={() => onPick('core')} className={segmentClass} opacity={opacity('core')}>
+            <path d="M57 94 L91 94 L94 119 C83 124 65 124 54 119 Z" fill={paint('core')} />
+            <path d="M74 95 L74 120" stroke="rgba(10,10,15,0.36)" strokeWidth="2" />
+            <path d="M60 103 L88 103 M58 112 L90 112" stroke="rgba(10,10,15,0.28)" strokeWidth="2" />
+          </g>
+          <g onClick={() => onPick('biceps')} className={segmentClass} opacity={opacity('biceps')}>
+            <path d="M18 82 C24 79 31 82 33 91 L29 112 C22 111 17 105 16 96 Z" fill={paint('biceps')} />
+            <path d="M130 82 C124 79 117 82 115 91 L119 112 C126 111 131 105 132 96 Z" fill={paint('biceps')} />
+          </g>
+          <g onClick={() => onPick('forearms')} className={segmentClass} opacity={opacity('forearms')}>
+            <path d="M27 114 C34 116 37 123 34 136 L27 156 C20 153 17 144 20 134 Z" fill={paint('forearms')} />
+            <path d="M121 114 C114 116 111 123 114 136 L121 156 C128 153 131 144 128 134 Z" fill={paint('forearms')} />
+          </g>
+          <g onClick={() => onPick('quads')} className={segmentClass} opacity={opacity('quads')}>
+            <path d="M50 128 L69 128 L65 172 L46 172 Z" fill={paint('quads')} />
+            <path d="M79 128 L98 128 L102 172 L83 172 Z" fill={paint('quads')} />
+          </g>
+          <g onClick={() => onPick('calves')} className={segmentClass} opacity={opacity('calves')}>
+            <path d="M46 176 L65 176 L63 209 L49 209 Z" fill={paint('calves')} />
+            <path d="M83 176 L102 176 L99 209 L85 209 Z" fill={paint('calves')} />
+          </g>
+        </>
+      ) : (
+        <>
+          <g onClick={() => onPick('rear_delts')} className={segmentClass} opacity={opacity('rear_delts')}>
+            <path d="M36 57 C25 60 20 70 19 82 C31 80 40 73 43 62 Z" fill={paint('rear_delts')} />
+            <path d="M112 57 C123 60 128 70 129 82 C117 80 108 73 105 62 Z" fill={paint('rear_delts')} />
+          </g>
+          <g onClick={() => onPick('traps')} className={segmentClass} opacity={opacity('traps')}>
+            <path d="M50 56 C61 48 87 48 98 56 C91 66 82 72 74 72 C66 72 57 66 50 56 Z" fill={paint('traps')} />
+          </g>
+          <g onClick={() => onPick('back')} className={segmentClass} opacity={opacity('back')}>
+            <path d="M48 69 C61 62 87 62 100 69 L96 111 C84 119 64 119 52 111 Z" fill={paint('back')} />
+          </g>
+          <g onClick={() => onPick('lats')} className={segmentClass} opacity={opacity('lats')}>
+            <path d="M40 73 C48 84 51 102 49 120 C41 117 36 105 35 91 Z" fill={paint('lats')} />
+            <path d="M108 73 C100 84 97 102 99 120 C107 117 112 105 113 91 Z" fill={paint('lats')} />
+          </g>
+          <g onClick={() => onPick('triceps')} className={segmentClass} opacity={opacity('triceps')}>
+            <path d="M18 82 C24 79 31 82 33 91 L29 112 C22 111 17 105 16 96 Z" fill={paint('triceps')} />
+            <path d="M130 82 C124 79 117 82 115 91 L119 112 C126 111 131 105 132 96 Z" fill={paint('triceps')} />
+          </g>
+          <g onClick={() => onPick('forearms')} className={segmentClass} opacity={opacity('forearms')}>
+            <path d="M27 114 C34 116 37 123 34 136 L27 156 C20 153 17 144 20 134 Z" fill={paint('forearms')} />
+            <path d="M121 114 C114 116 111 123 114 136 L121 156 C128 153 131 144 128 134 Z" fill={paint('forearms')} />
+          </g>
+          <g onClick={() => onPick('glutes')} className={segmentClass} opacity={opacity('glutes')}>
+            <path d="M49 126 C58 121 70 124 72 137 C67 146 54 148 46 140 Z" fill={paint('glutes')} />
+            <path d="M99 126 C90 121 78 124 76 137 C81 146 94 148 102 140 Z" fill={paint('glutes')} />
+          </g>
+          <g onClick={() => onPick('hamstrings')} className={segmentClass} opacity={opacity('hamstrings')}>
+            <path d="M50 147 L68 147 L65 174 L47 174 Z" fill={paint('hamstrings')} />
+            <path d="M80 147 L98 147 L101 174 L83 174 Z" fill={paint('hamstrings')} />
+          </g>
+          <g onClick={() => onPick('calves')} className={segmentClass} opacity={opacity('calves')}>
+            <path d="M46 178 L65 178 L63 209 L49 209 Z" fill={paint('calves')} />
+            <path d="M83 178 L102 178 L99 209 L85 209 Z" fill={paint('calves')} />
+          </g>
+        </>
+      )}
+
+      <g pointerEvents="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none">
+        <path d="M43 56 C52 48 96 48 105 56 L113 118 C103 128 45 128 35 118 Z" />
+        <path d="M51 124 L68 124 L65 206 L48 206 Z" />
+        <path d="M80 124 L97 124 L100 206 L83 206 Z" />
+      </g>
+      <text x="74" y="218" textAnchor="middle" fontSize="10" fontWeight="700" fill="rgba(255,255,255,0.35)">
+        {side === 'front' ? 'FRONT' : 'BACK'}
+      </text>
+      {[...activeSet].map(muscle => (
+        <title key={muscle}>{muscle}</title>
       ))}
-      {RADAR_ANGLES.map((a, i) => (
-        <line key={i} x1="0" y1="0" x2={(MAX_R * Math.cos(a)).toFixed(2)} y2={(MAX_R * Math.sin(a)).toFixed(2)} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-      ))}
-      <polygon points={dataPoints} fill="rgba(245,158,11,0.18)" stroke="#f59e0b" strokeWidth="1.5" />
-      {RADAR_ANGLES.map((a, i) => (
-        <circle key={i} cx={(((groupSets[i] / maxSets) * MAX_R) * Math.cos(a)).toFixed(2)} cy={(((groupSets[i] / maxSets) * MAX_R) * Math.sin(a)).toFixed(2)} r="2.5" fill="#f59e0b" />
-      ))}
-      {RADAR_ANGLES.map((a, i) => {
-        const lx = 52 * Math.cos(a)
-        const ly = 52 * Math.sin(a)
-        const anchor = lx > 5 ? 'start' : lx < -5 ? 'end' : 'middle'
-        return (
-          <text key={i} x={lx.toFixed(1)} y={(ly + 2).toFixed(1)} textAnchor={anchor} fontSize="6.5" fill="rgba(255,255,255,0.45)">
-            {RADAR_GROUPS[i].label}
-          </text>
-        )
-      })}
     </svg>
   )
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface Props {
   muscleVolumes: MuscleVolume[]
+  currentPeriod: string
+  periodLabels: Record<MusclePeriod, string>
   muscleLabels: Record<string, string>
   clickHint: string
   setsLabel: string
 }
 
-// ─── Заглушки тела (заполним в Task 2 и 3) ───────────────────────────────────
+export function MuscleHeatmap({
+  muscleVolumes,
+  currentPeriod,
+  periodLabels,
+  muscleLabels,
+  clickHint,
+  setsLabel,
+}: Props) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [selected, setSelected] = useState<MuscleGroup | null>(null)
 
-function BodyFront({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMuscleClick: (name: string) => void }) {
-  const c = (name: string) => muscleColor(name, volumes)
-  const isActive = (name: string) => (volumes.find(mv => mv.muscle === name)?.total_sets ?? 0) > 0
-  const clickable = (name: string) => isActive(name) ? 'cursor-pointer' : 'cursor-default'
-
-  return (
-    <svg viewBox="0 0 65 138" width="65" height="138" className="overflow-visible">
-      {/* ── Body base ── */}
-      <ellipse cx="32.5" cy="11" rx="10" ry="10.5" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
-      <rect x="29" y="21" width="7" height="6" rx="2" fill="#18182a" stroke="#3f3f50" strokeWidth="1" />
-      <path d="M17 27 Q11 31 10 51 L10 75 Q10 79 17 79 L48 79 Q55 79 55 75 L55 51 Q54 31 48 27 Q42 24 32.5 24 Q23 24 17 27Z" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
-
-      {/* ── Left arm (viewer's right) ── */}
-      {/* Background outline */}
-      <path d="M10 28 Q3 35 2 47 Q1 56 3 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
-      {/* Bicep zone */}
-      <path d="M10 28 Q3 35 2 47 Q1 56 3 63"
-        stroke={c('biceps')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('biceps')} onClick={() => onMuscleClick('biceps')} />
-      {/* Forearm background */}
-      <path d="M3 63 Q2 71 3 79 Q4 84 5 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
-      {/* Forearm zone */}
-      <path d="M3 63 Q2 71 3 79 Q4 84 5 87"
-        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
-        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
-
-      {/* ── Right arm ── */}
-      <path d="M55 28 Q62 35 63 47 Q64 56 62 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
-      <path d="M55 28 Q62 35 63 47 Q64 56 62 63"
-        stroke={c('biceps')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('biceps')} onClick={() => onMuscleClick('biceps')} />
-      <path d="M62 63 Q63 71 62 79 Q61 84 60 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
-      <path d="M62 63 Q63 71 62 79 Q61 84 60 87"
-        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
-        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
-
-      {/* ── Left leg ── */}
-      <path d="M21 79 Q18 98 18 114 Q18 127 19 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
-      {/* Quad zone */}
-      <path d="M21 79 Q18 98 18 112"
-        stroke={c('quads')} strokeWidth="13" strokeLinecap="round" fill="none"
-        className={clickable('quads')} onClick={() => onMuscleClick('quads')} />
-      {/* Calf zone */}
-      <path d="M18 116 Q18 127 19 137"
-        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
-
-      {/* ── Right leg ── */}
-      <path d="M44 79 Q47 98 47 114 Q47 127 46 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
-      <path d="M44 79 Q47 98 47 112"
-        stroke={c('quads')} strokeWidth="13" strokeLinecap="round" fill="none"
-        className={clickable('quads')} onClick={() => onMuscleClick('quads')} />
-      <path d="M47 116 Q47 127 46 137"
-        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
-
-      {/* ── Muscles on top of torso ── */}
-      {/* Front deltoids (shoulders) */}
-      <ellipse cx="10" cy="30" rx="8" ry="6.5"
-        fill={c('front_delts')} className={clickable('front_delts')} onClick={() => onMuscleClick('front_delts')} />
-      <ellipse cx="55" cy="30" rx="8" ry="6.5"
-        fill={c('front_delts')} className={clickable('front_delts')} onClick={() => onMuscleClick('front_delts')} />
-      {/* Chest */}
-      <ellipse cx="23" cy="42" rx="10.5" ry="8"
-        fill={c('chest')} className={clickable('chest')} onClick={() => onMuscleClick('chest')} />
-      <ellipse cx="42" cy="42" rx="10.5" ry="8"
-        fill={c('chest')} className={clickable('chest')} onClick={() => onMuscleClick('chest')} />
-      {/* Abs */}
-      <g className={clickable('core')} onClick={() => onMuscleClick('core')}>
-        <rect x="27" y="52" width="5" height="4.5" rx="1.5" fill={c('core')} />
-        <rect x="33" y="52" width="5" height="4.5" rx="1.5" fill={c('core')} />
-        <rect x="27" y="58" width="5" height="4.5" rx="1.5" fill={c('core')} opacity="0.85" />
-        <rect x="33" y="58" width="5" height="4.5" rx="1.5" fill={c('core')} opacity="0.85" />
-        <rect x="27" y="64" width="5" height="4.5" rx="1.5" fill={c('core')} opacity="0.7" />
-        <rect x="33" y="64" width="5" height="4.5" rx="1.5" fill={c('core')} opacity="0.7" />
-      </g>
-    </svg>
+  const ranked = useMemo(
+    () => MUSCLE_GROUPS
+      .map(muscle => ({ muscle, sets: volumeFor(muscle, muscleVolumes) }))
+      .sort((a, b) => b.sets - a.sets),
+    [muscleVolumes]
   )
-}
+  const top = ranked.slice(0, 6)
+  const selectedSets = selected ? volumeFor(selected, muscleVolumes) : 0
 
-function BodyBack({ volumes, onMuscleClick }: { volumes: MuscleVolume[]; onMuscleClick: (name: string) => void }) {
-  const c = (name: string) => muscleColor(name, volumes)
-  const isActive = (name: string) => (volumes.find(mv => mv.muscle === name)?.total_sets ?? 0) > 0
-  const clickable = (name: string) => isActive(name) ? 'cursor-pointer' : 'cursor-default'
+  function setPeriod(period: MusclePeriod) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('musclePeriod', period)
+    router.push(`/dashboard?${params.toString()}`)
+  }
 
-  return (
-    <svg viewBox="0 0 65 138" width="65" height="138" className="overflow-visible">
-      {/* ── Body base ── */}
-      <ellipse cx="32.5" cy="11" rx="10" ry="10.5" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
-      <rect x="29" y="21" width="7" height="6" rx="2" fill="#18182a" stroke="#3f3f50" strokeWidth="1" />
-      <path d="M17 27 Q11 31 10 51 L10 75 Q10 79 17 79 L48 79 Q55 79 55 75 L55 51 Q54 31 48 27 Q42 24 32.5 24 Q23 24 17 27Z" fill="#18182a" stroke="#3f3f50" strokeWidth="1.2" />
-
-      {/* ── Left arm (triceps + forearm) ── */}
-      <path d="M10 28 Q3 35 2 47 Q1 56 3 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
-      <path d="M10 28 Q3 35 2 47 Q1 56 3 63"
-        stroke={c('triceps')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('triceps')} onClick={() => onMuscleClick('triceps')} />
-      <path d="M3 63 Q2 71 3 79 Q4 84 5 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
-      <path d="M3 63 Q2 71 3 79 Q4 84 5 87"
-        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
-        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
-
-      {/* ── Right arm ── */}
-      <path d="M55 28 Q62 35 63 47 Q64 56 62 63" stroke="#18182a" strokeWidth="13" strokeLinecap="round" fill="none" />
-      <path d="M55 28 Q62 35 63 47 Q64 56 62 63"
-        stroke={c('triceps')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('triceps')} onClick={() => onMuscleClick('triceps')} />
-      <path d="M62 63 Q63 71 62 79 Q61 84 60 87" stroke="#18182a" strokeWidth="10" strokeLinecap="round" fill="none" />
-      <path d="M62 63 Q63 71 62 79 Q61 84 60 87"
-        stroke={c('forearms')} strokeWidth="8" strokeLinecap="round" fill="none"
-        className={clickable('forearms')} onClick={() => onMuscleClick('forearms')} />
-
-      {/* ── Left leg (hamstrings + calves) ── */}
-      <path d="M21 79 Q18 98 18 114 Q18 127 19 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
-      <path d="M21 79 Q18 98 18 112"
-        stroke={c('hamstrings')} strokeWidth="13" strokeLinecap="round" fill="none"
-        className={clickable('hamstrings')} onClick={() => onMuscleClick('hamstrings')} />
-      <path d="M18 116 Q18 127 19 137"
-        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
-
-      {/* ── Right leg ── */}
-      <path d="M44 79 Q47 98 47 114 Q47 127 46 137" stroke="#18182a" strokeWidth="15" strokeLinecap="round" fill="none" />
-      <path d="M44 79 Q47 98 47 112"
-        stroke={c('hamstrings')} strokeWidth="13" strokeLinecap="round" fill="none"
-        className={clickable('hamstrings')} onClick={() => onMuscleClick('hamstrings')} />
-      <path d="M47 116 Q47 127 46 137"
-        stroke={c('calves')} strokeWidth="11" strokeLinecap="round" fill="none"
-        className={clickable('calves')} onClick={() => onMuscleClick('calves')} />
-
-      {/* ── Muscles on top of torso ── */}
-      {/* Rear deltoids */}
-      <ellipse cx="10" cy="30" rx="8" ry="6.5"
-        fill={c('rear_delts')} className={clickable('rear_delts')} onClick={() => onMuscleClick('rear_delts')} />
-      <ellipse cx="55" cy="30" rx="8" ry="6.5"
-        fill={c('rear_delts')} className={clickable('rear_delts')} onClick={() => onMuscleClick('rear_delts')} />
-      {/* Back (general) */}
-      <path d="M19 28 Q13 46 13 68 L52 68 Q52 46 46 28 Z"
-        fill={c('back')} className={clickable('back')} onClick={() => onMuscleClick('back')} />
-      {/* Lats */}
-      <path d="M10 33 Q7 50 10 70"
-        stroke={c('lats')} strokeWidth="7" strokeLinecap="round" fill="none"
-        className={clickable('lats')} onClick={() => onMuscleClick('lats')} />
-      <path d="M55 33 Q58 50 55 70"
-        stroke={c('lats')} strokeWidth="7" strokeLinecap="round" fill="none"
-        className={clickable('lats')} onClick={() => onMuscleClick('lats')} />
-      {/* Traps */}
-      <path d="M17 27 Q32.5 21 48 27 Q40 34 32.5 35 Q25 34 17 27Z"
-        fill={c('traps')} className={clickable('traps')} onClick={() => onMuscleClick('traps')} />
-      {/* Glutes */}
-      <ellipse cx="23" cy="80" rx="9.5" ry="7"
-        fill={c('glutes')} className={clickable('glutes')} onClick={() => onMuscleClick('glutes')} />
-      <ellipse cx="42" cy="80" rx="9.5" ry="7"
-        fill={c('glutes')} className={clickable('glutes')} onClick={() => onMuscleClick('glutes')} />
-    </svg>
-  )
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
-
-export function MuscleHeatmap({ muscleVolumes, muscleLabels, clickHint, setsLabel }: Props) {
-  const [view, setView] = useState<'front' | 'back'>('front')
-  const [selected, setSelected] = useState<{ name: string; sets: number } | null>(null)
-
-  function handleMuscleClick(name: string) {
-    const vol = muscleVolumes.find(mv => mv.muscle === name)
-    if (!vol || vol.total_sets === 0) return
-    setSelected(prev => prev?.name === name ? null : { name, sets: vol.total_sets })
+  function pick(muscle: MuscleGroup) {
+    setSelected(prev => prev === muscle ? null : muscle)
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-4 items-start">
-        <div className="flex-shrink-0 space-y-2">
-          <div className="flex gap-1">
-            {(['front', 'back'] as const).map(v => (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex rounded-2xl bg-white/[0.04] p-1 ring-1 ring-white/[0.06]">
+          {PERIODS.map(period => {
+            const active = period === currentPeriod
+            return (
               <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`h-6 px-2.5 text-[9px] rounded-md border transition-colors ${
-                  view === v
-                    ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
-                    : 'bg-white/5 border-white/10 text-zinc-500 hover:text-zinc-300'
+                key={period}
+                type="button"
+                onClick={() => setPeriod(period)}
+                className={`h-8 rounded-xl px-3 text-xs font-bold transition ${
+                  active ? 'bg-primary text-white shadow-[0_8px_20px_rgba(255,59,71,0.22)]' : 'text-white/45 hover:text-white'
                 }`}
               >
-                {v === 'front' ? 'Спереди' : 'Сзади'}
+                {periodLabels[period]}
               </button>
-            ))}
-          </div>
-          {view === 'front'
-            ? <BodyFront volumes={muscleVolumes} onMuscleClick={handleMuscleClick} />
-            : <BodyBack volumes={muscleVolumes} onMuscleClick={handleMuscleClick} />
-          }
+            )
+          })}
         </div>
-        <div className="flex-1 space-y-1 pt-8">
-          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">Баланс нагрузки</p>
-          <RadarChart volumes={muscleVolumes} />
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/35">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          {setsLabel}
         </div>
       </div>
-      <div className="min-h-[32px] flex items-center justify-center">
-        {selected ? (
-          <div className="flex items-center gap-2 bg-white/10 border border-amber-500/40 rounded-lg px-3 py-1.5 text-sm">
-            <span className="font-semibold text-amber-400">
-              {muscleLabels[selected.name] ?? selected.name}
-            </span>
-            <span className="text-zinc-400">—</span>
-            <span className="font-mono text-white">{selected.sets}</span>
-            <span className="text-zinc-400">{setsLabel}</span>
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.9fr)] lg:items-center">
+        <div className="grid grid-cols-2 gap-3 rounded-[24px] bg-white/[0.025] p-3 ring-1 ring-white/[0.06]">
+          <BodyMap side="front" volumes={muscleVolumes} onPick={pick} />
+          <BodyMap side="back" volumes={muscleVolumes} onPick={pick} />
+        </div>
+
+        <div className="space-y-3">
+          <div className="min-h-14 rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+            {selected ? (
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-bold">{muscleLabels[selected] ?? selected}</div>
+                  <div className="text-xs text-white/40">{setsLabel}</div>
+                </div>
+                <div className="font-mono text-3xl font-black text-primary tabular-nums">
+                  {selectedSets.toFixed(selectedSets % 1 === 0 ? 0 : 1)}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed text-white/42">{clickHint}</p>
+            )}
           </div>
-        ) : (
-          <p className="text-xs text-zinc-500">{clickHint}</p>
-        )}
+
+          <div className="space-y-2">
+            {top.map(({ muscle, sets }) => {
+              const pct = Math.min(100, (sets / Math.max(top[0]?.sets ?? 1, 1)) * 100)
+              return (
+                <button
+                  key={muscle}
+                  type="button"
+                  onClick={() => pick(muscle)}
+                  className="group w-full rounded-2xl px-3 py-2 text-left transition hover:bg-white/[0.04]"
+                >
+                  <div className="mb-1 flex items-center justify-between gap-3">
+                    <span className="truncate text-xs font-semibold text-white/72 group-hover:text-white">
+                      {muscleLabels[muscle] ?? muscle}
+                    </span>
+                    <span className="font-mono text-xs text-white/45">{sets.toFixed(sets % 1 === 0 ? 0 : 1)}</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${pct}%`, opacity: sets > 0 ? 1 : 0.2 }}
+                    />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )

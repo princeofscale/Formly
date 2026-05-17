@@ -122,18 +122,6 @@ export interface AIInsights {
   generated_at: string
 }
 
-export type AchievementCode =
-  | 'first_workout'
-  | 'sessions_10' | 'sessions_50' | 'sessions_100'
-  | 'tonnage_1000' | 'tonnage_10000' | 'tonnage_100000'
-  | 'streak_7' | 'streak_30'
-  | 'first_pr'
-
-export interface Achievement {
-  code: AchievementCode
-  unlocked_at: string
-}
-
 export interface StreakInfo {
   current: number
   longest: number
@@ -144,22 +132,6 @@ export interface DayActivity {
   date: string  // YYYY-MM-DD
   sets: number
 }
-
-export interface BodyMeasurement {
-  id: string
-  user_id: string
-  date: string
-  weight_kg: number | null
-  chest_cm: number | null
-  waist_cm: number | null
-  hips_cm: number | null
-  biceps_cm: number | null
-  body_fat_pct: number | null
-  created_at: string
-}
-
-export type MeasurementField =
-  | 'weight_kg' | 'chest_cm' | 'waist_cm' | 'hips_cm' | 'biceps_cm' | 'body_fat_pct'
 
 export interface ExerciseNote {
   user_id: string

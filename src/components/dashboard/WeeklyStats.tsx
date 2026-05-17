@@ -27,24 +27,24 @@ function Delta({ current, previous }: { current: number; previous: number | unde
 
 export function WeeklyStats({ tonnage, sessions, bestE1rm, prevTonnage, prevSessions, labels }: Props) {
   return (
-    <div className="grid grid-cols-3 rounded-sm overflow-hidden border border-white/10">
-      <div className="flex flex-col items-center justify-center py-4 px-2 bg-white/5">
-        <span className="font-mono text-2xl font-bold text-amber-500">
+    <div className="grid grid-cols-3 gap-2">
+      <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+        <span className="font-mono text-2xl font-bold text-primary sm:text-3xl">
           {tonnage.toFixed(0)}
         </span>
-        <span className="text-xs text-zinc-500 mt-1 text-center">{labels.tonnage}</span>
+        <span className="mt-1 text-xs leading-tight text-white/45">{labels.tonnage}</span>
         <Delta current={tonnage} previous={prevTonnage} />
       </div>
-      <div className="flex flex-col items-center justify-center py-4 px-2 bg-white/5 border-x border-white/10">
-        <span className="font-mono text-2xl font-bold text-amber-500">{sessions}</span>
-        <span className="text-xs text-zinc-500 mt-1 text-center">{labels.sessions}</span>
+      <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+        <span className="font-mono text-2xl font-bold text-primary sm:text-3xl">{sessions}</span>
+        <span className="mt-1 text-xs leading-tight text-white/45">{labels.sessions}</span>
         <Delta current={sessions} previous={prevSessions} />
       </div>
-      <div className="flex flex-col items-center justify-center py-4 px-2 bg-white/5">
-        <span className="font-mono text-2xl font-bold text-amber-500">
+      <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+        <span className="font-mono text-2xl font-bold text-primary sm:text-3xl">
           {bestE1rm ? `${bestE1rm.toFixed(0)}` : '—'}
         </span>
-        <span className="text-xs text-zinc-500 mt-1 text-center">{labels.bestE1rm}</span>
+        <span className="mt-1 text-xs leading-tight text-white/45">{labels.bestE1rm}</span>
       </div>
     </div>
   )

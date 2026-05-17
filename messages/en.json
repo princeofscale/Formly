@@ -112,6 +112,9 @@
     "periodLabel": "Period",
     "unit1rm": "kg",
     "weightLabel": "Body weight",
+    "heightLabel": "Height",
+    "saveMetrics": "Save",
+    "saved": "Saved",
     "weightHistoryTitle": "Weight history",
     "entries": "entries",
     "noEntries": "no data",
@@ -149,6 +152,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "overview": "Training overview",
     "startWorkout": "WORKOUT",
     "week": {
       "tonnage": "Tonnage (kg)",
@@ -172,19 +176,30 @@
     },
     "recentTraining": "Recent Training",
     "noWorkouts": "No workouts yet. Start your first session!",
-    "muscleActivity": "Muscle Activity (week)",
+    "muscleActivity": "Muscle Activity",
+    "musclePeriods": {
+      "7d": "7D",
+      "30d": "30D",
+      "90d": "90D"
+    },
     "profileLink": "Profile",
     "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap.",
     "recordsLink": "Records",
     "streakAtRiskTitle": "Streak {n} at risk!",
-    "streakAtRiskSub": "Today is a training day — don't break the chain"
+    "streakAtRiskSub": "Today is a training day — don't break the chain",
+    "coachFooter": "Coach signals update from your latest sets"
   },
   "profile": {
     "title": "PROFILE",
+    "overview": "Account hub",
     "stats": {
       "bmi": "BMI",
       "trainingAge": "Training age",
-      "location": "Location"
+      "location": "Location",
+      "weightUnit": "kg",
+      "heightUnit": "cm",
+      "lessThanYear": "<1 yr",
+      "yearShort": "yr"
     },
     "form": {
       "editProfile": "Edit Profile",
@@ -382,62 +397,5 @@
     "label": "in a row",
     "best": "Best",
     "noWorkouts": "No workouts yet"
-  },
-  "achievements": {
-    "title": "Achievements",
-    "unlocked": "unlocked",
-    "achievementsLink": "Achievements",
-    "locked": "Locked",
-    "received": "received",
-    "items": {
-      "first_workout":  { "title": "First Step",      "desc": "Complete your first workout",  "condition": "Complete 1 workout" },
-      "sessions_10":    { "title": "Getting Started", "desc": "Complete 10 workouts",         "condition": "Complete 10 workouts" },
-      "sessions_50":    { "title": "Half Century",    "desc": "Complete 50 workouts",         "condition": "Complete 50 workouts" },
-      "sessions_100":   { "title": "Century",         "desc": "Complete 100 workouts",        "condition": "Complete 100 workouts" },
-      "tonnage_1000":   { "title": "1 Ton Lifted",    "desc": "Total volume of 1,000 kg",     "condition": "Lift 1,000 kg total" },
-      "tonnage_10000":  { "title": "10 Tons",         "desc": "Total volume of 10,000 kg",    "condition": "Lift 10,000 kg total" },
-      "tonnage_100000": { "title": "100 Tons Beast",  "desc": "Total volume of 100,000 kg",   "condition": "Lift 100,000 kg total" },
-      "streak_7":       { "title": "Week Warrior",    "desc": "7-workout streak",             "condition": "7 workouts in a row" },
-      "streak_30":      { "title": "Iron Will",       "desc": "30-workout streak",            "condition": "30 workouts in a row" },
-      "first_pr":       { "title": "Record Breaker",  "desc": "Set your first 1RM record",    "condition": "Set a personal record" }
-    }
-  },
-  "body": {
-    "title": "Body Measurements",
-    "linkTitle": "Body Measurements",
-    "linkSub": "Track weight, size, body fat",
-    "addEntry": "Add Measurement",
-    "save": "Save",
-    "saved": "Saved!",
-    "saving": "Saving...",
-    "today": "Today",
-    "noData": "No measurements yet",
-    "deleteConfirm": "Delete this measurement?",
-    "delete": "Delete",
-    "cancel": "Cancel",
-    "labels": {
-      "weight": "Weight",
-      "chest": "Chest",
-      "waist": "Waist",
-      "hips": "Hips",
-      "biceps": "Biceps",
-      "bodyFat": "Body Fat"
-    },
-    "units": {
-      "kg": "kg",
-      "cm": "cm",
-      "pct": "%"
-    },
-    "bmi": {
-      "title": "BMI",
-      "setHeightHint": "Set your height in profile to see BMI",
-      "underweight": "Underweight",
-      "normal": "Normal",
-      "overweight": "Overweight",
-      "obese": "Obese"
-    },
-    "history": {
-      "title": "History"
-    }
   }
 }

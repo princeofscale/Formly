@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import { Mistral } from '@mistralai/mistralai'
 import type {
   MuscleVolume,
   VolumeLandmark,
@@ -21,11 +21,28 @@ export interface GrokContext {
   progression_opportunities: ProgressionSuggestion[]
 }
 
+function contentToText(content: unknown): string {
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content
+      .map(part => {
+        if (typeof part === 'string') return part
+        if (part && typeof part === 'object' && 'text' in part) {
+          const text = (part as { text?: unknown }).text
+          return typeof text === 'string' ? text : ''
+        }
+        return ''
+      })
+      .join('')
+  }
+  return ''
+}
+
 export async function generateInsights(ctx: GrokContext): Promise<AIInsights> {
-  const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: 'https://api.groq.com/openai/v1',
-  })
+  const apiKey = process.env.MISTRAL_API_KEY
+  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
+
+  const client = new Mistral({ apiKey })
 
   const systemPrompt = `You are a personal fitness coach AI for a workout tracking app.
 Analyze the user's training data and return a JSON array of insight objects.
@@ -49,21 +66,23 @@ Return ONLY a valid JSON array. No markdown. No explanation outside the JSON.`
     progression_opportunities: ctx.progression_opportunities,
   })
 
-  const response = await client.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+  const response = await client.chat.complete({
+    model: 'mistral-large-latest',
     temperature: 0.3,
-    max_tokens: 800,
+    maxTokens: 800,
+    responseFormat: { type: 'json_object' },
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
   })
 
-  const raw = response.choices[0]?.message?.content ?? '[]'
+  const raw = contentToText(response.choices[0]?.message?.content) || '[]'
 
   let items: AIInsightItem[]
   try {
-    items = JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    items = Array.isArray(parsed) ? parsed : parsed.items
     if (!Array.isArray(items)) throw new Error('not an array')
   } catch {
     throw new Error(`AI returned invalid JSON: ${raw.slice(0, 200)}`)

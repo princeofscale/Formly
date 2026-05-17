@@ -1,68 +1,50 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Minus, Plus, Check } from 'lucide-react'
-import { saveBodyWeightAction } from '@/app/(app)/progress/actions'
+import { Check } from 'lucide-react'
+import { saveBodyMetricsAction } from '@/app/(app)/progress/actions'
 
 interface Props {
-  initial: number
-  labelKg: string
+  initialWeight: number | null
+  initialHeight: number | null
+  labels: {
+    weight: string
+    height: string
+    save: string
+    saved: string
+  }
 }
 
-const MIN = 40
-const MAX = 200
-const STEP = 0.5
-
-function clamp(v: number) {
-  return Math.min(MAX, Math.max(MIN, Math.round(v * 2) / 2))
+function numberOrEmpty(value: number | null): string {
+  return value ? String(value) : ''
 }
 
-export function BodyWeightCard({ initial, labelKg }: Props) {
-  const [value, setValue] = useState<number>(clamp(initial))
+export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) {
+  const [weight, setWeight] = useState(numberOrEmpty(initialWeight))
+  const [height, setHeight] = useState(numberOrEmpty(initialHeight))
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  function save(next: number) {
+  const weightNum = Number(weight)
+  const heightNum = Number(height)
+  const canSave = Number.isFinite(weightNum) && weightNum > 0 && Number.isFinite(heightNum) && heightNum > 0
+
+  function save() {
+    if (!canSave) return
     startTransition(async () => {
       try {
-        await saveBodyWeightAction(next)
+        await saveBodyMetricsAction(weightNum, heightNum)
         setSaved(true)
-        setTimeout(() => setSaved(false), 1500)
+        window.setTimeout(() => setSaved(false), 1500)
       } catch (e) {
-        console.error('[weight] save failed:', e)
+        console.error('[metrics] save failed:', e)
       }
     })
   }
 
-  function decrement() {
-    const next = clamp(value - STEP)
-    setValue(next)
-    save(next)
-  }
-
-  function increment() {
-    const next = clamp(value + STEP)
-    setValue(next)
-    save(next)
-  }
-
-  function handleSlider(e: React.ChangeEvent<HTMLInputElement>) {
-    const next = clamp(parseFloat(e.target.value))
-    setValue(next)
-  }
-
-  function handleSliderEnd() {
-    save(value)
-  }
-
-  // Slider range — show 60-90 by default but allow full range
-  const sliderMin = 40
-  const sliderMax = 150
-  const pct = ((value - sliderMin) / (sliderMax - sliderMin)) * 100
-
   return (
     <div
-      className="rounded-[20px] p-5 space-y-4"
+      className="space-y-4 rounded-[20px] p-5"
       style={{
         background: '#15151C',
         border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -70,89 +52,58 @@ export function BodyWeightCard({ initial, labelKg }: Props) {
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
-          {labelKg}
+          {labels.weight} / {labels.height}
         </h3>
         {saved && (
           <div className="flex items-center gap-1 text-[10px] animate-in fade-in" style={{ color: '#FF3B47' }}>
             <Check className="h-3 w-3" />
-            <span>Saved</span>
+            <span>{labels.saved}</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-5">
-        <button
-          type="button"
-          onClick={decrement}
-          disabled={isPending || value <= MIN}
-          className="w-12 h-12 rounded-[14px] flex items-center justify-center transition-all hover:scale-95 active:scale-90 disabled:opacity-40"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
-        >
-          <Minus className="h-5 w-5 text-white" />
-        </button>
-
-        <div className="text-center min-w-[140px]">
-          <div className="text-5xl font-bold tabular-nums tracking-tight" style={{ color: '#FFFFFF' }}>
-            {value.toFixed(1)}
+      <div className="grid grid-cols-2 gap-3">
+        <label className="space-y-1.5">
+          <span className="text-[10px] uppercase tracking-widest text-white/45">{labels.weight}</span>
+          <div className="flex items-baseline gap-2 rounded-[14px] bg-white/[0.05] px-3 py-3 ring-1 ring-white/[0.08]">
+            <input
+              type="number"
+              inputMode="decimal"
+              min="1"
+              step="0.1"
+              value={weight}
+              onChange={e => setWeight(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
+            />
+            <span className="text-xs text-white/45">kg</span>
           </div>
-          <div className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>кг</div>
-        </div>
+        </label>
 
-        <button
-          type="button"
-          onClick={increment}
-          disabled={isPending || value >= MAX}
-          className="w-12 h-12 rounded-[14px] flex items-center justify-center transition-all hover:scale-95 active:scale-90 disabled:opacity-40"
-          style={{
-            background: 'rgba(255, 59, 71, 0.15)',
-            border: '1px solid rgba(255, 59, 71, 0.35)',
-            boxShadow: '0 0 16px rgba(255, 59, 71, 0.2)',
-          }}
-        >
-          <Plus className="h-5 w-5" style={{ color: '#FF3B47' }} />
-        </button>
+        <label className="space-y-1.5">
+          <span className="text-[10px] uppercase tracking-widest text-white/45">{labels.height}</span>
+          <div className="flex items-baseline gap-2 rounded-[14px] bg-white/[0.05] px-3 py-3 ring-1 ring-white/[0.08]">
+            <input
+              type="number"
+              inputMode="decimal"
+              min="1"
+              step="0.1"
+              value={height}
+              onChange={e => setHeight(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
+            />
+            <span className="text-xs text-white/45">cm</span>
+          </div>
+        </label>
       </div>
 
-      {/* Slider */}
-      <div className="space-y-1.5 px-1">
-        <div className="relative h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <div
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{
-              width: `${Math.max(0, Math.min(100, pct))}%`,
-              background: 'linear-gradient(90deg, rgba(255,59,71,0.5), #FF3B47)',
-              boxShadow: '0 0 8px rgba(255,59,71,0.5)',
-            }}
-          />
-          <input
-            type="range"
-            min={sliderMin}
-            max={sliderMax}
-            step={STEP}
-            value={value}
-            onChange={handleSlider}
-            onMouseUp={handleSliderEnd}
-            onTouchEnd={handleSliderEnd}
-            className="absolute inset-0 w-full appearance-none bg-transparent cursor-pointer opacity-0"
-          />
-          <div
-            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full pointer-events-none transition-all"
-            style={{
-              left: `calc(${Math.max(0, Math.min(100, pct))}% - 8px)`,
-              background: '#FF3B47',
-              border: '2px solid #FFFFFF',
-              boxShadow: '0 0 12px rgba(255,59,71,0.6)',
-            }}
-          />
-        </div>
-        <div className="flex justify-between text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-          <span>{sliderMin}</span>
-          <span>{sliderMax}</span>
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={save}
+        disabled={!canSave || isPending}
+        className="h-11 w-full rounded-[14px] bg-primary text-sm font-black uppercase tracking-wide text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-white/[0.06] disabled:text-white/25"
+      >
+        {isPending ? labels.save : labels.save}
+      </button>
     </div>
   )
 }

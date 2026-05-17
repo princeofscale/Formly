@@ -7,6 +7,14 @@ export interface TonnageByMonth {
   total_kg: number
 }
 
+interface ExerciseMuscleRow {
+  exercise_id: string
+  exercises: {
+    primary_muscle: MuscleGroup
+    secondary_muscles: MuscleGroup[]
+  } | null
+}
+
 export async function getMonthlyTonnage(
   supabase: SupabaseClient,
   userId: string
@@ -32,13 +40,19 @@ export async function getMonthlyTonnage(
 export async function getWeeklyMuscleVolume(
   supabase: SupabaseClient,
   userId: string,
-  _weeks = 1
+  weeks = 1
+): Promise<MuscleVolume[]> {
+  return getMuscleVolumeForDays(supabase, userId, Math.max(1, weeks) * 7)
+}
+
+export async function getMuscleVolumeForDays(
+  supabase: SupabaseClient,
+  userId: string,
+  days = 7
 ): Promise<MuscleVolume[]> {
   const now = new Date()
-  const dayOfWeek = now.getUTCDay()
-  const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
   const since = new Date(now)
-  since.setUTCDate(now.getUTCDate() - daysSinceMonday)
+  since.setUTCDate(now.getUTCDate() - Math.max(1, days))
   since.setUTCHours(0, 0, 0, 0)
 
   const { data } = await supabase
@@ -51,8 +65,8 @@ export async function getWeeklyMuscleVolume(
 
   const exerciseMap = new Map<string, { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }>()
 
-  for (const row of data) {
-    const ex = row.exercises as unknown as { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[] } | null
+  for (const row of data as unknown as ExerciseMuscleRow[]) {
+    const ex = row.exercises
     if (!ex) continue
     const existing = exerciseMap.get(row.exercise_id)
     if (existing) {
@@ -63,8 +77,30 @@ export async function getWeeklyMuscleVolume(
   }
 
   const fakeExercises = Array.from(exerciseMap.values()).map(ex => ({
-    exercise: { primary_muscle: ex.primary_muscle, secondary_muscles: ex.secondary_muscles } as any,
-    sets: Array.from({ length: ex.setCount }, () => ({}) as any),
+    exercise: {
+      id: '',
+      name: '',
+      slug: '',
+      primary_muscle: ex.primary_muscle,
+      secondary_muscles: ex.secondary_muscles,
+      mechanic: 'compound' as const,
+      equipment: 'other' as const,
+      is_custom: false,
+      created_by: null,
+    },
+    sets: Array.from({ length: ex.setCount }, (_, index) => ({
+      id: String(index),
+      session_id: '',
+      user_id: userId,
+      exercise_id: '',
+      set_number: index + 1,
+      weight_kg: 0,
+      reps: 0,
+      rpe: null,
+      calculated_1rm: null,
+      rest_seconds: null,
+      created_at: '',
+    })),
   }))
 
   return calculateSessionVolume(fakeExercises)

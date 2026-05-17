@@ -3,12 +3,10 @@ import { verifySession } from '@/lib/dal'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { getExercises } from '@/lib/db/exercises'
 import { getE1RMHistory } from '@/lib/db/sets'
-import { getMeasurements } from '@/lib/db/body-measurements'
 import { ProgressLineChart } from '@/components/progress/ProgressLineChart'
 import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
-import { WeightBarChart } from '@/components/progress/WeightBarChart'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d':   7,
@@ -28,7 +26,14 @@ export default async function ProgressPage({
   const t = await getTranslations('progress')
   const locale = await getLocale()
 
-  const exercises = await getExercises(supabase, user.id)
+  const [exercises, profileResult] = await Promise.all([
+    getExercises(supabase, user.id),
+    supabase
+      .from('profiles')
+      .select('weight_kg, height_cm')
+      .eq('id', user.id)
+      .single(),
+  ])
   const selectedExercise = exerciseId
     ? exercises.find(e => e.id === exerciseId)
     : exercises.find(e => e.slug === 'barbell-bench-press') ?? exercises[0]
@@ -43,14 +48,8 @@ export default async function ProgressPage({
   const sinceIso = since.toISOString().slice(0, 10)
   const periodHistory = fullHistory.filter(p => p.date >= sinceIso)
 
-  // Body weight history — last 14 entries with weight set
-  const allMeasurements = await getMeasurements(supabase, user.id)
-  const weightHistory = allMeasurements
-    .filter(m => m.weight_kg !== null)
-    .slice(0, 14)
-    .map(m => ({ date: m.date, weight_kg: m.weight_kg as number }))
-    .reverse()
-  const latestWeight = weightHistory.length > 0 ? weightHistory[weightHistory.length - 1].weight_kg : null
+  const currentWeight = profileResult.data?.weight_kg ?? null
+  const currentHeight = profileResult.data?.height_cm ?? null
 
   const displayName = (ex: typeof selectedExercise) =>
     locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
@@ -85,25 +84,16 @@ export default async function ProgressPage({
         />
       </div>
 
-      {/* Body weight slider card */}
-      <BodyWeightCard initial={latestWeight ?? 75} labelKg={t('weightLabel')} />
-
-      {/* Last 5/14 days bar chart */}
-      <div
-        className="rounded-[20px] p-5"
-        style={{
-          background: '#15151C',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+      <BodyWeightCard
+        initialWeight={currentWeight}
+        initialHeight={currentHeight}
+        labels={{
+          weight: t('weightLabel'),
+          height: t('heightLabel'),
+          save: t('saveMetrics'),
+          saved: t('saved'),
         }}
-      >
-        <div className="flex items-baseline justify-between mb-4">
-          <h3 className="text-sm font-semibold">{t('weightHistoryTitle')}</h3>
-          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {weightHistory.length > 0 ? `${weightHistory.length} ${t('entries')}` : t('noEntries')}
-          </span>
-        </div>
-        <WeightBarChart data={weightHistory.slice(-5)} />
-      </div>
+      />
     </div>
   )
 }

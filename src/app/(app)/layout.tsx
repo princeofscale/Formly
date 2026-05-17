@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen">
       <main className="pb-24">
-        <div className="container max-w-2xl mx-auto px-4 py-6">
+        <div className="container mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
           <PageWrapper>{children}</PageWrapper>
         </div>
       </main>
