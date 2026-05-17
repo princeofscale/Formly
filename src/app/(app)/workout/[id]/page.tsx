@@ -7,6 +7,7 @@ import { getExercises } from '@/lib/db/exercises'
 import { getTemplate } from '@/lib/db/templates'
 import { WorkoutClient } from '@/components/workout/WorkoutClient'
 import { getExerciseNotesForExercises } from '@/lib/db/exercise-notes'
+import { getExerciseVideosForExercises } from '@/lib/db/exercise-videos'
 import type { Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 
 export default async function WorkoutPage({
@@ -68,12 +69,12 @@ export default async function WorkoutPage({
 
   const initialExercises = [...exerciseMap.values(), ...templateExercises]
 
-  // Fetch exercise notes for all exercises in this session
-  const exerciseNotesMap = await getExerciseNotesForExercises(
-    supabase,
-    user.id,
-    initialExercises.map(e => e.id)
-  )
+  // Fetch exercise notes + videos for all exercises in this session
+  const exerciseIds = initialExercises.map(e => e.id)
+  const [exerciseNotesMap, exerciseVideosMap] = await Promise.all([
+    getExerciseNotesForExercises(supabase, user.id, exerciseIds),
+    getExerciseVideosForExercises(supabase, user.id, exerciseIds),
+  ])
 
   // Build top-used exercises suggestion list from last 30 days (excluding ones already in session)
   const since30days = new Date()
@@ -106,6 +107,7 @@ export default async function WorkoutPage({
       sourceTemplate={sourceTemplate}
       suggestedExercises={suggestedExercises}
       exerciseNotes={exerciseNotesMap}
+      exerciseVideos={exerciseVideosMap}
     />
   )
 }

@@ -331,6 +331,17 @@
       "add": "Add a note (form cues, reminders)",
       "placeholder": "e.g. keep elbows tucked, full ROM"
     },
+    "video": {
+      "label": "Technique video",
+      "add": "Add YouTube link",
+      "editLabel": "Video URL",
+      "save": "Save",
+      "remove": "Remove",
+      "close": "Close",
+      "change": "Change",
+      "saved": "Saved",
+      "invalidUrl": "Couldn't recognize a YouTube URL"
+    },
     "mood": {
       "label": "How was the workout?",
       "bad": "Rough",

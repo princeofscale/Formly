@@ -9,6 +9,7 @@ import { PRBadge } from './PRBadge'
 import { LastTimeHint } from './LastTimeHint'
 import { PlateCalculator } from './PlateCalculator'
 import { ExerciseNoteEditor } from './ExerciseNoteEditor'
+import { ExerciseVideo } from './ExerciseVideo'
 import { Button } from '@/components/ui/button'
 import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
@@ -19,9 +20,10 @@ interface Props {
   onDelete: () => void
   lastSets?: SetEntry[]
   initialNote?: string
+  initialVideoUrl?: string
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [], initialNote = '' }: Props) {
+export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [], initialNote = '', initialVideoUrl = '' }: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
@@ -151,6 +153,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
           )
         )}
 
+        <ExerciseVideo exerciseId={exercise.id} initialUrl={initialVideoUrl} />
         <ExerciseNoteEditor exerciseId={exercise.id} initialNote={initialNote} />
 
         <SetRow
