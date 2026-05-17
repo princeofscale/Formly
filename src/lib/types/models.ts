@@ -160,3 +160,10 @@ export interface BodyMeasurement {
 
 export type MeasurementField =
   | 'weight_kg' | 'chest_cm' | 'waist_cm' | 'hips_cm' | 'biceps_cm' | 'body_fat_pct'
+
+export interface ExerciseNote {
+  user_id: string
+  exercise_id: string
+  note: string
+  updated_at: string
+}

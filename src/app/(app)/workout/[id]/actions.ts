@@ -9,6 +9,7 @@ import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/w
 import { searchExercises } from '@/lib/db/exercises'
 import { getLastSetsForExercise } from '@/lib/db/sets'
 import { createTemplate, updateTemplate } from '@/lib/db/templates'
+import { upsertExerciseNote } from '@/lib/db/exercise-notes'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { detectAndSaveAchievements } from '@/lib/services/achievements.service'
@@ -61,6 +62,12 @@ export async function updateMoodAction(sessionId: string, mood: number | null): 
   const { user } = await verifySession()
   const supabase = await createClient()
   await updateSessionMood(supabase, sessionId, user.id, mood)
+}
+
+export async function updateExerciseNoteAction(exerciseId: string, note: string): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  await upsertExerciseNote(supabase, user.id, exerciseId, note)
 }
 
 export async function getLastSetsForExerciseAction(exerciseId: string, sessionId: string): Promise<SetEntry[]> {

@@ -8,6 +8,7 @@ import { RestTimer } from './RestTimer'
 import { PRBadge } from './PRBadge'
 import { LastTimeHint } from './LastTimeHint'
 import { PlateCalculator } from './PlateCalculator'
+import { ExerciseNoteEditor } from './ExerciseNoteEditor'
 import { Button } from '@/components/ui/button'
 import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
@@ -17,9 +18,10 @@ interface Props {
   onSetSaved: (set: SetEntry) => void
   onDelete: () => void
   lastSets?: SetEntry[]
+  initialNote?: string
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [] }: Props) {
+export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [], initialNote = '' }: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
@@ -134,9 +136,23 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
 
       {/* always-visible new set row */}
       <div className="px-4 pt-3 pb-4 border-t border-white/10 space-y-2">
-        {sets.length === 0 && lastSets.length > 0 && (
-          <LastTimeHint sets={lastSets} />
+        {/* "Last time" comparison — always show when we have history */}
+        {lastSets.length > 0 && (
+          sets.length === 0 ? (
+            <LastTimeHint sets={lastSets} />
+          ) : (
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <span className="font-bold">{t('lastTime')}:</span>
+              <span className="font-mono font-bold" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                {lastSets.map(s => `${s.weight_kg}×${s.reps}`).slice(0, 4).join(' · ')}
+                {lastSets.length > 4 ? ` +${lastSets.length - 4}` : ''}
+              </span>
+            </div>
+          )
         )}
+
+        <ExerciseNoteEditor exerciseId={exercise.id} initialNote={initialNote} />
+
         <SetRow
           sessionId={sessionId}
           exerciseId={exercise.id}

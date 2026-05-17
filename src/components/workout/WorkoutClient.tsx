@@ -18,6 +18,7 @@ interface Props {
   lastSetsMap?: Record<string, SetEntry[]>
   sourceTemplate?: { id: string; name: string }
   suggestedExercises?: Exercise[]
+  exerciseNotes?: Record<string, string>
 }
 
 function useElapsed(startedAt: string) {
@@ -33,7 +34,7 @@ function useElapsed(startedAt: string) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate, suggestedExercises = [] }: Props) {
+export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate, suggestedExercises = [], exerciseNotes = {} }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
   const locale = useLocale()
@@ -214,6 +215,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
               onSetSaved={(set) => appendSet(ex.id, set)}
               onDelete={() => removeExercise(ex.id)}
               lastSets={lastSetsMap[ex.id] ?? []}
+              initialNote={exerciseNotes[ex.id] ?? ''}
             />
           </div>
         ))}
