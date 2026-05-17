@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { AppNav } from '@/components/AppNav'
+import { BottomTabBar } from '@/components/BottomTabBar'
 import { OnboardingModal } from '@/components/OnboardingModal'
 import { PageWrapper } from '@/components/PageWrapper'
 
@@ -17,15 +17,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const needsOnboarding = !profile?.weight_kg && !profile?.height_cm
 
   return (
-    <div className="min-h-screen flex">
-      <AppNav />
-
-      {/* Main content — left margin on desktop for sidebar, bottom padding on mobile for bottom bar */}
-      <main className="flex-1 md:ml-14 pb-20 md:pb-0 relative z-10">
+    <div className="min-h-screen">
+      <main className="pb-24">
         <div className="container max-w-2xl mx-auto px-4 py-6">
           <PageWrapper>{children}</PageWrapper>
         </div>
       </main>
+
+      <BottomTabBar />
 
       {needsOnboarding && <OnboardingModal />}
     </div>

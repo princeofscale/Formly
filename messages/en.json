@@ -40,6 +40,9 @@
     "analytics": "Analytics",
     "records": "Records",
     "profile": "Profile",
+    "workouts": "Workouts",
+    "progress": "Progress",
+    "plan": "Plan",
     "signOut": "Sign out"
   },
   "records": {
@@ -101,6 +104,22 @@
         "arms": "Arms",
         "legs": "Legs"
       }
+    }
+  },
+  "progress": {
+    "title": "Progress",
+    "exerciseLabel": "Exercise",
+    "periodLabel": "Period",
+    "unit1rm": "kg",
+    "weightLabel": "Body weight",
+    "weightHistoryTitle": "Weight history",
+    "entries": "entries",
+    "noEntries": "no data",
+    "periods": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "1y": "1 year"
     }
   },
   "install": {

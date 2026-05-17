@@ -40,6 +40,9 @@
     "analytics": "Аналитика",
     "records": "Рекорды",
     "profile": "Профиль",
+    "workouts": "Тренировки",
+    "progress": "Прогресс",
+    "plan": "План",
     "signOut": "Выйти"
   },
   "records": {
@@ -101,6 +104,22 @@
         "arms": "Руки",
         "legs": "Ноги"
       }
+    }
+  },
+  "progress": {
+    "title": "Прогресс",
+    "exerciseLabel": "Упражнение",
+    "periodLabel": "Период",
+    "unit1rm": "кг",
+    "weightLabel": "Вес тела",
+    "weightHistoryTitle": "История веса",
+    "entries": "записей",
+    "noEntries": "нет данных",
+    "periods": {
+      "7d": "7 дней",
+      "30d": "30 дней",
+      "90d": "90 дней",
+      "1y": "1 год"
     }
   },
   "install": {
