@@ -21,6 +21,8 @@ import { SleepCard } from '@/components/dashboard/SleepCard'
 import { getRecentSleep, getSleepForDate } from '@/lib/db/sleep'
 import { PRsCard } from '@/components/dashboard/PRsCard'
 import { getRecentPRs } from '@/lib/db/prs'
+import { repeatSessionAction } from '@/app/(app)/workout/new/actions'
+import { RotateCw } from 'lucide-react'
 import { TonnageHeatmap } from '@/components/dashboard/TonnageHeatmap'
 import { getDailyTonnage } from '@/lib/db/workouts'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
@@ -267,8 +269,8 @@ export default async function DashboardPage({
                     ? Math.round(s.cardio_duration_seconds / 60)
                     : null
                   return (
-                    <Link key={s.id} href={isCardio ? '/dashboard' : `/history/${s.id}`} className="block rounded-2xl transition hover:bg-white/[0.04]">
-                      <div className="flex items-center justify-between gap-3 px-1 py-2.5">
+                    <div key={s.id} className="group flex items-center rounded-2xl transition hover:bg-white/[0.04]">
+                      <Link href={isCardio ? '/dashboard' : `/history/${s.id}`} className="flex flex-1 min-w-0 items-center justify-between gap-3 px-1 py-2.5">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <p className="font-mono text-sm font-bold">
@@ -302,8 +304,21 @@ export default async function DashboardPage({
                             {(s.total_volume_kg ?? 0).toFixed(0)} кг
                           </span>
                         )}
-                      </div>
-                    </Link>
+                      </Link>
+                      {!isCardio && (
+                        <form action={repeatSessionAction} className="shrink-0 pr-1">
+                          <input type="hidden" name="sessionId" value={s.id} />
+                          <button
+                            type="submit"
+                            aria-label={t('repeatWorkout')}
+                            title={t('repeatWorkout')}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-white/45 transition hover:bg-white/[0.06] hover:text-white active:scale-95"
+                          >
+                            <RotateCw className="h-4 w-4" />
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   )
                 })}
               </div>

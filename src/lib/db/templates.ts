@@ -57,3 +57,36 @@ export async function deleteTemplate(supabase: SupabaseClient, userId: string, i
     .eq('user_id', userId)
   if (error) throw new Error(error.message)
 }
+
+// Distinct exercises performed in a session, ordered by their first set's set_number.
+// Used to build a one-click "repeat workout" template.
+export async function getSessionExerciseList(
+  supabase: SupabaseClient,
+  userId: string,
+  sessionId: string
+): Promise<TemplateExercise[]> {
+  const { data } = await supabase
+    .from('set_entries')
+    .select('exercise_id, set_number, exercises(name, name_ru)')
+    .eq('user_id', userId)
+    .eq('session_id', sessionId)
+    .order('set_number', { ascending: true })
+
+  const seen = new Set<string>()
+  const out: TemplateExercise[] = []
+  for (const row of (data ?? []) as unknown as Array<{
+    exercise_id: string
+    exercises: { name: string; name_ru: string | null } | { name: string; name_ru: string | null }[] | null
+  }>) {
+    if (seen.has(row.exercise_id)) continue
+    const ex = Array.isArray(row.exercises) ? row.exercises[0] : row.exercises
+    if (!ex) continue
+    seen.add(row.exercise_id)
+    out.push({
+      exercise_id: row.exercise_id,
+      name: ex.name,
+      name_ru: ex.name_ru,
+    })
+  }
+  return out
+}
