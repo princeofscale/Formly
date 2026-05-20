@@ -8,7 +8,6 @@ import { LoggedSetRow } from './LoggedSetRow'
 import { RestTimer } from './RestTimer'
 import { PRBadge } from './PRBadge'
 import { LastTimeHint } from './LastTimeHint'
-import { PlateCalculator } from './PlateCalculator'
 import { ExerciseNoteEditor } from './ExerciseNoteEditor'
 import { ExerciseVideo } from './ExerciseVideo'
 import { Button } from '@/components/ui/button'
@@ -155,11 +154,9 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
           defaultWeight={lastSet?.weight_kg ?? lastSets[0]?.weight_kg}
           defaultReps={lastSet?.reps ?? lastSets[0]?.reps}
           isBodyweight={isBodyweight}
+          showPlateCalculator={exercise.equipment === 'barbell'}
           onSaved={handleSetSaved}
         />
-        {exercise.equipment === 'barbell' && (lastSet?.weight_kg ?? lastSets[0]?.weight_kg) && (
-          <PlateCalculator weightKg={lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0} />
-        )}
       </div>
 
     </div>

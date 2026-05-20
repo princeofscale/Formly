@@ -438,6 +438,14 @@
     "rpeLabel": "Effort",
     "setLabel": "Set #{n}",
     "rpeOutOfRange": "Effort must be between 1 and 10.",
+    "plateCalculator": {
+      "label": "Plates per side",
+      "noBar": "No bar",
+      "belowBar": "Below {bar}kg bar",
+      "barOnly": "Bar only",
+      "perSide": "{kg} kg/side",
+      "leftover": "+{kg} kg won't fit (no smaller plates)"
+    },
     "notes": {
       "label": "Notes",
       "add": "Add note for this workout",

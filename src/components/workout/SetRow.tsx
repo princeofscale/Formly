@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
 import type { SetEntry, PRResult } from '@/lib/types/models'
+import { PlateCalculator } from './PlateCalculator'
 
 interface StepperProps {
   label: string
@@ -77,12 +78,13 @@ interface Props {
   defaultWeight?: number
   defaultReps?: number
   isBodyweight?: boolean
+  showPlateCalculator?: boolean
   onSaved: (set: SetEntry, prResult: PRResult) => void
 }
 
 const QUICK_INCREMENTS = [-5, -2.5, 2.5, 5]
 
-export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, onSaved }: Props) {
+export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, showPlateCalculator = false, onSaved }: Props) {
   const t = useTranslations('workout')
   const draftKey = `setdraft:${sessionId}:${exerciseId}:${setNumber}`
 
@@ -179,6 +181,8 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
           </button>
         ))}
       </div>
+
+      {showPlateCalculator && <PlateCalculator weightKg={parseFloat(weight) || 0} />}
 
       <div className="grid grid-cols-2 gap-2">
         <Stepper label={t('rpeLabel')} value={rpe} onChange={setRpe} step={1} min={1} max={10} optional />
