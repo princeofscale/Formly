@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
 import type { SetEntry, PRResult } from '@/lib/types/models'
@@ -76,30 +76,69 @@ interface Props {
   setNumber: number
   defaultWeight?: number
   defaultReps?: number
+  isBodyweight?: boolean
   onSaved: (set: SetEntry, prResult: PRResult) => void
 }
 
-export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, onSaved }: Props) {
+const QUICK_INCREMENTS = [-5, -2.5, 2.5, 5]
+
+export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, onSaved }: Props) {
   const t = useTranslations('workout')
+  const draftKey = `setdraft:${sessionId}:${exerciseId}:${setNumber}`
+
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
   const [reps, setReps] = useState(String(defaultReps))
   const [rpe, setRpe] = useState('')
+  const [hydrated, setHydrated] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const canSave = !!(parseFloat(weight) && parseInt(reps))
+  // Restore draft from localStorage after mount (avoids SSR hydration mismatch)
+  useEffect(() => {
+    const draft = readDraft(draftKey)
+    if (draft) {
+      setWeight(draft.weight)
+      setReps(draft.reps)
+      setRpe(draft.rpe)
+    }
+    setHydrated(true)
+  }, [draftKey])
+
+  // Persist draft as user types
+  useEffect(() => {
+    if (!hydrated || typeof window === 'undefined') return
+    if (!weight && !rpe && reps === String(defaultReps)) {
+      window.localStorage.removeItem(draftKey)
+      return
+    }
+    window.localStorage.setItem(draftKey, JSON.stringify({ weight, reps, rpe }))
+  }, [weight, reps, rpe, draftKey, defaultReps, hydrated])
+
+  // For bodyweight exercises, weight is optional (empty = pure BW, value = added weight or assistance)
+  const canSave = isBodyweight
+    ? !!parseInt(reps)
+    : !!(parseFloat(weight) && parseInt(reps))
+
+  function applyQuickInc(delta: number) {
+    const base = parseFloat(weight) || (defaultWeight ?? 0)
+    const next = Math.max(0, Math.round((base + delta) * 100) / 100)
+    setWeight(String(next))
+  }
 
   function handleSave() {
-    const w = parseFloat(weight)
     const r = parseInt(reps)
-    if (!w || !r) return
-    // Clamp RPE to DB constraint [1, 10] — user may type directly bypassing stepper limits
+    if (!r) return
+    const w = parseFloat(weight)
+    // For bodyweight, store 0 when no extra weight; otherwise weight must be > 0
+    const weightToSave = isBodyweight ? (Number.isFinite(w) ? w : 0) : w
+    if (!isBodyweight && !weightToSave) return
     const rpeVal = rpe ? Math.max(1, Math.min(10, parseFloat(rpe))) : undefined
     startTransition(async () => {
       const { set, prResult } = await saveSetAction({
         sessionId, exerciseId, setNumber,
-        weightKg: w, reps: r,
+        weightKg: weightToSave, reps: r,
         rpe: rpeVal,
       })
+      if (typeof window !== 'undefined') window.localStorage.removeItem(draftKey)
       onSaved(set, prResult)
     })
   }
@@ -110,9 +149,37 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
         {t('setLabel', { n: setNumber })}
       </p>
       <div className="grid grid-cols-2 gap-2">
-        <Stepper label={t('weightLabel')} value={weight} onChange={setWeight} step={2.5} min={0} suffix="кг" />
+        <Stepper
+          label={isBodyweight ? t('extraWeightLabel') : t('weightLabel')}
+          value={weight}
+          onChange={setWeight}
+          step={2.5}
+          min={0}
+          suffix={isBodyweight && !weight ? 'BW' : 'кг'}
+          optional={isBodyweight}
+        />
         <Stepper label={t('repsLabel')} value={reps} onChange={setReps} step={1} min={1} />
       </div>
+
+      {/* Quick increments */}
+      <div className="flex items-center gap-1.5">
+        {QUICK_INCREMENTS.map(d => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => applyQuickInc(d)}
+            className="flex-1 h-7 rounded-[6px] text-[10px] font-mono font-bold tracking-tight transition-colors"
+            style={{
+              background: d > 0 ? 'rgba(255, 59, 71, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+              border: d > 0 ? '1px solid rgba(255, 59, 71, 0.22)' : '1px solid rgba(255, 255, 255, 0.08)',
+              color: d > 0 ? '#FF6E76' : 'rgba(255, 255, 255, 0.55)',
+            }}
+          >
+            {d > 0 ? '+' : ''}{d}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-2 gap-2">
         <Stepper label={t('rpeLabel')} value={rpe} onChange={setRpe} step={1} min={1} max={10} optional />
         <div className="space-y-1">
@@ -133,4 +200,18 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
       </div>
     </div>
   )
+}
+
+function readDraft(key: string): { weight: string; reps: string; rpe: string } | null {
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (typeof parsed?.weight === 'string' && typeof parsed?.reps === 'string' && typeof parsed?.rpe === 'string') {
+      return parsed
+    }
+  } catch {
+    // ignore
+  }
+  return null
 }

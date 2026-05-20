@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 interface DataPoint {
   date: string
-  e1rm: number
+  value: number
 }
 
 interface Props {
@@ -34,7 +34,7 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
   const innerW = WIDTH - PADDING.left - PADDING.right
   const innerH = HEIGHT - PADDING.top - PADDING.bottom
 
-  const values = data.map(d => d.e1rm)
+  const values = data.map(d => d.value)
   const minV = Math.min(...values)
   const maxV = Math.max(...values)
   const range = maxV - minV || 1
@@ -46,8 +46,8 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
 
   const points = data.map((d, i) => {
     const x = PADDING.left + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW)
-    const y = PADDING.top + innerH - ((d.e1rm - scaleMin) / scaleRange) * innerH
-    return { x, y, value: d.e1rm, date: d.date }
+    const y = PADDING.top + innerH - ((d.value - scaleMin) / scaleRange) * innerH
+    return { x, y, value: d.value, date: d.date }
   })
 
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ')

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { addSet, getSetsForSession, getBestE1RMForExercise } from '@/lib/db/sets'
+import { addSet, getSetsForSession, getBestE1RMForExercise, updateSet, deleteSet } from '@/lib/db/sets'
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
 import { searchExercises } from '@/lib/db/exercises'
 import { getLastSetsForExercise } from '@/lib/db/sets'
@@ -26,7 +26,8 @@ export async function saveSetAction(data: {
   const { user } = await verifySession()
   const supabase = await createClient()
 
-  const calculated1rm = calculate1RM(data.weightKg, data.reps)
+  // 1RM is only meaningful for loaded sets. For pure bodyweight (weight=0) we skip it.
+  const calculated1rm = data.weightKg > 0 ? calculate1RM(data.weightKg, data.reps) : null
 
   const set = await addSet(supabase, {
     sessionId: data.sessionId,
@@ -39,10 +40,35 @@ export async function saveSetAction(data: {
     calculated1rm,
   })
 
-  const previousBest = await getBestE1RMForExercise(supabase, user.id, data.exerciseId, set.id)
-  const prResult = detectPRFromHistory(calculated1rm, previousBest)
+  const prResult = calculated1rm != null
+    ? detectPRFromHistory(calculated1rm, await getBestE1RMForExercise(supabase, user.id, data.exerciseId, set.id))
+    : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
 
   return { set, prResult }
+}
+
+export async function updateSetAction(data: {
+  setId: string
+  weightKg: number
+  reps: number
+  rpe?: number
+}): Promise<{ set: SetEntry }> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  const calculated1rm = data.weightKg > 0 ? calculate1RM(data.weightKg, data.reps) : null
+  const set = await updateSet(supabase, data.setId, user.id, {
+    weightKg: data.weightKg,
+    reps: data.reps,
+    rpe: data.rpe ?? null,
+    calculated1rm,
+  })
+  return { set }
+}
+
+export async function deleteSetAction(setId: string): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  await deleteSet(supabase, setId, user.id)
 }
 
 export async function searchExercisesAction(query: string, locale: string = 'en'): Promise<Exercise[]> {

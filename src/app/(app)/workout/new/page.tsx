@@ -8,13 +8,14 @@ import { startWorkoutAction, startFromTemplateAction, deleteTemplateAction } fro
 import { PresetPrograms } from '@/components/workout/PresetPrograms'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Bike } from 'lucide-react'
 
 export default async function NewWorkoutPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('workout')
   const tTpl = await getTranslations('templates')
+  const tCardio = await getTranslations('cardio')
   const locale = await getLocale()
   const [active, templates] = await Promise.all([
     getActiveSession(supabase, user.id),
@@ -39,15 +40,33 @@ export default async function NewWorkoutPage() {
       )}
 
       {/* Quick start */}
-      <Card>
-        <CardContent className="pt-6">
-          <form action={startWorkoutAction}>
-            <button type="submit" className={buttonVariants({ size: 'lg', className: 'w-full uppercase tracking-wider font-bold' })}>
-              {t('startNewWorkout')}
-            </button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Card>
+          <CardContent className="pt-6">
+            <form action={startWorkoutAction}>
+              <button type="submit" className={buttonVariants({ size: 'lg', className: 'w-full uppercase tracking-wider font-bold' })}>
+                {t('startNewWorkout')}
+              </button>
+            </form>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <Link
+              href="/cardio/new"
+              className="flex items-center justify-center gap-2 h-11 px-4 rounded-md text-sm font-bold uppercase tracking-wider transition-colors"
+              style={{
+                background: 'rgba(94, 234, 212, 0.12)',
+                border: '1px solid rgba(94, 234, 212, 0.3)',
+                color: '#5EEAD4',
+              }}
+            >
+              <Bike className="h-4 w-4" />
+              {tCardio('startCardio')}
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Built-in programs */}
       <PresetPrograms />

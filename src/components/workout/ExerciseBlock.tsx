@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
 import { SetRow } from './SetRow'
+import { LoggedSetRow } from './LoggedSetRow'
 import { RestTimer } from './RestTimer'
 import { PRBadge } from './PRBadge'
 import { LastTimeHint } from './LastTimeHint'
@@ -39,6 +40,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
   const instructions = locale === 'ru'
     ? (exercise.instructions_ru ?? exercise.instructions_en)
     : exercise.instructions_en
+  const isBodyweight = exercise.equipment === 'bodyweight'
 
   function handleSetSaved(set: SetEntry, prResult: PRResult) {
     setSets(prev => [...prev, set])
@@ -99,30 +101,20 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
       {/* logged sets */}
       {sets.length > 0 && (
         <div className="px-4 pt-3 pb-1 space-y-0.5">
-          {sets.map((set, i) => {
-            const isLast = i === sets.length - 1
-            return (
-              <div
-                key={set.id}
-                className={`flex items-center gap-3 py-1 text-sm animate-in fade-in slide-in-from-top-1 duration-200 ${
-                  isLast ? 'border-l-2 border-amber-500 pl-2 -ml-2' : ''
-                }`}
-              >
-                <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
-                <span className={`font-mono font-bold ${isLast ? 'text-zinc-100' : 'text-zinc-500'}`}>
-                  {set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span>
-                  <span className="text-zinc-700 mx-1.5">×</span>
-                  {set.reps}
-                </span>
-                {set.rpe != null && (
-                  <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
-                )}
-                {set.calculated_1rm != null && isLast && (
-                  <span className="text-[10px] text-zinc-600 ml-auto">1ПМ {set.calculated_1rm.toFixed(0)}</span>
-                )}
-              </div>
-            )
-          })}
+          {sets.map((set, i) => (
+            <LoggedSetRow
+              key={set.id}
+              set={set}
+              isLast={i === sets.length - 1}
+              isBodyweight={isBodyweight}
+              onUpdated={(updated) =>
+                setSets(prev => prev.map(s => s.id === updated.id ? updated : s))
+              }
+              onDeleted={(setId) =>
+                setSets(prev => prev.filter(s => s.id !== setId))
+              }
+            />
+          ))}
         </div>
       )}
 
@@ -162,6 +154,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
           setNumber={sets.length + 1}
           defaultWeight={lastSet?.weight_kg ?? lastSets[0]?.weight_kg}
           defaultReps={lastSet?.reps ?? lastSets[0]?.reps}
+          isBodyweight={isBodyweight}
           onSaved={handleSetSaved}
         />
         {exercise.equipment === 'barbell' && (lastSet?.weight_kg ?? lastSets[0]?.weight_kg) && (

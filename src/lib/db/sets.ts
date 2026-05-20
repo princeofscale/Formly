@@ -11,7 +11,7 @@ export async function addSet(
     weightKg: number
     reps: number
     rpe?: number
-    calculated1rm: number
+    calculated1rm: number | null
   }
 ): Promise<SetEntry> {
   const { data: set, error } = await supabase
@@ -42,6 +42,70 @@ export async function getSetsForSession(
     .eq('session_id', sessionId)
     .order('created_at')
   return (data as SetEntry[]) ?? []
+}
+
+export async function updateSet(
+  supabase: SupabaseClient,
+  setId: string,
+  userId: string,
+  patch: { weightKg: number; reps: number; rpe?: number | null; calculated1rm: number | null }
+): Promise<SetEntry> {
+  const { data, error } = await supabase
+    .from('set_entries')
+    .update({
+      weight_kg: patch.weightKg,
+      reps: patch.reps,
+      rpe: patch.rpe ?? null,
+      calculated_1rm: patch.calculated1rm,
+    })
+    .eq('id', setId)
+    .eq('user_id', userId)
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return data as SetEntry
+}
+
+export async function deleteSet(
+  supabase: SupabaseClient,
+  setId: string,
+  userId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('set_entries')
+    .delete()
+    .eq('id', setId)
+    .eq('user_id', userId)
+  if (error) throw new Error(error.message)
+}
+
+export async function getVolumeHistoryForExercise(
+  supabase: SupabaseClient,
+  userId: string,
+  exerciseId: string
+): Promise<{ date: string; volume_kg: number; sets: number }[]> {
+  const { data } = await supabase
+    .from('set_entries')
+    .select('created_at, weight_kg, reps')
+    .eq('user_id', userId)
+    .eq('exercise_id', exerciseId)
+    .order('created_at')
+
+  if (!data) return []
+
+  const byDay = new Map<string, { volume_kg: number; sets: number }>()
+  for (const row of data) {
+    const day = (row.created_at as string).slice(0, 10)
+    const vol = (row.weight_kg as number) * (row.reps as number)
+    const prev = byDay.get(day) ?? { volume_kg: 0, sets: 0 }
+    byDay.set(day, { volume_kg: prev.volume_kg + vol, sets: prev.sets + 1 })
+  }
+
+  return Array.from(byDay.entries()).map(([date, v]) => ({
+    date,
+    volume_kg: Math.round(v.volume_kg),
+    sets: v.sets,
+  }))
 }
 
 export async function getLastSetsForExercise(

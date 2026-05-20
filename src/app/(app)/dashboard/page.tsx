@@ -14,7 +14,17 @@ import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 import { getFinishedSessionDates, getCalendarActivity } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { StreakCard } from '@/components/dashboard/StreakCard'
+import { DeloadBanner } from '@/components/dashboard/DeloadBanner'
+import { WeakPointsCard } from '@/components/dashboard/WeakPointsCard'
+import { detectWeakPoints } from '@/lib/services/weak-points.service'
+import { SleepCard } from '@/components/dashboard/SleepCard'
+import { getRecentSleep, getSleepForDate } from '@/lib/db/sleep'
+import { TonnageHeatmap } from '@/components/dashboard/TonnageHeatmap'
+import { getDailyTonnage } from '@/lib/db/workouts'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
+
+const DELOAD_CYCLE_WEEKS = 5
+const WEAK_POINTS_DAYS = 28
 
 const MUSCLE_PERIOD_DAYS: Record<string, number> = {
   '7d': 7,
@@ -40,10 +50,10 @@ export default async function DashboardPage({
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, calendarActivity] = await Promise.all([
+  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, calendarActivity, firstSessionResult] = await Promise.all([
     supabase
       .from('workout_sessions')
-      .select('id, started_at, total_volume_kg, finished_at, mood_score')
+      .select('id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km')
       .eq('user_id', user.id)
       .not('finished_at', 'is', null)
       .order('started_at', { ascending: false })
@@ -77,6 +87,14 @@ export default async function DashboardPage({
     getTodayInsights(supabase, user.id),
     getFinishedSessionDates(supabase, user.id),
     getCalendarActivity(supabase, user.id),
+    supabase
+      .from('workout_sessions')
+      .select('started_at')
+      .eq('user_id', user.id)
+      .not('finished_at', 'is', null)
+      .order('started_at', { ascending: true })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   const sessions = sessionsResult.data ?? []
@@ -96,7 +114,40 @@ export default async function DashboardPage({
   const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
-  const muscleVolumes = await getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod])
+  const todayDate = new Date().toISOString().slice(0, 10)
+  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage] = await Promise.all([
+    getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
+    getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
+    getSleepForDate(supabase, user.id, todayDate),
+    getRecentSleep(supabase, user.id, 7),
+    getDailyTonnage(supabase, user.id, 84),
+  ])
+  const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
+
+  const sleepWeekAvg = weekSleep.length > 0
+    ? weekSleep.reduce((s, r) => s + r.hours, 0) / weekSleep.length
+    : null
+  const sleepWeekBars: { date: string; hours: number }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setUTCDate(d.getUTCDate() - i)
+    const iso = d.toISOString().slice(0, 10)
+    const log = weekSleep.find(r => r.date === iso)
+    sleepWeekBars.push({ date: iso, hours: log?.hours ?? 0 })
+  }
+
+  // Deload-week detection: full N-week cycles since first finished session
+  const firstSessionDate = firstSessionResult.data?.started_at
+    ? new Date(firstSessionResult.data.started_at)
+    : null
+  let deloadWeekIndex: number | null = null
+  if (firstSessionDate) {
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000
+    const weeksSinceFirst = Math.floor((Date.now() - firstSessionDate.getTime()) / msPerWeek)
+    if (weeksSinceFirst > 0 && weeksSinceFirst % DELOAD_CYCLE_WEEKS === 0) {
+      deloadWeekIndex = weeksSinceFirst
+    }
+  }
 
   // Get exercise names for each session (first 3 distinct per session)
   const sessionIds = sessions.map(s => s.id)
@@ -155,6 +206,12 @@ export default async function DashboardPage({
             </div>
           )}
 
+          {deloadWeekIndex !== null && (
+            <div className="mt-4">
+              <DeloadBanner weekIndex={deloadWeekIndex} cycleWeeks={DELOAD_CYCLE_WEEKS} />
+            </div>
+          )}
+
           <div className="mt-5">
             <WeeklyStats
               tonnage={weekTonnage}
@@ -201,8 +258,12 @@ export default async function DashboardPage({
                   const date = new Date(s.started_at)
                   const tags = exerciseTagsMap[s.id] ?? []
                   const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
+                  const isCardio = s.session_type === 'cardio'
+                  const cardioMin = s.cardio_duration_seconds != null
+                    ? Math.round(s.cardio_duration_seconds / 60)
+                    : null
                   return (
-                    <Link key={s.id} href={`/history/${s.id}`} className="block rounded-2xl transition hover:bg-white/[0.04]">
+                    <Link key={s.id} href={isCardio ? '/dashboard' : `/history/${s.id}`} className="block rounded-2xl transition hover:bg-white/[0.04]">
                       <div className="flex items-center justify-between gap-3 px-1 py-2.5">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
@@ -210,14 +271,33 @@ export default async function DashboardPage({
                               {date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
                             </p>
                             {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
+                            {isCardio && (
+                              <span className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
+                                style={{ background: 'rgba(94, 234, 212, 0.14)', color: '#5EEAD4' }}
+                              >
+                                CARDIO
+                              </span>
+                            )}
                           </div>
-                          {tags.length > 0 && (
+                          {isCardio ? (
+                            <p className="mt-0.5 truncate text-xs text-white/40">
+                              {s.cardio_activity ?? ''}{cardioMin != null ? ` · ${cardioMin} мин` : ''}{s.cardio_distance_km != null ? ` · ${s.cardio_distance_km} км` : ''}
+                            </p>
+                          ) : tags.length > 0 && (
                             <p className="mt-0.5 truncate text-xs text-white/40">{tags.join(' · ')}</p>
                           )}
                         </div>
-                        <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
-                          {(s.total_volume_kg ?? 0).toFixed(0)} кг
-                        </span>
+                        {isCardio ? (
+                          <span className="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
+                            style={{ background: 'rgba(94, 234, 212, 0.12)', color: '#5EEAD4' }}
+                          >
+                            {cardioMin ?? 0} мин
+                          </span>
+                        ) : (
+                          <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+                            {(s.total_volume_kg ?? 0).toFixed(0)} кг
+                          </span>
+                        )}
                       </div>
                     </Link>
                   )
@@ -232,7 +312,40 @@ export default async function DashboardPage({
         <AIInsightsCard initialInsights={initialInsights} />
       </section>
 
-      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
+      <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200">
+        <SleepCard
+          todayDate={todayDate}
+          todayHours={todaySleep?.hours ?? null}
+          weekAvg={sleepWeekAvg}
+          weekDays={sleepWeekBars}
+        />
+        <WeakPointsCard
+          weakPoints={weakPoints}
+          muscleLabels={{
+            chest: tHistory('muscleLabel.chest'),
+            back: tHistory('muscleLabel.back'),
+            biceps: tHistory('muscleLabel.biceps'),
+            triceps: tHistory('muscleLabel.triceps'),
+            forearms: tHistory('muscleLabel.forearms'),
+            core: tHistory('muscleLabel.core'),
+            quads: tHistory('muscleLabel.quads'),
+            hamstrings: tHistory('muscleLabel.hamstrings'),
+            glutes: tHistory('muscleLabel.glutes'),
+            calves: tHistory('muscleLabel.calves'),
+            traps: tHistory('muscleLabel.traps'),
+            lats: tHistory('muscleLabel.lats'),
+            rear_delts: tHistory('muscleLabel.rear_delts'),
+            front_delts: tHistory('muscleLabel.front_delts'),
+            side_delts: tHistory('muscleLabel.side_delts'),
+          }}
+        />
+      </section>
+
+      <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
+        <TonnageHeatmap daily={dailyTonnage} weeks={12} />
+      </section>
+
+      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[275ms]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
             <Activity className="h-4 w-4 text-primary" />

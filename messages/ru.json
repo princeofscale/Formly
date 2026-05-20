@@ -118,6 +118,38 @@
     "weightHistoryTitle": "История веса",
     "entries": "записей",
     "noEntries": "нет данных",
+    "metricE1rm": "1ПМ",
+    "metricVolume": "Тоннаж",
+    "unitVolume": "кг",
+    "setsCount": "подходов",
+    "photos": {
+      "linkTitle": "Фото прогресса",
+      "linkSub": "Сравни себя по датам — до/после",
+      "title": "Фото прогресса",
+      "back": "Назад",
+      "addLabel": "Новое фото",
+      "addTitle": "Снимок прогресса",
+      "pickFile": "Выбрать фото",
+      "maxSize": "до 8 МБ",
+      "weightPlaceholder": "Вес (кг)",
+      "captionPlaceholder": "Подпись",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "uploading": "Загружаем...",
+      "saving": "Сохраняем...",
+      "saved": "Сохранено",
+      "errorTooBig": "Файл слишком большой (макс 8 МБ)",
+      "empty": "Загрузи первое фото чтобы начать отслеживать прогресс",
+      "imageMissing": "нет",
+      "count": "фото",
+      "compare": "Сравнить",
+      "compareCancel": "Отмена",
+      "comparePrompt": "Выбери два фото для сравнения",
+      "compareReady": "Кликни на фото — сравнение откроется",
+      "confirmDelete": "Удалить фото?",
+      "deleteYes": "Удалить",
+      "deleteNo": "Отмена"
+    },
     "periods": {
       "7d": "7 дней",
       "30d": "30 дней",
@@ -187,6 +219,42 @@
     "recordsLink": "Рекорды",
     "streakAtRiskTitle": "Стрик {n} под угрозой!",
     "streakAtRiskSub": "Сегодня тренировочный день — не разрывай серию",
+    "deload": {
+      "label": "Цикл {cycle} недель",
+      "title": "Неделя разгрузки",
+      "body": "Снизь рабочие веса или объём на 40-50% эту неделю — мышцы и нервная система восстановятся, а на следующей вернёшься сильнее.",
+      "dismiss": "Скрыть"
+    },
+    "weakPoints": {
+      "label": "Слабые места",
+      "title": "Недотренированные мышцы",
+      "allCovered": "Все мышцы прорабатываются на достаточном уровне",
+      "setsShort": "сетов",
+      "hint": "Минимальный недельный объём за последние 4 недели. Жми чтобы найти упражнения."
+    },
+    "heatmap": {
+      "label": "{weeks} недель",
+      "title": "Активность тренировок",
+      "unit": "кг",
+      "hint": "Наведи на день",
+      "less": "меньше",
+      "more": "больше",
+      "days": {
+        "mon": "Пн",
+        "wed": "Ср",
+        "fri": "Пт",
+        "sun": "Вс"
+      }
+    },
+    "sleep": {
+      "label": "Сон",
+      "title": "Сколько ты спал?",
+      "today": "сегодня",
+      "edit": "изменить",
+      "log": "записать",
+      "hoursShort": "ч",
+      "weekAvg": "Среднее за 7д"
+    },
     "coachFooter": "Сигналы тренера обновляются по последним подходам"
   },
   "profile": {
@@ -331,6 +399,7 @@
     "restSkip": "Пропустить",
     "resting": "Отдых",
     "weightLabel": "Вес",
+    "extraWeightLabel": "Доп. вес",
     "repsLabel": "Повт.",
     "rpeLabel": "Усилие",
     "setLabel": "Подход #{n}",
@@ -364,6 +433,14 @@
       "ok": "Нормально",
       "good": "Хорошо",
       "great": "Огонь"
+    },
+    "editSet": {
+      "title": "Подход #{n}",
+      "save": "Сохранить",
+      "delete": "Удалить",
+      "confirmDelete": "Удалить подход?",
+      "deleteYes": "Да",
+      "deleteNo": "Нет"
     }
   },
   "onboarding": {
@@ -397,5 +474,55 @@
     "label": "подряд",
     "best": "Лучший",
     "noWorkouts": "Тренировок пока нет"
+  },
+  "exerciseForm": {
+    "triggerLabel": "Добавить своё",
+    "title": "Создать упражнение",
+    "name": "Название (англ.)",
+    "namePlaceholder": "напр. Bulgarian Split Squat",
+    "nameRu": "Название (рус.)",
+    "nameRuPlaceholder": "напр. Болгарские выпады",
+    "primaryMuscle": "Основная мышца",
+    "equipment": "Оборудование",
+    "mechanic": "Тип",
+    "mechanicOption": {
+      "compound": "Базовое",
+      "isolation": "Изолированное"
+    },
+    "save": "Сохранить",
+    "saving": "Сохраняем...",
+    "saved": "Сохранено",
+    "cancel": "Отмена",
+    "customBadge": "Своё",
+    "createCta": "Создать",
+    "createCtaSub": "Свой вариант — добавится в твою библиотеку"
+  },
+  "cardio": {
+    "back": "Назад",
+    "startCardio": "Кардио",
+    "logTitle": "Записать кардио",
+    "activityLabel": "Активность",
+    "durationLabel": "Длительность",
+    "minutes": "мин",
+    "distance": "Дист.",
+    "distanceUnit": "км",
+    "avgHr": "Пульс",
+    "bpm": "уд/мин",
+    "calories": "Калории",
+    "kcal": "ккал",
+    "notesLabel": "Заметки",
+    "notesPlaceholder": "Как ощущения, темп, маршрут...",
+    "save": "Сохранить кардио",
+    "saving": "Сохраняем...",
+    "activity": {
+      "running": "Бег",
+      "cycling": "Вело",
+      "walking": "Ходьба",
+      "swimming": "Плавание",
+      "rowing": "Гребля",
+      "elliptical": "Эллипс",
+      "hiit": "HIIT",
+      "other": "Другое"
+    }
   }
 }

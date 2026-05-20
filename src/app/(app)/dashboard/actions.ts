@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import { getLocale } from 'next-intl/server'
@@ -7,7 +8,28 @@ import { generateInsights } from '@/lib/services/grok.service'
 import { saveInsights } from '@/lib/db/ai-insights'
 import { getWeeklyMuscleVolume, getVolumeLandmarks } from '@/lib/services/analytics.service'
 import { getProgressionSuggestion } from '@/lib/services/progression.service'
+import { upsertSleep, deleteSleepForDate, getRecentSleep, type SleepLog } from '@/lib/db/sleep'
 import type { AIInsights, ProgressionSuggestion, SetEntry } from '@/lib/types/models'
+
+export async function logSleepAction(date: string, hours: number, notes?: string): Promise<SleepLog> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  if (!Number.isFinite(hours) || hours <= 0 || hours > 24) {
+    throw new Error('hours must be between 0 and 24')
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('invalid date')
+  const result = await upsertSleep(supabase, user.id, date, Math.round(hours * 10) / 10, notes ?? null)
+  revalidatePath('/dashboard')
+  return result
+}
+
+export async function deleteSleepAction(date: string): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('invalid date')
+  await deleteSleepForDate(supabase, user.id, date)
+  revalidatePath('/dashboard')
+}
 
 interface RecentSetRow {
   id: string
@@ -80,7 +102,7 @@ export async function refreshAIInsightsAction(goal?: string): Promise<AIInsights
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const [weeklyVolumes, profileResult, sessionsResult, prsResult, recentSetsResult] = await Promise.all([
+  const [weeklyVolumes, profileResult, sessionsResult, prsResult, recentSetsResult, recentSleep] = await Promise.all([
     getWeeklyMuscleVolume(supabase, user.id),
     supabase
       .from('profiles')
@@ -107,7 +129,12 @@ export async function refreshAIInsightsAction(goal?: string): Promise<AIInsights
       .eq('user_id', user.id)
       .gte('created_at', since14days.toISOString())
       .order('created_at', { ascending: false }),
+    getRecentSleep(supabase, user.id, 7),
   ])
+
+  const sleepAvg = recentSleep.length > 0
+    ? Math.round((recentSleep.reduce((s, r) => s + r.hours, 0) / recentSleep.length) * 10) / 10
+    : null
 
   const volumeLandmarks = getVolumeLandmarks(weeklyVolumes)
   const progressionOpportunities = buildProgressionOpportunities(
@@ -136,6 +163,7 @@ export async function refreshAIInsightsAction(goal?: string): Promise<AIInsights
       }
     }),
     progression_opportunities: progressionOpportunities,
+    sleep: { last7_avg_hours: sleepAvg, nights_logged: recentSleep.length },
   })
 
   await saveInsights(supabase, user.id, insights)

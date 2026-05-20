@@ -118,6 +118,38 @@
     "weightHistoryTitle": "Weight history",
     "entries": "entries",
     "noEntries": "no data",
+    "metricE1rm": "e1RM",
+    "metricVolume": "Volume",
+    "unitVolume": "kg",
+    "setsCount": "sets",
+    "photos": {
+      "linkTitle": "Progress photos",
+      "linkSub": "Compare yourself across dates — before/after",
+      "title": "Progress photos",
+      "back": "Back",
+      "addLabel": "New photo",
+      "addTitle": "Progress snapshot",
+      "pickFile": "Choose photo",
+      "maxSize": "up to 8 MB",
+      "weightPlaceholder": "Weight (kg)",
+      "captionPlaceholder": "Caption",
+      "save": "Save",
+      "cancel": "Cancel",
+      "uploading": "Uploading…",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "errorTooBig": "File too large (max 8 MB)",
+      "empty": "Upload your first photo to start tracking progress",
+      "imageMissing": "missing",
+      "count": "photos",
+      "compare": "Compare",
+      "compareCancel": "Cancel",
+      "comparePrompt": "Pick two photos to compare",
+      "compareReady": "Tap a photo — compare opens",
+      "confirmDelete": "Delete this photo?",
+      "deleteYes": "Delete",
+      "deleteNo": "Cancel"
+    },
     "periods": {
       "7d": "7 days",
       "30d": "30 days",
@@ -187,6 +219,42 @@
     "recordsLink": "Records",
     "streakAtRiskTitle": "Streak {n} at risk!",
     "streakAtRiskSub": "Today is a training day — don't break the chain",
+    "deload": {
+      "label": "{cycle}-week cycle",
+      "title": "Deload week",
+      "body": "Reduce working weights or volume by 40-50% this week — your muscles and nervous system will recover, and you'll come back stronger.",
+      "dismiss": "Dismiss"
+    },
+    "weakPoints": {
+      "label": "Weak points",
+      "title": "Undertrained muscles",
+      "allCovered": "All muscles are getting enough volume",
+      "setsShort": "sets",
+      "hint": "Minimum weekly volume over the last 4 weeks. Tap to find exercises."
+    },
+    "heatmap": {
+      "label": "{weeks} weeks",
+      "title": "Training activity",
+      "unit": "kg",
+      "hint": "Hover a day",
+      "less": "less",
+      "more": "more",
+      "days": {
+        "mon": "Mon",
+        "wed": "Wed",
+        "fri": "Fri",
+        "sun": "Sun"
+      }
+    },
+    "sleep": {
+      "label": "Sleep",
+      "title": "How much did you sleep?",
+      "today": "today",
+      "edit": "edit",
+      "log": "log",
+      "hoursShort": "h",
+      "weekAvg": "7d average"
+    },
     "coachFooter": "Coach signals update from your latest sets"
   },
   "profile": {
@@ -331,6 +399,7 @@
     "restSkip": "Skip",
     "resting": "Rest",
     "weightLabel": "Weight",
+    "extraWeightLabel": "Added weight",
     "repsLabel": "Reps",
     "rpeLabel": "Effort",
     "setLabel": "Set #{n}",
@@ -364,6 +433,14 @@
       "ok": "OK",
       "good": "Good",
       "great": "On fire"
+    },
+    "editSet": {
+      "title": "Set #{n}",
+      "save": "Save",
+      "delete": "Delete",
+      "confirmDelete": "Delete this set?",
+      "deleteYes": "Yes",
+      "deleteNo": "No"
     }
   },
   "onboarding": {
@@ -397,5 +474,55 @@
     "label": "in a row",
     "best": "Best",
     "noWorkouts": "No workouts yet"
+  },
+  "exerciseForm": {
+    "triggerLabel": "Add custom",
+    "title": "Create exercise",
+    "name": "Name (English)",
+    "namePlaceholder": "e.g. Bulgarian Split Squat",
+    "nameRu": "Name (Russian)",
+    "nameRuPlaceholder": "optional",
+    "primaryMuscle": "Primary muscle",
+    "equipment": "Equipment",
+    "mechanic": "Type",
+    "mechanicOption": {
+      "compound": "Compound",
+      "isolation": "Isolation"
+    },
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "customBadge": "Custom",
+    "createCta": "Create",
+    "createCtaSub": "Adds a custom exercise to your library"
+  },
+  "cardio": {
+    "back": "Back",
+    "startCardio": "Cardio",
+    "logTitle": "Log cardio",
+    "activityLabel": "Activity",
+    "durationLabel": "Duration",
+    "minutes": "min",
+    "distance": "Dist.",
+    "distanceUnit": "km",
+    "avgHr": "Avg HR",
+    "bpm": "bpm",
+    "calories": "Calories",
+    "kcal": "kcal",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "How it felt, pace, route...",
+    "save": "Save cardio",
+    "saving": "Saving…",
+    "activity": {
+      "running": "Run",
+      "cycling": "Bike",
+      "walking": "Walk",
+      "swimming": "Swim",
+      "rowing": "Row",
+      "elliptical": "Elliptical",
+      "hiit": "HIIT",
+      "other": "Other"
+    }
   }
 }

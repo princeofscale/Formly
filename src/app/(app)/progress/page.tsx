@@ -2,11 +2,13 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { getExercises } from '@/lib/db/exercises'
-import { getE1RMHistory } from '@/lib/db/sets'
-import { ProgressLineChart } from '@/components/progress/ProgressLineChart'
+import { getE1RMHistory, getVolumeHistoryForExercise } from '@/lib/db/sets'
+import { ExerciseMetricChart } from '@/components/progress/ExerciseMetricChart'
 import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
+import Link from 'next/link'
+import { Camera, ChevronRight } from 'lucide-react'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d':   7,
@@ -38,15 +40,19 @@ export default async function ProgressPage({
     ? exercises.find(e => e.id === exerciseId)
     : exercises.find(e => e.slug === 'barbell-bench-press') ?? exercises[0]
 
-  const fullHistory = selectedExercise
-    ? await getE1RMHistory(supabase, user.id, selectedExercise.id)
-    : []
+  const [fullHistory, fullVolume] = selectedExercise
+    ? await Promise.all([
+        getE1RMHistory(supabase, user.id, selectedExercise.id),
+        getVolumeHistoryForExercise(supabase, user.id, selectedExercise.id),
+      ])
+    : [[], []]
 
   const days = PERIOD_DAYS[periodKey] ?? 30
   const since = new Date()
   since.setDate(since.getDate() - days)
   const sinceIso = since.toISOString().slice(0, 10)
   const periodHistory = fullHistory.filter(p => p.date >= sinceIso)
+  const periodVolume = fullVolume.filter(p => p.date >= sinceIso)
 
   const currentWeight = profileResult.data?.weight_kg ?? null
   const currentHeight = profileResult.data?.height_cm ?? null
@@ -77,10 +83,10 @@ export default async function ProgressPage({
           <PeriodDropdown current={periodKey} exerciseId={selectedExercise?.id} label={t('periodLabel')} />
         </div>
 
-        <ProgressLineChart
-          data={periodHistory}
+        <ExerciseMetricChart
+          e1rmHistory={periodHistory}
+          volumeHistory={periodVolume}
           exerciseName={displayName(selectedExercise)}
-          unit={t('unit1rm')}
         />
       </div>
 
@@ -94,6 +100,29 @@ export default async function ProgressPage({
           saved: t('saved'),
         }}
       />
+
+      <Link
+        href="/progress/photos"
+        className="flex items-center gap-3 rounded-[20px] p-4 transition-colors hover:bg-white/[0.04]"
+        style={{
+          background: '#15151C',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
+        <div
+          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: 'rgba(255, 59, 71, 0.12)' }}
+        >
+          <Camera className="h-5 w-5" style={{ color: '#FF6E76' }} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-white">{t('photos.linkTitle')}</p>
+          <p className="text-[11px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+            {t('photos.linkSub')}
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
+      </Link>
     </div>
   )
 }
