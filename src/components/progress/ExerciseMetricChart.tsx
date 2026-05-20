@@ -69,16 +69,19 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
           <span className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
             {unit}
           </span>
-          {metric === 'e1rm' && 'deltaSigned' in summary && summary.deltaSigned !== 0 && (
-            <span
-              className="text-[11px] font-bold tabular-nums ml-auto"
-              style={{
-                color: summary.deltaSigned > 0 ? '#22D3A8' : '#FF6E76',
-              }}
-            >
-              {summary.deltaSigned > 0 ? '+' : ''}{summary.deltaSigned.toFixed(1)} {t('unit1rm')}
-            </span>
-          )}
+          {(() => {
+            const rawDelta = 'deltaSigned' in summary ? summary.deltaSigned : undefined
+            const delta: number = rawDelta ?? 0
+            if (metric !== 'e1rm' || delta === 0) return null
+            return (
+              <span
+                className="text-[11px] font-bold tabular-nums ml-auto"
+                style={{ color: delta > 0 ? '#22D3A8' : '#FF6E76' }}
+              >
+                {delta > 0 ? '+' : ''}{delta.toFixed(1)} {t('unit1rm')}
+              </span>
+            )
+          })()}
           {metric === 'volume' && 'totalSets' in summary && (
             <span className="text-[11px] tabular-nums ml-auto" style={{ color: 'rgba(255,255,255,0.4)' }}>
               {summary.totalSets} {t('setsCount')}

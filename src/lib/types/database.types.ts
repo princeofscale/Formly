@@ -209,31 +209,49 @@ export type Database = {
       }
       workout_sessions: {
         Row: {
+          cardio_activity: Database["public"]["Enums"]["cardio_activity"] | null
+          cardio_avg_hr: number | null
+          cardio_calories: number | null
+          cardio_distance_km: number | null
+          cardio_duration_seconds: number | null
           created_at: string
           finished_at: string | null
           id: string
           mood_score: number | null
           notes: string | null
+          session_type: string
           started_at: string
           total_volume_kg: number
           user_id: string
         }
         Insert: {
+          cardio_activity?: Database["public"]["Enums"]["cardio_activity"] | null
+          cardio_avg_hr?: number | null
+          cardio_calories?: number | null
+          cardio_distance_km?: number | null
+          cardio_duration_seconds?: number | null
           created_at?: string
           finished_at?: string | null
           id?: string
           mood_score?: number | null
           notes?: string | null
+          session_type?: string
           started_at?: string
           total_volume_kg?: number
           user_id: string
         }
         Update: {
+          cardio_activity?: Database["public"]["Enums"]["cardio_activity"] | null
+          cardio_avg_hr?: number | null
+          cardio_calories?: number | null
+          cardio_distance_km?: number | null
+          cardio_duration_seconds?: number | null
           created_at?: string
           finished_at?: string | null
           id?: string
           mood_score?: number | null
           notes?: string | null
+          session_type?: string
           started_at?: string
           total_volume_kg?: number
           user_id?: string
@@ -256,6 +274,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      cardio_activity:
+        | "running"
+        | "cycling"
+        | "walking"
+        | "swimming"
+        | "rowing"
+        | "elliptical"
+        | "hiit"
+        | "other"
       equipment_type:
         | "barbell"
         | "dumbbell"
