@@ -28,11 +28,65 @@ function getInitialDuration(fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback
 }
 
+// Short two-tone beep via WebAudio — no asset, ~100ms total.
+function playBeep() {
+  try {
+    const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!Ctor) return
+    const ctx = new Ctor()
+    const now = ctx.currentTime
+    const tone = (freq: number, start: number, dur: number) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0, now + start)
+      gain.gain.linearRampToValueAtTime(0.25, now + start + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur)
+      osc.connect(gain).connect(ctx.destination)
+      osc.start(now + start)
+      osc.stop(now + start + dur)
+    }
+    tone(880, 0, 0.18)
+    tone(1320, 0.18, 0.22)
+    setTimeout(() => ctx.close().catch(() => {}), 600)
+  } catch {
+    // Audio blocked or unsupported — silent fallback.
+  }
+}
+
+function fireNotification(title: string, body: string) {
+  if (typeof window === 'undefined' || !('Notification' in window)) return
+  if (Notification.permission !== 'granted') return
+  try {
+    new Notification(title, { body, tag: 'rest-timer', icon: '/icon-192.png' })
+  } catch {
+    // Some browsers require ServiceWorker.showNotification for installed PWAs.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        reg?.showNotification(title, { body, tag: 'rest-timer', icon: '/icon-192.png' }).catch(() => {})
+      })
+    }
+  }
+}
+
+interface WakeLockSentinelLite {
+  release: () => Promise<void>
+}
+interface WakeLockApi {
+  request: (type: 'screen') => Promise<WakeLockSentinelLite>
+}
+
 export function RestTimer({ seconds, onDone }: Props) {
   const t = useTranslations('workout')
+  const tRT = useTranslations('workout.restTimer')
   const [duration, setDuration] = useState(() => getInitialDuration(seconds))
   const [remaining, setRemaining] = useState(() => getInitialDuration(seconds))
-  const vibratedRef = useRef(false)
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(
+    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported',
+  )
+  const doneRef = useRef(false)
+  const wakeLockRef = useRef<WakeLockSentinelLite | null>(null)
 
   // Persist preference
   useEffect(() => {
@@ -40,24 +94,51 @@ export function RestTimer({ seconds, onDone }: Props) {
     window.localStorage.setItem(STORAGE_KEY, String(duration))
   }, [duration])
 
+  // Acquire wake lock for the lifetime of the timer (best-effort).
+  useEffect(() => {
+    const nav = navigator as Navigator & { wakeLock?: WakeLockApi }
+    if (!nav.wakeLock) return
+    let cancelled = false
+    nav.wakeLock.request('screen').then(sentinel => {
+      if (cancelled) {
+        sentinel.release().catch(() => {})
+        return
+      }
+      wakeLockRef.current = sentinel
+    }).catch(() => {})
+    return () => {
+      cancelled = true
+      wakeLockRef.current?.release().catch(() => {})
+      wakeLockRef.current = null
+    }
+  }, [])
+
   // Tick down
   useEffect(() => {
     if (remaining <= 0) {
-      if (!vibratedRef.current) {
+      if (!doneRef.current) {
+        doneRef.current = true
         navigator.vibrate?.([200, 100, 200])
-        vibratedRef.current = true
+        playBeep()
+        fireNotification(tRT('notifTitle'), tRT('notifBody'))
       }
       onDone()
       return
     }
     const id = setTimeout(() => setRemaining(r => r - 1), 1000)
     return () => clearTimeout(id)
-  }, [remaining, onDone])
+  }, [remaining, onDone, tRT])
 
   function applyPreset(value: number) {
     setDuration(value)
     setRemaining(value)
-    vibratedRef.current = false
+    doneRef.current = false
+  }
+
+  async function requestNotifPermission() {
+    if (!('Notification' in window)) return
+    const p = await Notification.requestPermission()
+    setNotifPermission(p)
   }
 
   const pct = duration > 0 ? remaining / duration : 0
@@ -82,8 +163,17 @@ export function RestTimer({ seconds, onDone }: Props) {
             {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}
           </span>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <p className="text-xs text-zinc-400">{t('resting')}</p>
+          {notifPermission === 'default' && (
+            <button
+              type="button"
+              onClick={requestNotifPermission}
+              className="mt-0.5 text-[10px] underline decoration-dotted underline-offset-2 text-amber-400/80 hover:text-amber-300"
+            >
+              {tRT('enableNotif')}
+            </button>
+          )}
         </div>
         <button
           type="button"

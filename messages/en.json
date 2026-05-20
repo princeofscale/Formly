@@ -446,6 +446,11 @@
       "perSide": "{kg} kg/side",
       "leftover": "+{kg} kg won't fit (no smaller plates)"
     },
+    "restTimer": {
+      "notifTitle": "Rest complete",
+      "notifBody": "Time for your next set 💪",
+      "enableNotif": "Enable rest notifications"
+    },
     "notes": {
       "label": "Notes",
       "add": "Add note for this workout",
