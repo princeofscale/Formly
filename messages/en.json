@@ -150,6 +150,32 @@
       "deleteYes": "Delete",
       "deleteNo": "Cancel"
     },
+    "measurements": {
+      "linkTitle": "Body measurements",
+      "linkSub": "Waist, chest, biceps — track circumferences week by week",
+      "label": "Measurements",
+      "title": "Body measurements",
+      "formTitle": "Log measurements",
+      "back": "Back",
+      "date": "Date",
+      "notes": "Notes",
+      "notesPlaceholder": "How are you feeling, conditions of the measurement…",
+      "save": "Save",
+      "delete": "Delete",
+      "empty": "No measurements yet. Fill in the form above to start tracking.",
+      "historyTitle": "History",
+      "fields": {
+        "weight_kg": "Weight",
+        "body_fat_pct": "Body fat",
+        "waist_cm": "Waist",
+        "chest_cm": "Chest",
+        "hips_cm": "Hips",
+        "biceps_cm": "Biceps",
+        "thigh_cm": "Thigh",
+        "calf_cm": "Calf",
+        "neck_cm": "Neck"
+      }
+    },
     "periods": {
       "7d": "7 days",
       "30d": "30 days",

@@ -8,7 +8,7 @@ import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
 import Link from 'next/link'
-import { Camera, ChevronRight } from 'lucide-react'
+import { Camera, ChevronRight, Ruler } from 'lucide-react'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d':   7,
@@ -119,6 +119,29 @@ export default async function ProgressPage({
           <p className="text-sm font-bold text-white">{t('photos.linkTitle')}</p>
           <p className="text-[11px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
             {t('photos.linkSub')}
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
+      </Link>
+
+      <Link
+        href="/progress/measurements"
+        className="flex items-center gap-3 rounded-[20px] p-4 transition-colors hover:bg-white/[0.04]"
+        style={{
+          background: '#15151C',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
+        <div
+          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: 'rgba(34, 211, 168, 0.14)' }}
+        >
+          <Ruler className="h-5 w-5" style={{ color: '#22D3A8' }} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-white">{t('measurements.linkTitle')}</p>
+          <p className="text-[11px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+            {t('measurements.linkSub')}
           </p>
         </div>
         <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
