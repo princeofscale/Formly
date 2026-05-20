@@ -19,12 +19,15 @@ import { WeakPointsCard } from '@/components/dashboard/WeakPointsCard'
 import { detectWeakPoints } from '@/lib/services/weak-points.service'
 import { SleepCard } from '@/components/dashboard/SleepCard'
 import { getRecentSleep, getSleepForDate } from '@/lib/db/sleep'
+import { PRsCard } from '@/components/dashboard/PRsCard'
+import { getRecentPRs } from '@/lib/db/prs'
 import { TonnageHeatmap } from '@/components/dashboard/TonnageHeatmap'
 import { getDailyTonnage } from '@/lib/db/workouts'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 const DELOAD_CYCLE_WEEKS = 5
 const WEAK_POINTS_DAYS = 28
+const PR_WINDOW_DAYS = 30
 
 const MUSCLE_PERIOD_DAYS: Record<string, number> = {
   '7d': 7,
@@ -115,12 +118,13 @@ export default async function DashboardPage({
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
   const todayDate = new Date().toISOString().slice(0, 10)
-  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage] = await Promise.all([
+  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs] = await Promise.all([
     getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
     getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
     getSleepForDate(supabase, user.id, todayDate),
     getRecentSleep(supabase, user.id, 7),
     getDailyTonnage(supabase, user.id, 84),
+    getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
   ])
   const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
 
@@ -339,6 +343,10 @@ export default async function DashboardPage({
             side_delts: tHistory('muscleLabel.side_delts'),
           }}
         />
+      </section>
+
+      <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[210ms]">
+        <PRsCard prs={recentPRs} windowDays={PR_WINDOW_DAYS} />
       </section>
 
       <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">

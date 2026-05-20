@@ -232,6 +232,13 @@
       "setsShort": "sets",
       "hint": "Minimum weekly volume over the last 4 weeks. Tap to find exercises."
     },
+    "prs": {
+      "label": "Records",
+      "title": "PRs in last {days} days",
+      "empty": "No new records yet — beat your last set!",
+      "firstRecord": "first record",
+      "hint": "Estimated 1RM. Beating any previous best counts as a new PR."
+    },
     "heatmap": {
       "label": "{weeks} weeks",
       "title": "Training activity",
