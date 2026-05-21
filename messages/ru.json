@@ -409,7 +409,9 @@
       "prsHeader": "{n} новых рекордов",
       "firstTime": "впервые",
       "topLifts": "Топ упражнения",
-      "setsShort": "сетов"
+      "setsShort": "сетов",
+      "share": "Поделиться",
+      "shareCardTitle": "Моя тренировка"
     },
     "notesLabel": "Заметки",
     "repeat": "Повторить",

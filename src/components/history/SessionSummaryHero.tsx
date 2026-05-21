@@ -1,14 +1,34 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
-import { Trophy, Timer, Layers, Zap } from 'lucide-react'
+import { Trophy, Timer, Layers, Zap, Share2 } from 'lucide-react'
 import type { SessionSummary } from '@/lib/services/session-summary.service'
 
 interface Props {
   summary: SessionSummary
+  sessionId: string
 }
 
-export function SessionSummaryHero({ summary }: Props) {
+async function shareCard(sessionId: string, label: string) {
+  const url = `/api/og/session/${sessionId}`
+  // Native Web Share with file payload — best mobile UX.
+  try {
+    const res = await fetch(url)
+    if (!res.ok) throw new Error('og fetch failed')
+    const blob = await res.blob()
+    const file = new File([blob], `workout-${sessionId.slice(0, 8)}.png`, { type: blob.type })
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: label })
+      return
+    }
+  } catch {
+    // fall through
+  }
+  // Fallback: open the PNG in a new tab
+  window.open(url, '_blank', 'noopener')
+}
+
+export function SessionSummaryHero({ summary, sessionId }: Props) {
   const t = useTranslations('history.summary')
   const locale = useLocale()
 
@@ -25,19 +45,35 @@ export function SessionSummaryHero({ summary }: Props) {
         border: '1px solid rgba(255, 196, 68, 0.22)',
       }}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(255, 196, 68, 0.18)' }}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <div
+            className="h-10 w-10 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(255, 196, 68, 0.18)' }}
+          >
+            <Trophy className="h-5 w-5" style={{ color: '#FFC044' }} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+              {t('label')}
+            </p>
+            <p className="text-base font-extrabold text-white">{t('title')}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => shareCard(sessionId, t('shareCardTitle'))}
+          aria-label={t('share')}
+          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold uppercase tracking-wider transition active:scale-95"
+          style={{
+            background: 'rgba(255, 196, 68, 0.14)',
+            color: '#FFC044',
+            border: '1px solid rgba(255, 196, 68, 0.32)',
+          }}
         >
-          <Trophy className="h-5 w-5" style={{ color: '#FFC044' }} />
-        </div>
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
-            {t('label')}
-          </p>
-          <p className="text-base font-extrabold text-white">{t('title')}</p>
-        </div>
+          <Share2 className="h-3.5 w-3.5" />
+          {t('share')}
+        </button>
       </div>
 
       {/* Big stats row */}

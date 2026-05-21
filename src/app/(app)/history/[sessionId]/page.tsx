@@ -60,7 +60,7 @@ export default async function SessionDetailPage({
 
   return (
     <div className="space-y-6">
-      {finished === '1' && summary && <SessionSummaryHero summary={summary} />}
+      {finished === '1' && summary && <SessionSummaryHero summary={summary} sessionId={sessionId} />}
 
       <div className="flex items-start justify-between gap-4">
         <div>

@@ -409,7 +409,9 @@
       "prsHeader": "{n} new PR",
       "firstTime": "first time",
       "topLifts": "Top lifts",
-      "setsShort": "sets"
+      "setsShort": "sets",
+      "share": "Share",
+      "shareCardTitle": "My workout"
     },
     "notesLabel": "Notes",
     "repeat": "Repeat",
