@@ -154,6 +154,10 @@
       "title": "Goals",
       "sub": "Set target 1RMs and watch the progress bar fill"
     },
+    "oneRMLink": {
+      "title": "1RM calculator",
+      "sub": "Estimate one-rep max + working-set percentages"
+    },
     "achievements": {
       "label": "Achievements",
       "title": "Badges earned",
@@ -626,6 +630,26 @@
       "elliptical": "Elliptical",
       "hiit": "HIIT",
       "other": "Other"
+    }
+  },
+  "tools": {
+    "oneRM": {
+      "back": "Back",
+      "label": "Calculator",
+      "title": "1RM calculator",
+      "formTitle": "Enter a working set",
+      "weight": "Weight",
+      "reps": "Reps",
+      "estimated1rm": "Estimated 1RM",
+      "percentChart": "% chart · target loads",
+      "formulaHint": "Brzycki formula for <10 reps, Epley for ≥10. Both are estimates — actual 1RM varies with technique and fatigue.",
+      "zones": {
+        "endurance": "Endurance",
+        "hypertrophy": "Hypertrophy",
+        "strength": "Strength",
+        "power": "Power",
+        "max": "Max"
+      }
     }
   },
   "goals": {
