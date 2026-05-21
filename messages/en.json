@@ -502,6 +502,11 @@
       "notifBody": "Time for your next set 💪",
       "enableNotif": "Enable rest notifications"
     },
+    "liveStats": {
+      "elapsed": "Elapsed",
+      "sets": "Sets",
+      "tonnage": "Tonnage"
+    },
     "notes": {
       "label": "Notes",
       "add": "Add note for this workout",

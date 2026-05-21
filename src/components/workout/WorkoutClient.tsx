@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { BookmarkPlus, Check } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
@@ -9,6 +9,7 @@ import { ExerciseBlock } from './ExerciseBlock'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
+import { WorkoutLiveStats } from './WorkoutLiveStats'
 import { getLastSetsForExerciseAction, saveTemplateAction, updateTemplateAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
@@ -22,24 +23,10 @@ interface Props {
   exerciseVideos?: Record<string, string>
 }
 
-function useElapsed(startedAt: string) {
-  const [elapsed, setElapsed] = useState(() =>
-    Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)
-  )
-  useEffect(() => {
-    const id = setInterval(() => setElapsed(s => s + 1), 1000)
-    return () => clearInterval(id)
-  }, [])
-  const m = Math.floor(elapsed / 60)
-  const s = elapsed % 60
-  return `${m}:${String(s).padStart(2, '0')}`
-}
-
 export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate, suggestedExercises = [], exerciseNotes = {}, exerciseVideos = {} }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
   const locale = useLocale()
-  const elapsed = useElapsed(session.started_at)
 
   const [exercises, setExercises] = useState<ExerciseWithSets[]>(initialExercises)
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
@@ -100,19 +87,23 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
   }
 
   const totalSets = exercises.reduce((n, e) => n + e.sets.length, 0)
+  const totalTonnage = exercises.reduce(
+    (sum, e) => sum + e.sets.reduce((s, set) => s + (set.weight_kg ?? 0) * (set.reps ?? 0), 0),
+    0,
+  )
 
   return (
     <div className="space-y-4 pb-24">
+      <WorkoutLiveStats
+        startedAt={session.started_at}
+        totalSets={totalSets}
+        totalTonnageKg={totalTonnage}
+      />
+
       {/* header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black uppercase tracking-wider">{t('title')}</h1>
-          <div className="flex items-center gap-3 mt-0.5">
-            <span className="font-mono text-amber-500 text-sm font-bold tabular-nums">{elapsed}</span>
-            {totalSets > 0 && (
-              <span className="text-xs text-zinc-500">{totalSets} sets</span>
-            )}
-          </div>
         </div>
         <div className="flex items-center gap-2">
           {exercises.length > 0 && (
