@@ -431,9 +431,16 @@ export default async function DashboardPage({
         <span className="text-[10px] uppercase tracking-widest text-white/40">{t('wrapped.cta')}</span>
       </Link>
 
-      <div className="flex items-center justify-center gap-2 pb-1 text-[10px] uppercase tracking-[0.2em] text-white/25">
-        <Sparkles className="h-3 w-3" />
-        {t('coachFooter')}
+      <div className="flex flex-col items-center gap-2 pb-1">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/25">
+          <Sparkles className="h-3 w-3" />
+          {t('coachFooter')}
+        </div>
+        <div className="flex items-center gap-3 text-[9px] uppercase tracking-widest text-white/25">
+          <Link href="/privacy" className="hover:text-white/55 transition-colors">{t('legal.privacy')}</Link>
+          <span className="text-white/15">·</span>
+          <Link href="/terms" className="hover:text-white/55 transition-colors">{t('legal.terms')}</Link>
+        </div>
       </div>
     </div>
   )

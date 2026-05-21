@@ -45,6 +45,20 @@ export default function RegisterPage() {
             className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
           />
         </div>
+        <label className="flex items-start gap-2 text-xs text-zinc-400 leading-snug">
+          <input
+            type="checkbox"
+            name="agree"
+            required
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-amber-500"
+          />
+          <span>
+            {t('legalAccept.before')}{' '}
+            <Link href="/terms" className="underline text-amber-400 hover:text-amber-300" target="_blank" rel="noopener">{t('legalAccept.terms')}</Link>{' '}
+            {t('legalAccept.and')}{' '}
+            <Link href="/privacy" className="underline text-amber-400 hover:text-amber-300" target="_blank" rel="noopener">{t('legalAccept.privacy')}</Link>.
+          </span>
+        </label>
         {state?.errorKey && (
           <p className="text-sm text-red-400">{te(state.errorKey)}</p>
         )}

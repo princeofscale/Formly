@@ -20,7 +20,13 @@
       "submit": "CREATE ACCOUNT",
       "submitting": "Creating...",
       "hasAccount": "Already have an account?",
-      "loginLink": "Sign in"
+      "loginLink": "Sign in",
+      "legalAccept": {
+        "before": "I agree to the",
+        "terms": "Terms of Service",
+        "and": "and",
+        "privacy": "Privacy Policy"
+      }
     },
     "fields": {
       "email": "Email",
@@ -333,6 +339,10 @@
       "label": "Year in review",
       "title": "{year} wrapped",
       "cta": "Open →"
+    },
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms"
     },
     "coachFooter": "Coach signals update from your latest sets"
   },
