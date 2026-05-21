@@ -150,6 +150,10 @@
       "deleteYes": "Delete",
       "deleteNo": "Cancel"
     },
+    "goalsLink": {
+      "title": "Goals",
+      "sub": "Set target 1RMs and watch the progress bar fill"
+    },
     "achievements": {
       "label": "Achievements",
       "title": "Badges earned",
@@ -603,5 +607,22 @@
       "hiit": "HIIT",
       "other": "Other"
     }
+  },
+  "goals": {
+    "label": "Goals",
+    "title": "Strength goals",
+    "newGoal": "New goal",
+    "newGoalTitle": "Pick a lift and a target",
+    "teaserTitle": "Active goals",
+    "setFirst": "Set your first strength goal →",
+    "exercise": "Exercise",
+    "targetE1rm": "Target 1RM",
+    "targetDate": "By (optional)",
+    "targetBy": "Target by {date}",
+    "save": "Save goal",
+    "delete": "Delete",
+    "listTitle": "All goals",
+    "empty": "No goals yet. Pick a lift, set a target, and start chasing it.",
+    "allAchieved": "All goals achieved — set a new one 🏆"
   }
 }

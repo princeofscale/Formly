@@ -13,6 +13,7 @@ import { upsertExerciseNote } from '@/lib/db/exercise-notes'
 import { upsertExerciseVideo } from '@/lib/db/exercise-videos'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
+import { checkGoalAchievement } from '@/lib/db/goals'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
@@ -43,6 +44,11 @@ export async function saveSetAction(data: {
   const prResult = calculated1rm != null
     ? detectPRFromHistory(calculated1rm, await getBestE1RMForExercise(supabase, user.id, data.exerciseId, set.id))
     : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
+
+  if (calculated1rm != null) {
+    // Fire-and-forget goal-achievement update — never block the set save on it.
+    void checkGoalAchievement(supabase, user.id, data.exerciseId, calculated1rm)
+  }
 
   return { set, prResult }
 }

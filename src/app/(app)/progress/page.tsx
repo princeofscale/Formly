@@ -12,7 +12,7 @@ import { getStrengthRatios } from '@/lib/services/strength-standards.service'
 import { AchievementsCard } from '@/components/progress/AchievementsCard'
 import { getAchievements } from '@/lib/services/achievements.service'
 import Link from 'next/link'
-import { Camera, ChevronRight, Ruler } from 'lucide-react'
+import { Camera, ChevronRight, Ruler, Target } from 'lucide-react'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d':   7,
@@ -155,6 +155,29 @@ export default async function ProgressPage({
           <p className="text-sm font-bold text-white">{t('measurements.linkTitle')}</p>
           <p className="text-[11px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
             {t('measurements.linkSub')}
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
+      </Link>
+
+      <Link
+        href="/goals"
+        className="flex items-center gap-3 rounded-[20px] p-4 transition-colors hover:bg-white/[0.04]"
+        style={{
+          background: '#15151C',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
+        <div
+          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+        >
+          <Target className="h-5 w-5" style={{ color: '#FFC044' }} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-white">{t('goalsLink.title')}</p>
+          <p className="text-[11px]" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+            {t('goalsLink.sub')}
           </p>
         </div>
         <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
