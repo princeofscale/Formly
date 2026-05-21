@@ -150,6 +150,20 @@
       "deleteYes": "Delete",
       "deleteNo": "Cancel"
     },
+    "strength": {
+      "label": "Strength",
+      "title": "Big lifts vs bodyweight",
+      "noBodyweight": "Set your body weight to see strength tiers.",
+      "noData": "Log a barbell lift to see your strength ratio.",
+      "hint": "Tiers compare your estimated 1RM to body weight. Standards approximate adult male ranges.",
+      "tiers": {
+        "beginner": "Beginner",
+        "novice": "Novice",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "elite": "Elite"
+      }
+    },
     "measurements": {
       "linkTitle": "Body measurements",
       "linkSub": "Waist, chest, biceps — track circumferences week by week",

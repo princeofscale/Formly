@@ -7,6 +7,8 @@ import { ExerciseMetricChart } from '@/components/progress/ExerciseMetricChart'
 import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
+import { StrengthRatiosCard } from '@/components/progress/StrengthRatiosCard'
+import { getStrengthRatios } from '@/lib/services/strength-standards.service'
 import Link from 'next/link'
 import { Camera, ChevronRight, Ruler } from 'lucide-react'
 
@@ -57,6 +59,10 @@ export default async function ProgressPage({
   const currentWeight = profileResult.data?.weight_kg ?? null
   const currentHeight = profileResult.data?.height_cm ?? null
 
+  const strengthRatios = currentWeight
+    ? await getStrengthRatios(supabase, user.id, currentWeight)
+    : []
+
   const displayName = (ex: typeof selectedExercise) =>
     locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
 
@@ -100,6 +106,8 @@ export default async function ProgressPage({
           saved: t('saved'),
         }}
       />
+
+      <StrengthRatiosCard ratios={strengthRatios} bodyweightKg={currentWeight} />
 
       <Link
         href="/progress/photos"
