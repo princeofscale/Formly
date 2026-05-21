@@ -11,6 +11,8 @@ import { DeleteWorkoutButton } from './DeleteWorkoutButton'
 import { repeatWorkoutAction } from '../actions'
 import { RotateCcw } from 'lucide-react'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
+import { SessionSummaryHero } from '@/components/history/SessionSummaryHero'
+import { getSessionSummary } from '@/lib/services/session-summary.service'
 
 export default async function SessionDetailPage({
   params,
@@ -29,8 +31,11 @@ export default async function SessionDetailPage({
   const session = await getSession(supabase, sessionId)
   if (!session || session.user_id !== user.id) notFound()
 
-  const sets = await getSetsForSession(supabase, sessionId)
-  const allExercises = await getExercises(supabase, user.id)
+  const [sets, allExercises, summary] = await Promise.all([
+    getSetsForSession(supabase, sessionId),
+    getExercises(supabase, user.id),
+    finished === '1' ? getSessionSummary(supabase, user.id, sessionId) : Promise.resolve(null),
+  ])
 
   const exerciseMap = new Map<string, ExerciseWithSets>()
   for (const set of sets) {
@@ -55,11 +60,7 @@ export default async function SessionDetailPage({
 
   return (
     <div className="space-y-6">
-      {finished === '1' && (
-        <div className="bg-green-900/30 border border-green-800 rounded-lg p-4 text-green-400 text-sm font-medium">
-          {t('finishedBanner')}
-        </div>
-      )}
+      {finished === '1' && summary && <SessionSummaryHero summary={summary} />}
 
       <div className="flex items-start justify-between gap-4">
         <div>
