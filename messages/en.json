@@ -150,6 +150,24 @@
       "deleteYes": "Delete",
       "deleteNo": "Cancel"
     },
+    "achievements": {
+      "label": "Achievements",
+      "title": "Badges earned",
+      "items": {
+        "sessions":       { "title": "Workouts" },
+        "streak":         { "title": "Streak" },
+        "bench_bw":       { "title": "Bench BW" },
+        "squat_1_5bw":    { "title": "Squat 1.5×" },
+        "deadlift_2bw":   { "title": "Deadlift 2×" },
+        "peak_tonnage":   { "title": "Peak day kg" },
+        "early_bird":     { "title": "Early bird" },
+        "night_owl":      { "title": "Night owl" },
+        "cardio_starter": { "title": "First cardio" },
+        "measurements":   { "title": "Measure up" },
+        "sleep_week":     { "title": "Sleep tracker" },
+        "photo_first":    { "title": "Snapshot" }
+      }
+    },
     "strength": {
       "label": "Strength",
       "title": "Big lifts vs bodyweight",

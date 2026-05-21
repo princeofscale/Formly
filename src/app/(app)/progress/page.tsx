@@ -9,6 +9,8 @@ import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
 import { StrengthRatiosCard } from '@/components/progress/StrengthRatiosCard'
 import { getStrengthRatios } from '@/lib/services/strength-standards.service'
+import { AchievementsCard } from '@/components/progress/AchievementsCard'
+import { getAchievements } from '@/lib/services/achievements.service'
 import Link from 'next/link'
 import { Camera, ChevronRight, Ruler } from 'lucide-react'
 
@@ -59,9 +61,10 @@ export default async function ProgressPage({
   const currentWeight = profileResult.data?.weight_kg ?? null
   const currentHeight = profileResult.data?.height_cm ?? null
 
-  const strengthRatios = currentWeight
-    ? await getStrengthRatios(supabase, user.id, currentWeight)
-    : []
+  const [strengthRatios, achievements] = await Promise.all([
+    currentWeight ? getStrengthRatios(supabase, user.id, currentWeight) : Promise.resolve([]),
+    getAchievements(supabase, user.id),
+  ])
 
   const displayName = (ex: typeof selectedExercise) =>
     locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
@@ -108,6 +111,8 @@ export default async function ProgressPage({
       />
 
       <StrengthRatiosCard ratios={strengthRatios} bodyweightKg={currentWeight} />
+
+      <AchievementsCard achievements={achievements} />
 
       <Link
         href="/progress/photos"

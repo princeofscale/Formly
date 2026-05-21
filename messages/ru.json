@@ -150,6 +150,24 @@
       "deleteYes": "Удалить",
       "deleteNo": "Отмена"
     },
+    "achievements": {
+      "label": "Достижения",
+      "title": "Полученные значки",
+      "items": {
+        "sessions":       { "title": "Тренировки" },
+        "streak":         { "title": "Серия" },
+        "bench_bw":       { "title": "Жим = вес" },
+        "squat_1_5bw":    { "title": "Присед 1.5×" },
+        "deadlift_2bw":   { "title": "Тяга 2×" },
+        "peak_tonnage":   { "title": "Пик за день" },
+        "early_bird":     { "title": "Ранний" },
+        "night_owl":      { "title": "Сова" },
+        "cardio_starter": { "title": "Первое кардио" },
+        "measurements":   { "title": "Замеры" },
+        "sleep_week":     { "title": "Сон-неделя" },
+        "photo_first":    { "title": "Первое фото" }
+      }
+    },
     "strength": {
       "label": "Сила",
       "title": "Базовые лифты к весу тела",
