@@ -411,6 +411,26 @@ export default async function DashboardPage({
         </CardContent>
       </Card>
 
+      <Link
+        href="/wrapped"
+        className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-white/[0.04]"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 196, 68, 0.05), rgba(167, 139, 250, 0.04))',
+          border: '1px solid rgba(255, 196, 68, 0.18)',
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🎉</span>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+              {t('wrapped.label')}
+            </p>
+            <p className="text-sm font-bold text-white">{t('wrapped.title', { year: new Date().getUTCFullYear() })}</p>
+          </div>
+        </div>
+        <span className="text-[10px] uppercase tracking-widest text-white/40">{t('wrapped.cta')}</span>
+      </Link>
+
       <div className="flex items-center justify-center gap-2 pb-1 text-[10px] uppercase tracking-[0.2em] text-white/25">
         <Sparkles className="h-3 w-3" />
         {t('coachFooter')}

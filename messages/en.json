@@ -329,6 +329,11 @@
       "hoursShort": "h",
       "weekAvg": "7d average"
     },
+    "wrapped": {
+      "label": "Year in review",
+      "title": "{year} wrapped",
+      "cta": "Open →"
+    },
     "coachFooter": "Coach signals update from your latest sets"
   },
   "profile": {
@@ -669,6 +674,57 @@
         "strength": "Strength",
         "power": "Power",
         "max": "Max"
+      }
+    }
+  },
+  "wrapped": {
+    "back": "Back",
+    "intro": "Your year",
+    "subtitle": "A scroll-by-scroll look at the weight you moved.",
+    "noData": "No finished workouts logged in this year — come back after a few sessions.",
+    "footer": "Train. Track. Repeat.",
+    "cards": {
+      "sessions": {
+        "label": "Sessions",
+        "unit": "workouts",
+        "sub": "Including {cardio} cardio sessions"
+      },
+      "tonnage": {
+        "label": "Total tonnage",
+        "sub": "Across {count} sets · {reps} reps"
+      },
+      "duration": {
+        "label": "Time in the gym",
+        "sub": "Time you actually spent grinding"
+      },
+      "bestDay": {
+        "label": "Biggest day"
+      },
+      "streak": {
+        "label": "Longest streak",
+        "unit": "days",
+        "sub": "Back-to-back lifting days"
+      },
+      "favHour": {
+        "label": "Favorite hour",
+        "sub": "When most workouts started"
+      },
+      "topMuscle": {
+        "label": "Most-trained muscle",
+        "sub": "{sets} working sets this year"
+      },
+      "cardio": {
+        "label": "Cardio",
+        "unitSessions": "sessions",
+        "sub": "{count} sessions logged"
+      },
+      "topPRs": {
+        "label": "Records",
+        "title": "Heaviest hits of the year"
+      },
+      "monthly": {
+        "label": "Volume",
+        "title": "Tonnage by month"
       }
     }
   },
