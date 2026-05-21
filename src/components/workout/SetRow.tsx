@@ -79,12 +79,14 @@ interface Props {
   defaultReps?: number
   isBodyweight?: boolean
   showPlateCalculator?: boolean
+  /** Imperative override from "tap to apply" suggestion — bumps state when nonce changes. */
+  appliedSuggestion?: { weight: number; reps: number; nonce: number } | null
   onSaved: (set: SetEntry, prResult: PRResult) => void
 }
 
 const QUICK_INCREMENTS = [-5, -2.5, 2.5, 5]
 
-export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, showPlateCalculator = false, onSaved }: Props) {
+export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, showPlateCalculator = false, appliedSuggestion, onSaved }: Props) {
   const t = useTranslations('workout')
   const draftKey = `setdraft:${sessionId}:${exerciseId}:${setNumber}`
 
@@ -104,6 +106,14 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
     }
     setHydrated(true)
   }, [draftKey])
+
+  // Apply a one-tap suggestion: bump weight/reps whenever the nonce changes
+  useEffect(() => {
+    if (!appliedSuggestion) return
+    setWeight(String(appliedSuggestion.weight))
+    setReps(String(appliedSuggestion.reps))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedSuggestion?.nonce])
 
   // Persist draft as user types
   useEffect(() => {

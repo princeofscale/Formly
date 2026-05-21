@@ -511,6 +511,26 @@
       "sets": "Sets",
       "tonnage": "Tonnage"
     },
+    "progression": {
+      "tapToApply": "Tap to apply",
+      "action": {
+        "increase": "Push it",
+        "hold": "Hold",
+        "deload": "Deload",
+        "firstSet": "Suggestion"
+      },
+      "reason": {
+        "easySet": "Last {lastWeight}×{lastReps} @ RPE {rpe} — easy, +{step} kg",
+        "roomToGrow": "Last {lastWeight}×{lastReps} @ RPE {rpe} — clean, +{step} kg",
+        "pushUp": "Last {lastWeight}×{lastReps} @ RPE {rpe} — solid, +{step} kg",
+        "holdReps": "Last {lastWeight}×{lastReps} @ RPE {rpe} — bank the reps first",
+        "nearMax": "Last @ RPE {rpe} — keep weight, focus form",
+        "deload": "Last hit RPE 10 — back off {step} kg",
+        "noRpeAddWeight": "Last {lastWeight}×{lastReps} — try +{step} kg",
+        "noRpeHold": "Last {lastWeight}×{lastReps} — bank more reps first",
+        "hold": "Hold weight"
+      }
+    },
     "notes": {
       "label": "Notes",
       "add": "Add note for this workout",

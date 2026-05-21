@@ -511,6 +511,26 @@
       "sets": "Сетов",
       "tonnage": "Тоннаж"
     },
+    "progression": {
+      "tapToApply": "Тап чтобы вставить",
+      "action": {
+        "increase": "Толкай",
+        "hold": "Держи",
+        "deload": "Откат",
+        "firstSet": "Подсказка"
+      },
+      "reason": {
+        "easySet": "Прошлый раз {lastWeight}×{lastReps} @ RPE {rpe} — легко, +{step} кг",
+        "roomToGrow": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — чисто, +{step} кг",
+        "pushUp": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — крепко, +{step} кг",
+        "holdReps": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — добей повторы",
+        "nearMax": "Прошлый @ RPE {rpe} — держи вес, форму",
+        "deload": "Прошлый RPE 10 — скинь {step} кг",
+        "noRpeAddWeight": "Прошлый {lastWeight}×{lastReps} — попробуй +{step} кг",
+        "noRpeHold": "Прошлый {lastWeight}×{lastReps} — сначала добей повторы",
+        "hold": "Держи вес"
+      }
+    },
     "notes": {
       "label": "Заметки",
       "add": "Добавить заметку к тренировке",

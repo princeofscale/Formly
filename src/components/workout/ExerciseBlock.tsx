@@ -10,6 +10,8 @@ import { PRBadge } from './PRBadge'
 import { LastTimeHint } from './LastTimeHint'
 import { ExerciseNoteEditor } from './ExerciseNoteEditor'
 import { ExerciseVideo } from './ExerciseVideo'
+import { ProgressionHint } from './ProgressionHint'
+import { suggestNextSet } from '@/lib/services/progression.service'
 import { Button } from '@/components/ui/button'
 import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
@@ -31,6 +33,7 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
   const [showInfo, setShowInfo] = useState(false)
   const [showTimer, setShowTimer] = useState(false)
   const [lastPR, setLastPR] = useState<PRResult | null>(null)
+  const [applied, setApplied] = useState<{ weight: number; reps: number; nonce: number } | null>(null)
 
   const lastSet = sets[sets.length - 1]
   const displayName = locale === 'ru' ? (exercise.name_ru ?? exercise.name) : exercise.name
@@ -40,6 +43,9 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
     ? (exercise.instructions_ru ?? exercise.instructions_en)
     : exercise.instructions_en
   const isBodyweight = exercise.equipment === 'bodyweight'
+
+  // Only suggest before the first set of this workout (after that, the user is mid-session)
+  const suggestion = !isBodyweight && sets.length === 0 ? suggestNextSet(lastSets) : null
 
   function handleSetSaved(set: SetEntry, prResult: PRResult) {
     setSets(prev => [...prev, set])
@@ -147,12 +153,20 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
         <ExerciseVideo exerciseId={exercise.id} initialUrl={initialVideoUrl} />
         <ExerciseNoteEditor exerciseId={exercise.id} initialNote={initialNote} />
 
+        {suggestion && (
+          <ProgressionHint
+            suggestion={suggestion}
+            onApply={(w, r) => setApplied({ weight: w, reps: r, nonce: Date.now() })}
+          />
+        )}
+
         <SetRow
           sessionId={sessionId}
           exerciseId={exercise.id}
           setNumber={sets.length + 1}
           defaultWeight={lastSet?.weight_kg ?? lastSets[0]?.weight_kg}
           defaultReps={lastSet?.reps ?? lastSets[0]?.reps}
+          appliedSuggestion={applied}
           isBodyweight={isBodyweight}
           showPlateCalculator={exercise.equipment === 'barbell'}
           onSaved={handleSetSaved}
