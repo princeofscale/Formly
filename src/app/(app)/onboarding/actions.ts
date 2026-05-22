@@ -64,11 +64,14 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
     })
     .eq('id', user.id)
 
-  // 2. Pick a program & seed templates from it (one template per day)
+  // 2. Pick a program & seed templates from it.
+  //    Skip for bodyweight-only users — all current presets use barbell lifts
+  //    that wouldn't load. They'll start freestyle and we suggest exercises
+  //    via the library instead.
   const programId = pickProgram(goal, days)
   const program = WORKOUT_PRESETS.find(p => p.id === programId)
 
-  if (program) {
+  if (program && location !== 'home_bodyweight') {
     // Collect all exercise slugs used across all days of the program
     const allSlugs = Array.from(new Set(program.days.flatMap(d => d.slugs)))
     const { data: exData } = await supabase
