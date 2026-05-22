@@ -340,6 +340,38 @@
       "title": "{year} wrapped",
       "cta": "Open →"
     },
+    "empty": {
+      "label": "Welcome",
+      "title": "Let's lift something.",
+      "subtitle": "Track every set, hit new PRs, and see your body change. The dashboard will come alive after your first workout.",
+      "primary": "Start workout",
+      "secondary": "Pick a program",
+      "quickStart": "Quick start",
+      "footer": "Your coach updates after every set",
+      "promise": {
+        "records": "Hit PRs",
+        "progress": "Watch progress",
+        "coach": "RPE coach"
+      },
+      "quick": {
+        "start": {
+          "title": "Start a freestyle workout",
+          "sub": "Just lift — pick exercises as you go"
+        },
+        "preset": {
+          "title": "Pick a preset program",
+          "sub": "Full body, PPL, Upper/Lower, 5-day split"
+        },
+        "goal": {
+          "title": "Set a strength goal",
+          "sub": "Define a target 1RM and watch the bar fill"
+        },
+        "calc": {
+          "title": "Estimate your 1RM",
+          "sub": "Try the calculator before your first set"
+        }
+      }
+    },
     "legal": {
       "privacy": "Privacy",
       "terms": "Terms"
@@ -686,6 +718,34 @@
         "max": "Max"
       }
     }
+  },
+  "onboarding": {
+    "hero": "Welcome to TrainingAR",
+    "subtitle": "Three quick questions and you're set up.",
+    "step": "Step {n} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip — I'll set it up later",
+    "finish": "Let's go →",
+    "goalTitle": "What's your goal?",
+    "goalSub": "We'll tune the suggested program to it.",
+    "goalStrength": "Strength",
+    "goalStrengthSub": "Big lifts, low reps, get strong",
+    "goalHypertrophy": "Hypertrophy",
+    "goalHypertrophySub": "Build size, mid-range reps",
+    "goalGeneral": "General fitness",
+    "goalGeneralSub": "Feel good, balanced workouts",
+    "locTitle": "Where do you train?",
+    "locSub": "We'll prefer exercises that match your gear.",
+    "locGym": "Full gym",
+    "locGymSub": "Barbells, machines, plates",
+    "locDumbbells": "Home — dumbbells",
+    "locDumbbellsSub": "Adjustable dumbbells or a couple of fixed pairs",
+    "locBodyweight": "Bodyweight only",
+    "locBodyweightSub": "No equipment, just you and gravity",
+    "daysTitle": "How many days per week?",
+    "daysSub": "Be honest — consistency beats intensity.",
+    "daysSuffix": "days per week"
   },
   "wrapped": {
     "back": "Back",

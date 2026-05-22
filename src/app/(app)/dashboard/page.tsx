@@ -25,6 +25,8 @@ import { GoalsTeaser } from '@/components/dashboard/GoalsTeaser'
 import { getGoalsWithProgress } from '@/lib/db/goals'
 import { repeatSessionAction } from '@/app/(app)/workout/new/actions'
 import { RotateCw } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { EmptyDashboardHero } from '@/components/dashboard/EmptyDashboardHero'
 import { TonnageHeatmap } from '@/components/dashboard/TonnageHeatmap'
 import { getDailyTonnage } from '@/lib/db/workouts'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
@@ -105,7 +107,21 @@ export default async function DashboardPage({
   ])
 
   const sessions = sessionsResult.data ?? []
-  const schedule: number[] = profileResult.data?.training_schedule ?? []
+  const profileSchedule = profileResult.data?.training_schedule
+  const schedule: number[] = profileSchedule ?? []
+
+  // New user routing:
+  //  • training_schedule is null  → never onboarded → push them to /onboarding
+  //  • training_schedule is []    → explicitly skipped onboarding, leave on dashboard
+  //  • No finished session yet    → show celebratory empty hero (instead of zero-cards)
+  if (profileSchedule === null) {
+    redirect('/onboarding')
+  }
+  if (!firstSessionResult.data) {
+    const hasSchedule = Array.isArray(profileSchedule) && profileSchedule.length > 0
+    return <EmptyDashboardHero hasSchedule={hasSchedule} />
+  }
+
   const streakInfo = calculateStreak(workoutDates, schedule)
 
   // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
