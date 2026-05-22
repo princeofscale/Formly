@@ -6,6 +6,7 @@ import { BookmarkPlus, Check } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
+import { PRCelebration, type PRCelebrationData } from './PRCelebration'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
@@ -30,6 +31,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
 
   const [exercises, setExercises] = useState<ExerciseWithSets[]>(initialExercises)
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
+  const [prCelebration, setPrCelebration] = useState<PRCelebrationData | null>(null)
 
   // Template saving state
   const [showTplInput, setShowTplInput] = useState(false)
@@ -205,6 +207,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
               exercise={ex}
               sessionId={session.id}
               onSetSaved={(set) => appendSet(ex.id, set)}
+              onPR={(info) => setPrCelebration({ ...info, nonce: Date.now() })}
               onDelete={() => removeExercise(ex.id)}
               lastSets={lastSetsMap[ex.id] ?? []}
               initialNote={exerciseNotes[ex.id] ?? ''}
@@ -220,6 +223,8 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
           <WorkoutNotes sessionId={session.id} initialNotes={session.notes} />
         </div>
       )}
+
+      <PRCelebration pr={prCelebration} onDone={() => setPrCelebration(null)} />
     </div>
   )
 }

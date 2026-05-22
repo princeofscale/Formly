@@ -19,13 +19,14 @@ interface Props {
   exercise: ExerciseWithSets
   sessionId: string
   onSetSaved: (set: SetEntry) => void
+  onPR?: (info: { exerciseName: string; newE1rm: number; improvementPct: number | null }) => void
   onDelete: () => void
   lastSets?: SetEntry[]
   initialNote?: string
   initialVideoUrl?: string
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastSets = [], initialNote = '', initialVideoUrl = '' }: Props) {
+export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete, lastSets = [], initialNote = '', initialVideoUrl = '' }: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
@@ -52,6 +53,13 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onDelete, lastS
     onSetSaved(set)
     setShowTimer(true)
     setLastPR(prResult.is_pr ? prResult : null)
+    if (prResult.is_pr && onPR) {
+      onPR({
+        exerciseName: displayName,
+        newE1rm: prResult.current_1rm ?? set.calculated_1rm ?? 0,
+        improvementPct: prResult.improvement_pct ?? null,
+      })
+    }
   }
 
   return (

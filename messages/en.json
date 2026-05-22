@@ -558,6 +558,11 @@
       "notifBody": "Time for your next set 💪",
       "enableNotif": "Enable rest notifications"
     },
+    "prCelebration": {
+      "label": "Personal record",
+      "title": "NEW PR!",
+      "firstTime": "first time"
+    },
     "liveStats": {
       "elapsed": "Elapsed",
       "sets": "Sets",
@@ -751,7 +756,14 @@
     "locBodyweightSub": "No equipment, just you and gravity",
     "daysTitle": "How many days per week?",
     "daysSub": "Be honest — consistency beats intensity.",
-    "daysSuffix": "days per week"
+    "daysSuffix": "days per week",
+    "notifTitle": "Stay on track",
+    "notifSub": "Get a push notification on your scheduled training days so you don't forget.",
+    "notifEnable": "Enable notifications",
+    "notifEnabled": "Notifications on — see you on training day",
+    "notifLater": "You can change this any time in your profile.",
+    "notifDenied": "Notifications blocked — enable them in your browser settings if you change your mind.",
+    "notifUnsupported": "This browser doesn't support push notifications."
   },
   "friends": {
     "back": "Back",

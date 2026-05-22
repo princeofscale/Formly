@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Dumbbell, Trophy, Flame, Building2, Home, Hand, ChevronRight, ChevronLeft } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { Dumbbell, Trophy, Flame, Building2, Home, Hand, Bell, ChevronRight, ChevronLeft } from 'lucide-react'
 import { finishOnboardingAction, skipOnboardingAction } from '@/app/(app)/onboarding/actions'
+import { subscribeToPushAction } from '@/app/(app)/profile/push-actions'
+import { requestPushSubscription } from '@/lib/utils/push-subscribe'
 
 interface Labels {
   step: string
@@ -31,19 +33,54 @@ interface Labels {
   daysTitle: string
   daysSub: string
   daysSuffix: string
+  notifTitle: string
+  notifSub: string
+  notifEnable: string
+  notifEnabled: string
+  notifLater: string
+  notifDenied: string
+  notifUnsupported: string
+}
+
+interface ExtraProps {
+  vapidPublicKey?: string
 }
 
 type Goal = 'strength' | 'hypertrophy' | 'general'
 type Location = 'gym' | 'home_dumbbells' | 'home_bodyweight'
 
-export function OnboardingWizard({ labels }: { labels: Labels }) {
+export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } & ExtraProps) {
   const [step, setStep] = useState(0)
   const [goal, setGoal] = useState<Goal>('hypertrophy')
   const [location, setLocation] = useState<Location>('gym')
   const [days, setDays] = useState(3)
   const [submitting, setSubmitting] = useState(false)
+  const [notifState, setNotifState] = useState<'idle' | 'on' | 'denied' | 'unsupported'>('idle')
+  const [, startNotif] = useTransition()
 
-  const total = 3
+  const total = 4
+
+  async function enableNotifications() {
+    if (!vapidPublicKey) {
+      setNotifState('unsupported')
+      return
+    }
+    const result = await requestPushSubscription(vapidPublicKey)
+    if (result.status === 'granted') {
+      startNotif(async () => {
+        try {
+          await subscribeToPushAction(result.payload)
+          setNotifState('on')
+        } catch {
+          setNotifState('denied')
+        }
+      })
+      return
+    }
+    if (result.status === 'denied') setNotifState('denied')
+    else if (result.status === 'unsupported' || result.status === 'no-key') setNotifState('unsupported')
+    else setNotifState('denied')
+  }
   const pct = ((step + 1) / total) * 100
 
   function next() { setStep(s => Math.min(total - 1, s + 1)) }
@@ -80,6 +117,13 @@ export function OnboardingWizard({ labels }: { labels: Labels }) {
       )}
       {step === 2 && (
         <StepDays value={days} onChange={setDays} labels={labels} />
+      )}
+      {step === 3 && (
+        <StepNotifications
+          state={notifState}
+          onEnable={enableNotifications}
+          labels={labels}
+        />
       )}
 
       {/* Footer buttons */}
@@ -236,6 +280,78 @@ function StepLocation({ value, onChange, labels }: { value: Location; onChange: 
         accent="#FFC044"
         onClick={() => onChange('home_bodyweight')}
       />
+    </div>
+  )
+}
+
+interface StepNotificationsProps {
+  state: 'idle' | 'on' | 'denied' | 'unsupported'
+  onEnable: () => void
+  labels: Labels
+}
+
+function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) {
+  return (
+    <div className="space-y-3">
+      <div className="text-center mb-1">
+        <div
+          className="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-3"
+          style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+        >
+          <Bell className="h-5 w-5" style={{ color: '#FFC044' }} />
+        </div>
+        <h2 className="text-xl font-extrabold text-white">{labels.notifTitle}</h2>
+        <p className="text-sm text-white/55 mt-1">{labels.notifSub}</p>
+      </div>
+
+      {state === 'idle' && (
+        <button
+          type="button"
+          onClick={onEnable}
+          className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-extrabold uppercase tracking-wide transition active:scale-[0.98]"
+          style={{
+            background: 'rgba(255, 196, 68, 0.12)',
+            color: '#FFC044',
+            border: '1px solid rgba(255, 196, 68, 0.32)',
+          }}
+        >
+          <Bell className="h-4 w-4" />
+          {labels.notifEnable}
+        </button>
+      )}
+
+      {state === 'on' && (
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{
+            background: 'rgba(34, 211, 168, 0.08)',
+            border: '1px solid rgba(34, 211, 168, 0.30)',
+            color: '#22D3A8',
+          }}
+        >
+          <p className="text-sm font-bold">✓ {labels.notifEnabled}</p>
+        </div>
+      )}
+
+      {state === 'denied' && (
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <p className="text-xs text-white/55">{labels.notifDenied}</p>
+        </div>
+      )}
+
+      {state === 'unsupported' && (
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <p className="text-xs text-white/55">{labels.notifUnsupported}</p>
+        </div>
+      )}
+
+      <p className="text-[11px] text-white/35 text-center px-4">{labels.notifLater}</p>
     </div>
   )
 }

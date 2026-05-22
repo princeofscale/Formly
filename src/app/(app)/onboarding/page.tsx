@@ -7,6 +7,7 @@ export default async function OnboardingPage() {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-start">
       <OnboardingWizard
+        vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ''}
         labels={{
           step: t('step'),
           back: t('back'),
@@ -34,6 +35,13 @@ export default async function OnboardingPage() {
           daysTitle: t('daysTitle'),
           daysSub: t('daysSub'),
           daysSuffix: t('daysSuffix'),
+          notifTitle: t('notifTitle'),
+          notifSub: t('notifSub'),
+          notifEnable: t('notifEnable'),
+          notifEnabled: t('notifEnabled'),
+          notifLater: t('notifLater'),
+          notifDenied: t('notifDenied'),
+          notifUnsupported: t('notifUnsupported'),
         }}
       />
     </div>
