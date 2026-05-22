@@ -32,6 +32,47 @@ self.addEventListener('push', (event) => {
   )
 })
 
+// Rest timer: client posts { type: 'rest-timer-start', endsAt, title, body }
+// SW schedules a setTimeout — survives main thread throttling on backgrounded
+// tabs better than a window-side setTimeout. Single timer at a time:
+// starting a new one cancels the previous.
+let restTimerId = null
+let restTimerToken = 0
+
+self.addEventListener('message', (event) => {
+  const data = event.data
+  if (!data || typeof data !== 'object') return
+
+  if (data.type === 'rest-timer-start') {
+    if (restTimerId !== null) clearTimeout(restTimerId)
+    const token = ++restTimerToken
+    const endsAt = Number(data.endsAt) || 0
+    const delay = Math.max(0, endsAt - Date.now())
+    const title = String(data.title || 'Rest complete')
+    const body = String(data.body || '')
+
+    restTimerId = setTimeout(() => {
+      if (token !== restTimerToken) return // cancelled
+      restTimerId = null
+      self.registration.showNotification(title, {
+        body,
+        icon: '/icon',
+        badge: '/icon',
+        tag: 'rest-timer',
+        renotify: true,
+        vibrate: [200, 100, 200],
+        data: { url: '/dashboard' },
+      }).catch(() => {})
+    }, delay)
+  }
+
+  if (data.type === 'rest-timer-cancel') {
+    if (restTimerId !== null) clearTimeout(restTimerId)
+    restTimerId = null
+    restTimerToken += 1
+  }
+})
+
 // Click handler: focus existing window or open new
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()

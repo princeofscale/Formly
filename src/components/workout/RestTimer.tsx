@@ -77,16 +77,27 @@ interface WakeLockApi {
   request: (type: 'screen') => Promise<WakeLockSentinelLite>
 }
 
+function sendSwMessage(msg: Record<string, unknown>) {
+  if (typeof navigator === 'undefined' || !navigator.serviceWorker) return
+  navigator.serviceWorker.ready
+    .then(reg => reg.active?.postMessage(msg))
+    .catch(() => {})
+}
+
 export function RestTimer({ seconds, onDone }: Props) {
   const t = useTranslations('workout')
   const tRT = useTranslations('workout.restTimer')
   const [duration, setDuration] = useState(() => getInitialDuration(seconds))
-  const [remaining, setRemaining] = useState(() => getInitialDuration(seconds))
+  // Absolute end timestamp — single source of truth. Wall-clock based so
+  // background-tab throttling / phone-screen-off can't desync the display.
+  const [endsAt, setEndsAt] = useState<number>(() => Date.now() + getInitialDuration(seconds) * 1000)
+  const [remaining, setRemaining] = useState<number>(() => getInitialDuration(seconds))
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported',
   )
   const doneRef = useRef(false)
   const wakeLockRef = useRef<WakeLockSentinelLite | null>(null)
+  const swScheduledRef = useRef<number>(0) // endsAt we last sent to SW
 
   // Persist preference
   useEffect(() => {
@@ -99,39 +110,80 @@ export function RestTimer({ seconds, onDone }: Props) {
     const nav = navigator as Navigator & { wakeLock?: WakeLockApi }
     if (!nav.wakeLock) return
     let cancelled = false
-    nav.wakeLock.request('screen').then(sentinel => {
-      if (cancelled) {
-        sentinel.release().catch(() => {})
-        return
-      }
-      wakeLockRef.current = sentinel
-    }).catch(() => {})
+    const acquire = () => {
+      nav.wakeLock!.request('screen').then(sentinel => {
+        if (cancelled) {
+          sentinel.release().catch(() => {})
+          return
+        }
+        wakeLockRef.current = sentinel
+      }).catch(() => {})
+    }
+    acquire()
+    // Re-acquire when tab becomes visible again (browsers release wake lock on hide)
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && !wakeLockRef.current) acquire()
+    }
+    document.addEventListener('visibilitychange', onVis)
     return () => {
       cancelled = true
+      document.removeEventListener('visibilitychange', onVis)
       wakeLockRef.current?.release().catch(() => {})
       wakeLockRef.current = null
     }
   }, [])
 
-  // Tick down
+  // Schedule SW notification once per endsAt — fires reliably even if the tab
+  // is backgrounded or the phone screen is off.
   useEffect(() => {
-    if (remaining <= 0) {
-      if (!doneRef.current) {
-        doneRef.current = true
-        navigator.vibrate?.([200, 100, 200])
-        playBeep()
-        fireNotification(tRT('notifTitle'), tRT('notifBody'))
+    if (swScheduledRef.current === endsAt) return
+    swScheduledRef.current = endsAt
+    sendSwMessage({
+      type: 'rest-timer-start',
+      endsAt,
+      title: tRT('notifTitle'),
+      body: tRT('notifBody'),
+    })
+  }, [endsAt, tRT])
+
+  // Tick: recompute from wall clock every second. Immune to throttling because
+  // it never assumes "1s elapsed" — it asks Date.now() each tick. Also catches
+  // up instantly when the user re-foregrounds the tab.
+  useEffect(() => {
+    let id: ReturnType<typeof setTimeout> | null = null
+
+    const tick = () => {
+      const rem = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000))
+      setRemaining(rem)
+      if (rem <= 0) {
+        if (!doneRef.current) {
+          doneRef.current = true
+          navigator.vibrate?.([200, 100, 200])
+          playBeep()
+          fireNotification(tRT('notifTitle'), tRT('notifBody'))
+        }
+        onDone()
+        return
       }
-      onDone()
-      return
+      // Align to next wall-clock second so display feels crisp
+      const drift = (endsAt - Date.now()) % 1000
+      id = setTimeout(tick, drift > 0 ? drift : 1000)
     }
-    const id = setTimeout(() => setRemaining(r => r - 1), 1000)
-    return () => clearTimeout(id)
-  }, [remaining, onDone, tRT])
+    tick()
+
+    // Force a recompute the moment the user re-foregrounds the tab
+    const onVis = () => { if (document.visibilityState === 'visible') tick() }
+    document.addEventListener('visibilitychange', onVis)
+
+    return () => {
+      if (id !== null) clearTimeout(id)
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [endsAt, onDone, tRT])
 
   function applyPreset(value: number) {
     setDuration(value)
-    setRemaining(value)
+    setEndsAt(Date.now() + value * 1000)
     doneRef.current = false
   }
 
@@ -177,7 +229,10 @@ export function RestTimer({ seconds, onDone }: Props) {
         </div>
         <button
           type="button"
-          onClick={onDone}
+          onClick={() => {
+            sendSwMessage({ type: 'rest-timer-cancel' })
+            onDone()
+          }}
           className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors px-2 py-1 rounded-sm hover:bg-white/10"
         >
           {t('restSkip')}
