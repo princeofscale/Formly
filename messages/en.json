@@ -748,6 +748,45 @@
     "daysSub": "Be honest — consistency beats intensity.",
     "daysSuffix": "days per week"
   },
+  "friends": {
+    "back": "Back",
+    "title": "Friends",
+    "listTitle": "Your crew ({n})",
+    "empty": "No friends yet.",
+    "emptySub": "Share your code with a gym buddy and accountability begins.",
+    "neverTrained": "no workouts",
+    "today": "trained today",
+    "yesterday": "trained yesterday",
+    "daysAgo": "{n}d ago",
+    "addLabel": "Add a friend by code",
+    "add": "Add",
+    "remove": "Remove",
+    "addSuccess": "Added — they're on your dashboard now.",
+    "addError": {
+      "invalid": "Code must be 6 characters.",
+      "notFound": "No one with that code.",
+      "self": "That's your own code 🙃",
+      "already": "Already friends.",
+      "unknown": "Couldn't add — try again."
+    },
+    "stats": {
+      "week": "This week",
+      "tonnage": "Tonnage",
+      "bestE1rm": "Best 1RM"
+    },
+    "myCode": {
+      "label": "Your code",
+      "subtitle": "Share this 6-char code so a friend can add you.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "share": "Share",
+      "shareTitle": "Add me on TrainingAR",
+      "shareMessage": "Add me on TrainingAR — my code is {code}"
+    },
+    "teaserLabel": "Crew",
+    "teaserTitle": "Active friends ({n})",
+    "teaserEmptyTitle": "Add a gym buddy →"
+  },
   "wrapped": {
     "back": "Back",
     "intro": "Your year",

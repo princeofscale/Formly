@@ -23,6 +23,8 @@ import { PRsCard } from '@/components/dashboard/PRsCard'
 import { getRecentPRs } from '@/lib/db/prs'
 import { GoalsTeaser } from '@/components/dashboard/GoalsTeaser'
 import { getGoalsWithProgress } from '@/lib/db/goals'
+import { FriendsTeaser } from '@/components/dashboard/FriendsTeaser'
+import { getFriendsWithStats } from '@/lib/db/friends'
 import { repeatSessionAction } from '@/app/(app)/workout/new/actions'
 import { RotateCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
@@ -139,7 +141,7 @@ export default async function DashboardPage({
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
   const todayDate = new Date().toISOString().slice(0, 10)
-  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs, goals] = await Promise.all([
+  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs, goals, friends] = await Promise.all([
     getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
     getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
     getSleepForDate(supabase, user.id, todayDate),
@@ -147,6 +149,7 @@ export default async function DashboardPage({
     getDailyTonnage(supabase, user.id, 84),
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
     getGoalsWithProgress(supabase, user.id),
+    getFriendsWithStats(supabase, 7),
   ])
   const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
 
@@ -383,6 +386,10 @@ export default async function DashboardPage({
       <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[210ms]">
         <PRsCard prs={recentPRs} windowDays={PR_WINDOW_DAYS} />
         <GoalsTeaser goals={goals} />
+      </section>
+
+      <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[218ms]">
+        <FriendsTeaser friends={friends} />
       </section>
 
       <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
