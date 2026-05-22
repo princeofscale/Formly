@@ -51,7 +51,13 @@ function BodyMap({
   const segmentClass = 'cursor-pointer transition duration-150 hover:brightness-125'
 
   return (
-    <svg viewBox="0 0 148 220" className="mx-auto h-[260px] max-h-[40vh] w-full max-w-[210px] sm:h-[300px]" role="img" aria-label={side}>
+    <svg
+      viewBox="0 0 148 220"
+      className="mx-auto h-full w-full max-w-[220px]"
+      role="img"
+      aria-label={side}
+      style={{ filter: 'drop-shadow(0 16px 24px rgba(0,0,0,0.45)) drop-shadow(0 0 14px rgba(255,59,71,0.05))' }}
+    >
       <g fill="#15151C" stroke="rgba(255,255,255,0.14)" strokeWidth="2">
         <circle cx="74" cy="20" r="16" />
         <rect x="67" y="37" width="14" height="13" rx="5" />
@@ -171,6 +177,7 @@ export function MuscleHeatmap({
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selected, setSelected] = useState<MuscleGroup | null>(null)
+  const [showingBack, setShowingBack] = useState(false)
 
   const ranked = useMemo(
     () => MUSCLE_GROUPS
@@ -218,9 +225,88 @@ export function MuscleHeatmap({
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.9fr)] lg:items-center">
-        <div className="grid grid-cols-2 gap-3 rounded-[24px] bg-white/[0.025] p-3 ring-1 ring-white/[0.06]">
-          <BodyMap side="front" volumes={muscleVolumes} onPick={pick} />
-          <BodyMap side="back" volumes={muscleVolumes} onPick={pick} />
+        <div
+          className="relative rounded-[24px] bg-white/[0.025] p-4 ring-1 ring-white/[0.06]"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 30%, rgba(255, 59, 71, 0.06), transparent 70%), rgba(255,255,255,0.025)',
+          }}
+        >
+          {/* 3D flip card: front / back swap with rotateY */}
+          <div
+            className="relative mx-auto"
+            style={{
+              perspective: '1200px',
+              width: '100%',
+              maxWidth: 280,
+              height: 320,
+            }}
+          >
+            <div
+              className="absolute inset-0 transition-transform duration-700"
+              style={{
+                transformStyle: 'preserve-3d',
+                transform: showingBack ? 'rotateY(180deg)' : 'rotateY(0deg)',
+              }}
+            >
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+              >
+                <BodyMap side="front" volumes={muscleVolumes} onPick={pick} />
+              </div>
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                }}
+              >
+                <BodyMap side="back" volumes={muscleVolumes} onPick={pick} />
+              </div>
+            </div>
+          </div>
+
+          {/* Front / Back toggle */}
+          <div className="mt-2 flex items-center justify-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowingBack(false)}
+              className="h-7 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition"
+              style={{
+                background: !showingBack ? 'rgba(255, 59, 71, 0.16)' : 'rgba(255,255,255,0.04)',
+                color: !showingBack ? '#FF6E76' : 'rgba(255,255,255,0.50)',
+                border: !showingBack ? '1px solid rgba(255, 59, 71, 0.30)' : '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              FRONT
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowingBack(prev => !prev)}
+              aria-label="Rotate"
+              className="h-7 w-7 rounded-lg flex items-center justify-center transition hover:bg-white/10"
+              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.55)' }}
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 11-3-6.7" />
+                <polyline points="21 4 21 10 15 10" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowingBack(true)}
+              className="h-7 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition"
+              style={{
+                background: showingBack ? 'rgba(255, 59, 71, 0.16)' : 'rgba(255,255,255,0.04)',
+                color: showingBack ? '#FF6E76' : 'rgba(255,255,255,0.50)',
+                border: showingBack ? '1px solid rgba(255, 59, 71, 0.30)' : '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              BACK
+            </button>
+          </div>
         </div>
 
         <div className="space-y-3">
