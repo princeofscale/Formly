@@ -17,29 +17,61 @@ interface Props {
   onDone: () => void
 }
 
-// Generate confetti particle positions/colors deterministically per render
-function useParticles(seed: number, count = 32) {
-  return useMemo(() => {
-    const colors = ['#FFC044', '#FF6E76', '#22D3A8', '#A78BFA', '#FFFFFF']
-    // Cheap deterministic rand based on seed
-    let s = seed
-    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
-    return Array.from({ length: count }, (_, i) => ({
+const CONFETTI_COLORS = ['#FFC044', '#FF6E76', '#22D3A8', '#A78BFA', '#FFFFFF']
+
+interface Particle {
+  id: number
+  left: number
+  delay: number
+  duration: number
+  rotate: number
+  color: string
+  size: number
+}
+
+// Pure deterministic particle generator — call from useMemo
+function generateParticles(seed: number, count: number): Particle[] {
+  const result: Particle[] = []
+  // Deterministic LCG, kept local to this call
+  let s = seed || 1
+  for (let i = 0; i < count; i++) {
+    s = (s * 9301 + 49297) % 233280
+    const r1 = s / 233280
+    s = (s * 9301 + 49297) % 233280
+    const r2 = s / 233280
+    s = (s * 9301 + 49297) % 233280
+    const r3 = s / 233280
+    s = (s * 9301 + 49297) % 233280
+    const r4 = s / 233280
+    s = (s * 9301 + 49297) % 233280
+    const r5 = s / 233280
+    s = (s * 9301 + 49297) % 233280
+    const r6 = s / 233280
+    result.push({
       id: i,
-      left: rand() * 100,
-      delay: rand() * 0.4,
-      duration: 1.4 + rand() * 1.6,
-      rotate: rand() * 720 - 360,
-      color: colors[Math.floor(rand() * colors.length)],
-      size: 6 + rand() * 8,
-    }))
-  }, [seed, count])
+      left: r1 * 100,
+      delay: r2 * 0.4,
+      duration: 1.4 + r3 * 1.6,
+      rotate: r4 * 720 - 360,
+      color: CONFETTI_COLORS[Math.floor(r5 * CONFETTI_COLORS.length)],
+      size: 6 + r6 * 8,
+    })
+  }
+  return result
+}
+
+function useParticles(seed: number, count = 32): Particle[] {
+  return useMemo(() => generateParticles(seed, count), [seed, count])
 }
 
 export function PRCelebration({ pr, onDone }: Props) {
   const t = useTranslations('workout.prCelebration')
   const onDoneRef = useRef(onDone)
-  onDoneRef.current = onDone
+
+  // Keep the ref up-to-date without writing during render
+  useEffect(() => {
+    onDoneRef.current = onDone
+  }, [onDone])
 
   const particles = useParticles(pr?.nonce ?? 0, 36)
 

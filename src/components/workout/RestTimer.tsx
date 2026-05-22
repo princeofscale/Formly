@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 
 const RADIUS = 26
@@ -181,11 +181,12 @@ export function RestTimer({ seconds, onDone }: Props) {
     }
   }, [endsAt, onDone, tRT])
 
-  function applyPreset(value: number) {
+  const applyPreset = useCallback((value: number) => {
     setDuration(value)
+    // eslint-disable-next-line react-hooks/purity -- event handler, runs on click
     setEndsAt(Date.now() + value * 1000)
     doneRef.current = false
-  }
+  }, [])
 
   async function requestNotifPermission() {
     if (!('Notification' in window)) return
