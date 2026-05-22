@@ -34,6 +34,7 @@ import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 const DELOAD_CYCLE_WEEKS = 5
 const WEAK_POINTS_DAYS = 28
 const PR_WINDOW_DAYS = 30
+const STREAK_FREEZES_PER_MONTH = 2
 
 const MUSCLE_PERIOD_DAYS: Record<string, number> = {
   '7d': 7,
@@ -122,7 +123,7 @@ export default async function DashboardPage({
     return <EmptyDashboardHero hasSchedule={hasSchedule} />
   }
 
-  const streakInfo = calculateStreak(workoutDates, schedule)
+  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), STREAK_FREEZES_PER_MONTH)
 
   // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
   const now = new Date()

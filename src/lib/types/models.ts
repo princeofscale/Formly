@@ -126,6 +126,10 @@ export interface StreakInfo {
   current: number
   longest: number
   last_workout_date: string | null
+  /** How many freeze "lives" exist per calendar month (0 = freezes disabled). */
+  freezes_per_month?: number
+  /** Freezes consumed in the *current* calendar month within the active streak. */
+  freezes_used_this_month?: number
 }
 
 export interface DayActivity {

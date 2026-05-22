@@ -647,7 +647,8 @@
   "streak": {
     "label": "in a row",
     "best": "Best",
-    "noWorkouts": "No workouts yet"
+    "noWorkouts": "No workouts yet",
+    "freezeTooltip": "Freeze {used}/{total} used this month — missing one scheduled day a month won't break your streak"
   },
   "exerciseForm": {
     "triggerLabel": "Add custom",

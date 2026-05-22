@@ -32,7 +32,8 @@ function longestConsecutiveCalendarDays(dates: string[]): number {
 export function calculateStreak(
   workoutDates: string[],
   trainingSchedule: number[],
-  now: Date = new Date()
+  now: Date = new Date(),
+  maxFreezesPerMonth = 0,
 ): StreakInfo {
   const workoutSet = new Set(workoutDates)
   const lastWorkoutDate = workoutDates[0] ?? null
@@ -42,6 +43,8 @@ export function calculateStreak(
       current: 0,
       longest: longestConsecutiveCalendarDays(workoutDates),
       last_workout_date: lastWorkoutDate,
+      freezes_per_month: maxFreezesPerMonth,
+      freezes_used_this_month: 0,
     }
   }
 
@@ -64,6 +67,14 @@ export function calculateStreak(
     cursor.setUTCDate(cursor.getUTCDate() - 1)
   }
 
+  // Walk back from today. Missed scheduled days are excused up to
+  // maxFreezesPerMonth per calendar month encountered during the walk.
+  // Once a month uses up its freezes, the next miss in that month breaks
+  // the streak. Today's miss is always tolerated (still trainable).
+  const monthKey = (iso: string) => iso.slice(0, 7) // YYYY-MM
+  const currentMonthKey = todayIso.slice(0, 7)
+  const freezesByMonth = new Map<string, number>()
+
   let current = 0
   for (const sd of scheduledDays) {
     if (sd.completed) {
@@ -71,6 +82,18 @@ export function calculateStreak(
       continue
     }
     if (sd.isToday) continue
+
+    if (maxFreezesPerMonth > 0) {
+      const mk = monthKey(sd.iso)
+      const usedInMonth = freezesByMonth.get(mk) ?? 0
+      if (usedInMonth < maxFreezesPerMonth) {
+        freezesByMonth.set(mk, usedInMonth + 1)
+        // Frozen day — does NOT add to current count (you didn't actually train),
+        // but the streak survives this missed day.
+        continue
+      }
+    }
+
     break
   }
 
@@ -90,5 +113,7 @@ export function calculateStreak(
     current,
     longest,
     last_workout_date: lastWorkoutDate,
+    freezes_per_month: maxFreezesPerMonth,
+    freezes_used_this_month: freezesByMonth.get(currentMonthKey) ?? 0,
   }
 }
