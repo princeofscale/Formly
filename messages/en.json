@@ -336,9 +336,14 @@
       "weekAvg": "7d average"
     },
     "wrapped": {
-      "label": "Year in review",
-      "title": "{year} wrapped",
+      "label": "Year so far",
+      "title": "{year} in numbers",
       "cta": "Open →"
+    },
+    "activeSession": {
+      "label": "Workout in progress",
+      "continue": "Tap to continue →",
+      "setsLogged": "{n} sets logged"
     },
     "empty": {
       "label": "Welcome",
@@ -790,7 +795,9 @@
   "wrapped": {
     "back": "Back",
     "intro": "Your year",
+    "introInProgress": "Year so far",
     "subtitle": "A scroll-by-scroll look at the weight you moved.",
+    "subtitleInProgress": "The year isn't over — but here's where you stand.",
     "noData": "No finished workouts logged in this year — come back after a few sessions.",
     "footer": "Train. Track. Repeat.",
     "cards": {

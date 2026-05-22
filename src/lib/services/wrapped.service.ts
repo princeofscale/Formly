@@ -15,6 +15,8 @@ export interface WrappedTopPR {
 
 export interface WrappedReport {
   year: number
+  /** True when `year` is the current calendar year and hasn't ended yet. */
+  isInProgress: boolean
   hasData: boolean
   totalSessions: number
   totalTonnageKg: number
@@ -46,6 +48,8 @@ export async function getWrappedReport(
 ): Promise<WrappedReport> {
   const start = new Date(Date.UTC(year, 0, 1)).toISOString()
   const end = new Date(Date.UTC(year + 1, 0, 1)).toISOString()
+  const now = new Date()
+  const isInProgress = year === now.getUTCFullYear()
 
   // 1) All finished sessions of the year
   const { data: sessionRows } = await supabase
@@ -67,7 +71,7 @@ export async function getWrappedReport(
   }>
 
   if (sessions.length === 0) {
-    return emptyReport(year)
+    return emptyReport(year, isInProgress)
   }
 
   const strengthSessions = sessions.filter(s => s.session_type !== 'cardio')
@@ -200,6 +204,7 @@ export async function getWrappedReport(
 
   return {
     year,
+    isInProgress,
     hasData: strengthSessions.length > 0 || cardioSessions.length > 0,
     totalSessions: strengthSessions.length,
     totalTonnageKg: Math.round(totalTonnage),
@@ -217,9 +222,10 @@ export async function getWrappedReport(
   }
 }
 
-function emptyReport(year: number): WrappedReport {
+function emptyReport(year: number, isInProgress: boolean): WrappedReport {
   return {
     year,
+    isInProgress,
     hasData: false,
     totalSessions: 0,
     totalTonnageKg: 0,

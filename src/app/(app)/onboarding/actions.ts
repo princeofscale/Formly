@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { createTemplate } from '@/lib/db/templates'
@@ -81,6 +82,10 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
       ),
     )
 
+    // Localized preset titles
+    const tPresets = await getTranslations('presets')
+    const programTitle = tPresets(`${program.id}.title`)
+
     for (const day of program.days) {
       const exercises: TemplateExercise[] = []
       for (const slug of day.slugs) {
@@ -90,7 +95,8 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
         }
       }
       if (exercises.length === 0) continue
-      const name = `${program.id} · ${day.id}`
+      const dayTitle = tPresets(day.titleKey)
+      const name = `${programTitle} · ${dayTitle}`
       try {
         await createTemplate(supabase, user.id, name, exercises)
       } catch {

@@ -25,6 +25,8 @@ import { GoalsTeaser } from '@/components/dashboard/GoalsTeaser'
 import { getGoalsWithProgress } from '@/lib/db/goals'
 import { FriendsTeaser } from '@/components/dashboard/FriendsTeaser'
 import { getFriendsWithStats } from '@/lib/db/friends'
+import { ActiveSessionBanner } from '@/components/dashboard/ActiveSessionBanner'
+import { getActiveSession } from '@/lib/db/workouts'
 import { repeatSessionAction } from '@/app/(app)/workout/new/actions'
 import { RotateCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
@@ -141,7 +143,7 @@ export default async function DashboardPage({
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
   const todayDate = new Date().toISOString().slice(0, 10)
-  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs, goals, friends] = await Promise.all([
+  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs, goals, friends, activeSession] = await Promise.all([
     getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
     getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
     getSleepForDate(supabase, user.id, todayDate),
@@ -150,7 +152,18 @@ export default async function DashboardPage({
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
     getGoalsWithProgress(supabase, user.id),
     getFriendsWithStats(supabase, 7),
+    getActiveSession(supabase, user.id),
   ])
+
+  // Count sets logged in the active session for the banner
+  let activeSessionSetCount = 0
+  if (activeSession) {
+    const { count } = await supabase
+      .from('set_entries')
+      .select('id', { count: 'exact', head: true })
+      .eq('session_id', activeSession.id)
+    activeSessionSetCount = count ?? 0
+  }
   const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
 
   const sleepWeekAvg = weekSleep.length > 0
@@ -205,6 +218,13 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-4 sm:space-y-5">
+      {activeSession && (
+        <ActiveSessionBanner
+          sessionId={activeSession.id}
+          startedAt={activeSession.started_at}
+          setCount={activeSessionSetCount}
+        />
+      )}
       <section className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-stretch">
         <div className="rounded-[28px] bg-card p-4 ring-1 ring-white/[0.06] sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex items-start justify-between gap-4">

@@ -53,12 +53,14 @@ export function WrappedView({ report }: Props) {
       <Card gradient="conic">
         <div className="flex flex-col items-center justify-center text-center py-4">
           <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/55">
-            {t('intro')}
+            {report.isInProgress ? t('introInProgress') : t('intro')}
           </span>
           <p className="mt-2 text-[80px] sm:text-[110px] leading-none font-extrabold tabular-nums" style={{ color: '#FFC044', textShadow: '0 6px 30px rgba(255,196,68,0.35)' }}>
             {report.year}
           </p>
-          <p className="mt-2 text-sm text-white/55 max-w-xs">{t('subtitle')}</p>
+          <p className="mt-2 text-sm text-white/55 max-w-xs">
+            {report.isInProgress ? t('subtitleInProgress') : t('subtitle')}
+          </p>
         </div>
       </Card>
 
