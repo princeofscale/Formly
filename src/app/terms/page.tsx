@@ -14,7 +14,7 @@ export const metadata = {
 }
 
 const LAST_UPDATED = '2026-05-21'
-const CONTACT = 'support@example.com'
+const CONTACT = 'test3huioblya@gmail.com'
 const OPERATOR = 'TrainingAR (independent developer)'
 const JURISDICTION_EN = 'Russian Federation'   // ← поменяй на свою юрисдикцию если нужно
 const JURISDICTION_RU = 'Российской Федерации'

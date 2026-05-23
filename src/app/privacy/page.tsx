@@ -15,7 +15,7 @@ export const metadata = {
 }
 
 const LAST_UPDATED = '2026-05-21'
-const CONTACT = 'support@example.com'        // ← поставь свой
+const CONTACT = 'test3huioblya@gmail.com'
 const OPERATOR = 'TrainingAR (independent developer)' // ← или ФИО
 
 export default async function PrivacyPage() {

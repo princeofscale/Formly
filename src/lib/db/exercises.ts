@@ -34,25 +34,19 @@ export async function searchExercises(
   supabase: SupabaseClient,
   userId: string,
   query: string,
-  locale: string = 'en'
+  // `locale` is accepted for back-compat but no longer gates search scope.
+  // We always search both name and name_ru — a user in EN locale typing a
+  // Russian gym term ("молотки") still gets the matching exercise.
+  _locale: string = 'en'
 ): Promise<Exercise[]> {
+  void _locale
   const q = sanitizeFilterTerm(normalizeYo(query))
   if (!q) return []
   const filter = `is_custom.eq.false,created_by.eq.${userId}`
-  if (locale === 'ru') {
-    const { data } = await supabase
-      .from('exercises')
-      .select('*')
-      .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%`)
-      .or(filter)
-      .order('name')
-      .limit(20)
-    return (data as Exercise[]) ?? []
-  }
   const { data } = await supabase
     .from('exercises')
     .select('*')
-    .ilike('name', `%${q}%`)
+    .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%`)
     .or(filter)
     .order('name')
     .limit(20)
