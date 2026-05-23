@@ -31,12 +31,18 @@ function isCronRoute(path: string): boolean {
   return path.startsWith('/api/cron/')
 }
 
+function isPublicApiRoute(path: string): boolean {
+  // Client-side error reporter — errors can happen on /login or /register
+  // before a session cookie exists, so we never gate it on auth.
+  return path === '/api/errors'
+}
+
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Cron routes authenticate via Bearer CRON_SECRET in the route handler.
   // The session check below would 401 them before they reach that handler.
-  if (isCronRoute(path)) return NextResponse.next({ request })
+  if (isCronRoute(path) || isPublicApiRoute(path)) return NextResponse.next({ request })
 
   let supabaseResponse = NextResponse.next({ request })
 

@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import { UpdateBanner } from '@/components/UpdateBanner'
+import { ClientErrorReporter } from '@/components/ClientErrorReporter'
 import { InstallPrompt } from '@/components/InstallPrompt'
 import './globals.css'
 
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <UpdateBanner />
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
+        <ClientErrorReporter />
       </body>
     </html>
   )
