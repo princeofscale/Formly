@@ -63,7 +63,18 @@ export default async function DashboardPage({
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, firstSessionResult] = await Promise.all([
+  const todayDate = new Date().toISOString().slice(0, 10)
+
+  // Single round-trip for the whole page. Both halves used to await separately,
+  // costing one full RTT (~100-200ms on 4G) just for the page to render.
+  // For brand-new users some of these queries return empty fast; the saved
+  // latency for existing users (the common case) is worth the small waste.
+  const [
+    sessionsResult, profileResult, weekResult, prevWeekResult, prResult,
+    initialInsights, workoutDates, firstSessionResult,
+    muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage,
+    recentPRs, goals, friends, activeSession,
+  ] = await Promise.all([
     supabase
       .from('workout_sessions')
       .select('id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km')
@@ -107,6 +118,15 @@ export default async function DashboardPage({
       .order('started_at', { ascending: true })
       .limit(1)
       .maybeSingle(),
+    getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
+    getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
+    getSleepForDate(supabase, user.id, todayDate),
+    getRecentSleep(supabase, user.id, 7),
+    getDailyTonnage(supabase, user.id, 84),
+    getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
+    getGoalsWithProgress(supabase, user.id),
+    getFriendsWithStats(supabase, 7),
+    getActiveSession(supabase, user.id),
   ])
 
   const sessions = sessionsResult.data ?? []
@@ -144,18 +164,6 @@ export default async function DashboardPage({
   const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
-  const todayDate = new Date().toISOString().slice(0, 10)
-  const [muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage, recentPRs, goals, friends, activeSession] = await Promise.all([
-    getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
-    getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
-    getSleepForDate(supabase, user.id, todayDate),
-    getRecentSleep(supabase, user.id, 7),
-    getDailyTonnage(supabase, user.id, 84),
-    getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
-    getGoalsWithProgress(supabase, user.id),
-    getFriendsWithStats(supabase, 7),
-    getActiveSession(supabase, user.id),
-  ])
 
   // Count sets logged in the active session for the banner
   let activeSessionSetCount = 0

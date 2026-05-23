@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  // Tree-shake icon barrel imports — without this Next.js may include all
+  // lucide-react icons even when each component imports only 2–3 of them.
+  // ~73 files import from lucide-react across this project.
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
 }
 
 export default withNextIntl(nextConfig)
