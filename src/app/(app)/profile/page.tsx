@@ -75,15 +75,26 @@ export default async function ProfilePage() {
   const initials = (user.email ?? 'GL').slice(0, 2).toUpperCase()
 
   return (
-    <div className="space-y-4 pb-4">
-      <section className="rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.18),transparent_36%),rgba(255,255,255,0.055)] p-5 shadow-2xl shadow-black/30">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-4 pb-4 sm:space-y-5">
+      {/* HERO — matches dashboard: bg-card + gradient blobs, primary-tinted
+          avatar instead of the old amber→red gradient. */}
+      <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+        />
+
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-amber-500 shadow-lg shadow-red-500/20">
-              <span className="text-xl font-black text-white">{initials}</span>
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary/15 ring-1 ring-primary/25">
+              <span className="font-mono text-xl font-black text-primary">{initials}</span>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-red-300/80">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
                 {t('overview')}
               </p>
               <h1 className="mt-1 text-3xl font-black uppercase tracking-wider sm:text-4xl">
@@ -94,18 +105,18 @@ export default async function ProfilePage() {
           </div>
 
           <div className="grid w-full grid-cols-3 gap-2 lg:w-auto lg:min-w-[360px]">
-            <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <Scale className="mb-2 h-4 w-4 text-red-300" />
+            <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+              <Scale className="mb-2 h-4 w-4 text-primary" />
               <p className="font-mono text-lg font-black">{displayMetric(p?.weight_kg, ` ${t('stats.weightUnit')}`)}</p>
               <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('form.weight')}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
+            <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
               <Ruler className="mb-2 h-4 w-4 text-amber-300" />
               <p className="font-mono text-lg font-black">{displayMetric(p?.height_cm, ` ${t('stats.heightUnit')}`)}</p>
               <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('form.height')}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/18 p-3">
-              <Dumbbell className="mb-2 h-4 w-4 text-red-300" />
+            <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
+              <Dumbbell className="mb-2 h-4 w-4 text-primary" />
               <p className="font-mono text-lg font-black">{trainingAge ?? '—'}</p>
               <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('stats.trainingAge')}</p>
             </div>
@@ -114,8 +125,8 @@ export default async function ProfilePage() {
       </section>
 
       <section className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">{t('stats.bmi')}</p>
+        <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('stats.bmi')}</p>
           <div className="mt-2 flex items-end justify-between gap-3">
             <span className="font-mono text-3xl font-black text-white">{bmi ? bmi.toFixed(1) : '—'}</span>
             {bmiCat && (
@@ -125,17 +136,17 @@ export default async function ProfilePage() {
             )}
           </div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">{t('stats.location')}</p>
+        <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('stats.location')}</p>
           <div className="mt-3 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-red-300" />
+            <MapPin className="h-5 w-5 text-primary" />
             <span className="text-xl font-black">
               {p?.training_location ? t(`locationDisplay.${p.training_location}`) : '—'}
             </span>
           </div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">{t('form.schedule')}</p>
+        <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('form.schedule')}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {dayKeys.map(d => {
               const active = (p?.training_schedule ?? []).includes(Number(d))
@@ -144,7 +155,7 @@ export default async function ProfilePage() {
                   key={d}
                   className={
                     active
-                      ? 'flex h-7 min-w-7 items-center justify-center rounded-lg bg-red-500 px-2 text-[10px] font-black text-white'
+                      ? 'flex h-7 min-w-7 items-center justify-center rounded-lg bg-primary px-2 text-[10px] font-black text-white'
                       : 'flex h-7 min-w-7 items-center justify-center rounded-lg bg-white/5 px-2 text-[10px] font-bold text-zinc-600'
                   }
                 >
@@ -156,10 +167,10 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <Card className="border-white/10 bg-white/[0.045]">
+      <Card className="bg-card ring-1 ring-white/[0.06] border-0">
         <CardHeader className="pb-0">
           <CardTitle className="flex items-center gap-2 text-sm font-black uppercase tracking-wider">
-            <UserRound className="h-4 w-4 text-red-300" />
+            <UserRound className="h-4 w-4 text-primary" />
             {t('form.editProfile')}
           </CardTitle>
         </CardHeader>
@@ -230,7 +241,7 @@ export default async function ProfilePage() {
       </Card>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <Card className="border-white/10 bg-white/[0.045]">
+        <Card className="bg-card ring-1 ring-white/[0.06] border-0">
           <CardContent className="pt-4">
             <LanguageSelector current={locale} label={t('language')} />
           </CardContent>
@@ -241,11 +252,11 @@ export default async function ProfilePage() {
       <a
         href="/api/export/csv"
         download
-        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition-colors hover:bg-white/[0.075]"
+        className="flex items-center justify-between rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.04]"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15">
-            <Download className="h-5 w-5 text-red-300" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15">
+            <Download className="h-5 w-5 text-primary" />
           </div>
           <div>
             <div className="text-sm font-black">{t('exportCsv')}</div>
@@ -255,7 +266,7 @@ export default async function ProfilePage() {
         <ChevronRight className="h-4 w-4 text-zinc-500" />
       </a>
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 p-3 sm:flex-row">
+      <section className="flex flex-col gap-3 rounded-[24px] bg-card p-3 ring-1 ring-white/[0.06] sm:flex-row">
         <form action={signOutAction} className="flex-1">
           <Button variant="ghost" type="submit" className="h-10 w-full justify-center gap-2 rounded-xl text-sm uppercase tracking-wider">
             <LogOut className="h-4 w-4" />

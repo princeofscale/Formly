@@ -114,6 +114,11 @@
   },
   "progress": {
     "title": "Progress",
+    "eyebrow": "Progress",
+    "bestE1rmLabel": "Best 1RM",
+    "achievementsLabel": "Achievements",
+    "unlocked": "unlocked",
+    "bodyweightLabel": "Bodyweight",
     "exerciseLabel": "Exercise",
     "periodLabel": "Period",
     "unit1rm": "kg",

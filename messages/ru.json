@@ -114,6 +114,11 @@
   },
   "progress": {
     "title": "Прогресс",
+    "eyebrow": "Прогресс",
+    "bestE1rmLabel": "Лучший 1ПМ",
+    "achievementsLabel": "Достижения",
+    "unlocked": "открыто",
+    "bodyweightLabel": "Вес тела",
     "exerciseLabel": "Упражнение",
     "periodLabel": "Период",
     "unit1rm": "кг",
