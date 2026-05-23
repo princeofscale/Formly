@@ -15,6 +15,13 @@ import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { checkGoalAchievement } from '@/lib/db/goals'
+import {
+  validateReps,
+  validateRpe,
+  validateSetNumber,
+  validateUuid,
+  validateWeightKg,
+} from '@/lib/utils/validators'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
 export async function saveSetAction(data: {
@@ -28,41 +35,48 @@ export async function saveSetAction(data: {
   const { user } = await verifySession()
   const supabase = await createClient()
 
+  const sessionId = validateUuid(data.sessionId, 'sessionId')
+  const exerciseId = validateUuid(data.exerciseId, 'exerciseId')
+  const setNumber = validateSetNumber(data.setNumber)
+  const weightKg = validateWeightKg(data.weightKg)
+  const reps = validateReps(data.reps)
+  const rpe = validateRpe(data.rpe)
+
   // 1RM is only meaningful for loaded sets. For pure bodyweight (weight=0) we skip it.
-  const calculated1rm = data.weightKg > 0 ? calculate1RM(data.weightKg, data.reps) : null
+  const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
 
   const set = await addSet(supabase, {
-    sessionId: data.sessionId,
+    sessionId,
     userId: user.id,
-    exerciseId: data.exerciseId,
-    setNumber: data.setNumber,
-    weightKg: data.weightKg,
-    reps: data.reps,
-    rpe: data.rpe,
+    exerciseId,
+    setNumber,
+    weightKg,
+    reps,
+    rpe,
     calculated1rm,
   })
 
   const prResult = calculated1rm != null
-    ? detectPRFromHistory(calculated1rm, await getBestE1RMForExercise(supabase, user.id, data.exerciseId, set.id))
+    ? detectPRFromHistory(calculated1rm, await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id))
     : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
 
   if (calculated1rm != null) {
     // Fire-and-forget goal-achievement update — never block the set save on it.
-    void checkGoalAchievement(supabase, user.id, data.exerciseId, calculated1rm)
+    void checkGoalAchievement(supabase, user.id, exerciseId, calculated1rm)
   }
 
   if (prResult.is_pr && calculated1rm != null) {
     const { data: ex } = await supabase
       .from('exercises')
       .select('name, name_ru')
-      .eq('id', data.exerciseId)
+      .eq('id', exerciseId)
       .maybeSingle()
     const exerciseName = ex?.name_ru ?? ex?.name ?? 'Упражнение'
     void notifyFriendsOfPR(supabase, {
       userId: user.id,
       exerciseName,
-      weightKg: data.weightKg,
-      reps: data.reps,
+      weightKg,
+      reps,
       e1rm: calculated1rm,
       improvementPct: prResult.improvement_pct,
     })
@@ -79,11 +93,15 @@ export async function updateSetAction(data: {
 }): Promise<{ set: SetEntry }> {
   const { user } = await verifySession()
   const supabase = await createClient()
-  const calculated1rm = data.weightKg > 0 ? calculate1RM(data.weightKg, data.reps) : null
-  const set = await updateSet(supabase, data.setId, user.id, {
-    weightKg: data.weightKg,
-    reps: data.reps,
-    rpe: data.rpe ?? null,
+  const setId = validateUuid(data.setId, 'setId')
+  const weightKg = validateWeightKg(data.weightKg)
+  const reps = validateReps(data.reps)
+  const rpe = validateRpe(data.rpe)
+  const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
+  const set = await updateSet(supabase, setId, user.id, {
+    weightKg,
+    reps,
+    rpe: rpe ?? null,
     calculated1rm,
   })
   return { set }
@@ -92,7 +110,8 @@ export async function updateSetAction(data: {
 export async function deleteSetAction(setId: string): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
-  await deleteSet(supabase, setId, user.id)
+  const id = validateUuid(setId, 'setId')
+  await deleteSet(supabase, id, user.id)
 }
 
 export async function searchExercisesAction(query: string, locale: string = 'en'): Promise<Exercise[]> {

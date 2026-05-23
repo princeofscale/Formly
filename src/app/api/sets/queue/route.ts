@@ -11,6 +11,14 @@ import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { checkGoalAchievement } from '@/lib/db/goals'
+import {
+  ValidationError,
+  validateReps,
+  validateRpe,
+  validateSetNumber,
+  validateUuid,
+  validateWeightKg,
+} from '@/lib/utils/validators'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,26 +42,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  if (
-    !body.sessionId ||
-    !body.exerciseId ||
-    !Number.isFinite(body.weightKg) ||
-    !Number.isFinite(body.reps) ||
-    !Number.isFinite(body.setNumber)
-  ) {
-    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+  let sessionId: string
+  let exerciseId: string
+  let setNumber: number
+  let weightKg: number
+  let reps: number
+  let rpe: number | undefined
+  try {
+    sessionId = validateUuid(body.sessionId, 'sessionId')
+    exerciseId = validateUuid(body.exerciseId, 'exerciseId')
+    setNumber = validateSetNumber(body.setNumber)
+    weightKg = validateWeightKg(body.weightKg)
+    reps = validateReps(body.reps)
+    rpe = validateRpe(body.rpe)
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      return NextResponse.json({ error: err.message }, { status: 400 })
+    }
+    throw err
   }
 
-  const calculated1rm = body.weightKg > 0 ? calculate1RM(body.weightKg, body.reps) : null
+  const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
 
   const set = await addSet(supabase, {
-    sessionId: body.sessionId,
+    sessionId,
     userId: user.id,
-    exerciseId: body.exerciseId,
-    setNumber: body.setNumber,
-    weightKg: body.weightKg,
-    reps: body.reps,
-    rpe: body.rpe,
+    exerciseId,
+    setNumber,
+    weightKg,
+    reps,
+    rpe,
     calculated1rm,
   })
 
@@ -61,26 +79,26 @@ export async function POST(request: Request) {
     calculated1rm != null
       ? detectPRFromHistory(
           calculated1rm,
-          await getBestE1RMForExercise(supabase, user.id, body.exerciseId, set.id),
+          await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id),
         )
       : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
 
   if (calculated1rm != null) {
-    void checkGoalAchievement(supabase, user.id, body.exerciseId, calculated1rm)
+    void checkGoalAchievement(supabase, user.id, exerciseId, calculated1rm)
   }
 
   if (prResult.is_pr && calculated1rm != null) {
     const { data: ex } = await supabase
       .from('exercises')
       .select('name, name_ru')
-      .eq('id', body.exerciseId)
+      .eq('id', exerciseId)
       .maybeSingle()
     const exerciseName = ex?.name_ru ?? ex?.name ?? 'Упражнение'
     void notifyFriendsOfPR(supabase, {
       userId: user.id,
       exerciseName,
-      weightKg: body.weightKg,
-      reps: body.reps,
+      weightKg,
+      reps,
       e1rm: calculated1rm,
       improvementPct: prResult.improvement_pct,
     })
