@@ -3,6 +3,8 @@
 import { useState, useTransition, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
+import { calculate1RM } from '@/lib/utils/one-rep-max'
+import { enqueueSet } from '@/lib/utils/offline-queue'
 import type { SetEntry, PRResult } from '@/lib/types/models'
 import { PlateCalculator } from './PlateCalculator'
 
@@ -145,13 +147,41 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
     if (!isBodyweight && !weightToSave) return
     const rpeVal = rpe ? Math.max(1, Math.min(10, parseFloat(rpe))) : undefined
     startTransition(async () => {
-      const { set, prResult } = await saveSetAction({
+      const payload = {
         sessionId, exerciseId, setNumber,
         weightKg: weightToSave, reps: r,
         rpe: rpeVal,
-      })
-      if (typeof window !== 'undefined') window.localStorage.removeItem(draftKey)
-      onSaved(set, prResult)
+      }
+      try {
+        const { set, prResult } = await saveSetAction(payload)
+        if (typeof window !== 'undefined') window.localStorage.removeItem(draftKey)
+        onSaved(set, prResult)
+      } catch (err) {
+        const offlineSignal =
+          (typeof navigator !== 'undefined' && !navigator.onLine) ||
+          (err instanceof TypeError && /fetch|network/i.test(err.message))
+        if (!offlineSignal) throw err
+        const queueId = await enqueueSet(payload)
+        const calc1rm = weightToSave > 0 ? calculate1RM(weightToSave, r) : null
+        const syntheticSet: SetEntry = {
+          id: `offline_${queueId}`,
+          session_id: sessionId,
+          user_id: '',
+          exercise_id: exerciseId,
+          set_number: setNumber,
+          weight_kg: weightToSave,
+          reps: r,
+          rpe: rpeVal ?? null,
+          calculated_1rm: calc1rm,
+          rest_seconds: null,
+          created_at: new Date().toISOString(),
+        }
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(draftKey)
+          window.dispatchEvent(new CustomEvent('trainingar:set-queued'))
+        }
+        onSaved(syntheticSet, { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null })
+      }
     })
   }
 

@@ -237,6 +237,11 @@
     "iosInstructions": "On iPhone: open the share menu",
     "iosShareHint": "Share → Add to Home Screen"
   },
+  "offline": {
+    "syncing": "Syncing {n} sets…",
+    "offline": "{n} sets offline",
+    "pending": "{n} sets queued"
+  },
   "notifications": {
     "title": "Notifications",
     "subOn": "Receiving training reminders",

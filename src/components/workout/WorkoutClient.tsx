@@ -7,6 +7,7 @@ import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
 import { PRCelebration, type PRCelebrationData } from './PRCelebration'
+import { OfflineSyncWatcher } from './OfflineSyncWatcher'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
@@ -225,6 +226,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       )}
 
       <PRCelebration pr={prCelebration} onDone={() => setPrCelebration(null)} />
+      <OfflineSyncWatcher />
     </div>
   )
 }

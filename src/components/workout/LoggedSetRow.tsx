@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Check, Trash2, X, Pencil } from 'lucide-react'
+import { Check, Trash2, X, Pencil, CloudUpload } from 'lucide-react'
 import { updateSetAction, deleteSetAction } from '@/app/(app)/workout/[id]/actions'
 import type { SetEntry } from '@/lib/types/models'
 
@@ -34,12 +34,42 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
   const touchStartYRef = useRef<number | null>(null)
   const cancelledRef = useRef(false)
 
+  const isOffline = set.id.startsWith('offline_')
+
   // Reset draft fields if set prop changes externally
   useEffect(() => {
     setWeight(String(set.weight_kg))
     setReps(String(set.reps))
     setRpe(set.rpe != null ? String(set.rpe) : '')
   }, [set.id, set.weight_kg, set.reps, set.rpe])
+
+  if (isOffline) {
+    return (
+      <div className={`flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] text-sm opacity-60 ${
+        isLast ? 'border-l-2 border-amber-400/60 pl-2' : ''
+      }`}
+        style={{ background: 'rgba(255, 196, 68, 0.04)' }}
+        title="Set queued offline — syncs when back online"
+      >
+        <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
+        <span className={`font-mono font-bold ${isLast ? 'text-zinc-200' : 'text-zinc-500'}`}>
+          {isBodyweight && set.weight_kg === 0 ? (
+            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>BW</span>
+          ) : isBodyweight && set.weight_kg > 0 ? (
+            <>+{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+          ) : (
+            <>{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+          )}
+          <span className="text-zinc-700 mx-1.5">×</span>
+          {set.reps}
+        </span>
+        {set.rpe != null && (
+          <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
+        )}
+        <CloudUpload className="h-3.5 w-3.5 ml-auto flex-shrink-0 animate-pulse text-amber-300" />
+      </div>
+    )
+  }
 
   function handleTouchStart(e: React.TouchEvent) {
     if (editing) return
