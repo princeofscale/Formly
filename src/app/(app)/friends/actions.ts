@@ -3,10 +3,18 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { addFriend, findUserByFriendCode, removeFriend } from '@/lib/db/friends'
+import {
+  acceptFriendRequest,
+  addFriend,
+  declineFriendRequest,
+  findUserByFriendCode,
+  removeFriend,
+} from '@/lib/db/friends'
+import { notifyFriendRequest } from '@/lib/services/friend-request-notifications.service'
 
 export interface AddFriendResult {
   ok: boolean
+  /** ok=true → request was created (pending), waiting for the other side. */
   errorKey?: 'invalid' | 'notFound' | 'self' | 'already' | 'unknown'
 }
 
@@ -33,9 +41,41 @@ export async function addFriendAction(formData: FormData): Promise<AddFriendResu
     }
   }
 
+  // Look up requester's own code so the push body can show "Код XXXXX хочет ..."
+  const { data: me } = await supabase
+    .from('profiles')
+    .select('friend_code')
+    .eq('id', user.id)
+    .maybeSingle()
+  void notifyFriendRequest(supabase, {
+    recipientUserId: other.id,
+    requesterCode: (me?.friend_code as string | null) ?? null,
+  })
+
   revalidatePath('/friends')
   revalidatePath('/dashboard')
   return { ok: true }
+}
+
+export async function acceptFriendRequestAction(formData: FormData): Promise<void> {
+  const { user: _user } = await verifySession()
+  void _user
+  const supabase = await createClient()
+  const friendshipId = formData.get('friendshipId')?.toString()
+  if (!friendshipId) return
+  await acceptFriendRequest(supabase, friendshipId)
+  revalidatePath('/friends')
+  revalidatePath('/dashboard')
+}
+
+export async function declineFriendRequestAction(formData: FormData): Promise<void> {
+  const { user: _user } = await verifySession()
+  void _user
+  const supabase = await createClient()
+  const friendshipId = formData.get('friendshipId')?.toString()
+  if (!friendshipId) return
+  await declineFriendRequest(supabase, friendshipId)
+  revalidatePath('/friends')
 }
 
 export async function removeFriendAction(formData: FormData): Promise<void> {

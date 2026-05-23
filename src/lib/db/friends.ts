@@ -44,6 +44,13 @@ export async function getFriendsWithStats(
   return (data as FriendWithStats[]) ?? []
 }
 
+export interface PendingFriendRequest {
+  friendship_id: string
+  requester_id: string
+  requester_code: string | null
+  created_at: string
+}
+
 export async function addFriend(
   supabase: SupabaseClient,
   myUserId: string,
@@ -54,13 +61,49 @@ export async function addFriend(
   const [user_a, user_b] = myUserId < otherUserId ? [myUserId, otherUserId] : [otherUserId, myUserId]
   const { error } = await supabase
     .from('friendships')
-    .insert({ user_a, user_b })
+    .insert({ user_a, user_b, status: 'pending', requested_by: myUserId })
   if (error) {
-    // unique_violation = already friends
+    // unique_violation = already friends or pending request already exists
     if (error.code === '23505') return { ok: false, error: 'already' }
     return { ok: false, error: error.message }
   }
   return { ok: true }
+}
+
+export async function getPendingFriendRequests(
+  supabase: SupabaseClient,
+): Promise<PendingFriendRequest[]> {
+  const { data, error } = await supabase.rpc('get_pending_friend_requests')
+  if (error) {
+    console.error('getPendingFriendRequests failed:', error.message)
+    return []
+  }
+  return (data as PendingFriendRequest[]) ?? []
+}
+
+export async function acceptFriendRequest(
+  supabase: SupabaseClient,
+  friendshipId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase
+    .from('friendships')
+    .update({ status: 'accepted' })
+    .eq('id', friendshipId)
+    .eq('status', 'pending')
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+export async function declineFriendRequest(
+  supabase: SupabaseClient,
+  friendshipId: string,
+): Promise<void> {
+  // Decline = delete the pending row. Both parties can DELETE per existing RLS.
+  await supabase
+    .from('friendships')
+    .delete()
+    .eq('id', friendshipId)
+    .eq('status', 'pending')
 }
 
 export async function getFriendIds(
@@ -71,6 +114,7 @@ export async function getFriendIds(
     .from('friendships')
     .select('user_a, user_b')
     .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+    .eq('status', 'accepted')
   if (error) {
     console.error('getFriendIds failed:', error.message)
     return []

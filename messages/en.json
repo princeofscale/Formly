@@ -794,7 +794,11 @@
     "addLabel": "Add a friend by code",
     "add": "Add",
     "remove": "Remove",
-    "addSuccess": "Added — they're on your dashboard now.",
+    "addSuccess": "Request sent — waiting for them to accept.",
+    "requestsTitle": "Pending requests ({n})",
+    "wantsToAdd": "wants to add you",
+    "accept": "Accept",
+    "decline": "Decline",
     "addError": {
       "invalid": "Code must be 6 characters.",
       "notFound": "No one with that code.",

@@ -3,19 +3,21 @@ import { ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
-import { ensureFriendCode, getFriendsWithStats } from '@/lib/db/friends'
+import { ensureFriendCode, getFriendsWithStats, getPendingFriendRequests } from '@/lib/db/friends'
 import { MyCodeCard } from '@/components/friends/MyCodeCard'
 import { AddFriendForm } from '@/components/friends/AddFriendForm'
 import { FriendList } from '@/components/friends/FriendList'
+import { FriendRequestList } from '@/components/friends/FriendRequestList'
 
 export default async function FriendsPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('friends')
 
-  const [myCode, friends] = await Promise.all([
+  const [myCode, friends, pending] = await Promise.all([
     ensureFriendCode(supabase),
     getFriendsWithStats(supabase, 7),
+    getPendingFriendRequests(supabase),
   ])
 
   return (
@@ -33,6 +35,8 @@ export default async function FriendsPage() {
       <MyCodeCard code={myCode ?? '······'} />
 
       <AddFriendForm />
+
+      <FriendRequestList requests={pending} />
 
       <h2 className="pt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
         {t('listTitle', { n: friends.length })}
