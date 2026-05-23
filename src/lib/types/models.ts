@@ -38,6 +38,10 @@ export interface Exercise {
   image_urls?: string[]
 }
 
+export type CardioActivity =
+  | 'running' | 'cycling' | 'walking' | 'swimming'
+  | 'rowing' | 'elliptical' | 'hiit' | 'other'
+
 export interface WorkoutSession {
   id: string
   user_id: string
@@ -46,6 +50,12 @@ export interface WorkoutSession {
   notes: string | null
   mood_score: number | null
   total_volume_kg: number
+  session_type?: 'strength' | 'cardio'
+  cardio_activity?: CardioActivity | null
+  cardio_duration_seconds?: number | null
+  cardio_distance_km?: number | null
+  cardio_avg_hr?: number | null
+  cardio_calories?: number | null
 }
 
 export interface SetEntry {

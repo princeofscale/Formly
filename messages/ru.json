@@ -462,6 +462,10 @@
   },
   "history": {
     "title": "История",
+    "eyebrow": "Тренировки",
+    "totalSessions": "тренировок",
+    "totalTonnage": "Тоннаж",
+    "avgPerSession": "Среднее",
     "noWorkouts": "Нет завершённых тренировок.",
     "volume": "кг объём",
     "minutes": "мин",

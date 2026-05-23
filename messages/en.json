@@ -461,6 +461,10 @@
     }
   },
   "history": {
+    "eyebrow": "Workouts",
+    "totalSessions": "sessions",
+    "totalTonnage": "Tonnage",
+    "avgPerSession": "Avg",
     "title": "History",
     "noWorkouts": "No finished workouts yet.",
     "volume": "kg total",
