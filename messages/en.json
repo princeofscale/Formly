@@ -807,6 +807,7 @@
       "tonnage": "Tonnage",
       "bestE1rm": "Best 1RM"
     },
+    "inGym": "In gym now",
     "myCode": {
       "label": "Your code",
       "subtitle": "Share this 6-char code so a friend can add you.",

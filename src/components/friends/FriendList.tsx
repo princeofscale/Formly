@@ -33,8 +33,9 @@ export function FriendList({ friends }: Props) {
     )
   }
 
-  // Most recently active first
+  // In-gym friends always float to the top, then most recently active.
   const sorted = [...friends].sort((a, b) => {
+    if (a.is_in_gym !== b.is_in_gym) return a.is_in_gym ? -1 : 1
     const at = a.last_workout_at ? new Date(a.last_workout_at).getTime() : 0
     const bt = b.last_workout_at ? new Date(b.last_workout_at).getTime() : 0
     return bt - at
@@ -52,26 +53,48 @@ export function FriendList({ friends }: Props) {
           : lastDays === 1 ? t('yesterday')
           : t('daysAgo', { n: lastDays })
 
-        const dotColor = isHot ? '#22D3A8' : isCold ? '#FF6E76' : '#FFC044'
+        const baseDotColor = isHot ? '#22D3A8' : isCold ? '#FF6E76' : '#FFC044'
+        const dotColor = f.is_in_gym ? '#22D3A8' : baseDotColor
 
         return (
           <div
             key={f.friend_id}
             className="rounded-2xl p-4"
-            style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{
+              background: '#15151C',
+              border: f.is_in_gym
+                ? '1px solid rgba(34, 211, 168, 0.45)'
+                : '1px solid rgba(255,255,255,0.06)',
+              boxShadow: f.is_in_gym ? '0 0 0 1px rgba(34, 211, 168, 0.15) inset' : undefined,
+            }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div
-                className="h-10 w-10 rounded-full flex items-center justify-center font-mono font-extrabold text-sm"
-                style={{ background: `${dotColor}1F`, color: dotColor }}
-              >
-                {(f.friend_code ?? '??').slice(0, 2)}
+              <div className="relative">
+                <div
+                  className="h-10 w-10 rounded-full flex items-center justify-center font-mono font-extrabold text-sm"
+                  style={{ background: `${dotColor}1F`, color: dotColor }}
+                >
+                  {(f.friend_code ?? '??').slice(0, 2)}
+                </div>
+                {f.is_in_gym && (
+                  <span
+                    className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full ring-2 ring-[#15151C] animate-pulse"
+                    style={{ background: '#22D3A8' }}
+                    aria-label={t('inGym')}
+                  />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white font-mono tabular-nums">
                   {f.friend_code ?? '······'}
                 </p>
-                <p className="text-[11px]" style={{ color: dotColor }}>{lastLabel}</p>
+                {f.is_in_gym ? (
+                  <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#22D3A8' }}>
+                    {t('inGym')}
+                  </p>
+                ) : (
+                  <p className="text-[11px]" style={{ color: dotColor }}>{lastLabel}</p>
+                )}
               </div>
               <form action={removeFriendAction}>
                 <input type="hidden" name="friendId" value={f.friend_id} />

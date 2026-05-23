@@ -46,8 +46,10 @@ export function FriendsTeaser({ friends }: Props) {
     )
   }
 
+  const inGymCount = friends.filter(f => f.is_in_gym).length
   const sorted = [...friends]
     .sort((a, b) => {
+      if (a.is_in_gym !== b.is_in_gym) return a.is_in_gym ? -1 : 1
       const at = a.last_workout_at ? new Date(a.last_workout_at).getTime() : 0
       const bt = b.last_workout_at ? new Date(b.last_workout_at).getTime() : 0
       return bt - at
@@ -75,7 +77,21 @@ export function FriendsTeaser({ friends }: Props) {
             <p className="text-sm font-bold text-white">{t('teaserTitle', { n: friends.length })}</p>
           </div>
         </div>
-        <ChevronRight className="h-4 w-4 text-zinc-600" />
+        <div className="flex items-center gap-2">
+          {inGymCount > 0 && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+              style={{ background: 'rgba(34, 211, 168, 0.12)', color: '#22D3A8' }}
+            >
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full animate-pulse"
+                style={{ background: '#22D3A8' }}
+              />
+              {inGymCount} {t('inGym')}
+            </span>
+          )}
+          <ChevronRight className="h-4 w-4 text-zinc-600" />
+        </div>
       </div>
 
       <div className="space-y-1.5">
@@ -83,7 +99,8 @@ export function FriendsTeaser({ friends }: Props) {
           const d = daysAgo(f.last_workout_at)
           const isHot = d != null && d <= 2
           const isCold = d != null && d >= 7
-          const dot = isHot ? '#22D3A8' : isCold ? '#FF6E76' : '#FFC044'
+          const baseDot = isHot ? '#22D3A8' : isCold ? '#FF6E76' : '#FFC044'
+          const dot = f.is_in_gym ? '#22D3A8' : baseDot
           const lastLabel = d == null
             ? t('neverTrained')
             : d === 0 ? t('today')
@@ -92,11 +109,14 @@ export function FriendsTeaser({ friends }: Props) {
           return (
             <div key={f.friend_id} className="flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${f.is_in_gym ? 'animate-pulse' : ''}`}
+                  style={{ background: dot }}
+                />
                 <span className="font-mono font-bold text-white truncate">{f.friend_code ?? '······'}</span>
               </div>
               <span className="shrink-0 tabular-nums text-white/55">
-                <span style={{ color: dot }}>{lastLabel}</span>
+                <span style={{ color: dot }}>{f.is_in_gym ? t('inGym') : lastLabel}</span>
                 <span className="text-white/30 mx-2">·</span>
                 {Math.round(f.week_tonnage_kg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} kg
               </span>
