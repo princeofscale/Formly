@@ -45,8 +45,11 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
     : exercise.instructions_en
   const isBodyweight = exercise.equipment === 'bodyweight'
 
-  // Only suggest before the first set of this workout (after that, the user is mid-session)
-  const suggestion = !isBodyweight && sets.length === 0 ? suggestNextSet(lastSets) : null
+  // Before the first set use the prior session's data; once the user has logged
+  // a set this session, base the suggestion on what they just did (RPE/reps
+  // from the freshest set drive the next-set delta).
+  const setsForSuggestion = sets.length > 0 ? sets : lastSets
+  const suggestion = !isBodyweight && setsForSuggestion.length > 0 ? suggestNextSet(setsForSuggestion) : null
 
   function handleSetSaved(set: SetEntry, prResult: PRResult) {
     setSets(prev => [...prev, set])
