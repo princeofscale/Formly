@@ -3,6 +3,7 @@ import { Manrope } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
+import { UpdateBanner } from '@/components/UpdateBanner'
 import { InstallPrompt } from '@/components/InstallPrompt'
 import './globals.css'
 
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider messages={messages}>
           {children}
           <InstallPrompt />
+          <UpdateBanner />
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
       </body>

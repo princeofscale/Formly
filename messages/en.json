@@ -242,6 +242,10 @@
     "offline": "{n} sets offline",
     "pending": "{n} sets queued"
   },
+  "updateBanner": {
+    "available": "New version",
+    "reload": "Reload"
+  },
   "notifications": {
     "title": "Notifications",
     "subOn": "Receiving training reminders",
