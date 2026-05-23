@@ -7,6 +7,7 @@ import {
   acceptFriendRequest,
   addFriend,
   declineFriendRequest,
+  ensureFriendCode,
   findUserByFriendCode,
   removeFriend,
 } from '@/lib/db/friends'
@@ -41,15 +42,12 @@ export async function addFriendAction(formData: FormData): Promise<AddFriendResu
     }
   }
 
-  // Look up requester's own code so the push body can show "Код XXXXX хочет ..."
-  const { data: me } = await supabase
-    .from('profiles')
-    .select('friend_code')
-    .eq('id', user.id)
-    .maybeSingle()
+  // ensureFriendCode is idempotent and returns the caller's own code,
+  // so the push body can show "Код XXXXX хочет тебя добавить".
+  const myCode = await ensureFriendCode(supabase)
   void notifyFriendRequest(supabase, {
     recipientUserId: other.id,
-    requesterCode: (me?.friend_code as string | null) ?? null,
+    requesterCode: myCode,
   })
 
   revalidatePath('/friends')
