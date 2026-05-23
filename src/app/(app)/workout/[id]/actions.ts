@@ -13,6 +13,7 @@ import { upsertExerciseNote } from '@/lib/db/exercise-notes'
 import { upsertExerciseVideo } from '@/lib/db/exercise-videos'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
+import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { checkGoalAchievement } from '@/lib/db/goals'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
 
@@ -48,6 +49,23 @@ export async function saveSetAction(data: {
   if (calculated1rm != null) {
     // Fire-and-forget goal-achievement update — never block the set save on it.
     void checkGoalAchievement(supabase, user.id, data.exerciseId, calculated1rm)
+  }
+
+  if (prResult.is_pr && calculated1rm != null) {
+    const { data: ex } = await supabase
+      .from('exercises')
+      .select('name, name_ru')
+      .eq('id', data.exerciseId)
+      .maybeSingle()
+    const exerciseName = ex?.name_ru ?? ex?.name ?? 'Упражнение'
+    void notifyFriendsOfPR(supabase, {
+      userId: user.id,
+      exerciseName,
+      weightKg: data.weightKg,
+      reps: data.reps,
+      e1rm: calculated1rm,
+      improvementPct: prResult.improvement_pct,
+    })
   }
 
   return { set, prResult }

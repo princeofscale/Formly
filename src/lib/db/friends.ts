@@ -62,6 +62,22 @@ export async function addFriend(
   return { ok: true }
 }
 
+export async function getFriendIds(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('friendships')
+    .select('user_a, user_b')
+    .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+  if (error) {
+    console.error('getFriendIds failed:', error.message)
+    return []
+  }
+  const rows = (data ?? []) as { user_a: string; user_b: string }[]
+  return rows.map(r => (r.user_a === userId ? r.user_b : r.user_a))
+}
+
 export async function removeFriend(
   supabase: SupabaseClient,
   myUserId: string,
