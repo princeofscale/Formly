@@ -1,7 +1,43 @@
+// Next.js 16 "proxy" (formerly known as middleware). Runs ahead of every
+// non-static request to verify the Supabase session and gate routes.
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const PUBLIC_EXACT = new Set<string>([
+  '/login',
+  '/register',
+  '/privacy',
+  '/terms',
+  '/manifest.webmanifest',
+  '/icon',
+  '/apple-icon',
+  '/favicon.ico',
+  '/sw.js',
+])
+
+function isAuthRoute(path: string): boolean {
+  return path === '/login' || path === '/register'
+}
+
+function isPublic(path: string): boolean {
+  if (PUBLIC_EXACT.has(path)) return true
+  if (path.startsWith('/login/') || path.startsWith('/register/')) return true
+  if (path.startsWith('/privacy/') || path.startsWith('/terms/')) return true
+  return false
+}
+
+function isCronRoute(path: string): boolean {
+  return path.startsWith('/api/cron/')
+}
+
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname
+
+  // Cron routes authenticate via Bearer CRON_SECRET in the route handler.
+  // The session check below would 401 them before they reach that handler.
+  if (isCronRoute(path)) return NextResponse.next({ request })
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -14,15 +50,15 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
+            request.cookies.set(name, value),
           )
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options),
           )
         },
       },
-    }
+    },
   )
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -31,18 +67,15 @@ export async function proxy(request: NextRequest) {
     console.error('[proxy] Supabase auth error:', authError.message)
   }
 
-  const path = request.nextUrl.pathname
-  const isAuthRoute = path.startsWith('/login') || path.startsWith('/register')
-
   if (!user && path.startsWith('/api/')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isPublic(path)) {
     return NextResponse.redirect(new URL('/login', request.nextUrl.origin))
   }
 
-  if (user && isAuthRoute) {
+  if (user && isAuthRoute(path)) {
     return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
   }
 
@@ -50,5 +83,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
 }
