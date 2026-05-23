@@ -8,7 +8,6 @@ import {
   MapPin,
   Ruler,
   Scale,
-  ShieldAlert,
   UserRound,
 } from 'lucide-react'
 import { signOutAction } from '@/app/(app)/actions'
@@ -18,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LanguageSelector } from '@/components/profile/LanguageSelector'
 import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
+import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
@@ -262,10 +262,7 @@ export default async function ProfilePage() {
             {t('signOut')}
           </Button>
         </form>
-        <Button variant="destructive" className="h-10 flex-1 justify-center gap-2 rounded-xl text-sm uppercase tracking-wider" disabled>
-          <ShieldAlert className="h-4 w-4" />
-          {t('deleteAccount')}
-        </Button>
+        <DeleteAccountButton />
       </section>
     </div>
   )

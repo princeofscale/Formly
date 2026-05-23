@@ -422,6 +422,8 @@
     "language": "Язык интерфейса",
     "signOut": "Выйти",
     "deleteAccount": "Удалить аккаунт",
+    "deleteAccountConfirm": "Точно удалить?",
+    "deleteAccountCancel": "Отмена",
     "exportCsv": "Экспорт данных",
     "exportCsvSub": "Скачай все тренировки в CSV",
     "bmiCat": {

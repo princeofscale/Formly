@@ -422,6 +422,8 @@
     "language": "Interface language",
     "signOut": "Sign out",
     "deleteAccount": "Delete account",
+    "deleteAccountConfirm": "Really delete?",
+    "deleteAccountCancel": "Cancel",
     "exportCsv": "Export data",
     "exportCsvSub": "Download all workouts as CSV",
     "bmiCat": {
