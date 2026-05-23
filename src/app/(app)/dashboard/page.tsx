@@ -6,7 +6,7 @@ import { Activity, ChevronDown, Dumbbell, Flame, Snowflake, Sparkles } from 'luc
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
-import { MuscleHeatmap3D as MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap3D'
+import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { getMuscleVolumeForDays } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
