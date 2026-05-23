@@ -23,13 +23,21 @@ function normalizeYo(s: string): string {
   return s.replace(/[ёЁ]/g, m => m === 'ё' ? 'е' : 'Е')
 }
 
+// PostgREST .or() parses commas as OR separators and parentheses as grouping;
+// % and \ are special inside ilike. Strip these so a malicious search term
+// can't escape its filter and inject extra conditions.
+export function sanitizeFilterTerm(s: string): string {
+  return s.replace(/[,()*\\%]/g, ' ').slice(0, 64).trim()
+}
+
 export async function searchExercises(
   supabase: SupabaseClient,
   userId: string,
   query: string,
   locale: string = 'en'
 ): Promise<Exercise[]> {
-  const q = normalizeYo(query)
+  const q = sanitizeFilterTerm(normalizeYo(query))
+  if (!q) return []
   const filter = `is_custom.eq.false,created_by.eq.${userId}`
   if (locale === 'ru') {
     const { data } = await supabase
