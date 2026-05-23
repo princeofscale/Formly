@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'GymLog',
-    short_name: 'GymLog',
+    name: 'TrainingAR',
+    short_name: 'TrainingAR',
     description: 'Track workouts, log progress, hit PRs',
     start_url: '/dashboard',
     display: 'standalone',

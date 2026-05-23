@@ -42,7 +42,7 @@ export async function sendTestPushAction(): Promise<{ sent: number; failed: numb
   }
 
   const results = await sendPushToMany(subs, {
-    title: 'GymLog',
+    title: 'TrainingAR',
     body: 'Уведомления работают. Время тренироваться!',
     url: '/dashboard',
   })

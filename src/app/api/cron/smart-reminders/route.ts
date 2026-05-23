@@ -128,7 +128,7 @@ export async function GET(request: Request) {
   }
 
   const payload = {
-    title: 'GymLog ⏰',
+    title: 'TrainingAR ⏰',
     body: 'Привычное время тренировки. Готов начать?',
     url: '/workout/new',
   }

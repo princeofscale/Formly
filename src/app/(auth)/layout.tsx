@@ -17,7 +17,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center">
             <Dumbbell className="h-4 w-4 text-white" />
           </div>
-          <span className="font-black text-xl tracking-wider">GYMLOG</span>
+          <span className="font-black text-xl tracking-wider">TRAININGAR</span>
         </div>
 
         <div className="space-y-10">
@@ -38,7 +38,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </div>
         </div>
 
-        <p className="text-xs text-zinc-700">© 2026 GymLog</p>
+        <p className="text-xs text-zinc-700">© 2026 TrainingAR</p>
       </div>
 
       {/* Right panel — form */}

@@ -9,11 +9,11 @@ import './globals.css'
 const manrope = Manrope({ subsets: ['latin', 'cyrillic'], weight: ['400', '500', '600', '700', '800'] })
 
 export const metadata: Metadata = {
-  title: 'GymLog',
+  title: 'TrainingAR',
   description: 'Track your training progress',
   appleWebApp: {
     capable: true,
-    title: 'GymLog',
+    title: 'TrainingAR',
     statusBarStyle: 'black-translucent',
   },
 }

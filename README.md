@@ -1,6 +1,6 @@
-# GymLog
+# TrainingAR
 
-GymLog is a bilingual workout tracker for logging training sessions, tracking progress, and getting AI coaching signals from recent workout data.
+TrainingAR is a bilingual workout tracker for logging training sessions, tracking progress, and getting AI coaching signals from recent workout data.
 
 ## Features
 
