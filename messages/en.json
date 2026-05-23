@@ -290,6 +290,11 @@
     "profileLink": "Profile",
     "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap.",
     "recordsLink": "Records",
+    "streakDaysLabel": "DAY STREAK",
+    "bestStreakShort": "Best: {n}",
+    "freezesShort": "{left}/{total} freezes",
+    "moreInsights": "More insights",
+    "moreInsightsSub": "Sleep · PRs · Friends · Muscles",
     "streakAtRiskTitle": "Streak {n} at risk!",
     "streakAtRiskSub": "Today is a training day — don't break the chain",
     "deload": {

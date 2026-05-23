@@ -290,6 +290,11 @@
     "profileLink": "Профиль",
     "logWorkoutsHeatmap": "Залогируй тренировки чтобы увидеть хитмап.",
     "recordsLink": "Рекорды",
+    "streakDaysLabel": "ПОДРЯД",
+    "bestStreakShort": "Рекорд: {n}",
+    "freezesShort": "{left}/{total} заморозок",
+    "moreInsights": "Подробная аналитика",
+    "moreInsightsSub": "Сон · Рекорды · Друзья · Мышцы",
     "streakAtRiskTitle": "Стрик {n} под угрозой!",
     "streakAtRiskSub": "Сегодня тренировочный день — не разрывай серию",
     "deload": {

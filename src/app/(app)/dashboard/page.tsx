@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Activity, Dumbbell, Flame, Sparkles } from 'lucide-react'
+import { Activity, ChevronDown, Dumbbell, Flame, Snowflake, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
@@ -11,9 +11,8 @@ import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { getMuscleVolumeForDays } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
 import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
-import { getFinishedSessionDates, getCalendarActivity } from '@/lib/db/streak'
+import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
-import { StreakCard } from '@/components/dashboard/StreakCard'
 import { DeloadBanner } from '@/components/dashboard/DeloadBanner'
 import { WeakPointsCard } from '@/components/dashboard/WeakPointsCard'
 import { detectWeakPoints } from '@/lib/services/weak-points.service'
@@ -64,7 +63,7 @@ export default async function DashboardPage({
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, calendarActivity, firstSessionResult] = await Promise.all([
+  const [sessionsResult, profileResult, weekResult, prevWeekResult, prResult, initialInsights, workoutDates, firstSessionResult] = await Promise.all([
     supabase
       .from('workout_sessions')
       .select('id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km')
@@ -100,7 +99,6 @@ export default async function DashboardPage({
       .maybeSingle(),
     getTodayInsights(supabase, user.id),
     getFinishedSessionDates(supabase, user.id),
-    getCalendarActivity(supabase, user.id),
     supabase
       .from('workout_sessions')
       .select('started_at')
@@ -128,6 +126,10 @@ export default async function DashboardPage({
   }
 
   const streakInfo = calculateStreak(workoutDates, schedule, new Date(), STREAK_FREEZES_PER_MONTH)
+  const freezesPerMonth = streakInfo.freezes_per_month ?? 0
+  const freezesUsed = streakInfo.freezes_used_this_month ?? 0
+  const freezesLeft = Math.max(0, freezesPerMonth - freezesUsed)
+  const showFreeze = freezesPerMonth > 0
 
   // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
   const now = new Date()
@@ -225,24 +227,69 @@ export default async function DashboardPage({
           setCount={activeSessionSetCount}
         />
       )}
-      <section className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-stretch">
-        <div className="rounded-[28px] bg-card p-4 ring-1 ring-white/[0.06] sm:p-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+
+        <div className="relative">
           <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-                {t('overview')}
-              </p>
-              <h1 className="mt-1 text-[28px] font-extrabold leading-none tracking-tight sm:text-4xl">
-                {t('title')}
-              </h1>
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+              {t('overview')}
+            </p>
             <Link
               href="/workout/new"
-              className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98]"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98]"
             >
               <Dumbbell className="h-4 w-4" />
               {t('startWorkout')}
             </Link>
+          </div>
+
+          <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary/15 ring-1 ring-primary/25">
+                <Flame className="h-8 w-8 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-mono text-[68px] font-black leading-[0.9] text-primary tabular-nums sm:text-[80px]">
+                  {streakInfo.current}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/55">
+                    {t('streakDaysLabel')}
+                  </span>
+                  <span className="text-[11px] uppercase tracking-widest text-white/35 tabular-nums">
+                    {t('bestStreakShort', { n: streakInfo.longest })}
+                  </span>
+                  {showFreeze && (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-bold tabular-nums"
+                      style={{
+                        background: freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
+                        border: freezesLeft > 0 ? '1px solid rgba(94,234,212,0.28)' : '1px solid rgba(255,255,255,0.06)',
+                        color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
+                      }}
+                    >
+                      <Snowflake className="h-3 w-3" />
+                      {t('freezesShort', { left: freezesLeft, total: freezesPerMonth })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <ScheduleStatus
+                schedule={schedule}
+                labels={{
+                  trainingDay: t('today.trainingDay'),
+                  restDay: t('today.restDay'),
+                  next: t('today.next'),
+                  noSchedule: t('today.noSchedule'),
+                  days: dayLabels,
+                }}
+              />
+            </div>
           </div>
 
           {streakAtRisk && (
@@ -275,20 +322,6 @@ export default async function DashboardPage({
               }}
             />
           </div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <StreakCard streak={streakInfo} activity={calendarActivity} />
-          <ScheduleStatus
-            schedule={schedule}
-            labels={{
-              trainingDay: t('today.trainingDay'),
-              restDay: t('today.restDay'),
-              next: t('today.next'),
-              noSchedule: t('today.noSchedule'),
-              days: dayLabels,
-            }}
-          />
         </div>
       </section>
 
@@ -374,7 +407,21 @@ export default async function DashboardPage({
         <AIInsightsCard initialInsights={initialInsights} />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200">
+      <details className="group rounded-[28px] bg-card ring-1 ring-white/[0.06] animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200 open:bg-card/95">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 marker:hidden [&::-webkit-details-marker]:hidden">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-bold">{t('moreInsights')}</div>
+              <div className="truncate text-xs text-white/45">{t('moreInsightsSub')}</div>
+            </div>
+          </div>
+          <ChevronDown className="h-5 w-5 shrink-0 text-white/40 transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="space-y-4 border-t border-white/[0.06] p-5">
+      <section className="grid gap-4 lg:grid-cols-2">
         <SleepCard
           todayDate={todayDate}
           todayHours={todaySleep?.hours ?? null}
@@ -454,6 +501,8 @@ export default async function DashboardPage({
           />
         </CardContent>
       </Card>
+        </div>
+      </details>
 
       <Link
         href="/wrapped"
