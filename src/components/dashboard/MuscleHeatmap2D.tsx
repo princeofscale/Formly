@@ -3,38 +3,18 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import type { MuscleGroup, MuscleVolume } from '@/lib/types/models'
+import {
+  MUSCLE_GROUPS_ORDERED as MUSCLE_GROUPS,
+  colorForSets as colorFor,
+  opacityForSets as opacityFor,
+  volumeFor,
+} from '@/lib/utils/muscle-heat'
 
 const PERIODS = ['7d', '30d', '90d'] as const
 type MusclePeriod = typeof PERIODS[number]
 
-const MUSCLE_GROUPS: MuscleGroup[] = [
-  'chest', 'back', 'lats', 'traps',
-  'front_delts', 'side_delts', 'rear_delts',
-  'biceps', 'triceps', 'forearms',
-  'core', 'quads', 'hamstrings', 'glutes', 'calves',
-]
-
 const FRONT_MUSCLES: MuscleGroup[] = ['front_delts', 'chest', 'biceps', 'forearms', 'core', 'quads', 'calves']
 const BACK_MUSCLES: MuscleGroup[] = ['rear_delts', 'traps', 'back', 'lats', 'triceps', 'forearms', 'glutes', 'hamstrings', 'calves']
-
-const HEAT = ['#272733', '#451F25', '#723036', '#B63C45', '#FF3B47', '#FF7A82']
-
-function volumeFor(muscle: MuscleGroup, volumes: MuscleVolume[]): number {
-  return volumes.find(mv => mv.muscle === muscle)?.total_sets ?? 0
-}
-
-function colorFor(sets: number): string {
-  if (sets <= 0) return HEAT[0]
-  if (sets <= 2) return HEAT[1]
-  if (sets <= 5) return HEAT[2]
-  if (sets <= 9) return HEAT[3]
-  if (sets <= 14) return HEAT[4]
-  return HEAT[5]
-}
-
-function opacityFor(sets: number): number {
-  return sets <= 0 ? 0.68 : 1
-}
 
 function BodyMap({
   side,
@@ -157,7 +137,7 @@ function BodyMap({
   )
 }
 
-interface Props {
+export interface MuscleHeatmapProps {
   muscleVolumes: MuscleVolume[]
   currentPeriod: string
   periodLabels: Record<MusclePeriod, string>
@@ -166,14 +146,14 @@ interface Props {
   setsLabel: string
 }
 
-export function MuscleHeatmap({
+export function MuscleHeatmap2D({
   muscleVolumes,
   currentPeriod,
   periodLabels,
   muscleLabels,
   clickHint,
   setsLabel,
-}: Props) {
+}: MuscleHeatmapProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selected, setSelected] = useState<MuscleGroup | null>(null)
