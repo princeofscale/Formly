@@ -59,6 +59,7 @@ export async function getMuscleVolumeForDays(
     .from('set_entries')
     .select('exercise_id, exercises(primary_muscle, secondary_muscles)')
     .eq('user_id', userId)
+    .eq('is_warmup', false)
     .gte('created_at', since.toISOString())
 
   if (!data) return []

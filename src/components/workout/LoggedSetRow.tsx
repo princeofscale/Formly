@@ -284,16 +284,24 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
         onTouchEnd={handleTouchEnd}
         onClick={() => { if (swipeX === 0) setEditing(true); else setSwipeX(0) }}
         className={`relative flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] cursor-pointer hover:bg-white/[0.03] transition-colors text-sm ${
-          isLast ? 'border-l-2 border-[#FF3B47] pl-2' : ''
-        }`}
+          isLast && !set.is_warmup ? 'border-l-2 border-[#FF3B47] pl-2' : ''
+        } ${set.is_warmup ? 'opacity-60' : ''}`}
         style={{
           transform: `translateX(${swipeX}px)`,
           transition: touchStartXRef.current == null ? 'transform 180ms ease' : 'none',
-          background: '#15151C',
+          background: set.is_warmup ? 'rgba(94, 234, 212, 0.04)' : '#15151C',
         }}
       >
-        <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
-        <span className={`font-mono font-bold ${isLast ? 'text-zinc-100' : 'text-zinc-500'}`}>
+        {set.is_warmup ? (
+          <span
+            className="font-mono text-[9px] font-black w-5 text-center"
+            style={{ color: '#5EEAD4' }}
+            title="Прогрев — не учитывается в объёме и PR"
+          >W</span>
+        ) : (
+          <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
+        )}
+        <span className={`font-mono font-bold ${isLast && !set.is_warmup ? 'text-zinc-100' : 'text-zinc-500'}`}>
           {isBodyweight && set.weight_kg === 0 ? (
             <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>BW</span>
           ) : isBodyweight && set.weight_kg > 0 ? (
@@ -307,7 +315,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
         {set.rpe != null && (
           <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
         )}
-        {set.calculated_1rm != null && isLast && (
+        {set.calculated_1rm != null && isLast && !set.is_warmup && (
           <span className="text-[10px] text-zinc-600 ml-auto">1ПМ {set.calculated_1rm.toFixed(0)}</span>
         )}
         <Pencil className="h-3 w-3 text-zinc-700 ml-auto flex-shrink-0 opacity-0 group-hover:opacity-100 sm:opacity-50" />

@@ -60,6 +60,7 @@ export interface SetEntry {
   calculated_1rm: number | null
   rest_seconds: number | null
   created_at: string
+  is_warmup?: boolean
 }
 
 export interface MuscleVolume {

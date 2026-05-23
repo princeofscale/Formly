@@ -12,6 +12,7 @@ export async function addSet(
     reps: number
     rpe?: number
     calculated1rm: number | null
+    isWarmup?: boolean
   }
 ): Promise<SetEntry> {
   const { data: set, error } = await supabase
@@ -25,6 +26,7 @@ export async function addSet(
       reps: data.reps,
       rpe: data.rpe ?? null,
       calculated_1rm: data.calculated1rm,
+      is_warmup: data.isWarmup ?? false,
     })
     .select()
     .single()
@@ -89,6 +91,7 @@ export async function getVolumeHistoryForExercise(
     .select('created_at, weight_kg, reps')
     .eq('user_id', userId)
     .eq('exercise_id', exerciseId)
+    .eq('is_warmup', false)
     .order('created_at')
 
   if (!data) return []
@@ -141,6 +144,7 @@ export async function getBestE1RMForExercise(
     .select('calculated_1rm')
     .eq('user_id', userId)
     .eq('exercise_id', exerciseId)
+    .eq('is_warmup', false)
     .not('calculated_1rm', 'is', null)
     .order('calculated_1rm', { ascending: false })
     .limit(1)
@@ -161,6 +165,7 @@ export async function getE1RMHistory(
     .select('created_at, calculated_1rm')
     .eq('user_id', userId)
     .eq('exercise_id', exerciseId)
+    .eq('is_warmup', false)
     .not('calculated_1rm', 'is', null)
     .order('created_at')
 

@@ -11,6 +11,7 @@ import { LastTimeHint } from './LastTimeHint'
 import { ExerciseNoteEditor } from './ExerciseNoteEditor'
 import { ExerciseVideo } from './ExerciseVideo'
 import { ProgressionHint } from './ProgressionHint'
+import { WarmupButton } from './WarmupButton'
 import { suggestNextSet } from '@/lib/services/progression.service'
 import { Button } from '@/components/ui/button'
 import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
@@ -168,6 +169,15 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
           <ProgressionHint
             suggestion={suggestion}
             onApply={(w, r) => setApplied({ weight: w, reps: r, nonce: Date.now() })}
+          />
+        )}
+
+        {sets.length === 0 && !isBodyweight && (lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0) >= 30 && (
+          <WarmupButton
+            sessionId={sessionId}
+            exerciseId={exercise.id}
+            workingWeightKg={lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0}
+            onAdded={(warmups) => setSets(prev => [...prev, ...warmups])}
           />
         )}
 
