@@ -46,7 +46,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.95.1",
+    "@anthropic-ai/sdk": "^0.98.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -54,16 +54,16 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",
-    "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^9",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^10",
     "eslint-config-next": "16.2.6",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
-    "shadcn": "^4.7.0",
+    "shadcn": "^4.8.0",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^4.1.5"
+    "typescript": "^6",
+    "vitest": "^4.1.7"
   }
 }
