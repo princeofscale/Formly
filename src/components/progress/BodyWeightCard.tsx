@@ -10,6 +10,8 @@ interface Props {
   labels: {
     weight: string
     height: string
+    weightUnit: string
+    heightUnit: string
     save: string
     saved: string
   }
@@ -75,7 +77,7 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
               onChange={e => setWeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
             />
-            <span className="text-xs text-white/45">kg</span>
+            <span className="text-xs text-white/45">{labels.weightUnit}</span>
           </div>
         </label>
 
@@ -91,7 +93,7 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
               onChange={e => setHeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
             />
-            <span className="text-xs text-white/45">cm</span>
+            <span className="text-xs text-white/45">{labels.heightUnit}</span>
           </div>
         </label>
       </div>

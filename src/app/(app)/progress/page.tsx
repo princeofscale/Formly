@@ -11,6 +11,7 @@ import { StrengthRatiosCard } from '@/components/progress/StrengthRatiosCard'
 import { getStrengthRatios } from '@/lib/services/strength-standards.service'
 import { AchievementsCard } from '@/components/progress/AchievementsCard'
 import { getAchievements } from '@/lib/services/achievements.service'
+import { weightUnit } from '@/lib/units'
 import Link from 'next/link'
 import { Camera, ChevronRight, Ruler, Target, Sigma, TrendingUp, Trophy, Flame } from 'lucide-react'
 
@@ -76,6 +77,7 @@ export default async function ProgressPage({
 
   const currentWeight = profileResult.data?.weight_kg ?? null
   const currentHeight = profileResult.data?.height_cm ?? null
+  const kg = weightUnit(locale)
 
   const [strengthRatios, achievements] = await Promise.all([
     currentWeight ? getStrengthRatios(supabase, user.id, currentWeight) : Promise.resolve([]),
@@ -152,7 +154,7 @@ export default async function ProgressPage({
                 <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
                   {currentWeight != null ? currentWeight : '—'}
                 </p>
-                <p className="text-[9px] text-white/30">kg</p>
+                <p className="text-[9px] text-white/30">{kg}</p>
               </div>
             </div>
           </div>
@@ -185,6 +187,8 @@ export default async function ProgressPage({
         labels={{
           weight: t('weightLabel'),
           height: t('heightLabel'),
+          weightUnit: kg,
+          heightUnit: locale === 'ru' ? 'см' : 'cm',
           save: t('saveMetrics'),
           saved: t('saved'),
         }}

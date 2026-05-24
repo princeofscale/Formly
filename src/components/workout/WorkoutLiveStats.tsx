@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Timer, Layers, Zap } from 'lucide-react'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   startedAt: string
@@ -20,6 +21,8 @@ function formatElapsed(seconds: number): string {
 
 export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg }: Props) {
   const t = useTranslations('workout.liveStats')
+  const locale = useLocale()
+  const kg = weightUnit(locale)
   const [elapsed, setElapsed] = useState(() =>
     Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)),
   )
@@ -58,7 +61,7 @@ export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg }: Props
           icon={<Zap className="h-3.5 w-3.5" style={{ color: '#FFC044' }} />}
           label={t('tonnage')}
           value={`${Math.round(totalTonnageKg).toLocaleString()}`}
-          unit="kg"
+          unit={kg}
           color="#FFC044"
         />
       </div>

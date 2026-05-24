@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronRight, Dumbbell, Flame, Activity } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
+import { weightUnit } from '@/lib/units'
 
 interface SetRow {
   session_id: string
@@ -20,6 +21,7 @@ export default async function HistoryPage() {
   const supabase = await createClient()
   const t = await getTranslations('history')
   const locale = await getLocale()
+  const kg = weightUnit(locale)
 
   // Two independent reads — one Promise.all round-trip.
   const [sessions, allSessionsAgg] = await Promise.all([
@@ -127,7 +129,7 @@ export default async function HistoryPage() {
                 <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
                   {nf.format(Math.round(totalVolumeKg))}
                 </p>
-                <p className="text-[9px] text-white/30">kg</p>
+                <p className="text-[9px] text-white/30">{kg}</p>
               </div>
               <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
                 <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
@@ -137,7 +139,7 @@ export default async function HistoryPage() {
                 <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
                   {totalSessions > 0 ? nf.format(avgPerSession) : '—'}
                 </p>
-                <p className="text-[9px] text-white/30">kg</p>
+                <p className="text-[9px] text-white/30">{kg}</p>
               </div>
             </div>
           </div>
@@ -230,7 +232,7 @@ export default async function HistoryPage() {
                         </span>
                       ) : (
                         <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary tabular-nums">
-                          {Math.round(s.total_volume_kg ?? 0)} kg
+                          {Math.round(s.total_volume_kg ?? 0)} {kg}
                         </span>
                       )}
                       <ChevronRight className="h-4 w-4 flex-shrink-0 text-zinc-600" />

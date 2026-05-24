@@ -4,21 +4,25 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Trash2 } from 'lucide-react'
 import { deleteMeasurementAction } from '@/app/(app)/progress/measurements/actions'
 import { MEASUREMENT_METRICS, type BodyMeasurement, type MeasurementMetric } from '@/lib/db/body-measurements'
+import { lengthUnit, weightUnit } from '@/lib/units'
 
 interface Props {
   entries: BodyMeasurement[]
 }
 
-const METRIC_UNIT: Record<MeasurementMetric, string> = {
-  weight_kg: 'kg',
-  body_fat_pct: '%',
-  waist_cm: 'cm',
-  chest_cm: 'cm',
-  hips_cm: 'cm',
-  biceps_cm: 'cm',
-  thigh_cm: 'cm',
-  calf_cm: 'cm',
-  neck_cm: 'cm',
+function metricUnit(metric: MeasurementMetric, locale: string): string {
+  const units: Record<MeasurementMetric, string> = {
+    weight_kg: weightUnit(locale),
+    body_fat_pct: '%',
+    waist_cm: lengthUnit(locale),
+    chest_cm: lengthUnit(locale),
+    hips_cm: lengthUnit(locale),
+    biceps_cm: lengthUnit(locale),
+    thigh_cm: lengthUnit(locale),
+    calf_cm: lengthUnit(locale),
+    neck_cm: lengthUnit(locale),
+  }
+  return units[metric]
 }
 
 function formatDelta(delta: number, unit: string): { text: string; color: string } {
@@ -84,14 +88,15 @@ export function MeasurementHistory({ entries }: Props) {
               {filled.map(metric => {
                 const value = entry[metric] as number
                 const prevValue = prev?.[metric] as number | null | undefined
-                const delta = prevValue != null ? formatDelta(value - prevValue, METRIC_UNIT[metric]) : null
+                const unit = metricUnit(metric, locale)
+                const delta = prevValue != null ? formatDelta(value - prevValue, unit) : null
                 return (
                   <div key={metric} className="flex flex-col">
                     <span className="text-[9px] uppercase tracking-widest text-white/35">
                       {t(`fields.${metric}`)}
                     </span>
                     <span className="text-sm font-bold tabular-nums text-white">
-                      {value.toFixed(1)} <span className="text-white/35">{METRIC_UNIT[metric]}</span>
+                      {value.toFixed(1)} <span className="text-white/35">{unit}</span>
                     </span>
                     {delta && (
                       <span className="text-[10px] tabular-nums" style={{ color: delta.color }}>

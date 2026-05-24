@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { Users, ChevronRight } from 'lucide-react'
 import type { FriendWithStats } from '@/lib/db/friends'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   friends: FriendWithStats[]
@@ -19,6 +20,7 @@ function daysAgo(iso: string | null): number | null {
 export function FriendsTeaser({ friends }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   if (friends.length === 0) {
     return (
@@ -118,7 +120,7 @@ export function FriendsTeaser({ friends }: Props) {
               <span className="shrink-0 tabular-nums text-white/55">
                 <span style={{ color: dot }}>{f.is_in_gym ? t('inGym') : lastLabel}</span>
                 <span className="text-white/30 mx-2">·</span>
-                {Math.round(f.week_tonnage_kg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} kg
+                {Math.round(f.week_tonnage_kg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} {kg}
               </span>
             </div>
           )

@@ -1,31 +1,38 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Ruler } from 'lucide-react'
 import { saveMeasurementAction } from '@/app/(app)/progress/measurements/actions'
 import type { BodyMeasurement } from '@/lib/db/body-measurements'
+import { lengthUnit, weightUnit } from '@/lib/units'
 
 interface Props {
   initial: BodyMeasurement | null
   defaultDate: string
 }
 
-const FIELDS: Array<{ key: keyof BodyMeasurement; unit: string; step: string }> = [
-  { key: 'weight_kg',   unit: 'kg',  step: '0.1' },
-  { key: 'body_fat_pct', unit: '%',  step: '0.1' },
-  { key: 'waist_cm',    unit: 'cm',  step: '0.1' },
-  { key: 'chest_cm',    unit: 'cm',  step: '0.1' },
-  { key: 'hips_cm',     unit: 'cm',  step: '0.1' },
-  { key: 'biceps_cm',   unit: 'cm',  step: '0.1' },
-  { key: 'thigh_cm',    unit: 'cm',  step: '0.1' },
-  { key: 'calf_cm',     unit: 'cm',  step: '0.1' },
-  { key: 'neck_cm',     unit: 'cm',  step: '0.1' },
+const FIELDS: Array<{ key: keyof BodyMeasurement; unit: 'weight' | 'length' | 'percent'; step: string }> = [
+  { key: 'weight_kg',   unit: 'weight',  step: '0.1' },
+  { key: 'body_fat_pct', unit: 'percent',  step: '0.1' },
+  { key: 'waist_cm',    unit: 'length',  step: '0.1' },
+  { key: 'chest_cm',    unit: 'length',  step: '0.1' },
+  { key: 'hips_cm',     unit: 'length',  step: '0.1' },
+  { key: 'biceps_cm',   unit: 'length',  step: '0.1' },
+  { key: 'thigh_cm',    unit: 'length',  step: '0.1' },
+  { key: 'calf_cm',     unit: 'length',  step: '0.1' },
+  { key: 'neck_cm',     unit: 'length',  step: '0.1' },
 ]
 
 export function MeasurementForm({ initial, defaultDate }: Props) {
   const t = useTranslations('progress.measurements')
+  const locale = useLocale()
   const [date, setDate] = useState(initial?.date ?? defaultDate)
+  const unitLabel = (unit: (typeof FIELDS)[number]['unit']) => {
+    if (unit === 'weight') return weightUnit(locale)
+    if (unit === 'length') return lengthUnit(locale)
+    return '%'
+  }
 
   return (
     <form
@@ -66,7 +73,7 @@ export function MeasurementForm({ initial, defaultDate }: Props) {
         {FIELDS.map(f => (
           <label key={f.key} className="block">
             <span className="text-[10px] uppercase tracking-widest text-white/40">
-              {t(`fields.${f.key}`)} <span className="text-white/25">({f.unit})</span>
+              {t(`fields.${f.key}`)} <span className="text-white/25">({unitLabel(f.unit)})</span>
             </span>
             <input
               type="number"

@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { calculatePlates } from '@/lib/utils/plate-calculator'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   weightKg: number
@@ -27,6 +28,8 @@ const PLATE_VISUAL: Record<number, { width: number; bg: string; text: string }> 
 
 export function PlateCalculator({ weightKg }: Props) {
   const t = useTranslations('workout.plateCalculator')
+  const locale = useLocale()
+  const kg = weightUnit(locale)
   const [bar, setBar] = useState<BarWeight>(20)
 
   // Restore bar preference
@@ -95,7 +98,7 @@ export function PlateCalculator({ weightKg }: Props) {
                       key={`L-${p.weight}-${i}`}
                       className="h-10 rounded-sm flex items-center justify-center text-[9px] font-bold tabular-nums"
                       style={{ width: v.width / 4, minWidth: 5, background: v.bg, color: v.text }}
-                      title={`${p.weight}kg`}
+                      title={`${p.weight}${kg}`}
                     />
                   )
                 }),
@@ -115,7 +118,7 @@ export function PlateCalculator({ weightKg }: Props) {
                       key={`R-${p.weight}-${i}`}
                       className="h-10 rounded-sm flex items-center justify-center text-[9px] font-bold tabular-nums"
                       style={{ width: v.width / 4, minWidth: 5, background: v.bg, color: v.text }}
-                      title={`${p.weight}kg`}
+                      title={`${p.weight}${kg}`}
                     />
                   )
                 }),

@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Trophy, Timer, Layers, Zap, Share2 } from 'lucide-react'
 import type { SessionSummary } from '@/lib/services/session-summary.service'
+import { formatWeight, weightUnit } from '@/lib/units'
 
 interface Props {
   summary: SessionSummary
@@ -31,6 +32,7 @@ async function shareCard(sessionId: string, label: string) {
 export function SessionSummaryHero({ summary, sessionId }: Props) {
   const t = useTranslations('history.summary')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   const dt = summary.comparison?.deltaTonnagePct ?? null
   const deltaColor = dt == null ? '#FFFFFF99' : dt > 0 ? '#22D3A8' : dt < 0 ? '#FF6E76' : '#FFFFFF99'
@@ -82,7 +84,7 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
           icon={<Zap className="h-3.5 w-3.5" style={{ color: '#FFC044' }} />}
           label={t('tonnage')}
           value={`${summary.totalVolumeKg.toLocaleString()}`}
-          unit="kg"
+          unit={kg}
         />
         <StatTile
           icon={<Layers className="h-3.5 w-3.5" style={{ color: '#5EEAD4' }} />}
@@ -103,7 +105,7 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
           valueColor={deltaColor}
           subValue={
             summary.comparison?.prevTonnage != null
-              ? `${summary.comparison.prevTonnage.toLocaleString()} kg`
+              ? formatWeight(summary.comparison.prevTonnage, locale, 0)
               : undefined
           }
         />
@@ -123,7 +125,7 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
                 <div key={pr.exerciseId} className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-white truncate">{name}</span>
                   <span className="text-xs font-mono tabular-nums shrink-0" style={{ color: '#FFC044' }}>
-                    {pr.newBest.toFixed(1)} kg
+                    {pr.newBest.toFixed(1)} {kg}
                     {!isFirst && (
                       <span className="text-white/45 ml-2">
                         +{pr.improvementPct!.toFixed(1)}%
@@ -153,7 +155,7 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
                 <div key={ex.exerciseId} className="space-y-1">
                   <div className="flex items-baseline justify-between text-xs tabular-nums">
                     <span className="text-white truncate">{name}</span>
-                    <span className="text-white/55 shrink-0">{ex.volume.toLocaleString()} kg · {ex.sets} {t('setsShort')}</span>
+                    <span className="text-white/55 shrink-0">{formatWeight(ex.volume, locale, 0)} · {ex.sets} {t('setsShort')}</span>
                   </div>
                   <div className="relative h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <div

@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Flame } from 'lucide-react'
 import type { StrengthRatio, StrengthTier } from '@/lib/services/strength-standards.service'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   ratios: StrengthRatio[]
@@ -20,6 +21,7 @@ const TIER_STYLE: Record<StrengthTier, { color: string; bg: string; label: strin
 export function StrengthRatiosCard({ ratios, bodyweightKg }: Props) {
   const t = useTranslations('progress.strength')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   if (!bodyweightKg) {
     return (
@@ -92,7 +94,7 @@ export function StrengthRatiosCard({ ratios, bodyweightKg }: Props) {
           </div>
         </div>
         <span className="text-[10px] font-mono text-white/40 tabular-nums">
-          BW {bodyweightKg.toFixed(1)} kg
+          BW {bodyweightKg.toFixed(1)} {kg}
         </span>
       </div>
 
@@ -128,7 +130,7 @@ export function StrengthRatiosCard({ ratios, bodyweightKg }: Props) {
                   </div>
                 </div>
                 <span className="text-[11px] font-mono tabular-nums text-white/60 shrink-0">
-                  {r.bestE1rm.toFixed(0)} kg · <span style={{ color: tier.color }}>{r.ratio.toFixed(2)}×</span>
+                  {r.bestE1rm.toFixed(0)} {kg} · <span style={{ color: tier.color }}>{r.ratio.toFixed(2)}×</span>
                 </span>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Trash2, Check } from 'lucide-react'
 import { deleteGoalAction } from '@/app/(app)/goals/actions'
 import type { GoalWithProgress } from '@/lib/db/goals'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   goals: GoalWithProgress[]
@@ -12,6 +13,7 @@ interface Props {
 export function GoalList({ goals }: Props) {
   const t = useTranslations('goals')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   if (goals.length === 0) {
     return (
@@ -78,7 +80,7 @@ export function GoalList({ goals }: Props) {
 
             <div className="flex items-baseline justify-between mb-1.5 text-xs tabular-nums">
               <span style={{ color: barColor }} className="font-bold">
-                {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} kg
+                {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
               </span>
               <span className="text-white/55">
                 {isDone ? (achievedDateLabel ? `✓ ${achievedDateLabel}` : '✓') : `${g.progress_pct.toFixed(0)}%`}

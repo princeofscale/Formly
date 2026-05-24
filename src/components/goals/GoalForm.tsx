@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target } from 'lucide-react'
 import { createGoalAction } from '@/app/(app)/goals/actions'
+import { weightUnit } from '@/lib/units'
 
 interface ExerciseOption {
   id: string
@@ -18,6 +19,7 @@ interface Props {
 export function GoalForm({ exercises }: Props) {
   const t = useTranslations('goals')
   const locale = useLocale()
+  const kg = weightUnit(locale)
   const [exerciseId, setExerciseId] = useState(exercises[0]?.id ?? '')
 
   return (
@@ -60,7 +62,7 @@ export function GoalForm({ exercises }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className="text-[10px] uppercase tracking-widest text-white/40">
-            {t('targetE1rm')} <span className="text-white/25">(kg)</span>
+            {t('targetE1rm')} <span className="text-white/25">({kg})</span>
           </span>
           <input
             type="number"

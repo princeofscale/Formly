@@ -1,9 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Sigma } from 'lucide-react'
 import { calculate1RM, selectFormula } from '@/lib/utils/one-rep-max'
+import { weightUnit } from '@/lib/units'
 
 const PERCENTAGES = [
   { pct: 60,  reps: 16, label: 'Endurance' },
@@ -19,6 +20,8 @@ const PERCENTAGES = [
 
 export function OneRMCalculator() {
   const t = useTranslations('tools.oneRM')
+  const locale = useLocale()
+  const kg = weightUnit(locale)
   const [weight, setWeight] = useState('100')
   const [reps, setReps] = useState('5')
 
@@ -60,7 +63,7 @@ export function OneRMCalculator() {
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className="text-[10px] uppercase tracking-widest text-white/40">
-              {t('weight')} <span className="text-white/25">(kg)</span>
+              {t('weight')} <span className="text-white/25">({kg})</span>
             </span>
             <input
               type="number"
@@ -95,7 +98,7 @@ export function OneRMCalculator() {
             <p className="text-[10px] uppercase tracking-widest text-white/45">{t('estimated1rm')}</p>
             <p className="mt-1 text-5xl font-extrabold tabular-nums" style={{ color: '#FFC044' }}>
               {result ? result.e1rm.toFixed(1) : '—'}
-              <span className="text-xl text-white/40 font-mono ml-2">kg</span>
+              <span className="text-xl text-white/40 font-mono ml-2">{kg}</span>
             </p>
           </div>
           {result && (
@@ -132,7 +135,7 @@ export function OneRMCalculator() {
                     {row.pct}%
                   </span>
                   <span className="flex-1 text-sm font-mono font-bold tabular-nums text-white">
-                    {load.toFixed(1)} kg
+                    {load.toFixed(1)} {kg}
                   </span>
                   <span className="text-[10px] font-mono text-white/40 w-12 text-right">
                     × {row.reps}

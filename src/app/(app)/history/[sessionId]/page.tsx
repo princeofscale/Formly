@@ -13,6 +13,7 @@ import { RotateCcw } from 'lucide-react'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { SessionSummaryHero } from '@/components/history/SessionSummaryHero'
 import { getSessionSummary } from '@/lib/services/session-summary.service'
+import { weightUnit } from '@/lib/units'
 
 export default async function SessionDetailPage({
   params,
@@ -27,6 +28,7 @@ export default async function SessionDetailPage({
   const supabase = await createClient()
   const t = await getTranslations('history')
   const locale = await getLocale()
+  const kg = weightUnit(locale)
 
   const session = await getSession(supabase, sessionId)
   if (!session || session.user_id !== user.id) notFound()
@@ -140,7 +142,7 @@ export default async function SessionDetailPage({
                 {ex.sets.map(s => (
                   <tr key={s.id} className="border-t border-white/10">
                     <td className="py-1 text-zinc-500">#{s.set_number}</td>
-                    <td className="py-1">{s.weight_kg}kg</td>
+                    <td className="py-1">{s.weight_kg} {kg}</td>
                     <td className="py-1">{s.reps}</td>
                     <td className="py-1 text-zinc-400">{s.calculated_1rm?.toFixed(1) ?? '—'}</td>
                     <td className="py-1 text-zinc-400">{s.rpe ?? '—'}</td>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target, ChevronRight } from 'lucide-react'
 import type { GoalWithProgress } from '@/lib/db/goals'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   goals: GoalWithProgress[]
@@ -12,6 +13,7 @@ interface Props {
 export function GoalsTeaser({ goals }: Props) {
   const t = useTranslations('goals')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   // Show up to 2 active goals, sorted by progress desc
   const active = goals.filter(g => !g.achieved_at).sort((a, b) => b.progress_pct - a.progress_pct).slice(0, 2)
@@ -77,7 +79,7 @@ export function GoalsTeaser({ goals }: Props) {
               <div className="flex items-baseline justify-between gap-2 text-xs tabular-nums">
                 <span className="text-white font-bold truncate">{name}</span>
                 <span style={{ color: barColor }} className="font-bold shrink-0">
-                  {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} kg
+                  {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
                 </span>
               </div>
               <div className="relative h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>

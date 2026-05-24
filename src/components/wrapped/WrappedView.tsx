@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Flame, Zap, Timer, Trophy, Activity, Clock, CalendarCheck, MapPin } from 'lucide-react'
 import type { WrappedReport } from '@/lib/services/wrapped.service'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   report: WrappedReport
@@ -17,6 +18,7 @@ export function WrappedView({ report }: Props) {
   const t = useTranslations('wrapped')
   const tHistory = useTranslations('history')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   const totalHours = useMemo(() => {
     const h = Math.floor(report.totalMinutes / 60)
@@ -79,7 +81,7 @@ export function WrappedView({ report }: Props) {
         icon={<Zap className="h-5 w-5" style={{ color: '#22D3A8' }} />}
         label={t('cards.tonnage.label')}
         value={report.totalTonnageKg.toLocaleString()}
-        unit="kg"
+        unit={kg}
         sub={t('cards.tonnage.sub', { count: report.totalSets, reps: report.totalReps })}
         accent="#22D3A8"
       />
@@ -100,7 +102,7 @@ export function WrappedView({ report }: Props) {
           icon={<Flame className="h-5 w-5" style={{ color: '#FF6E76' }} />}
           label={t('cards.bestDay.label')}
           value={report.bestDay.tonnageKg.toLocaleString()}
-          unit="kg"
+          unit={kg}
           sub={new Date(report.bestDay.date + 'T00:00:00').toLocaleDateString(
             locale === 'ru' ? 'ru-RU' : 'en-US',
             { day: 'numeric', month: 'long', year: 'numeric' },
@@ -184,7 +186,7 @@ export function WrappedView({ report }: Props) {
                     <span className="text-sm font-bold text-white truncate">{name}</span>
                   </div>
                   <span className="shrink-0 text-base font-extrabold tabular-nums" style={{ color: '#FFC044' }}>
-                    {pr.e1rm.toFixed(1)} kg
+                    {pr.e1rm.toFixed(1)} {kg}
                   </span>
                 </div>
               )
@@ -214,7 +216,7 @@ export function WrappedView({ report }: Props) {
                       ? 'linear-gradient(180deg, #FFC044, rgba(255,196,68,0.18))'
                       : 'rgba(255,255,255,0.04)',
                   }}
-                  title={`${m.sessions} sessions · ${m.tonnageKg.toLocaleString()} kg`}
+                  title={`${m.sessions} sessions · ${m.tonnageKg.toLocaleString()} ${kg}`}
                 />
                 <span className="text-[9px] font-mono text-white/35 tabular-nums">
                   {monthShort(m.month, locale)}

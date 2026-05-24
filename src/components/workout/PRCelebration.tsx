@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Trophy } from 'lucide-react'
+import { weightUnit } from '@/lib/units'
 
 export interface PRCelebrationData {
   exerciseName: string
@@ -66,6 +67,8 @@ function useParticles(seed: number, count = 32): Particle[] {
 
 export function PRCelebration({ pr, onDone }: Props) {
   const t = useTranslations('workout.prCelebration')
+  const locale = useLocale()
+  const kg = weightUnit(locale)
   const onDoneRef = useRef(onDone)
 
   // Keep the ref up-to-date without writing during render
@@ -152,7 +155,7 @@ export function PRCelebration({ pr, onDone }: Props) {
             className="mt-1 text-3xl font-extrabold tabular-nums"
             style={{ color: '#FFC044' }}
           >
-            {pr.newE1rm.toFixed(1)} <span className="text-base font-mono text-white/45">kg</span>
+            {pr.newE1rm.toFixed(1)} <span className="text-base font-mono text-white/45">{kg}</span>
             <span className="ml-3 text-2xl">{deltaText}</span>
           </p>
         </div>

@@ -3,12 +3,13 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Trophy } from 'lucide-react'
 import type { Achievement } from '@/lib/services/achievements.service'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   achievements: Achievement[]
 }
 
-function formatProgress(a: Achievement): string {
+function formatProgress(a: Achievement, locale: string): string {
   if (a.nextTarget == null) return '✓'
   // Strength ratios: show 2-decimal ratio
   if (a.id.startsWith('bench_') || a.id.startsWith('squat_') || a.id.startsWith('deadlift_')) {
@@ -16,7 +17,7 @@ function formatProgress(a: Achievement): string {
   }
   // Counts and tonnages: round
   if (a.id === 'peak_tonnage') {
-    return `${Math.round(a.current)} / ${a.nextTarget} kg`
+    return `${Math.round(a.current)} / ${a.nextTarget} ${weightUnit(locale)}`
   }
   return `${Math.floor(a.current)} / ${a.nextTarget}`
 }
@@ -84,7 +85,7 @@ export function AchievementsCard({ achievements }: Props) {
                 className="mt-1 text-[9px] font-mono tabular-nums"
                 style={{ color: earned ? '#A78BFA' : 'rgba(255,255,255,0.35)' }}
               >
-                {earned && earnedDate ? earnedDate : formatProgress(a)}
+                {earned && earnedDate ? earnedDate : formatProgress(a, locale)}
               </p>
             </div>
           )

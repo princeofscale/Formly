@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Trash2, Flame, Activity } from 'lucide-react'
 import { removeFriendAction } from '@/app/(app)/friends/actions'
 import type { FriendWithStats } from '@/lib/db/friends'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   friends: FriendWithStats[]
@@ -20,6 +21,7 @@ function daysAgo(iso: string | null): number | null {
 export function FriendList({ friends }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
+  const kg = weightUnit(locale)
 
   if (friends.length === 0) {
     return (
@@ -118,13 +120,13 @@ export function FriendList({ friends }: Props) {
                 icon={<Activity className="h-3 w-3" style={{ color: '#FFC044' }} />}
                 label={t('stats.tonnage')}
                 value={`${Math.round(f.week_tonnage_kg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')}`}
-                unit="kg"
+                unit={kg}
               />
               <Stat
                 icon={<Flame className="h-3 w-3" style={{ color: '#A78BFA' }} />}
                 label={t('stats.bestE1rm')}
                 value={f.best_e1rm != null ? `${Math.round(f.best_e1rm)}` : '—'}
-                unit={f.best_e1rm != null ? 'kg' : undefined}
+                unit={f.best_e1rm != null ? kg : undefined}
               />
             </div>
           </div>
