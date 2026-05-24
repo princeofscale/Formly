@@ -1,3 +1,22 @@
 {
-  "ignore": ["next-env.d.ts"]
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "ignore": ["src/lib/types/database.types.ts", "src/components/ui/form.tsx"],
+  "ignoreDependencies": [
+    "@hookform/resolvers",
+    "react-hook-form",
+    "@anthropic-ai/sdk",
+    "@testing-library/react",
+    "lint-staged"
+  ],
+  "ignoreBinaries": ["lint-staged"],
+  "rules": {
+    "binaries": "off",
+    "files": "off",
+    "exports": "off",
+    "types": "off",
+    "nsExports": "off",
+    "nsTypes": "off",
+    "enumMembers": "off",
+    "duplicates": "off"
+  }
 }
