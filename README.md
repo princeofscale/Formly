@@ -1,97 +1,134 @@
 # TrainingAR
 
-TrainingAR is a bilingual workout tracker for logging training sessions, tracking progress, and getting AI coaching signals from recent workout data.
+Современный AI-фитнес трекер для отслеживания тренировок, анализа прогресса и получения персональных рекомендаций на основе тренировочных данных.
 
-## Features
+## Возможности
 
-- Workout logging with exercises, sets, weight, reps, RPE, rest time, notes, and mood
-- Active workout flow with rest timer, last-session hints, personal record detection, and template updates
-- Dashboard with weekly volume, streak status, recent workouts, AI coach insights, and muscle activity periods
-- Progress page with 1RM charts, monthly volume, body weight, and height synced with the profile
-- Exercise library with localized names, instructions, images, notes, and YouTube technique links
-- Workout history, session details, deletion, repeat flow, and CSV export
-- Profile settings for weight, height, age, training start date, location, schedule, language, and push notifications
-- Bottom navigation for Dashboard, Workouts, Progress, Plan, and Profile
-- Russian and English UI via next-intl
+### Тренировки
 
-## Stack
+- Создание и ведение тренировок
+- Упражнения, подходы, вес, повторения, RPE, отдых
+- Таймер отдыха
+- Подсказки с прошлых тренировок
+- Автоматическое определение новых рекордов
+- Повторение прошлых тренировок
+- Шаблоны тренировок
 
-- Next.js 16 App Router
+### Аналитика и прогресс
+
+- Отслеживание тренировочного объёма
+- Графики прогресса
+- Статистика 1RM
+- Серии тренировок (streaks)
+- Анализ активности мышечных групп
+- История тренировок
+- Экспорт тренировок в CSV
+
+### AI-функции
+
+- AI-анализ последних тренировок
+- Персональные рекомендации
+- Советы по нагрузке и восстановлению
+- Генерация coaching insights через Mistral AI
+
+### Профиль
+
+- Вес, рост, возраст
+- Дата начала тренировок
+- Язык интерфейса
+- Push-уведомления
+- Настройки расписания
+
+### Интерфейс
+
+- Поддержка русского и английского языков
+- Адаптивный UI
+- Bottom navigation
+- Современный интерфейс на shadcn/ui
+
+---
+
+# Технологии
+
+## Frontend
+
+- Next.js 16 (App Router)
 - React 19
-- Supabase Auth, PostgreSQL, and RLS policies
-- next-intl v4
-- Tailwind CSS and shadcn/ui
-- Mistral AI for training recommendations
-- Vitest and Testing Library
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- next-intl
 
-## Setup
+## Backend / Database
 
-Install dependencies:
+- Supabase
+- PostgreSQL
+- Row Level Security (RLS)
+
+## AI
+
+- Mistral AI
+
+## Quality & Tooling
+
+- ESLint
+- Prettier
+- Husky
+- Vitest
+- Knip
+- ts-prune
+- CodeQL
+- gitleaks
+- RenovateBot
+- pre-commit.ci
+
+---
+
+# Установка и запуск
+
+## 1. Клонирование репозитория
+
+```bash
+git clone https://github.com/princeofscale/TrainingAR.git
+cd TrainingAR
+```
+
+## 2. Установка зависимостей
 
 ```bash
 npm install
 ```
 
-Create local environment variables:
+## 3. Создание env-файла
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Fill in the Supabase keys, Mistral key, and optional VAPID push keys in `.env.local`.
+Заполни `.env.local` своими ключами:
 
-Apply database migrations:
+Supabase URL
+Supabase Anon Key
+Supabase Service Role Key
+Mistral API Key
+VAPID keys (опционально)
+
+## База данных
+
+Применение миграций:
 
 ```bash
 supabase db push
 ```
 
-Run the development server:
+## Запуск проекта
+
+Режим разработки:
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Открыть:
 
-## Scripts
-
-```bash
-npm run dev      # start local Next.js server
-npm run build    # production build
-npm run lint     # lint the project
-npm test         # run unit tests
-```
-
-## Project Structure
-
-```text
-src/
-  app/(app)/          authenticated app routes
-    dashboard/        main dashboard
-    workout/          workout creation and active session
-    history/          completed sessions
-    progress/         charts and body metrics
-    records/          personal records
-    profile/          user settings
-  components/
-    dashboard/        dashboard widgets and muscle activity
-    progress/         progress charts and body metrics
-    workout/          workout logging UI
-    profile/          profile settings widgets
-  lib/
-    db/               Supabase query helpers
-    services/         analytics, AI insights, PR detection
-    types/            shared model types
-    utils/            BMI, 1RM, plates, formatting helpers
-  messages/           English and Russian translations
-supabase/
-  migrations/         database schema changes and RLS policies
-```
-
-## Notes
-
-- Server actions verify the current user session before mutating data.
-- Supabase RLS keeps user-owned data scoped by `user_id`.
-- AI recommendations use `MISTRAL_API_KEY`.
-- Achievements and body measurement pages were removed; profile and progress now own body weight and height.
+`http://localhost:3000`

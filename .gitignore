@@ -47,3 +47,8 @@ next-env.d.ts
 .claude/
 AGENTS.md
 CLAUDE.md
+
+# databases
+*.db
+*.sqlite
+*.sqlite3
