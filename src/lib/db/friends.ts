@@ -58,7 +58,8 @@ export async function addFriend(
 ): Promise<{ ok: boolean; error?: string }> {
   if (myUserId === otherUserId) return { ok: false, error: 'self' }
   // Canonical ordering — table CHECK enforces user_a::text < user_b::text
-  const [user_a, user_b] = myUserId < otherUserId ? [myUserId, otherUserId] : [otherUserId, myUserId]
+  const [user_a, user_b] =
+    myUserId < otherUserId ? [myUserId, otherUserId] : [otherUserId, myUserId]
   const { error } = await supabase
     .from('friendships')
     .insert({ user_a, user_b, status: 'pending', requested_by: myUserId })
@@ -99,17 +100,10 @@ export async function declineFriendRequest(
   friendshipId: string,
 ): Promise<void> {
   // Decline = delete the pending row. Both parties can DELETE per existing RLS.
-  await supabase
-    .from('friendships')
-    .delete()
-    .eq('id', friendshipId)
-    .eq('status', 'pending')
+  await supabase.from('friendships').delete().eq('id', friendshipId).eq('status', 'pending')
 }
 
-export async function getFriendIds(
-  supabase: SupabaseClient,
-  userId: string,
-): Promise<string[]> {
+export async function getFriendIds(supabase: SupabaseClient, userId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('friendships')
     .select('user_a, user_b')
@@ -120,7 +114,7 @@ export async function getFriendIds(
     return []
   }
   const rows = (data ?? []) as { user_a: string; user_b: string }[]
-  return rows.map(r => (r.user_a === userId ? r.user_b : r.user_a))
+  return rows.map((r) => (r.user_a === userId ? r.user_b : r.user_a))
 }
 
 export async function removeFriend(
@@ -128,10 +122,7 @@ export async function removeFriend(
   myUserId: string,
   otherUserId: string,
 ): Promise<void> {
-  const [user_a, user_b] = myUserId < otherUserId ? [myUserId, otherUserId] : [otherUserId, myUserId]
-  await supabase
-    .from('friendships')
-    .delete()
-    .eq('user_a', user_a)
-    .eq('user_b', user_b)
+  const [user_a, user_b] =
+    myUserId < otherUserId ? [myUserId, otherUserId] : [otherUserId, myUserId]
+  await supabase.from('friendships').delete().eq('user_a', user_a).eq('user_b', user_b)
 }

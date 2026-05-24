@@ -11,8 +11,16 @@ import type { MuscleGroup, Equipment } from '@/lib/types/models'
 import { getTranslations, getLocale } from 'next-intl/server'
 
 const PRIMARY_MUSCLE_GROUPS: MuscleGroup[] = [
-  'chest', 'back', 'front_delts', 'biceps', 'triceps',
-  'quads', 'hamstrings', 'glutes', 'core', 'calves',
+  'chest',
+  'back',
+  'front_delts',
+  'biceps',
+  'triceps',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'core',
+  'calves',
 ]
 const EQUIPMENT: Equipment[] = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']
 
@@ -45,12 +53,14 @@ export default async function ExerciseLibraryPage({
           {t('targetArea')}
         </h2>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-          {PRIMARY_MUSCLE_GROUPS.map(m => {
+          {PRIMARY_MUSCLE_GROUPS.map((m) => {
             const isActive = muscle === m
             const params = new URLSearchParams()
             if (!isActive) params.set('muscle', m)
             if (equipment) params.set('equipment', equipment)
-            const href = params.toString() ? `/exercise-library?${params.toString()}` : '/exercise-library'
+            const href = params.toString()
+              ? `/exercise-library?${params.toString()}`
+              : '/exercise-library'
 
             return (
               <Link
@@ -68,7 +78,9 @@ export default async function ExerciseLibraryPage({
                   </div>
                 )}
                 <MuscleIcon muscle={m} size={48} active={isActive} />
-                <div className={`text-[10px] font-bold text-center ${isActive ? 'text-amber-400' : 'text-zinc-400'}`}>
+                <div
+                  className={`text-[10px] font-bold text-center ${isActive ? 'text-amber-400' : 'text-zinc-400'}`}
+                >
                   {tHistory(`muscleLabel.${m}`)}
                 </div>
               </Link>
@@ -78,8 +90,11 @@ export default async function ExerciseLibraryPage({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {EQUIPMENT.map(e => (
-          <Link key={e} href={`/exercise-library?${muscle ? `muscle=${muscle}&` : ''}equipment=${e}`}>
+        {EQUIPMENT.map((e) => (
+          <Link
+            key={e}
+            href={`/exercise-library?${muscle ? `muscle=${muscle}&` : ''}equipment=${e}`}
+          >
             <Badge variant={equipment === e ? 'default' : 'outline'} className="cursor-pointer">
               {t(`equipment.${e}`)}
             </Badge>
@@ -87,13 +102,15 @@ export default async function ExerciseLibraryPage({
         ))}
         {(muscle || equipment) && (
           <Link href="/exercise-library">
-            <Badge variant="destructive" className="cursor-pointer">{t('clearFilter')}</Badge>
+            <Badge variant="destructive" className="cursor-pointer">
+              {t('clearFilter')}
+            </Badge>
           </Link>
         )}
       </div>
 
       <div className="space-y-2">
-        {exercises.map(ex => (
+        {exercises.map((ex) => (
           <ExerciseCard
             key={ex.id}
             exercise={ex}

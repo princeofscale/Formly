@@ -6,8 +6,24 @@ import { Plus, X, Check, Loader2 } from 'lucide-react'
 import { createExerciseAction } from '@/app/(app)/exercise-library/actions'
 import type { Exercise } from '@/lib/types/models'
 
-const MUSCLES = ['chest','back','biceps','triceps','forearms','core','quads','hamstrings','glutes','calves','traps','lats','rear_delts','front_delts','side_delts']
-const EQUIPMENT = ['barbell','dumbbell','machine','cable','bodyweight','other']
+const MUSCLES = [
+  'chest',
+  'back',
+  'biceps',
+  'triceps',
+  'forearms',
+  'core',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'calves',
+  'traps',
+  'lats',
+  'rear_delts',
+  'front_delts',
+  'side_delts',
+]
+const EQUIPMENT = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']
 const MECHANIC = ['compound', 'isolation']
 
 interface Props {
@@ -23,7 +39,13 @@ interface Props {
   onDismiss?: () => void
 }
 
-export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOpen = false, onDismiss }: Props) {
+export function ExerciseForm({
+  onCreated,
+  prefilledName,
+  triggerLabel,
+  defaultOpen = false,
+  onDismiss,
+}: Props) {
   const t = useTranslations('exerciseForm')
   const tHistory = useTranslations('history')
   const tLib = useTranslations('exerciseLibrary')
@@ -70,7 +92,9 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
         const result = await createExerciseAction(fd)
         setSaved(true)
         if (onCreated) onCreated(result)
-        setTimeout(() => { close() }, 700)
+        setTimeout(() => {
+          close()
+        }, 700)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to save')
       }
@@ -99,7 +123,7 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
     >
       <form
         onSubmit={handleSubmit}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md rounded-[20px] p-5 space-y-4 animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
         style={{
           background: '#15151C',
@@ -120,10 +144,12 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
         {/* Name (en + ru) */}
         <div className="space-y-2">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{t('name')}</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              {t('name')}
+            </label>
             <input
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder={t('namePlaceholder')}
               autoFocus
               required
@@ -133,10 +159,12 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{t('nameRu')}</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              {t('nameRu')}
+            </label>
             <input
               value={nameRu}
-              onChange={e => setNameRu(e.target.value)}
+              onChange={(e) => setNameRu(e.target.value)}
               placeholder={t('nameRuPlaceholder')}
               maxLength={100}
               className="w-full h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700"
@@ -146,17 +174,23 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
 
         {/* Primary muscle — pill grid */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{t('primaryMuscle')}</label>
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            {t('primaryMuscle')}
+          </label>
           <div className="grid grid-cols-3 gap-1.5">
-            {MUSCLES.map(m => (
+            {MUSCLES.map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setPrimaryMuscle(m)}
                 className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
                 style={{
-                  background: primaryMuscle === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border: primaryMuscle === m ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background:
+                    primaryMuscle === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                  border:
+                    primaryMuscle === m
+                      ? '1px solid #FF3B47'
+                      : '1px solid rgba(255, 255, 255, 0.08)',
                   color: primaryMuscle === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
                 }}
               >
@@ -168,17 +202,21 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
 
         {/* Equipment */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{t('equipment')}</label>
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            {t('equipment')}
+          </label>
           <div className="grid grid-cols-3 gap-1.5">
-            {EQUIPMENT.map(e => (
+            {EQUIPMENT.map((e) => (
               <button
                 key={e}
                 type="button"
                 onClick={() => setEquipment(e)}
                 className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
                 style={{
-                  background: equipment === e ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border: equipment === e ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background:
+                    equipment === e ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                  border:
+                    equipment === e ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
                   color: equipment === e ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
                 }}
               >
@@ -190,17 +228,21 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
 
         {/* Mechanic */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{t('mechanic')}</label>
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            {t('mechanic')}
+          </label>
           <div className="grid grid-cols-2 gap-1.5">
-            {MECHANIC.map(m => (
+            {MECHANIC.map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMechanic(m as 'compound' | 'isolation')}
                 className="h-9 text-[11px] font-bold rounded-[6px] transition-colors"
                 style={{
-                  background: mechanic === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border: mechanic === m ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background:
+                    mechanic === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                  border:
+                    mechanic === m ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
                   color: mechanic === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
                 }}
               >
@@ -210,7 +252,11 @@ export function ExerciseForm({ onCreated, prefilledName, triggerLabel, defaultOp
           </div>
         </div>
 
-        {error && <p className="text-[11px]" style={{ color: '#FF6E76' }}>{error}</p>}
+        {error && (
+          <p className="text-[11px]" style={{ color: '#FF6E76' }}>
+            {error}
+          </p>
+        )}
 
         <div className="flex gap-2 pt-1">
           <button

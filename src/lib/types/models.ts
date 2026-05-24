@@ -1,7 +1,19 @@
 export type MuscleGroup =
-  | 'chest' | 'back' | 'biceps' | 'triceps'
-  | 'forearms' | 'core' | 'quads' | 'hamstrings' | 'glutes'
-  | 'calves' | 'traps' | 'lats' | 'rear_delts' | 'front_delts' | 'side_delts'
+  | 'chest'
+  | 'back'
+  | 'biceps'
+  | 'triceps'
+  | 'forearms'
+  | 'core'
+  | 'quads'
+  | 'hamstrings'
+  | 'glutes'
+  | 'calves'
+  | 'traps'
+  | 'lats'
+  | 'rear_delts'
+  | 'front_delts'
+  | 'side_delts'
 
 export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'other'
 export type Mechanic = 'compound' | 'isolation'
@@ -39,8 +51,14 @@ export interface Exercise {
 }
 
 export type CardioActivity =
-  | 'running' | 'cycling' | 'walking' | 'swimming'
-  | 'rowing' | 'elliptical' | 'hiit' | 'other'
+  | 'running'
+  | 'cycling'
+  | 'walking'
+  | 'swimming'
+  | 'rowing'
+  | 'elliptical'
+  | 'hiit'
+  | 'other'
 
 export interface WorkoutSession {
   id: string
@@ -144,7 +162,7 @@ export interface StreakInfo {
 }
 
 export interface DayActivity {
-  date: string  // YYYY-MM-DD
+  date: string // YYYY-MM-DD
   sets: number
 }
 

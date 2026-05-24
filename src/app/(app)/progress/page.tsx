@@ -16,10 +16,10 @@ import Link from 'next/link'
 import { Camera, ChevronRight, Ruler, Target, Sigma, TrendingUp, Trophy, Flame } from 'lucide-react'
 
 const PERIOD_DAYS: Record<string, number> = {
-  '7d':   7,
-  '30d':  30,
-  '90d':  90,
-  '1y':   365,
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+  '1y': 365,
 }
 
 interface BestE1RMRow {
@@ -42,11 +42,7 @@ export default async function ProgressPage({
   // Single round-trip for the heavy reads.
   const [exercises, profileResult, bestE1RMResult] = await Promise.all([
     getExercises(supabase, user.id),
-    supabase
-      .from('profiles')
-      .select('weight_kg, height_cm')
-      .eq('id', user.id)
-      .single(),
+    supabase.from('profiles').select('weight_kg, height_cm').eq('id', user.id).single(),
     supabase
       .from('set_entries')
       .select('calculated_1rm, exercise_id, exercises(name, name_ru)')
@@ -58,8 +54,8 @@ export default async function ProgressPage({
   ])
 
   const selectedExercise = exerciseId
-    ? exercises.find(e => e.id === exerciseId)
-    : exercises.find(e => e.slug === 'barbell-bench-press') ?? exercises[0]
+    ? exercises.find((e) => e.id === exerciseId)
+    : (exercises.find((e) => e.slug === 'barbell-bench-press') ?? exercises[0])
 
   const [fullHistory, fullVolume] = selectedExercise
     ? await Promise.all([
@@ -72,8 +68,8 @@ export default async function ProgressPage({
   const since = new Date()
   since.setDate(since.getDate() - days)
   const sinceIso = since.toISOString().slice(0, 10)
-  const periodHistory = fullHistory.filter(p => p.date >= sinceIso)
-  const periodVolume = fullVolume.filter(p => p.date >= sinceIso)
+  const periodHistory = fullHistory.filter((p) => p.date >= sinceIso)
+  const periodVolume = fullVolume.filter((p) => p.date >= sinceIso)
 
   const currentWeight = profileResult.data?.weight_kg ?? null
   const currentHeight = profileResult.data?.height_cm ?? null
@@ -90,10 +86,12 @@ export default async function ProgressPage({
   const bestRow = bestE1RMResult.data as unknown as BestE1RMRow | null
   const bestE1RM = bestRow?.calculated_1rm ?? null
   const bestE1RMExercise = bestRow?.exercises
-    ? (locale === 'ru' ? (bestRow.exercises.name_ru ?? bestRow.exercises.name) : bestRow.exercises.name)
+    ? locale === 'ru'
+      ? (bestRow.exercises.name_ru ?? bestRow.exercises.name)
+      : bestRow.exercises.name
     : null
 
-  const unlockedAchievements = achievements.filter(a => a.tier > 0).length
+  const unlockedAchievements = achievements.filter((a) => a.tier > 0).length
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -171,7 +169,11 @@ export default async function ProgressPage({
             currentPeriod={periodKey}
             label={t('exerciseLabel')}
           />
-          <PeriodDropdown current={periodKey} exerciseId={selectedExercise?.id} label={t('periodLabel')} />
+          <PeriodDropdown
+            current={periodKey}
+            exerciseId={selectedExercise?.id}
+            label={t('periodLabel')}
+          />
         </div>
 
         <ExerciseMetricChart

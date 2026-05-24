@@ -13,7 +13,7 @@ export async function addSet(
     rpe?: number
     calculated1rm: number | null
     isWarmup?: boolean
-  }
+  },
 ): Promise<SetEntry> {
   const { data: set, error } = await supabase
     .from('set_entries')
@@ -36,7 +36,7 @@ export async function addSet(
 
 export async function getSetsForSession(
   supabase: SupabaseClient,
-  sessionId: string
+  sessionId: string,
 ): Promise<SetEntry[]> {
   const { data } = await supabase
     .from('set_entries')
@@ -50,7 +50,7 @@ export async function updateSet(
   supabase: SupabaseClient,
   setId: string,
   userId: string,
-  patch: { weightKg: number; reps: number; rpe?: number | null; calculated1rm: number | null }
+  patch: { weightKg: number; reps: number; rpe?: number | null; calculated1rm: number | null },
 ): Promise<SetEntry> {
   const { data, error } = await supabase
     .from('set_entries')
@@ -71,7 +71,7 @@ export async function updateSet(
 export async function deleteSet(
   supabase: SupabaseClient,
   setId: string,
-  userId: string
+  userId: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('set_entries')
@@ -84,7 +84,7 @@ export async function deleteSet(
 export async function getVolumeHistoryForExercise(
   supabase: SupabaseClient,
   userId: string,
-  exerciseId: string
+  exerciseId: string,
 ): Promise<{ date: string; volume_kg: number; sets: number }[]> {
   const { data } = await supabase
     .from('set_entries')
@@ -115,7 +115,7 @@ export async function getLastSetsForExercise(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
-  currentSessionId: string
+  currentSessionId: string,
 ): Promise<SetEntry[]> {
   const { data: prevSets } = await supabase
     .from('set_entries')
@@ -130,14 +130,14 @@ export async function getLastSetsForExercise(
   if (!prevSets || prevSets.length === 0) return []
 
   const lastSessionId = prevSets[0].session_id
-  return prevSets.filter(s => s.session_id === lastSessionId) as SetEntry[]
+  return prevSets.filter((s) => s.session_id === lastSessionId) as SetEntry[]
 }
 
 export async function getBestE1RMForExercise(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
-  excludeSetId?: string
+  excludeSetId?: string,
 ): Promise<number | null> {
   let query = supabase
     .from('set_entries')
@@ -158,7 +158,7 @@ export async function getBestE1RMForExercise(
 export async function getE1RMHistory(
   supabase: SupabaseClient,
   userId: string,
-  exerciseId: string
+  exerciseId: string,
 ): Promise<{ date: string; e1rm: number }[]> {
   const { data } = await supabase
     .from('set_entries')

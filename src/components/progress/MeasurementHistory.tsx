@@ -3,7 +3,11 @@
 import { useTranslations, useLocale } from 'next-intl'
 import { Trash2 } from 'lucide-react'
 import { deleteMeasurementAction } from '@/app/(app)/progress/measurements/actions'
-import { MEASUREMENT_METRICS, type BodyMeasurement, type MeasurementMetric } from '@/lib/db/body-measurements'
+import {
+  MEASUREMENT_METRICS,
+  type BodyMeasurement,
+  type MeasurementMetric,
+} from '@/lib/db/body-measurements'
 import { lengthUnit, weightUnit } from '@/lib/units'
 
 interface Props {
@@ -61,7 +65,7 @@ export function MeasurementHistory({ entries }: Props) {
           year: 'numeric',
         })
 
-        const filled = MEASUREMENT_METRICS.filter(m => entry[m] != null)
+        const filled = MEASUREMENT_METRICS.filter((m) => entry[m] != null)
         if (filled.length === 0 && !entry.notes) return null
 
         return (
@@ -85,7 +89,7 @@ export function MeasurementHistory({ entries }: Props) {
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {filled.map(metric => {
+              {filled.map((metric) => {
                 const value = entry[metric] as number
                 const prevValue = prev?.[metric] as number | null | undefined
                 const unit = metricUnit(metric, locale)

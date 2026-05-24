@@ -20,12 +20,20 @@ function Delta({ current, previous }: { current: number; previous: number | unde
   return (
     <span className={`inline-flex items-center gap-0.5 text-[9px] font-mono mt-1 ${color}`}>
       <Arrow className="h-2.5 w-2.5" />
-      {positive ? '+' : ''}{Math.abs(diff).toFixed(0)}
+      {positive ? '+' : ''}
+      {Math.abs(diff).toFixed(0)}
     </span>
   )
 }
 
-export function WeeklyStats({ tonnage, sessions, bestE1rm, prevTonnage, prevSessions, labels }: Props) {
+export function WeeklyStats({
+  tonnage,
+  sessions,
+  bestE1rm,
+  prevTonnage,
+  prevSessions,
+  labels,
+}: Props) {
   return (
     <div className="grid grid-cols-3 gap-2">
       <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">

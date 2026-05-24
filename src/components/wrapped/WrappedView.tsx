@@ -26,7 +26,10 @@ export function WrappedView({ report }: Props) {
     return { h, m }
   }, [report.totalMinutes])
 
-  const maxMonth = useMemo(() => Math.max(1, ...report.monthly.map(m => m.tonnageKg)), [report.monthly])
+  const maxMonth = useMemo(
+    () => Math.max(1, ...report.monthly.map((m) => m.tonnageKg)),
+    [report.monthly],
+  )
 
   if (!report.hasData) {
     return (
@@ -57,7 +60,10 @@ export function WrappedView({ report }: Props) {
           <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/55">
             {report.isInProgress ? t('introInProgress') : t('intro')}
           </span>
-          <p className="mt-2 text-[80px] sm:text-[110px] leading-none font-extrabold tabular-nums" style={{ color: '#FFC044', textShadow: '0 6px 30px rgba(255,196,68,0.35)' }}>
+          <p
+            className="mt-2 text-[80px] sm:text-[110px] leading-none font-extrabold tabular-nums"
+            style={{ color: '#FFC044', textShadow: '0 6px 30px rgba(255,196,68,0.35)' }}
+          >
             {report.year}
           </p>
           <p className="mt-2 text-sm text-white/55 max-w-xs">
@@ -153,7 +159,9 @@ export function WrappedView({ report }: Props) {
         <BigStatCard
           icon={<MapPin className="h-5 w-5" style={{ color: '#5EEAD4' }} />}
           label={t('cards.cardio.label')}
-          value={report.cardioKm > 0 ? report.cardioKm.toLocaleString() : `${report.cardioSessions}`}
+          value={
+            report.cardioKm > 0 ? report.cardioKm.toLocaleString() : `${report.cardioSessions}`
+          }
           unit={report.cardioKm > 0 ? 'km' : t('cards.cardio.unitSessions')}
           sub={t('cards.cardio.sub', { count: report.cardioSessions })}
           accent="#5EEAD4"
@@ -164,11 +172,17 @@ export function WrappedView({ report }: Props) {
       {report.topPRs.length > 0 && (
         <Card>
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-9 w-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(255, 196, 68, 0.16)' }}>
+            <div
+              className="h-9 w-9 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+            >
               <Trophy className="h-4 w-4" style={{ color: '#FFC044' }} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+              <p
+                className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                style={{ color: '#FFC044' }}
+              >
                 {t('cards.topPRs.label')}
               </p>
               <p className="text-sm font-bold text-white">{t('cards.topPRs.title')}</p>
@@ -176,16 +190,23 @@ export function WrappedView({ report }: Props) {
           </div>
           <div className="space-y-2.5">
             {report.topPRs.map((pr, i) => {
-              const name = locale === 'ru' ? (pr.exerciseNameRu ?? pr.exerciseName) : pr.exerciseName
+              const name =
+                locale === 'ru' ? (pr.exerciseNameRu ?? pr.exerciseName) : pr.exerciseName
               return (
                 <div key={i} className="flex items-baseline justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-2xl font-extrabold tabular-nums w-7" style={{ color: 'rgba(255,196,68,0.55)' }}>
+                    <span
+                      className="text-2xl font-extrabold tabular-nums w-7"
+                      style={{ color: 'rgba(255,196,68,0.55)' }}
+                    >
                       {i + 1}
                     </span>
                     <span className="text-sm font-bold text-white truncate">{name}</span>
                   </div>
-                  <span className="shrink-0 text-base font-extrabold tabular-nums" style={{ color: '#FFC044' }}>
+                  <span
+                    className="shrink-0 text-base font-extrabold tabular-nums"
+                    style={{ color: '#FFC044' }}
+                  >
                     {pr.e1rm.toFixed(1)} {kg}
                   </span>
                 </div>
@@ -204,7 +225,7 @@ export function WrappedView({ report }: Props) {
           <p className="text-sm font-bold text-white">{t('cards.monthly.title')}</p>
         </div>
         <div className="flex items-end gap-1.5 h-28">
-          {report.monthly.map(m => {
+          {report.monthly.map((m) => {
             const h = maxMonth > 0 ? Math.max(2, (m.tonnageKg / maxMonth) * 100) : 0
             return (
               <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
@@ -212,9 +233,10 @@ export function WrappedView({ report }: Props) {
                   className="w-full rounded-t-sm transition-all"
                   style={{
                     height: `${h}%`,
-                    background: m.sessions > 0
-                      ? 'linear-gradient(180deg, #FFC044, rgba(255,196,68,0.18))'
-                      : 'rgba(255,255,255,0.04)',
+                    background:
+                      m.sessions > 0
+                        ? 'linear-gradient(180deg, #FFC044, rgba(255,196,68,0.18))'
+                        : 'rgba(255,255,255,0.04)',
                   }}
                   title={`${m.sessions} sessions · ${m.tonnageKg.toLocaleString()} ${kg}`}
                 />
@@ -229,9 +251,7 @@ export function WrappedView({ report }: Props) {
 
       {/* Footer */}
       <div className="text-center pt-2">
-        <p className="text-[10px] uppercase tracking-[0.32em] text-white/35">
-          {t('footer')}
-        </p>
+        <p className="text-[10px] uppercase tracking-[0.32em] text-white/35">{t('footer')}</p>
       </div>
     </div>
   )
@@ -248,9 +268,10 @@ interface CardProps {
 }
 
 function Card({ children, gradient = 'none' }: CardProps) {
-  const bg = gradient === 'conic'
-    ? 'conic-gradient(from 230deg at 50% 50%, rgba(255,196,68,0.14), rgba(255, 110, 118, 0.08), rgba(167, 139, 250, 0.12), rgba(94, 234, 212, 0.10), rgba(255,196,68,0.14)), #0D0D12'
-    : '#15151C'
+  const bg =
+    gradient === 'conic'
+      ? 'conic-gradient(from 230deg at 50% 50%, rgba(255,196,68,0.14), rgba(255, 110, 118, 0.08), rgba(167, 139, 250, 0.12), rgba(94, 234, 212, 0.10), rgba(255,196,68,0.14)), #0D0D12'
+      : '#15151C'
   return (
     <div
       className="rounded-[24px] p-5 sm:p-6"
@@ -299,9 +320,7 @@ function BigStatCard({ icon, label, value, unit, sub, accent, smallValue }: BigS
         >
           {value}
         </span>
-        {unit && (
-          <span className="text-lg sm:text-xl text-white/45 font-mono">{unit}</span>
-        )}
+        {unit && <span className="text-lg sm:text-xl text-white/45 font-mono">{unit}</span>}
       </div>
 
       <p className="mt-3 text-sm text-white/55">{sub}</p>

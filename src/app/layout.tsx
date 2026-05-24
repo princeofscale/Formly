@@ -8,7 +8,10 @@ import { ClientErrorReporter } from '@/components/ClientErrorReporter'
 import { InstallPrompt } from '@/components/InstallPrompt'
 import './globals.css'
 
-const manrope = Manrope({ subsets: ['latin', 'cyrillic'], weight: ['400', '500', '600', '700', '800'] })
+const manrope = Manrope({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600', '700', '800'],
+})
 
 export const metadata: Metadata = {
   title: 'TrainingAR',
@@ -33,7 +36,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className="dark">
-      <body className={`${manrope.className} text-white min-h-screen`} style={{ background: '#0A0A0F' }}>
+      <body
+        className={`${manrope.className} text-white min-h-screen`}
+        style={{ background: '#0A0A0F' }}
+      >
         <NextIntlClientProvider messages={messages}>
           {children}
           <InstallPrompt />

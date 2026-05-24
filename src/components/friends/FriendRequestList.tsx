@@ -2,10 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { Check, X } from 'lucide-react'
-import {
-  acceptFriendRequestAction,
-  declineFriendRequestAction,
-} from '@/app/(app)/friends/actions'
+import { acceptFriendRequestAction, declineFriendRequestAction } from '@/app/(app)/friends/actions'
 import type { PendingFriendRequest } from '@/lib/db/friends'
 
 interface Props {
@@ -23,7 +20,7 @@ export function FriendRequestList({ requests }: Props) {
         {t('requestsTitle', { n: requests.length })}
       </h2>
       <div className="space-y-2">
-        {requests.map(req => (
+        {requests.map((req) => (
           <div
             key={req.friendship_id}
             className="flex items-center gap-3 rounded-2xl p-3"

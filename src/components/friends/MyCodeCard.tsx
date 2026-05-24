@@ -69,7 +69,17 @@ export function MyCodeCard({ code }: Props) {
             border: '1px solid rgba(255, 196, 68, 0.28)',
           }}
         >
-          {copied ? <><Check className="h-4 w-4" />{t('copied')}</> : <><Copy className="h-4 w-4" />{t('copy')}</>}
+          {copied ? (
+            <>
+              <Check className="h-4 w-4" />
+              {t('copied')}
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" />
+              {t('copy')}
+            </>
+          )}
         </button>
         <button
           type="button"

@@ -16,7 +16,10 @@ export function GoalsTeaser({ goals }: Props) {
   const kg = weightUnit(locale)
 
   // Show up to 2 active goals, sorted by progress desc
-  const active = goals.filter(g => !g.achieved_at).sort((a, b) => b.progress_pct - a.progress_pct).slice(0, 2)
+  const active = goals
+    .filter((g) => !g.achieved_at)
+    .sort((a, b) => b.progress_pct - a.progress_pct)
+    .slice(0, 2)
 
   if (goals.length === 0) {
     return (
@@ -33,7 +36,10 @@ export function GoalsTeaser({ goals }: Props) {
             <Target className="h-4 w-4" style={{ color: '#FFC044' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#FFC044' }}
+            >
               {t('label')}
             </p>
             <p className="text-sm font-bold text-white">{t('setFirst')}</p>
@@ -59,7 +65,10 @@ export function GoalsTeaser({ goals }: Props) {
             <Target className="h-4 w-4" style={{ color: '#FFC044' }} />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#FFC044' }}
+            >
               {t('label')}
             </p>
             <p className="text-sm font-bold text-white">{t('teaserTitle')}</p>
@@ -71,26 +80,31 @@ export function GoalsTeaser({ goals }: Props) {
       <div className="space-y-2.5">
         {active.length === 0 ? (
           <p className="text-xs text-white/45">{t('allAchieved')}</p>
-        ) : active.map(g => {
-          const name = locale === 'ru' ? (g.exercise_name_ru ?? g.exercise_name) : g.exercise_name
-          const barColor = g.progress_pct >= 80 ? '#FFC044' : '#FF6E76'
-          return (
-            <div key={g.id} className="space-y-1">
-              <div className="flex items-baseline justify-between gap-2 text-xs tabular-nums">
-                <span className="text-white font-bold truncate">{name}</span>
-                <span style={{ color: barColor }} className="font-bold shrink-0">
-                  {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
-                </span>
-              </div>
-              <div className="relative h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+        ) : (
+          active.map((g) => {
+            const name = locale === 'ru' ? (g.exercise_name_ru ?? g.exercise_name) : g.exercise_name
+            const barColor = g.progress_pct >= 80 ? '#FFC044' : '#FF6E76'
+            return (
+              <div key={g.id} className="space-y-1">
+                <div className="flex items-baseline justify-between gap-2 text-xs tabular-nums">
+                  <span className="text-white font-bold truncate">{name}</span>
+                  <span style={{ color: barColor }} className="font-bold shrink-0">
+                    {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
+                  </span>
+                </div>
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-all"
-                  style={{ width: `${g.progress_pct}%`, background: barColor }}
-                />
+                  className="relative h-1 rounded-full overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.05)' }}
+                >
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full transition-all"
+                    style={{ width: `${g.progress_pct}%`, background: barColor }}
+                  />
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })
+        )}
       </div>
     </Link>
   )

@@ -26,7 +26,10 @@ export function ExerciseSearch({ onSelect }: Props) {
   function handleChange(value: string) {
     setQuery(value)
     setSearched(false)
-    if (value.length < 2) { setResults([]); return }
+    if (value.length < 2) {
+      setResults([])
+      return
+    }
     startTransition(async () => {
       const found = await searchExercisesAction(value, locale)
       setResults(found)
@@ -55,12 +58,12 @@ export function ExerciseSearch({ onSelect }: Props) {
           placeholder={t('searchPlaceholder')}
           className="pl-9 bg-white/5 border-zinc-700"
           value={query}
-          onChange={e => handleChange(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
         />
       </div>
       {(results.length > 0 || showCreateHint) && (
         <ul className="absolute z-10 w-full mt-1 bg-black/80 border border-white/10 rounded-md shadow-lg max-h-72 overflow-y-auto backdrop-blur-sm">
-          {results.map(ex => {
+          {results.map((ex) => {
             const thumb = ex.image_urls?.[0]
             return (
               <li key={ex.id}>
@@ -70,16 +73,23 @@ export function ExerciseSearch({ onSelect }: Props) {
                 >
                   {thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={thumb} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0 bg-white/5" />
+                    <img
+                      src={thumb}
+                      alt=""
+                      className="w-10 h-10 rounded object-cover flex-shrink-0 bg-white/5"
+                    />
                   ) : (
                     <div className="w-10 h-10 rounded bg-white/5 flex-shrink-0" />
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{displayName(ex)}</p>
-                    <p className="text-xs text-zinc-500">{tHistory(`muscleLabel.${ex.primary_muscle}`)}</p>
+                    <p className="text-xs text-zinc-500">
+                      {tHistory(`muscleLabel.${ex.primary_muscle}`)}
+                    </p>
                   </div>
                   {ex.is_custom && (
-                    <span className="text-[9px] font-bold uppercase tracking-widest flex-shrink-0 px-1.5 py-0.5 rounded-sm"
+                    <span
+                      className="text-[9px] font-bold uppercase tracking-widest flex-shrink-0 px-1.5 py-0.5 rounded-sm"
                       style={{ background: 'rgba(255, 59, 71, 0.18)', color: '#FF6E76' }}
                     >
                       {tForm('customBadge')}
@@ -96,7 +106,8 @@ export function ExerciseSearch({ onSelect }: Props) {
                 onClick={() => setFormOpenFor(query)}
                 className="w-full text-left px-3 py-3 hover:bg-white/10 flex items-center gap-3"
               >
-                <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0"
+                <div
+                  className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(255, 59, 71, 0.15)' }}
                 >
                   <Plus className="h-5 w-5" style={{ color: '#FF6E76' }} />

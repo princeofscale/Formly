@@ -47,9 +47,7 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
   const goal: OnboardingGoal =
     goalRaw === 'strength' || goalRaw === 'hypertrophy' ? goalRaw : 'general'
   const location: OnboardingLocation =
-    locationRaw === 'home_dumbbells' || locationRaw === 'home_bodyweight'
-      ? locationRaw
-      : 'gym'
+    locationRaw === 'home_dumbbells' || locationRaw === 'home_bodyweight' ? locationRaw : 'gym'
   const days = Math.max(1, Math.min(7, parseInt(daysRaw ?? '3', 10) || 3))
 
   // 1. Update profile with the schedule. Location enum in DB is gym/home/both,
@@ -69,20 +67,20 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
   //    that wouldn't load. They'll start freestyle and we suggest exercises
   //    via the library instead.
   const programId = pickProgram(goal, days)
-  const program = WORKOUT_PRESETS.find(p => p.id === programId)
+  const program = WORKOUT_PRESETS.find((p) => p.id === programId)
 
   if (program && location !== 'home_bodyweight') {
     // Collect all exercise slugs used across all days of the program
-    const allSlugs = Array.from(new Set(program.days.flatMap(d => d.slugs)))
+    const allSlugs = Array.from(new Set(program.days.flatMap((d) => d.slugs)))
     const { data: exData } = await supabase
       .from('exercises')
       .select('id, slug, name, name_ru')
       .in('slug', allSlugs)
 
     const bySlug = new Map(
-      ((exData ?? []) as Array<{ id: string; slug: string; name: string; name_ru: string | null }>).map(
-        e => [e.slug, e],
-      ),
+      (
+        (exData ?? []) as Array<{ id: string; slug: string; name: string; name_ru: string | null }>
+      ).map((e) => [e.slug, e]),
     )
 
     // Localized preset titles
@@ -117,10 +115,7 @@ export async function skipOnboardingAction(): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
   // Mark schedule as "explicitly empty" so dashboard knows not to bounce them back
-  await supabase
-    .from('profiles')
-    .update({ training_schedule: [] })
-    .eq('id', user.id)
+  await supabase.from('profiles').update({ training_schedule: [] }).eq('id', user.id)
   revalidatePath('/dashboard')
   redirect('/dashboard')
 }

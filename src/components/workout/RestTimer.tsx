@@ -31,7 +31,9 @@ function getInitialDuration(fallback: number): number {
 // Short two-tone beep via WebAudio — no asset, ~100ms total.
 function playBeep() {
   try {
-    const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const Ctor =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     if (!Ctor) return
     const ctx = new Ctor()
     const now = ctx.currentTime
@@ -63,8 +65,10 @@ function fireNotification(title: string, body: string) {
   } catch {
     // Some browsers require ServiceWorker.showNotification for installed PWAs.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        reg?.showNotification(title, { body, tag: 'rest-timer', icon: '/icon-192.png' }).catch(() => {})
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        reg
+          ?.showNotification(title, { body, tag: 'rest-timer', icon: '/icon-192.png' })
+          .catch(() => {})
       })
     }
   }
@@ -79,9 +83,7 @@ interface WakeLockApi {
 
 function sendSwMessage(msg: Record<string, unknown>) {
   if (typeof navigator === 'undefined' || !navigator.serviceWorker) return
-  navigator.serviceWorker.ready
-    .then(reg => reg.active?.postMessage(msg))
-    .catch(() => {})
+  navigator.serviceWorker.ready.then((reg) => reg.active?.postMessage(msg)).catch(() => {})
 }
 
 export function RestTimer({ seconds, onDone }: Props) {
@@ -90,10 +92,14 @@ export function RestTimer({ seconds, onDone }: Props) {
   const [duration, setDuration] = useState(() => getInitialDuration(seconds))
   // Absolute end timestamp — single source of truth. Wall-clock based so
   // background-tab throttling / phone-screen-off can't desync the display.
-  const [endsAt, setEndsAt] = useState<number>(() => Date.now() + getInitialDuration(seconds) * 1000)
+  const [endsAt, setEndsAt] = useState<number>(
+    () => Date.now() + getInitialDuration(seconds) * 1000,
+  )
   const [remaining, setRemaining] = useState<number>(() => getInitialDuration(seconds))
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(
-    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported',
+    typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported',
   )
   const doneRef = useRef(false)
   const wakeLockRef = useRef<WakeLockSentinelLite | null>(null)
@@ -111,13 +117,16 @@ export function RestTimer({ seconds, onDone }: Props) {
     if (!nav.wakeLock) return
     let cancelled = false
     const acquire = () => {
-      nav.wakeLock!.request('screen').then(sentinel => {
-        if (cancelled) {
-          sentinel.release().catch(() => {})
-          return
-        }
-        wakeLockRef.current = sentinel
-      }).catch(() => {})
+      nav
+        .wakeLock!.request('screen')
+        .then((sentinel) => {
+          if (cancelled) {
+            sentinel.release().catch(() => {})
+            return
+          }
+          wakeLockRef.current = sentinel
+        })
+        .catch(() => {})
     }
     acquire()
     // Re-acquire when tab becomes visible again (browsers release wake lock on hide)
@@ -172,7 +181,9 @@ export function RestTimer({ seconds, onDone }: Props) {
     tick()
 
     // Force a recompute the moment the user re-foregrounds the tab
-    const onVis = () => { if (document.visibilityState === 'visible') tick() }
+    const onVis = () => {
+      if (document.visibilityState === 'visible') tick()
+    }
     document.addEventListener('visibilitychange', onVis)
 
     return () => {
@@ -183,7 +194,6 @@ export function RestTimer({ seconds, onDone }: Props) {
 
   const applyPreset = useCallback((value: number) => {
     setDuration(value)
-    // eslint-disable-next-line react-hooks/purity -- event handler, runs on click
     setEndsAt(Date.now() + value * 1000)
     doneRef.current = false
   }, [])
@@ -197,7 +207,8 @@ export function RestTimer({ seconds, onDone }: Props) {
   const pct = duration > 0 ? remaining / duration : 0
   const offset = CIRCUMFERENCE * (1 - pct)
   const stroke = remaining > 45 ? '#22c55e' : remaining > 20 ? '#eab308' : '#ef4444'
-  const textColor = remaining > 45 ? 'text-green-400' : remaining > 20 ? 'text-yellow-400' : 'text-red-400'
+  const textColor =
+    remaining > 45 ? 'text-green-400' : remaining > 20 ? 'text-yellow-400' : 'text-red-400'
 
   return (
     <div className="space-y-2 py-1 animate-in fade-in duration-300">
@@ -206,13 +217,21 @@ export function RestTimer({ seconds, onDone }: Props) {
           <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r={RADIUS} fill="none" stroke="#27272a" strokeWidth="4" />
             <circle
-              cx="32" cy="32" r={RADIUS}
-              fill="none" stroke={stroke} strokeWidth="4" strokeLinecap="round"
-              strokeDasharray={CIRCUMFERENCE} strokeDashoffset={offset}
+              cx="32"
+              cy="32"
+              r={RADIUS}
+              fill="none"
+              stroke={stroke}
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={offset}
               style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease' }}
             />
           </svg>
-          <span className={`absolute inset-0 flex items-center justify-center font-mono font-black text-sm tabular-nums ${textColor}`}>
+          <span
+            className={`absolute inset-0 flex items-center justify-center font-mono font-black text-sm tabular-nums ${textColor}`}
+          >
             {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}
           </span>
         </div>
@@ -241,7 +260,7 @@ export function RestTimer({ seconds, onDone }: Props) {
       </div>
 
       <div className="flex gap-1">
-        {PRESETS.map(p => {
+        {PRESETS.map((p) => {
           const active = duration === p.value
           return (
             <button

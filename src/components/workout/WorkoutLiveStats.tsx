@@ -29,7 +29,8 @@ export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg }: Props
 
   useEffect(() => {
     const id = setInterval(
-      () => setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))),
+      () =>
+        setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))),
       1000,
     )
     return () => clearInterval(id)

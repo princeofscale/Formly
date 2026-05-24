@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendPushToSubscription } from '@/lib/services/web-push.service'
-import { deletePushSubscriptionByEndpoint, type PushSubscriptionRow } from '@/lib/db/push-subscriptions'
+import {
+  deletePushSubscriptionByEndpoint,
+  type PushSubscriptionRow,
+} from '@/lib/db/push-subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,15 +49,13 @@ export async function GET(request: Request) {
   windowStart.setUTCDate(now.getUTCDate() - 56)
 
   // Fetch sessions for everyone with a push subscription
-  const { data: subsData } = await supabase
-    .from('push_subscriptions')
-    .select('*')
+  const { data: subsData } = await supabase.from('push_subscriptions').select('*')
 
   const allSubs = (subsData as PushSubscriptionRow[]) ?? []
   if (allSubs.length === 0) {
     return NextResponse.json({ candidates: 0, sent: 0 })
   }
-  const userIds = Array.from(new Set(allSubs.map(s => s.user_id)))
+  const userIds = Array.from(new Set(allSubs.map((s) => s.user_id)))
 
   // Pull recent sessions in one query
   const { data: sessionsData } = await supabase
@@ -107,8 +108,10 @@ export async function GET(request: Request) {
     .in('user_id', eligibleUsers)
     .gte('started_at', todayIso + 'T00:00:00Z')
 
-  const startedToday = new Set(((todaySessions as { user_id: string }[]) ?? []).map(r => r.user_id))
-  const toNotify = eligibleUsers.filter(id => !startedToday.has(id))
+  const startedToday = new Set(
+    ((todaySessions as { user_id: string }[]) ?? []).map((r) => r.user_id),
+  )
+  const toNotify = eligibleUsers.filter((id) => !startedToday.has(id))
 
   if (toNotify.length === 0) {
     return NextResponse.json({

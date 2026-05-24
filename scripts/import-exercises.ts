@@ -3,7 +3,8 @@ import * as dotenv from 'dotenv'
 
 dotenv.config({ path: '.env.local' })
 
-const DATASET_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json'
+const DATASET_URL =
+  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json'
 const IMAGE_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/'
 
 const MUSCLE_MAP: Record<string, string> = {
@@ -41,19 +42,43 @@ const EQUIPMENT_MAP: Record<string, string> = {
   other: 'other',
 }
 
+interface SourceExercise {
+  name: string
+  primaryMuscles?: string[]
+  secondaryMuscles?: string[]
+  equipment?: string
+  mechanic?: string
+  images?: string[]
+  instructions?: string[]
+}
+
 function slugify(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+function isSourceExercise(value: unknown): value is SourceExercise {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'name' in value &&
+    typeof (value as { name?: unknown }).name === 'string'
+  )
 }
 
 async function main() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
   console.log('Fetching exercise dataset...')
   const res = await fetch(DATASET_URL)
-  const exercises = await res.json() as any[]
+  const rawExercises: unknown = await res.json()
+  if (!Array.isArray(rawExercises)) throw new Error('Exercise dataset is not an array')
+  const exercises = rawExercises.filter(isSourceExercise)
   console.log(`Fetched ${exercises.length} exercises`)
 
   let inserted = 0
@@ -68,19 +93,17 @@ async function main() {
       continue
     }
 
-    const secondary = (ex.secondaryMuscles ?? [])
-      .map((m: string) => MUSCLE_MAP[m])
-      .filter(Boolean)
+    const secondary = (ex.secondaryMuscles ?? []).map((m: string) => MUSCLE_MAP[m]).filter(Boolean)
 
-    const equipment = EQUIPMENT_MAP[ex.equipment] ?? 'other'
+    const equipmentRaw = ex.equipment ?? 'other'
+    const equipment = EQUIPMENT_MAP[equipmentRaw] ?? 'other'
     const mechanic = ex.mechanic === 'compound' ? 'compound' : 'isolation'
     const slug = slugify(ex.name)
     const imageUrls = (ex.images ?? []).map((img: string) => `${IMAGE_BASE}${img}`)
     const instructions = (ex.instructions ?? []).join('\n\n')
 
-    const { error } = await supabase
-      .from('exercises')
-      .upsert({
+    const { error } = await supabase.from('exercises').upsert(
+      {
         slug,
         name: ex.name,
         primary_muscle: primary,
@@ -91,10 +114,12 @@ async function main() {
         created_by: null,
         instructions_en: instructions || null,
         image_urls: imageUrls,
-      }, {
+      },
+      {
         onConflict: 'slug',
         ignoreDuplicates: false,
-      })
+      },
+    )
 
     if (error) {
       console.error(`Error inserting ${ex.name}:`, error.message)

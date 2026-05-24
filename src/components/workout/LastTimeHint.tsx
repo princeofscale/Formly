@@ -17,7 +17,8 @@ export function LastTimeHint({ sets }: { sets: SetEntry[] }) {
       </span>
       {sorted.map((set, i) => (
         <span key={i} className="text-[11px] font-mono text-zinc-500">
-          {set.weight_kg}<span className="text-zinc-700 text-[9px]">кг</span>
+          {set.weight_kg}
+          <span className="text-zinc-700 text-[9px]">кг</span>
           <span className="text-zinc-700">×</span>
           {set.reps}
         </span>

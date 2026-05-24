@@ -10,7 +10,7 @@ export interface ExerciseVideo {
 export async function getExerciseVideosForExercises(
   supabase: SupabaseClient,
   userId: string,
-  exerciseIds: string[]
+  exerciseIds: string[],
 ): Promise<Record<string, string>> {
   if (exerciseIds.length === 0) return {}
   const { data } = await supabase
@@ -29,7 +29,7 @@ export async function upsertExerciseVideo(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
-  url: string
+  url: string,
 ): Promise<void> {
   const trimmed = url.trim()
   if (trimmed.length === 0) {
@@ -41,16 +41,14 @@ export async function upsertExerciseVideo(
     if (error) throw new Error(error.message)
     return
   }
-  const { error } = await supabase
-    .from('user_exercise_videos')
-    .upsert(
-      {
-        user_id: userId,
-        exercise_id: exerciseId,
-        url: trimmed.slice(0, 500),
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,exercise_id' }
-    )
+  const { error } = await supabase.from('user_exercise_videos').upsert(
+    {
+      user_id: userId,
+      exercise_id: exerciseId,
+      url: trimmed.slice(0, 500),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,exercise_id' },
+  )
   if (error) throw new Error(error.message)
 }

@@ -33,7 +33,7 @@ export default async function WorkoutPage({
   const exerciseMap = new Map<string, ExerciseWithSets>()
   for (const set of sets) {
     if (!exerciseMap.has(set.exercise_id)) {
-      const ex = allExercises.find(e => e.id === set.exercise_id)
+      const ex = allExercises.find((e) => e.id === set.exercise_id)
       if (ex) exerciseMap.set(set.exercise_id, { ...ex, sets: [] })
     }
     exerciseMap.get(set.exercise_id)?.sets.push(set)
@@ -44,7 +44,7 @@ export default async function WorkoutPage({
   const exerciseIdsInSession = [...exerciseMap.keys()]
 
   // If template provided, also include its exercise IDs for last-sets prefetch
-  let templateExercises: ExerciseWithSets[] = []
+  const templateExercises: ExerciseWithSets[] = []
   let sourceTemplate: { id: string; name: string } | undefined
   if (templateId) {
     const template = await getTemplate(supabase, user.id, templateId)
@@ -52,7 +52,7 @@ export default async function WorkoutPage({
       sourceTemplate = { id: template.id, name: template.name }
       for (const te of template.exercises) {
         if (exerciseMap.has(te.exercise_id)) continue
-        const ex = allExercises.find(e => e.id === te.exercise_id)
+        const ex = allExercises.find((e) => e.id === te.exercise_id)
         if (!ex) continue
         templateExercises.push({ ...ex, sets: [] })
         exerciseIdsInSession.push(te.exercise_id)
@@ -64,13 +64,13 @@ export default async function WorkoutPage({
   await Promise.all(
     exerciseIdsInSession.map(async (exerciseId) => {
       lastSetsMap[exerciseId] = await getLastSetsForExercise(supabase, user.id, exerciseId, id)
-    })
+    }),
   )
 
   const initialExercises = [...exerciseMap.values(), ...templateExercises]
 
   // Fetch exercise notes + videos for all exercises in this session
-  const exerciseIds = initialExercises.map(e => e.id)
+  const exerciseIds = initialExercises.map((e) => e.id)
   const [exerciseNotesMap, exerciseVideosMap] = await Promise.all([
     getExerciseNotesForExercises(supabase, user.id, exerciseIds),
     getExerciseVideosForExercises(supabase, user.id, exerciseIds),
@@ -95,7 +95,7 @@ export default async function WorkoutPage({
     .slice(0, 6)
     .map(([id]) => id)
   const suggestedExercises: Exercise[] = topExerciseIds
-    .map(id => allExercises.find(e => e.id === id))
+    .map((id) => allExercises.find((e) => e.id === id))
     .filter((e): e is Exercise => e !== undefined)
 
   return (

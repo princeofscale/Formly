@@ -24,7 +24,7 @@ export interface SessionSummary {
   prs: SessionPR[]
   comparison: {
     prevTonnage: number | null
-    deltaTonnagePct: number | null  // null when no previous session
+    deltaTonnagePct: number | null // null when no previous session
     prevDurationMinutes: number | null
   } | null
 }
@@ -61,13 +61,19 @@ export async function getSessionSummary(
     weight_kg: number
     reps: number
     calculated_1rm: number | null
-    exercises: { name: string; name_ru: string | null } | { name: string; name_ru: string | null }[] | null
+    exercises:
+      | { name: string; name_ru: string | null }
+      | { name: string; name_ru: string | null }[]
+      | null
   }>
 
   let totalSets = 0
   let totalReps = 0
   let totalVolumeKg = 0
-  const perExercise = new Map<string, { name: string; nameRu: string | null; volume: number; sets: number; bestE1rm: number }>()
+  const perExercise = new Map<
+    string,
+    { name: string; nameRu: string | null; volume: number; sets: number; bestE1rm: number }
+  >()
 
   for (const s of sets) {
     const ex = Array.isArray(s.exercises) ? s.exercises[0] : s.exercises
@@ -112,7 +118,10 @@ export async function getSessionSummary(
       .neq('session_id', sessionId)
 
     const bestByExercise = new Map<string, number>()
-    for (const row of (histRows ?? []) as Array<{ exercise_id: string; calculated_1rm: number | null }>) {
+    for (const row of (histRows ?? []) as Array<{
+      exercise_id: string
+      calculated_1rm: number | null
+    }>) {
       if (row.calculated_1rm == null) continue
       const cur = bestByExercise.get(row.exercise_id) ?? 0
       if (row.calculated_1rm > cur) bestByExercise.set(row.exercise_id, row.calculated_1rm)
@@ -128,7 +137,8 @@ export async function getSessionSummary(
           exerciseNameRu: entry.nameRu,
           newBest: Math.round(entry.bestE1rm * 10) / 10,
           previousBest: Math.round(prev * 10) / 10,
-          improvementPct: prev > 0 ? Math.round(((entry.bestE1rm - prev) / prev) * 1000) / 10 : null,
+          improvementPct:
+            prev > 0 ? Math.round(((entry.bestE1rm - prev) / prev) * 1000) / 10 : null,
         })
       }
     }
@@ -157,11 +167,14 @@ export async function getSessionSummary(
       const prevTonnage = prev.total_volume_kg ?? 0
       const prevDur = Math.max(
         0,
-        Math.round((new Date(prev.finished_at).getTime() - new Date(prev.started_at).getTime()) / 60000),
+        Math.round(
+          (new Date(prev.finished_at).getTime() - new Date(prev.started_at).getTime()) / 60000,
+        ),
       )
-      const deltaPct = prevTonnage > 0
-        ? Math.round(((totalVolumeKg - prevTonnage) / prevTonnage) * 1000) / 10
-        : null
+      const deltaPct =
+        prevTonnage > 0
+          ? Math.round(((totalVolumeKg - prevTonnage) / prevTonnage) * 1000) / 10
+          : null
       comparison = {
         prevTonnage: Math.round(prevTonnage),
         deltaTonnagePct: deltaPct,

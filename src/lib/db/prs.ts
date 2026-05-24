@@ -15,7 +15,7 @@ export interface RecentPR {
 export async function getRecentPRs(
   supabase: SupabaseClient,
   userId: string,
-  days = 30
+  days = 30,
 ): Promise<RecentPR[]> {
   const { data, error } = await supabase.rpc('get_recent_prs', {
     p_user_id: userId,

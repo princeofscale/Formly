@@ -24,17 +24,17 @@ export interface WrappedReport {
   totalReps: number
   totalMinutes: number
   longestStreakDays: number
-  favoriteHour: number | null      // 0..23 or null if no data
+  favoriteHour: number | null // 0..23 or null if no data
   bestDay: {
-    date: string                    // YYYY-MM-DD
+    date: string // YYYY-MM-DD
     tonnageKg: number
   } | null
   topMuscle: {
     muscle: string
     sets: number
   } | null
-  topPRs: WrappedTopPR[]            // top 5 by e1rm
-  monthly: MonthBucket[]            // length 12
+  topPRs: WrappedTopPR[] // top 5 by e1rm
+  monthly: MonthBucket[] // length 12
   cardioKm: number
   cardioSessions: number
 }
@@ -74,14 +74,18 @@ export async function getWrappedReport(
     return emptyReport(year, isInProgress)
   }
 
-  const strengthSessions = sessions.filter(s => s.session_type !== 'cardio')
-  const cardioSessions = sessions.filter(s => s.session_type === 'cardio')
+  const strengthSessions = sessions.filter((s) => s.session_type !== 'cardio')
+  const cardioSessions = sessions.filter((s) => s.session_type === 'cardio')
 
   // 2) Aggregates from sessions
   let totalTonnage = 0
   let totalMinutes = 0
   const hourCounts = new Array<number>(24).fill(0)
-  const monthly: MonthBucket[] = Array.from({ length: 12 }, (_, m) => ({ month: m, sessions: 0, tonnageKg: 0 }))
+  const monthly: MonthBucket[] = Array.from({ length: 12 }, (_, m) => ({
+    month: m,
+    sessions: 0,
+    tonnageKg: 0,
+  }))
   const tonnageByDay = new Map<string, number>()
 
   for (const s of strengthSessions) {
@@ -123,7 +127,9 @@ export async function getWrappedReport(
   })
 
   // Longest streak (consecutive calendar days with at least one strength session)
-  const uniqueDays = Array.from(new Set(strengthSessions.map(s => s.started_at.slice(0, 10)))).sort()
+  const uniqueDays = Array.from(
+    new Set(strengthSessions.map((s) => s.started_at.slice(0, 10))),
+  ).sort()
   let longestStreak = 0
   let current = 0
   let prev: Date | null = null
@@ -138,17 +144,22 @@ export async function getWrappedReport(
   }
 
   // 3) Sets aggregates (one query, all sets of the year via session id list)
-  const sessionIds = sessions.map(s => s.id)
+  const sessionIds = sessions.map((s) => s.id)
   let totalSets = 0
   let totalReps = 0
   const setsByMuscle = new Map<string, number>()
-  const e1rmByExercise = new Map<string, { e1rm: number; achievedAt: string; name: string; nameRu: string | null }>()
+  const e1rmByExercise = new Map<
+    string,
+    { e1rm: number; achievedAt: string; name: string; nameRu: string | null }
+  >()
 
   if (sessionIds.length > 0) {
     // Pull sets in chunks if very large (Supabase row limit ~1000 by default — bump to 10k explicitly)
     const { data: setRows } = await supabase
       .from('set_entries')
-      .select('exercise_id, reps, calculated_1rm, created_at, exercises(name, name_ru, primary_muscle)')
+      .select(
+        'exercise_id, reps, calculated_1rm, created_at, exercises(name, name_ru, primary_muscle)',
+      )
       .eq('user_id', userId)
       .in('session_id', sessionIds)
       .limit(10000)
@@ -195,7 +206,7 @@ export async function getWrappedReport(
   const topPRs: WrappedTopPR[] = Array.from(e1rmByExercise.values())
     .sort((a, b) => b.e1rm - a.e1rm)
     .slice(0, 5)
-    .map(p => ({
+    .map((p) => ({
       exerciseName: p.name,
       exerciseNameRu: p.nameRu,
       e1rm: Math.round(p.e1rm * 10) / 10,

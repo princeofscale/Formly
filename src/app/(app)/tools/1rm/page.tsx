@@ -22,9 +22,7 @@ export default async function OneRMPage() {
 
       <OneRMCalculator />
 
-      <p className="text-[10px] leading-relaxed text-white/35">
-        {t('formulaHint')}
-      </p>
+      <p className="text-[10px] leading-relaxed text-white/35">{t('formulaHint')}</p>
     </div>
   )
 }

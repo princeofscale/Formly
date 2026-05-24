@@ -32,8 +32,14 @@ export type PushSubscribeResult =
   | { status: 'no-key' }
   | { status: 'error'; error: unknown }
 
-export async function requestPushSubscription(vapidPublicKey: string): Promise<PushSubscribeResult> {
-  if (typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)) {
+export async function requestPushSubscription(
+  vapidPublicKey: string,
+): Promise<PushSubscribeResult> {
+  if (
+    typeof window === 'undefined' ||
+    !('Notification' in window) ||
+    !('serviceWorker' in navigator)
+  ) {
     return { status: 'unsupported' }
   }
   if (!vapidPublicKey) return { status: 'no-key' }

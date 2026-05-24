@@ -7,7 +7,14 @@ import { verifySession } from '@/lib/dal'
 import { createCardioSession, deleteCardioSession, type CardioActivity } from '@/lib/db/cardio'
 
 const ACTIVITIES: readonly CardioActivity[] = [
-  'running', 'cycling', 'walking', 'swimming', 'rowing', 'elliptical', 'hiit', 'other',
+  'running',
+  'cycling',
+  'walking',
+  'swimming',
+  'rowing',
+  'elliptical',
+  'hiit',
+  'other',
 ] as const
 
 export async function logCardioAction(formData: FormData): Promise<void> {

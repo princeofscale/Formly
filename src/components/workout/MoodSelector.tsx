@@ -40,7 +40,7 @@ export function MoodSelector({ sessionId, initialMood }: Props) {
         {t('label')}
       </div>
       <div className="flex gap-1.5">
-        {MOODS.map(m => {
+        {MOODS.map((m) => {
           const active = mood === m.value
           return (
             <button

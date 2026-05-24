@@ -54,14 +54,27 @@ export default function RegisterPage() {
           />
           <span>
             {t('legalAccept.before')}{' '}
-            <Link href="/terms" className="underline text-amber-400 hover:text-amber-300" target="_blank" rel="noopener">{t('legalAccept.terms')}</Link>{' '}
+            <Link
+              href="/terms"
+              className="underline text-amber-400 hover:text-amber-300"
+              target="_blank"
+              rel="noopener"
+            >
+              {t('legalAccept.terms')}
+            </Link>{' '}
             {t('legalAccept.and')}{' '}
-            <Link href="/privacy" className="underline text-amber-400 hover:text-amber-300" target="_blank" rel="noopener">{t('legalAccept.privacy')}</Link>.
+            <Link
+              href="/privacy"
+              className="underline text-amber-400 hover:text-amber-300"
+              target="_blank"
+              rel="noopener"
+            >
+              {t('legalAccept.privacy')}
+            </Link>
+            .
           </span>
         </label>
-        {state?.errorKey && (
-          <p className="text-sm text-red-400">{te(state.errorKey)}</p>
-        )}
+        {state?.errorKey && <p className="text-sm text-red-400">{te(state.errorKey)}</p>}
         <Button
           type="submit"
           className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-400 text-black hover:from-amber-400 hover:to-amber-300 border-0"

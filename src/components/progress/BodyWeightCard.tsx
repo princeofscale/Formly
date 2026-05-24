@@ -29,7 +29,8 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
 
   const weightNum = Number(weight)
   const heightNum = Number(height)
-  const canSave = Number.isFinite(weightNum) && weightNum > 0 && Number.isFinite(heightNum) && heightNum > 0
+  const canSave =
+    Number.isFinite(weightNum) && weightNum > 0 && Number.isFinite(heightNum) && heightNum > 0
 
   function save() {
     if (!canSave) return
@@ -57,7 +58,10 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
           {labels.weight} / {labels.height}
         </h3>
         {saved && (
-          <div className="flex items-center gap-1 text-[10px] animate-in fade-in" style={{ color: '#FF3B47' }}>
+          <div
+            className="flex items-center gap-1 text-[10px] animate-in fade-in"
+            style={{ color: '#FF3B47' }}
+          >
             <Check className="h-3 w-3" />
             <span>{labels.saved}</span>
           </div>
@@ -66,7 +70,9 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
 
       <div className="grid grid-cols-2 gap-3">
         <label className="space-y-1.5">
-          <span className="text-[10px] uppercase tracking-widest text-white/45">{labels.weight}</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/45">
+            {labels.weight}
+          </span>
           <div className="flex items-baseline gap-2 rounded-[14px] bg-white/[0.05] px-3 py-3 ring-1 ring-white/[0.08]">
             <input
               type="number"
@@ -74,7 +80,7 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
               min="1"
               step="0.1"
               value={weight}
-              onChange={e => setWeight(e.target.value)}
+              onChange={(e) => setWeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
             />
             <span className="text-xs text-white/45">{labels.weightUnit}</span>
@@ -82,7 +88,9 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-[10px] uppercase tracking-widest text-white/45">{labels.height}</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/45">
+            {labels.height}
+          </span>
           <div className="flex items-baseline gap-2 rounded-[14px] bg-white/[0.05] px-3 py-3 ring-1 ring-white/[0.08]">
             <input
               type="number"
@@ -90,7 +98,7 @@ export function BodyWeightCard({ initialWeight, initialHeight, labels }: Props) 
               min="1"
               step="0.1"
               value={height}
-              onChange={e => setHeight(e.target.value)}
+              onChange={(e) => setHeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-3xl font-bold tabular-nums outline-none"
             />
             <span className="text-xs text-white/45">{labels.heightUnit}</span>

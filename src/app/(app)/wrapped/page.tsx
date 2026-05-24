@@ -18,9 +18,10 @@ export default async function WrappedPage({
 
   const now = new Date()
   const requested = yearStr ? parseInt(yearStr, 10) : now.getUTCFullYear()
-  const year = Number.isFinite(requested) && requested >= 2000 && requested <= 2100
-    ? requested
-    : now.getUTCFullYear()
+  const year =
+    Number.isFinite(requested) && requested >= 2000 && requested <= 2100
+      ? requested
+      : now.getUTCFullYear()
 
   const report = await getWrappedReport(supabase, user.id, year)
 

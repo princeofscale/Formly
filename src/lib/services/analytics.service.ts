@@ -3,7 +3,7 @@ import type { MuscleVolume, VolumeLandmark, MuscleGroup } from '@/lib/types/mode
 import { calculateSessionVolume } from '@/lib/utils/muscle-volume'
 
 export interface TonnageByMonth {
-  month: string  // 'YYYY-MM'
+  month: string // 'YYYY-MM'
   total_kg: number
 }
 
@@ -17,7 +17,7 @@ interface ExerciseMuscleRow {
 
 export async function getMonthlyTonnage(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<TonnageByMonth[]> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -40,7 +40,7 @@ export async function getMonthlyTonnage(
 export async function getWeeklyMuscleVolume(
   supabase: SupabaseClient,
   userId: string,
-  weeks = 1
+  weeks = 1,
 ): Promise<MuscleVolume[]> {
   return getMuscleVolumeForDays(supabase, userId, Math.max(1, weeks) * 7)
 }
@@ -48,7 +48,7 @@ export async function getWeeklyMuscleVolume(
 export async function getMuscleVolumeForDays(
   supabase: SupabaseClient,
   userId: string,
-  days = 7
+  days = 7,
 ): Promise<MuscleVolume[]> {
   const now = new Date()
   const since = new Date(now)
@@ -64,7 +64,10 @@ export async function getMuscleVolumeForDays(
 
   if (!data) return []
 
-  const exerciseMap = new Map<string, { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }>()
+  const exerciseMap = new Map<
+    string,
+    { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }
+  >()
 
   for (const row of data as unknown as ExerciseMuscleRow[]) {
     const ex = row.exercises
@@ -77,7 +80,7 @@ export async function getMuscleVolumeForDays(
     }
   }
 
-  const fakeExercises = Array.from(exerciseMap.values()).map(ex => ({
+  const fakeExercises = Array.from(exerciseMap.values()).map((ex) => ({
     exercise: {
       id: '',
       name: '',
@@ -108,7 +111,7 @@ export async function getMuscleVolumeForDays(
 }
 
 export function getVolumeLandmarks(muscleVolumes: MuscleVolume[]): VolumeLandmark[] {
-  return muscleVolumes.map(mv => {
+  return muscleVolumes.map((mv) => {
     let status: VolumeLandmark['status']
     if (mv.total_sets < 6) status = 'mv'
     else if (mv.total_sets >= 25) status = 'mrv'

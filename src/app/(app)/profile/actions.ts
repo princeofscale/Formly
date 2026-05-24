@@ -33,13 +33,10 @@ export async function updateProfileAction(formData: FormData): Promise<void> {
 
   const parsed = profileSchema.parse(raw)
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { locale, ...profileFields } = parsed
+  void locale
 
-  const { error } = await supabase
-    .from('profiles')
-    .update(profileFields)
-    .eq('id', user.id)
+  const { error } = await supabase.from('profiles').update(profileFields).eq('id', user.id)
 
   if (error) throw new Error(error.message)
 

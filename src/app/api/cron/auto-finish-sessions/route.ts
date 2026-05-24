@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 
   // Collect all push subscriptions for the affected users in one query, then
   // group per user so we send the right session's body to the right device.
-  const userIds = Array.from(new Set(closed.map(c => c.user_id)))
+  const userIds = Array.from(new Set(closed.map((c) => c.user_id)))
   const { data: subsData } = await supabase
     .from('push_subscriptions')
     .select('*')
@@ -69,9 +69,10 @@ export async function GET(request: Request) {
     const userSubs = subsByUser.get(session.user_id) ?? []
     if (userSubs.length === 0) continue
 
-    const durationLabel = session.duration_minutes < 60
-      ? `${Math.max(0, session.duration_minutes)} мин`
-      : `${(session.duration_minutes / 60).toFixed(1)}ч`
+    const durationLabel =
+      session.duration_minutes < 60
+        ? `${Math.max(0, session.duration_minutes)} мин`
+        : `${(session.duration_minutes / 60).toFixed(1)}ч`
 
     const payload = {
       title: '🏁 Тренировка завершена',

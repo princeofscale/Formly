@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -15,12 +16,20 @@ interface Props {
   locale: string
 }
 
-export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabel, customLabel, locale }: Props) {
+export function ExerciseCard({
+  exercise,
+  displayName,
+  muscleLabel,
+  equipmentLabel,
+  customLabel,
+  locale,
+}: Props) {
   const [open, setOpen] = useState(false)
   const thumbnail = exercise.image_urls?.[0]
-  const instructions = locale === 'ru'
-    ? (exercise.instructions_ru ?? exercise.instructions_en)
-    : exercise.instructions_en
+  const instructions =
+    locale === 'ru'
+      ? (exercise.instructions_ru ?? exercise.instructions_en)
+      : exercise.instructions_en
   const hasDetails = !!(instructions || (exercise.image_urls && exercise.image_urls.length > 0))
 
   return (
@@ -28,26 +37,35 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
       <CardContent className="py-3">
         <button
           className="w-full flex items-center gap-3 text-left"
-          onClick={() => hasDetails && setOpen(v => !v)}
+          onClick={() => hasDetails && setOpen((v) => !v)}
         >
           {thumbnail && (
-            <img
+            <Image
               src={thumbnail}
               alt={displayName}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5"
             />
           )}
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{displayName}</p>
-            <p className="text-xs text-zinc-500">{muscleLabel} · {equipmentLabel} · {exercise.mechanic}</p>
+            <p className="text-xs text-zinc-500">
+              {muscleLabel} · {equipmentLabel} · {exercise.mechanic}
+            </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {exercise.is_custom && (
-              <Badge variant="outline" className="text-xs">{customLabel}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {customLabel}
+              </Badge>
             )}
-            {hasDetails && (
-              open ? <ChevronUp className="h-4 w-4 text-zinc-500" /> : <ChevronDown className="h-4 w-4 text-zinc-500" />
-            )}
+            {hasDetails &&
+              (open ? (
+                <ChevronUp className="h-4 w-4 text-zinc-500" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-zinc-500" />
+              ))}
           </div>
         </button>
 
@@ -56,10 +74,12 @@ export function ExerciseCard({ exercise, displayName, muscleLabel, equipmentLabe
             {exercise.image_urls && exercise.image_urls.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {exercise.image_urls.map((url, i) => (
-                  <img
+                  <Image
                     key={i}
                     src={url}
                     alt={`${displayName} ${i + 1}`}
+                    width={112}
+                    height={112}
                     className="w-28 h-28 rounded object-cover flex-shrink-0 bg-white/5"
                   />
                 ))}

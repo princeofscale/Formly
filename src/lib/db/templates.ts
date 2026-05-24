@@ -1,7 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { WorkoutTemplate, TemplateExercise } from '@/lib/types/models'
 
-export async function getTemplates(supabase: SupabaseClient, userId: string): Promise<WorkoutTemplate[]> {
+export async function getTemplates(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<WorkoutTemplate[]> {
   const { data } = await supabase
     .from('workout_templates')
     .select('*')
@@ -10,7 +13,11 @@ export async function getTemplates(supabase: SupabaseClient, userId: string): Pr
   return (data as WorkoutTemplate[]) ?? []
 }
 
-export async function getTemplate(supabase: SupabaseClient, userId: string, id: string): Promise<WorkoutTemplate | null> {
+export async function getTemplate(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+): Promise<WorkoutTemplate | null> {
   const { data } = await supabase
     .from('workout_templates')
     .select('*')
@@ -24,7 +31,7 @@ export async function createTemplate(
   supabase: SupabaseClient,
   userId: string,
   name: string,
-  exercises: TemplateExercise[]
+  exercises: TemplateExercise[],
 ): Promise<WorkoutTemplate> {
   const { data, error } = await supabase
     .from('workout_templates')
@@ -39,7 +46,7 @@ export async function updateTemplate(
   supabase: SupabaseClient,
   userId: string,
   id: string,
-  exercises: TemplateExercise[]
+  exercises: TemplateExercise[],
 ): Promise<void> {
   const { error } = await supabase
     .from('workout_templates')
@@ -49,7 +56,11 @@ export async function updateTemplate(
   if (error) throw new Error(error.message)
 }
 
-export async function deleteTemplate(supabase: SupabaseClient, userId: string, id: string): Promise<void> {
+export async function deleteTemplate(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+): Promise<void> {
   const { error } = await supabase
     .from('workout_templates')
     .delete()
@@ -63,7 +74,7 @@ export async function deleteTemplate(supabase: SupabaseClient, userId: string, i
 export async function getSessionExerciseList(
   supabase: SupabaseClient,
   userId: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<TemplateExercise[]> {
   const { data } = await supabase
     .from('set_entries')
@@ -76,7 +87,10 @@ export async function getSessionExerciseList(
   const out: TemplateExercise[] = []
   for (const row of (data ?? []) as unknown as Array<{
     exercise_id: string
-    exercises: { name: string; name_ru: string | null } | { name: string; name_ru: string | null }[] | null
+    exercises:
+      | { name: string; name_ru: string | null }
+      | { name: string; name_ru: string | null }[]
+      | null
   }>) {
     if (seen.has(row.exercise_id)) continue
     const ex = Array.isArray(row.exercises) ? row.exercises[0] : row.exercises

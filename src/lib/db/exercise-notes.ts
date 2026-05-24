@@ -4,7 +4,7 @@ import type { ExerciseNote } from '@/lib/types/models'
 export async function getExerciseNote(
   supabase: SupabaseClient,
   userId: string,
-  exerciseId: string
+  exerciseId: string,
 ): Promise<ExerciseNote | null> {
   const { data } = await supabase
     .from('exercise_notes')
@@ -18,7 +18,7 @@ export async function getExerciseNote(
 export async function getExerciseNotesForExercises(
   supabase: SupabaseClient,
   userId: string,
-  exerciseIds: string[]
+  exerciseIds: string[],
 ): Promise<Record<string, string>> {
   if (exerciseIds.length === 0) return {}
   const { data } = await supabase
@@ -37,7 +37,7 @@ export async function upsertExerciseNote(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
-  note: string
+  note: string,
 ): Promise<void> {
   const trimmed = note.trim()
   if (trimmed.length === 0) {
@@ -49,16 +49,14 @@ export async function upsertExerciseNote(
     if (error) throw new Error(error.message)
     return
   }
-  const { error } = await supabase
-    .from('exercise_notes')
-    .upsert(
-      {
-        user_id: userId,
-        exercise_id: exerciseId,
-        note: trimmed.slice(0, 1000),
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,exercise_id' }
-    )
+  const { error } = await supabase.from('exercise_notes').upsert(
+    {
+      user_id: userId,
+      exercise_id: exerciseId,
+      note: trimmed.slice(0, 1000),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,exercise_id' },
+  )
   if (error) throw new Error(error.message)
 }

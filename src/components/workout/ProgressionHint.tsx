@@ -10,18 +10,33 @@ interface Props {
 }
 
 const ACTION_STYLE = {
-  increase: { color: '#22D3A8', bg: 'rgba(34, 211, 168, 0.10)', border: 'rgba(34, 211, 168, 0.28)' },
-  hold:     { color: '#FFC044', bg: 'rgba(255, 196, 68, 0.10)', border: 'rgba(255, 196, 68, 0.28)' },
-  deload:   { color: '#FF6E76', bg: 'rgba(255, 110, 118, 0.10)', border: 'rgba(255, 110, 118, 0.28)' },
-  firstSet: { color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.10)', border: 'rgba(148, 163, 184, 0.20)' },
+  increase: {
+    color: '#22D3A8',
+    bg: 'rgba(34, 211, 168, 0.10)',
+    border: 'rgba(34, 211, 168, 0.28)',
+  },
+  hold: { color: '#FFC044', bg: 'rgba(255, 196, 68, 0.10)', border: 'rgba(255, 196, 68, 0.28)' },
+  deload: {
+    color: '#FF6E76',
+    bg: 'rgba(255, 110, 118, 0.10)',
+    border: 'rgba(255, 110, 118, 0.28)',
+  },
+  firstSet: {
+    color: '#94A3B8',
+    bg: 'rgba(148, 163, 184, 0.10)',
+    border: 'rgba(148, 163, 184, 0.20)',
+  },
 }
 
 export function ProgressionHint({ suggestion, onApply }: Props) {
   const t = useTranslations('workout.progression')
   const style = ACTION_STYLE[suggestion.action]
-  const Icon = suggestion.action === 'increase' ? TrendingUp
-    : suggestion.action === 'deload' ? TrendingDown
-    : Minus
+  const Icon =
+    suggestion.action === 'increase'
+      ? TrendingUp
+      : suggestion.action === 'deload'
+        ? TrendingDown
+        : Minus
 
   return (
     <button
@@ -43,7 +58,10 @@ export function ProgressionHint({ suggestion, onApply }: Props) {
       <div className="flex-1 min-w-0 text-left">
         <div className="flex items-center gap-1.5">
           <Icon className="h-3 w-3" style={{ color: style.color }} />
-          <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: style.color }}>
+          <span
+            className="text-[9px] font-bold uppercase tracking-widest"
+            style={{ color: style.color }}
+          >
             {t(`action.${suggestion.action}`)}
           </span>
         </div>

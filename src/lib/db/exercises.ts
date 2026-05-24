@@ -4,7 +4,7 @@ import type { Exercise, MuscleGroup, Equipment } from '@/lib/types/models'
 export async function getExercises(
   supabase: SupabaseClient,
   userId: string,
-  filters?: { muscle?: MuscleGroup; equipment?: Equipment }
+  filters?: { muscle?: MuscleGroup; equipment?: Equipment },
 ): Promise<Exercise[]> {
   let query = supabase
     .from('exercises')
@@ -20,14 +20,17 @@ export async function getExercises(
 }
 
 function normalizeYo(s: string): string {
-  return s.replace(/[ёЁ]/g, m => m === 'ё' ? 'е' : 'Е')
+  return s.replace(/[ёЁ]/g, (m) => (m === 'ё' ? 'е' : 'Е'))
 }
 
 // PostgREST .or() parses commas as OR separators and parentheses as grouping;
 // % and \ are special inside ilike. Strip these so a malicious search term
 // can't escape its filter and inject extra conditions.
 export function sanitizeFilterTerm(s: string): string {
-  return s.replace(/[,()*\\%]/g, ' ').slice(0, 64).trim()
+  return s
+    .replace(/[,()*\\%]/g, ' ')
+    .slice(0, 64)
+    .trim()
 }
 
 export async function searchExercises(
@@ -37,7 +40,7 @@ export async function searchExercises(
   // `locale` is accepted for back-compat but no longer gates search scope.
   // We always search both name and name_ru — a user in EN locale typing a
   // Russian gym term ("молотки") still gets the matching exercise.
-  _locale: string = 'en'
+  _locale: string = 'en',
 ): Promise<Exercise[]> {
   void _locale
   const q = sanitizeFilterTerm(normalizeYo(query))
@@ -56,7 +59,7 @@ export async function searchExercises(
 export async function createExercise(
   supabase: SupabaseClient,
   userId: string,
-  data: Omit<Exercise, 'id' | 'is_custom' | 'created_by'>
+  data: Omit<Exercise, 'id' | 'is_custom' | 'created_by'>,
 ): Promise<Exercise> {
   const { data: ex, error } = await supabase
     .from('exercises')
@@ -70,7 +73,7 @@ export async function createExercise(
 export async function updateExercise(
   supabase: SupabaseClient,
   id: string,
-  data: Partial<Omit<Exercise, 'id' | 'is_custom' | 'created_by'>>
+  data: Partial<Omit<Exercise, 'id' | 'is_custom' | 'created_by'>>,
 ): Promise<void> {
   const { error } = await supabase.from('exercises').update(data).eq('id', id)
   if (error) throw new Error(error.message)

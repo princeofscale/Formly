@@ -25,8 +25,14 @@ export default async function NewWorkoutPage() {
   return (
     <div className="space-y-4 sm:space-y-5">
       <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+        />
 
         <div className="relative">
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
@@ -46,7 +52,9 @@ export default async function NewWorkoutPage() {
                     {tTpl('title')}
                   </span>
                   <span className="text-[11px] uppercase tracking-widest text-white/35 tabular-nums">
-                    {tTpl('exercises', { n: templates.reduce((sum, tpl) => sum + tpl.exercises.length, 0) })}
+                    {tTpl('exercises', {
+                      n: templates.reduce((sum, tpl) => sum + tpl.exercises.length, 0),
+                    })}
                   </span>
                 </div>
               </div>
@@ -70,7 +78,10 @@ export default async function NewWorkoutPage() {
                 className="flex min-h-24 flex-col justify-between rounded-2xl bg-white/[0.04] p-4 text-left ring-1 ring-white/[0.06] transition hover:bg-white/[0.07] active:scale-[0.98]"
               >
                 <Bike className="h-5 w-5" style={{ color: '#5EEAD4' }} />
-                <span className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#5EEAD4' }}>
+                <span
+                  className="text-sm font-extrabold uppercase tracking-wide"
+                  style={{ color: '#5EEAD4' }}
+                >
                   {tCardio('startCardio')}
                 </span>
               </Link>
@@ -88,7 +99,10 @@ export default async function NewWorkoutPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <Link href={`/workout/${active.id}`} className={buttonVariants({ className: 'w-full uppercase tracking-wide font-bold' })}>
+            <Link
+              href={`/workout/${active.id}`}
+              className={buttonVariants({ className: 'w-full uppercase tracking-wide font-bold' })}
+            >
               {t('resumeWorkout')}
             </Link>
           </CardContent>
@@ -101,12 +115,14 @@ export default async function NewWorkoutPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 px-1">
             <Layers className="h-4 w-4 text-white/35" />
-            <h2 className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{tTpl('title')}</h2>
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+              {tTpl('title')}
+            </h2>
           </div>
-          {templates.map(tpl => {
+          {templates.map((tpl) => {
             const exerciseNames = tpl.exercises
               .slice(0, 4)
-              .map(e => (locale === 'ru' ? (e.name_ru ?? e.name) : e.name))
+              .map((e) => (locale === 'ru' ? (e.name_ru ?? e.name) : e.name))
               .join(' · ')
             const overflow = tpl.exercises.length > 4 ? ` +${tpl.exercises.length - 4}` : ''
 
@@ -116,7 +132,10 @@ export default async function NewWorkoutPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm">{tpl.name}</p>
-                      <p className="text-xs text-zinc-500 mt-0.5 truncate">{exerciseNames}{overflow}</p>
+                      <p className="text-xs text-zinc-500 mt-0.5 truncate">
+                        {exerciseNames}
+                        {overflow}
+                      </p>
                       <p className="text-[10px] text-zinc-600 mt-1">
                         {tTpl('exercises', { n: tpl.exercises.length })}
                       </p>

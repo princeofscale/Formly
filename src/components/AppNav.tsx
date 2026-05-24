@@ -22,7 +22,11 @@ export function AppNav() {
       {/* Desktop sidebar */}
       <nav
         className="hidden md:flex fixed left-0 top-0 h-screen w-14 flex-col items-center py-4 gap-1 z-20"
-        style={{ background: 'rgba(5,5,16,0.7)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
+        style={{
+          background: 'rgba(5,5,16,0.7)',
+          backdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(255,255,255,0.08)',
+        }}
       >
         {/* Logo */}
         <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-amber-500/20">
@@ -70,7 +74,11 @@ export function AppNav() {
       {/* Mobile bottom bar */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 h-16 flex items-center justify-around z-20 px-2"
-        style={{ background: 'rgba(5,5,16,0.85)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+        style={{
+          background: 'rgba(5,5,16,0.85)',
+          backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+        }}
       >
         {NAV_ITEMS.map(({ href, icon: Icon, key }) => {
           const active = pathname === href || pathname.startsWith(href + '/')

@@ -32,15 +32,18 @@ ${list}`,
     ],
   })
 
-  const text = (response.choices?.[0]?.message?.content as string ?? '').trim()
-  const json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
+  const text = ((response.choices?.[0]?.message?.content as string) ?? '').trim()
+  const json = text
+    .replace(/^```json?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim()
   return JSON.parse(json)
 }
 
 async function main() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
   // Reset all existing translations first for a clean run
@@ -77,24 +80,32 @@ async function main() {
     let translations: Record<string, string>
     try {
       translations = await translateBatch(batch)
-    } catch (err: any) {
-      console.error(`ОШИБКА: ${err?.message ?? err}`)
+    } catch (err: unknown) {
+      console.error(`ОШИБКА: ${err instanceof Error ? err.message : String(err)}`)
       failed += batch.length
-      await new Promise(r => setTimeout(r, 2000))
+      await new Promise((r) => setTimeout(r, 2000))
       continue
     }
 
     let batchOk = 0
     for (let j = 0; j < batch.length; j++) {
       const ruName = translations[String(j + 1)]
-      if (!ruName) { failed++; continue }
+      if (!ruName) {
+        failed++
+        continue
+      }
 
       const { error: updateErr } = await supabase
         .from('exercises')
         .update({ name_ru: ruName })
         .eq('id', batch[j].id)
 
-      if (updateErr) { failed++ } else { translated++; batchOk++ }
+      if (updateErr) {
+        failed++
+      } else {
+        translated++
+        batchOk++
+      }
     }
     console.log(`${batchOk} ок  (всего: ${translated})`)
   }

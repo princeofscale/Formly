@@ -28,7 +28,7 @@ self.addEventListener('push', (event) => {
       badge: '/icon',
       data: { url: payload.url },
       vibrate: [200, 100, 200],
-    })
+    }),
   )
 })
 
@@ -54,15 +54,17 @@ self.addEventListener('message', (event) => {
     restTimerId = setTimeout(() => {
       if (token !== restTimerToken) return // cancelled
       restTimerId = null
-      self.registration.showNotification(title, {
-        body,
-        icon: '/icon',
-        badge: '/icon',
-        tag: 'rest-timer',
-        renotify: true,
-        vibrate: [200, 100, 200],
-        data: { url: '/dashboard' },
-      }).catch(() => {})
+      self.registration
+        .showNotification(title, {
+          body,
+          icon: '/icon',
+          badge: '/icon',
+          tag: 'rest-timer',
+          renotify: true,
+          vibrate: [200, 100, 200],
+          data: { url: '/dashboard' },
+        })
+        .catch(() => {})
     }, delay)
   }
 
@@ -89,6 +91,6 @@ self.addEventListener('notificationclick', (event) => {
       if (self.clients.openWindow) {
         return self.clients.openWindow(targetUrl)
       }
-    })
+    }),
   )
 })

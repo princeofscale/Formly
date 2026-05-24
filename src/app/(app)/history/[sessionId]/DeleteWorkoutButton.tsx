@@ -31,12 +31,7 @@ export function DeleteWorkoutButton({ sessionId, labels }: Props) {
         >
           {labels.deleteConfirm}
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setConfirming(false)}
-          disabled={isPending}
-        >
+        <Button variant="ghost" size="sm" onClick={() => setConfirming(false)} disabled={isPending}>
           {labels.deleteCancel}
         </Button>
       </div>

@@ -30,7 +30,9 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('set_entries')
-    .select('created_at, weight_kg, reps, rpe, calculated_1rm, set_number, session_id, exercises(name, name_ru)')
+    .select(
+      'created_at, weight_kg, reps, rpe, calculated_1rm, set_number, session_id, exercises(name, name_ru)',
+    )
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -52,7 +54,7 @@ export async function GET() {
     'calculated_1rm',
   ].join(',')
 
-  const lines = rows.map(r => {
+  const lines = rows.map((r) => {
     const date = r.created_at.slice(0, 10)
     const enName = r.exercises?.name ?? ''
     const ruName = r.exercises?.name_ru ?? ''

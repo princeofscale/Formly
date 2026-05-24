@@ -4,11 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { CloudOff, CloudUpload } from 'lucide-react'
-import {
-  getQueuedSets,
-  removeQueuedSet,
-  type QueuedSetRecord,
-} from '@/lib/utils/offline-queue'
+import { getQueuedSets, removeQueuedSet, type QueuedSetRecord } from '@/lib/utils/offline-queue'
 
 async function flushOne(record: QueuedSetRecord): Promise<boolean> {
   try {
@@ -39,14 +35,14 @@ async function drainQueue(): Promise<number> {
 
 export function OfflineSyncWatcher() {
   const [pendingCount, setPendingCount] = useState(0)
-  const [isOnline, setIsOnline] = useState(true)
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator === 'undefined' ? true : navigator.onLine,
+  )
   const [syncing, setSyncing] = useState(false)
   const router = useRouter()
   const t = useTranslations('offline')
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
-
     async function refresh() {
       try {
         const queued = await getQueuedSets()

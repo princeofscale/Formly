@@ -5,11 +5,11 @@ export function getProgressionSuggestion(
   exerciseId: string,
   exerciseName: string,
   minReps: number,
-  maxReps: number
+  maxReps: number,
 ): ProgressionSuggestion | null {
   if (sets.length === 0) return null
 
-  const allHitTopRange = sets.every(s => s.reps >= maxReps)
+  const allHitTopRange = sets.every((s) => s.reps >= maxReps)
   if (!allHitTopRange) return null
 
   const currentWeight = sets[0].weight_kg
@@ -74,7 +74,7 @@ export function suggestNextSet(sets: SetEntry[]): NextSetSuggestion | null {
   const round = (n: number) => Math.max(0, Math.round(n * 4) / 4) // 0.25kg precision
 
   let weightKg = last.weight_kg
-  let reps = last.reps
+  const reps = last.reps
   let action: SuggestionAction = 'hold'
   let reasonKey = 'hold'
 

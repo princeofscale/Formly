@@ -1,9 +1,21 @@
 import type { MuscleGroup, MuscleVolume } from '@/lib/types/models'
 
 const ALL_MUSCLES: MuscleGroup[] = [
-  'chest', 'back', 'biceps', 'triceps',
-  'forearms', 'core', 'quads', 'hamstrings', 'glutes',
-  'calves', 'traps', 'lats', 'rear_delts', 'front_delts', 'side_delts',
+  'chest',
+  'back',
+  'biceps',
+  'triceps',
+  'forearms',
+  'core',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'calves',
+  'traps',
+  'lats',
+  'rear_delts',
+  'front_delts',
+  'side_delts',
 ]
 
 // Research-based weekly Minimum Volume per muscle group (sets/week).
@@ -30,7 +42,7 @@ export interface WeakPoint {
   muscle: MuscleGroup
   weekly_sets_avg: number
   target_mv: number
-  deficit_pct: number  // 100 = zero work, 0 = at MV
+  deficit_pct: number // 100 = zero work, 0 = at MV
 }
 
 /**
@@ -40,11 +52,7 @@ export interface WeakPoint {
  * @param weeks - how many weeks the volumes represent (for averaging)
  * @returns up to `limit` muscles sorted by largest deficit
  */
-export function detectWeakPoints(
-  volumes: MuscleVolume[],
-  weeks: number,
-  limit = 3
-): WeakPoint[] {
+export function detectWeakPoints(volumes: MuscleVolume[], weeks: number, limit = 3): WeakPoint[] {
   const safeWeeks = Math.max(1, weeks)
   const byMuscle = new Map<MuscleGroup, number>()
   for (const v of volumes) byMuscle.set(v.muscle, v.total_sets)
@@ -64,7 +72,5 @@ export function detectWeakPoints(
     })
   }
 
-  return candidates
-    .sort((a, b) => b.deficit_pct - a.deficit_pct)
-    .slice(0, limit)
+  return candidates.sort((a, b) => b.deficit_pct - a.deficit_pct).slice(0, limit)
 }

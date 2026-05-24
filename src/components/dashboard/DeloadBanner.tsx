@@ -16,8 +16,10 @@ export function DeloadBanner({ weekIndex, cycleWeeks }: Props) {
   const storageKey = `deload_dismissed_w${weekIndex}`
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    setHidden(window.localStorage.getItem(storageKey) === '1')
+    const id = window.setTimeout(() => {
+      setHidden(window.localStorage.getItem(storageKey) === '1')
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [storageKey])
 
   function dismiss() {
@@ -53,15 +55,14 @@ export function DeloadBanner({ weekIndex, cycleWeeks }: Props) {
           <Wind className="h-4 w-4" style={{ color: '#5EEAD4' }} />
         </div>
         <div className="min-w-0 flex-1 pr-6">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#5EEAD4' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: '#5EEAD4' }}
+          >
             {t('label', { cycle: cycleWeeks })}
           </p>
-          <p className="mt-1 text-sm font-bold text-white">
-            {t('title')}
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-white/55">
-            {t('body')}
-          </p>
+          <p className="mt-1 text-sm font-bold text-white">{t('title')}</p>
+          <p className="mt-1 text-xs leading-relaxed text-white/55">{t('body')}</p>
         </div>
       </div>
     </div>

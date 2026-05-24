@@ -3,7 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function verifySession() {
   const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
   if (error || !user) {
     redirect('/login')

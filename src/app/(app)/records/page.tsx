@@ -8,15 +8,28 @@ import { Badge } from '@/components/ui/badge'
 import type { MuscleGroup } from '@/lib/types/models'
 
 const FILTER_MUSCLES: MuscleGroup[] = [
-  'chest', 'back', 'front_delts', 'biceps', 'triceps',
-  'quads', 'hamstrings', 'glutes', 'core', 'calves',
+  'chest',
+  'back',
+  'front_delts',
+  'biceps',
+  'triceps',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'core',
+  'calves',
 ]
 
 interface RecordRow {
   exercise_id: string
   calculated_1rm: number
   created_at: string
-  exercises: { id: string; name: string; name_ru?: string | null; primary_muscle: MuscleGroup } | null
+  exercises: {
+    id: string
+    name: string
+    name_ru?: string | null
+    primary_muscle: MuscleGroup
+  } | null
 }
 
 export default async function RecordsPage({
@@ -50,7 +63,7 @@ export default async function RecordsPage({
   }
 
   const filteredRecords = muscle
-    ? allRecords.filter(r => r.exercises?.primary_muscle === muscle)
+    ? allRecords.filter((r) => r.exercises?.primary_muscle === muscle)
     : allRecords
 
   filteredRecords.sort((a, b) => b.calculated_1rm - a.calculated_1rm)
@@ -64,7 +77,7 @@ export default async function RecordsPage({
 
       {allRecords.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {FILTER_MUSCLES.map(m => (
+          {FILTER_MUSCLES.map((m) => (
             <Link key={m} href={muscle === m ? '/records' : `/records?muscle=${m}`}>
               <Badge variant={muscle === m ? 'default' : 'outline'} className="cursor-pointer">
                 {tHistory(`muscleLabel.${m}`)}
@@ -73,7 +86,9 @@ export default async function RecordsPage({
           ))}
           {muscle && (
             <Link href="/records">
-              <Badge variant="destructive" className="cursor-pointer">{tLib('clearFilter')}</Badge>
+              <Badge variant="destructive" className="cursor-pointer">
+                {tLib('clearFilter')}
+              </Badge>
             </Link>
           )}
         </div>
@@ -93,16 +108,14 @@ export default async function RecordsPage({
           const muscleLabel = ex?.primary_muscle ? tHistory(`muscleLabel.${ex.primary_muscle}`) : ''
           const date = new Date(r.created_at).toLocaleDateString(
             locale === 'ru' ? 'ru-RU' : 'en-GB',
-            { day: 'numeric', month: 'short', year: 'numeric' }
+            { day: 'numeric', month: 'short', year: 'numeric' },
           )
 
           return (
             <Link key={r.exercise_id} href={`/analytics?exercise=${r.exercise_id}`}>
               <Card className="hover:border-white/20 transition-colors">
                 <CardContent className="py-3 flex items-center gap-3">
-                  <span className="font-mono text-xs text-zinc-600 w-6 flex-shrink-0">
-                    {i + 1}
-                  </span>
+                  <span className="font-mono text-xs text-zinc-600 w-6 flex-shrink-0">{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{name}</p>
                     <p className="text-[11px] text-zinc-500">{muscleLabel}</p>

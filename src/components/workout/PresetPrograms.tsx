@@ -18,7 +18,7 @@ export function PresetPrograms() {
       </div>
 
       <div className="space-y-2">
-        {WORKOUT_PRESETS.map(program => {
+        {WORKOUT_PRESETS.map((program) => {
           const isOpen = openProgramId === program.id
           return (
             <div
@@ -46,12 +46,8 @@ export function PresetPrograms() {
                   {program.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-white truncate">
-                    {t(program.titleKey)}
-                  </div>
-                  <div className="text-[10px] text-zinc-500 truncate">
-                    {t(program.subtitleKey)}
-                  </div>
+                  <div className="font-bold text-sm text-white truncate">{t(program.titleKey)}</div>
+                  <div className="text-[10px] text-zinc-500 truncate">{t(program.subtitleKey)}</div>
                 </div>
                 <ChevronDown
                   className={`h-4 w-4 text-zinc-500 transition-transform flex-shrink-0 ${
@@ -62,7 +58,7 @@ export function PresetPrograms() {
 
               {isOpen && (
                 <div className="px-3 pb-3 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
-                  {program.days.map(day => (
+                  {program.days.map((day) => (
                     <form key={day.id} action={startFromPresetAction}>
                       <input type="hidden" name="dayId" value={day.id} />
                       <button

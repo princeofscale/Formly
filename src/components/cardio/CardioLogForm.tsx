@@ -57,11 +57,14 @@ export function CardioLogForm() {
     >
       {/* Activity picker */}
       <div className="space-y-2">
-        <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <label
+          className="text-[10px] font-bold uppercase tracking-widest"
+          style={{ color: 'rgba(255,255,255,0.5)' }}
+        >
           {t('activityLabel')}
         </label>
         <div className="grid grid-cols-4 gap-2">
-          {ACTIVITIES.map(a => {
+          {ACTIVITIES.map((a) => {
             const Icon = a.icon
             const active = activity === a.key
             return (
@@ -88,18 +91,28 @@ export function CardioLogForm() {
 
       {/* Duration (required) */}
       <div className="space-y-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <label
+          className="text-[10px] font-bold uppercase tracking-widest"
+          style={{ color: 'rgba(255,255,255,0.5)' }}
+        >
           {t('durationLabel')} *
         </label>
         <div className="relative">
           <input
-            type="number" inputMode="numeric" min="1" max="600" step="1"
+            type="number"
+            inputMode="numeric"
+            min="1"
+            max="600"
+            step="1"
             value={duration}
-            onChange={e => setDuration(e.target.value)}
+            onChange={(e) => setDuration(e.target.value)}
             required
             className="w-full h-11 px-3 pr-12 rounded-[8px] font-mono font-bold text-base bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <span
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.4)' }}
+          >
             {t('minutes')}
           </span>
         </div>
@@ -108,65 +121,99 @@ export function CardioLogForm() {
       {/* Optional metrics */}
       <div className="grid grid-cols-3 gap-2">
         <div className="space-y-1">
-          <label className="text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <label
+            className="text-[9px] font-bold uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
             {t('distance')}
           </label>
           <div className="relative">
             <input
-              type="number" inputMode="decimal" step="0.1" min="0" max="500"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
+              max="500"
               value={distance}
-              onChange={e => setDistance(e.target.value)}
+              onChange={(e) => setDistance(e.target.value)}
               placeholder="—"
               className="w-full h-10 px-2 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
-          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('distanceUnit')}</p>
+          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            {t('distanceUnit')}
+          </p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <label
+            className="text-[9px] font-bold uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
             {t('avgHr')}
           </label>
           <input
-            type="number" inputMode="numeric" min="40" max="220" step="1"
+            type="number"
+            inputMode="numeric"
+            min="40"
+            max="220"
+            step="1"
             value={avgHr}
-            onChange={e => setAvgHr(e.target.value)}
+            onChange={(e) => setAvgHr(e.target.value)}
             placeholder="—"
             className="w-full h-10 px-2 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('bpm')}</p>
+          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            {t('bpm')}
+          </p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <label
+            className="text-[9px] font-bold uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
             {t('calories')}
           </label>
           <input
-            type="number" inputMode="numeric" min="0" max="5000" step="1"
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="5000"
+            step="1"
             value={calories}
-            onChange={e => setCalories(e.target.value)}
+            onChange={(e) => setCalories(e.target.value)}
             placeholder="—"
             className="w-full h-10 px-2 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('kcal')}</p>
+          <p className="text-[9px] text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            {t('kcal')}
+          </p>
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <label
+          className="text-[10px] font-bold uppercase tracking-widest"
+          style={{ color: 'rgba(255,255,255,0.5)' }}
+        >
           {t('notesLabel')}
         </label>
         <textarea
           rows={2}
           value={notes}
-          onChange={e => setNotes(e.target.value)}
+          onChange={(e) => setNotes(e.target.value)}
           placeholder={t('notesPlaceholder')}
           maxLength={500}
           className="w-full px-3 py-2 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 resize-none"
         />
       </div>
 
-      {error && <p className="text-[11px]" style={{ color: '#FF6E76' }}>{error}</p>}
+      {error && (
+        <p className="text-[11px]" style={{ color: '#FF6E76' }}>
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"

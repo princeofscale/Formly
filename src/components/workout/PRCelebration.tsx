@@ -81,7 +81,9 @@ export function PRCelebration({ pr, onDone }: Props) {
   // Vibration + auto-dismiss
   useEffect(() => {
     if (!pr) return
-    try { navigator.vibrate?.([20, 60, 20, 60, 120]) } catch {}
+    try {
+      navigator.vibrate?.([20, 60, 20, 60, 120])
+    } catch {}
     const timer = setTimeout(() => onDoneRef.current(), 2400)
     return () => clearTimeout(timer)
   }, [pr])
@@ -89,21 +91,20 @@ export function PRCelebration({ pr, onDone }: Props) {
   if (!pr) return null
 
   const isFirst = pr.improvementPct == null
-  const deltaText = isFirst
-    ? t('firstTime')
-    : `+${pr.improvementPct!.toFixed(1)}%`
+  const deltaText = isFirst ? t('firstTime') : `+${pr.improvementPct!.toFixed(1)}%`
 
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none animate-in fade-in duration-200"
       style={{
-        background: 'radial-gradient(ellipse at 50% 40%, rgba(255, 196, 68, 0.25), rgba(0,0,0,0.65) 70%)',
+        background:
+          'radial-gradient(ellipse at 50% 40%, rgba(255, 196, 68, 0.25), rgba(0,0,0,0.65) 70%)',
       }}
       aria-live="polite"
     >
       {/* Confetti */}
       <div className="absolute inset-0 overflow-hidden">
-        {particles.map(p => (
+        {particles.map((p) => (
           <span
             key={p.id}
             className="absolute block"
@@ -151,10 +152,7 @@ export function PRCelebration({ pr, onDone }: Props) {
           <p className="text-base font-bold text-white/90 text-center max-w-xs">
             {pr.exerciseName}
           </p>
-          <p
-            className="mt-1 text-3xl font-extrabold tabular-nums"
-            style={{ color: '#FFC044' }}
-          >
+          <p className="mt-1 text-3xl font-extrabold tabular-nums" style={{ color: '#FFC044' }}>
             {pr.newE1rm.toFixed(1)} <span className="text-base font-mono text-white/45">{kg}</span>
             <span className="ml-3 text-2xl">{deltaText}</span>
           </p>

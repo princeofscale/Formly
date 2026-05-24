@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendPushToSubscription } from '@/lib/services/web-push.service'
-import { deletePushSubscriptionByEndpoint, type PushSubscriptionRow } from '@/lib/db/push-subscriptions'
+import {
+  deletePushSubscriptionByEndpoint,
+  type PushSubscriptionRow,
+} from '@/lib/db/push-subscriptions'
 import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 
@@ -71,7 +74,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ scheduled: 0, sent: 0, skipped: 0 })
   }
 
-  const candidateIds = candidates.map(p => p.id)
+  const candidateIds = candidates.map((p) => p.id)
 
   // 2. Filter out users who already finished a workout today
   const { data: sessionsData } = await supabase
@@ -81,8 +84,8 @@ export async function GET(request: Request) {
     .not('finished_at', 'is', null)
     .gte('started_at', todayIso + 'T00:00:00Z')
 
-  const completedTodayIds = new Set(((sessionsData as SessionRow[]) ?? []).map(s => s.user_id))
-  const remindIds = candidateIds.filter(id => !completedTodayIds.has(id))
+  const completedTodayIds = new Set(((sessionsData as SessionRow[]) ?? []).map((s) => s.user_id))
+  const remindIds = candidateIds.filter((id) => !completedTodayIds.has(id))
 
   if (remindIds.length === 0) {
     return NextResponse.json({

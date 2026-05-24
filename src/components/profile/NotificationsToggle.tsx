@@ -40,26 +40,31 @@ export function NotificationsToggle({ vapidPublicKey }: Props) {
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    async function refreshStatus() {
+      if (
+        !('Notification' in window) ||
+        !('serviceWorker' in navigator) ||
+        !('PushManager' in window)
+      ) {
+        setStatus('unsupported')
+        return
+      }
 
-    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setStatus('unsupported')
-      return
-    }
+      if (Notification.permission === 'denied') {
+        setStatus('denied')
+        return
+      }
 
-    if (Notification.permission === 'denied') {
-      setStatus('denied')
-      return
-    }
-
-    navigator.serviceWorker.getRegistration().then(async reg => {
+      const reg = await navigator.serviceWorker.getRegistration()
       if (!reg) {
         setStatus('off')
         return
       }
       const sub = await reg.pushManager.getSubscription()
       setStatus(sub ? 'on' : 'off')
-    })
+    }
+
+    void refreshStatus()
   }, [])
 
   async function enable() {

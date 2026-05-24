@@ -1,10 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
-import {
-  getMeasurementForDate,
-  getRecentMeasurements,
-} from '@/lib/db/body-measurements'
+import { getMeasurementForDate, getRecentMeasurements } from '@/lib/db/body-measurements'
 import { MeasurementForm } from '@/components/progress/MeasurementForm'
 import { MeasurementHistory } from '@/components/progress/MeasurementHistory'
 import Link from 'next/link'

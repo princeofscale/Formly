@@ -1,18 +1,27 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 interface Props {
   current: string
 }
 
 export function LocaleSwitcher({ current }: Props) {
-  function setLocale(locale: string) {
-    document.cookie = `locale=${locale}; path=/; max-age=31536000; SameSite=Lax`
+  const [nextLocale, setNextLocale] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!nextLocale) return
+    document.cookie = `locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`
     window.location.reload()
+  }, [nextLocale])
+
+  function setLocale(locale: string) {
+    setNextLocale(locale)
   }
 
   return (
     <div className="flex gap-1 rounded-sm overflow-hidden border border-zinc-700">
-      {(['ru', 'en'] as const).map(loc => (
+      {(['ru', 'en'] as const).map((loc) => (
         <button
           key={loc}
           onClick={() => setLocale(loc)}

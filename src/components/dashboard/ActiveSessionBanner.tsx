@@ -27,7 +27,8 @@ export function ActiveSessionBanner({ sessionId, startedAt, setCount }: Props) {
 
   useEffect(() => {
     const id = setInterval(
-      () => setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))),
+      () =>
+        setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))),
       1000,
     )
     return () => clearInterval(id)
@@ -38,8 +39,7 @@ export function ActiveSessionBanner({ sessionId, startedAt, setCount }: Props) {
       href={`/workout/${sessionId}`}
       className="block rounded-2xl p-4 transition active:scale-[0.99]"
       style={{
-        background:
-          'linear-gradient(135deg, rgba(255, 59, 71, 0.18), rgba(255, 196, 68, 0.10))',
+        background: 'linear-gradient(135deg, rgba(255, 59, 71, 0.18), rgba(255, 196, 68, 0.10))',
         border: '1px solid rgba(255, 59, 71, 0.35)',
         boxShadow: '0 14px 30px rgba(255, 59, 71, 0.18)',
       }}
@@ -55,9 +55,7 @@ export function ActiveSessionBanner({ sessionId, startedAt, setCount }: Props) {
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/85">
             {t('label')}
           </p>
-          <p className="text-sm font-extrabold text-white mt-0.5">
-            {t('continue')}
-          </p>
+          <p className="text-sm font-extrabold text-white mt-0.5">{t('continue')}</p>
         </div>
         <div className="text-right shrink-0">
           <div className="flex items-center gap-1 justify-end">

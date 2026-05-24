@@ -34,7 +34,7 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
   const innerW = WIDTH - PADDING.left - PADDING.right
   const innerH = HEIGHT - PADDING.top - PADDING.bottom
 
-  const values = data.map(d => d.value)
+  const values = data.map((d) => d.value)
   const minV = Math.min(...values)
   const maxV = Math.max(...values)
   const range = maxV - minV || 1
@@ -50,19 +50,25 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
     return { x, y, value: d.value, date: d.date }
   })
 
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ')
+  const linePath = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+    .join(' ')
   const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(2)} ${PADDING.top + innerH} L ${points[0].x.toFixed(2)} ${PADDING.top + innerH} Z`
 
   // Y-axis tick labels (3 ticks)
   const yTicks = [scaleMax, scaleMin + scaleRange / 2, scaleMin]
 
   // X-axis labels: first and last
-  const xLabels = data.length > 0
-    ? [data[0].date, data[Math.floor(data.length / 2)]?.date, data[data.length - 1].date]
-    : []
+  const xLabels =
+    data.length > 0
+      ? [data[0].date, data[Math.floor(data.length / 2)]?.date, data[data.length - 1].date]
+      : []
 
   function formatDate(iso: string) {
-    return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })
+    return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, {
+      day: '2-digit',
+      month: '2-digit',
+    })
   }
 
   function handleMove(e: React.MouseEvent<SVGSVGElement>) {
@@ -73,7 +79,10 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
     let bestDist = Infinity
     for (let i = 0; i < points.length; i++) {
       const d = Math.abs(points[i].x - x)
-      if (d < bestDist) { bestDist = d; best = i }
+      if (d < bestDist) {
+        bestDist = d
+        best = i
+      }
     }
     setHover({ idx: best, x: points[best].x, y: points[best].y })
   }
@@ -100,8 +109,10 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
           return (
             <g key={i}>
               <line
-                x1={PADDING.left} y1={y}
-                x2={WIDTH - PADDING.right} y2={y}
+                x1={PADDING.left}
+                y1={y}
+                x2={WIDTH - PADDING.right}
+                y2={y}
                 stroke="rgba(255,255,255,0.04)"
                 strokeWidth="1"
               />
@@ -134,12 +145,15 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
         {points.map((p, i) => (
           <circle
             key={i}
-            cx={p.x} cy={p.y}
+            cx={p.x}
+            cy={p.y}
             r={hover?.idx === i ? 5 : 3}
             fill="#FF3B47"
             stroke="#15151C"
             strokeWidth="2"
-            style={hover?.idx === i ? { filter: 'drop-shadow(0 0 6px rgba(255,59,71,0.8))' } : undefined}
+            style={
+              hover?.idx === i ? { filter: 'drop-shadow(0 0 6px rgba(255,59,71,0.8))' } : undefined
+            }
           />
         ))}
 
@@ -147,8 +161,10 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
         {hover && (
           <g>
             <line
-              x1={hover.x} y1={PADDING.top}
-              x2={hover.x} y2={HEIGHT - PADDING.bottom}
+              x1={hover.x}
+              y1={PADDING.top}
+              x2={hover.x}
+              y2={HEIGHT - PADDING.bottom}
               stroke="rgba(255,59,71,0.3)"
               strokeDasharray="2 3"
               strokeWidth="1"
@@ -156,7 +172,9 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
             <rect
               x={Math.min(WIDTH - 90, Math.max(PADDING.left, hover.x - 40))}
               y={hover.y - 32}
-              width="80" height="22" rx="6"
+              width="80"
+              height="22"
+              rx="6"
               fill="#15151C"
               stroke="rgba(255,59,71,0.4)"
             />
@@ -175,7 +193,8 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
 
         {/* X labels */}
         {xLabels.filter(Boolean).map((d, i) => {
-          const x = PADDING.left + (xLabels.length === 1 ? innerW / 2 : (i / (xLabels.length - 1)) * innerW)
+          const x =
+            PADDING.left + (xLabels.length === 1 ? innerW / 2 : (i / (xLabels.length - 1)) * innerW)
           return (
             <text
               key={d + i}

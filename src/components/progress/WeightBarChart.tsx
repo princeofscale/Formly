@@ -18,12 +18,12 @@ export function WeightBarChart({ data }: Props) {
     )
   }
 
-  const values = data.map(d => d.weight_kg)
+  const values = data.map((d) => d.weight_kg)
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
   const scaleMin = min - range * 0.15
-  const scaleRange = (max - scaleMin) || 1
+  const scaleRange = max - scaleMin || 1
 
   function formatDate(iso: string) {
     return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short' })
@@ -36,7 +36,10 @@ export function WeightBarChart({ data }: Props) {
         const isLatest = i === data.length - 1
         return (
           <div key={d.date + i} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-            <div className="text-[10px] font-mono tabular-nums" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            <div
+              className="text-[10px] font-mono tabular-nums"
+              style={{ color: 'rgba(255,255,255,0.7)' }}
+            >
               {d.weight_kg.toFixed(1)}
             </div>
             <div
@@ -49,7 +52,10 @@ export function WeightBarChart({ data }: Props) {
                 boxShadow: isLatest ? '0 0 16px rgba(255,59,71,0.4)' : undefined,
               }}
             />
-            <div className="text-[10px] uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <div
+              className="text-[10px] uppercase tracking-wide"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
               {formatDate(d.date)}
             </div>
           </div>

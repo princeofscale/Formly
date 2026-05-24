@@ -38,7 +38,7 @@ export async function upsertMeasurement(
   supabase: SupabaseClient,
   userId: string,
   date: string,
-  values: MeasurementInput
+  values: MeasurementInput,
 ): Promise<BodyMeasurement> {
   const row: Record<string, unknown> = { user_id: userId, date }
   for (const k of MEASUREMENT_METRICS) {
@@ -59,7 +59,7 @@ export async function upsertMeasurement(
 export async function getMeasurementForDate(
   supabase: SupabaseClient,
   userId: string,
-  date: string
+  date: string,
 ): Promise<BodyMeasurement | null> {
   const { data } = await supabase
     .from('body_measurements')
@@ -73,7 +73,7 @@ export async function getMeasurementForDate(
 export async function getRecentMeasurements(
   supabase: SupabaseClient,
   userId: string,
-  limit = 30
+  limit = 30,
 ): Promise<BodyMeasurement[]> {
   const { data } = await supabase
     .from('body_measurements')
@@ -87,7 +87,7 @@ export async function getRecentMeasurements(
 export async function deleteMeasurementForDate(
   supabase: SupabaseClient,
   userId: string,
-  date: string
+  date: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('body_measurements')

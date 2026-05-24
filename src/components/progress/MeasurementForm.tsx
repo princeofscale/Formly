@@ -12,16 +12,20 @@ interface Props {
   defaultDate: string
 }
 
-const FIELDS: Array<{ key: keyof BodyMeasurement; unit: 'weight' | 'length' | 'percent'; step: string }> = [
-  { key: 'weight_kg',   unit: 'weight',  step: '0.1' },
-  { key: 'body_fat_pct', unit: 'percent',  step: '0.1' },
-  { key: 'waist_cm',    unit: 'length',  step: '0.1' },
-  { key: 'chest_cm',    unit: 'length',  step: '0.1' },
-  { key: 'hips_cm',     unit: 'length',  step: '0.1' },
-  { key: 'biceps_cm',   unit: 'length',  step: '0.1' },
-  { key: 'thigh_cm',    unit: 'length',  step: '0.1' },
-  { key: 'calf_cm',     unit: 'length',  step: '0.1' },
-  { key: 'neck_cm',     unit: 'length',  step: '0.1' },
+const FIELDS: Array<{
+  key: keyof BodyMeasurement
+  unit: 'weight' | 'length' | 'percent'
+  step: string
+}> = [
+  { key: 'weight_kg', unit: 'weight', step: '0.1' },
+  { key: 'body_fat_pct', unit: 'percent', step: '0.1' },
+  { key: 'waist_cm', unit: 'length', step: '0.1' },
+  { key: 'chest_cm', unit: 'length', step: '0.1' },
+  { key: 'hips_cm', unit: 'length', step: '0.1' },
+  { key: 'biceps_cm', unit: 'length', step: '0.1' },
+  { key: 'thigh_cm', unit: 'length', step: '0.1' },
+  { key: 'calf_cm', unit: 'length', step: '0.1' },
+  { key: 'neck_cm', unit: 'length', step: '0.1' },
 ]
 
 export function MeasurementForm({ initial, defaultDate }: Props) {
@@ -51,7 +55,10 @@ export function MeasurementForm({ initial, defaultDate }: Props) {
           <Ruler className="h-4 w-4" style={{ color: '#22D3A8' }} />
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#22D3A8' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: '#22D3A8' }}
+          >
             {t('label')}
           </p>
           <p className="text-sm font-bold text-white">{t('formTitle')}</p>
@@ -64,13 +71,13 @@ export function MeasurementForm({ initial, defaultDate }: Props) {
           type="date"
           name="date"
           value={date}
-          onChange={e => setDate(e.target.value)}
+          onChange={(e) => setDate(e.target.value)}
           className="mt-1 w-full rounded-xl bg-white/[0.04] px-3 py-2 text-sm text-white outline-none ring-1 ring-white/10 focus:ring-white/30"
         />
       </label>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {FIELDS.map(f => (
+        {FIELDS.map((f) => (
           <label key={f.key} className="block">
             <span className="text-[10px] uppercase tracking-widest text-white/40">
               {t(`fields.${f.key}`)} <span className="text-white/25">({unitLabel(f.unit)})</span>

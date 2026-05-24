@@ -41,7 +41,7 @@ export default async function HistoryPage() {
   const avgPerSession = totalSessions > 0 ? Math.round(totalVolumeKg / totalSessions) : 0
 
   // Batch-fetch exercise tags for all sessions in one query
-  const sessionIds = sessions.map(s => s.id)
+  const sessionIds = sessions.map((s) => s.id)
   const exerciseTags = new Map<string, string[]>()
   const setCounts = new Map<string, number>()
 
@@ -71,7 +71,7 @@ export default async function HistoryPage() {
   const groups: { key: string; label: string; items: typeof sessions }[] = []
   for (const s of sessions) {
     const key = s.started_at.slice(0, 7)
-    let group = groups.find(g => g.key === key)
+    let group = groups.find((g) => g.key === key)
     if (!group) {
       const d = new Date(`${key}-01T00:00:00Z`)
       const monthName = d.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
@@ -154,7 +154,7 @@ export default async function HistoryPage() {
       )}
 
       {/* SESSION LIST grouped by month */}
-      {groups.map(group => (
+      {groups.map((group) => (
         <section
           key={group.key}
           className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-100"
@@ -164,24 +164,26 @@ export default async function HistoryPage() {
           </h2>
           <div className="rounded-[24px] bg-card p-2 ring-1 ring-white/[0.06]">
             <div className="space-y-0.5">
-              {group.items.map(s => {
+              {group.items.map((s) => {
                 const date = new Date(s.started_at)
                 const duration = s.finished_at
                   ? Math.round((new Date(s.finished_at).getTime() - date.getTime()) / 60000)
                   : null
 
-                const dateStr = date.toLocaleDateString(
-                  locale === 'ru' ? 'ru-RU' : 'en-GB',
-                  { weekday: 'short', day: 'numeric', month: 'short' },
-                )
+                const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB', {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })
 
                 const tags = exerciseTags.get(s.id) ?? []
                 const setCount = setCounts.get(s.id) ?? 0
                 const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
                 const isCardio = s.session_type === 'cardio'
-                const cardioMin = s.cardio_duration_seconds != null
-                  ? Math.round(s.cardio_duration_seconds / 60)
-                  : null
+                const cardioMin =
+                  s.cardio_duration_seconds != null
+                    ? Math.round(s.cardio_duration_seconds / 60)
+                    : null
 
                 return (
                   <Link
@@ -212,8 +214,14 @@ export default async function HistoryPage() {
                         ) : (
                           <p className="mt-0.5 truncate text-xs text-white/40">
                             {tags.length > 0 && <>{tags.join(' · ')}</>}
-                            {tags.length > 0 && (setCount > 0 || duration) && <span className="text-white/20"> · </span>}
-                            {setCount > 0 && <>{setCount} {t('sets')}</>}
+                            {tags.length > 0 && (setCount > 0 || duration) && (
+                              <span className="text-white/20"> · </span>
+                            )}
+                            {setCount > 0 && (
+                              <>
+                                {setCount} {t('sets')}
+                              </>
+                            )}
                             {duration && (
                               <>
                                 {setCount > 0 && <span className="text-white/20"> · </span>}

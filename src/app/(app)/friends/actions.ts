@@ -38,9 +38,7 @@ export async function addFriendAction(formData: FormData): Promise<AddFriendResu
     return {
       ok: false,
       errorKey:
-        result.error === 'already' ? 'already' :
-        result.error === 'self'    ? 'self' :
-                                     'unknown',
+        result.error === 'already' ? 'already' : result.error === 'self' ? 'self' : 'unknown',
     }
   }
 

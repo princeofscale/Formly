@@ -24,7 +24,10 @@ export function ExerciseDropdown({ exercises, selectedId, locale, currentPeriod,
 
   return (
     <label className="block">
-      <span className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+      <span
+        className="text-[10px] uppercase tracking-widest"
+        style={{ color: 'rgba(255,255,255,0.5)' }}
+      >
         {label}
       </span>
       <div className="relative mt-1">
@@ -38,7 +41,7 @@ export function ExerciseDropdown({ exercises, selectedId, locale, currentPeriod,
             color: '#FFFFFF',
           }}
         >
-          {exercises.map(e => (
+          {exercises.map((e) => (
             <option key={e.id} value={e.id} style={{ background: '#15151C' }}>
               {locale === 'ru' ? (e.name_ru ?? e.name) : e.name}
             </option>

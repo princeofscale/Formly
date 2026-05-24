@@ -25,7 +25,9 @@ export function PhotoGallery({ photos }: Props) {
     const active = viewerIdx !== null || (compareMode && comparePair !== null)
     if (active) {
       document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = '' }
+      return () => {
+        document.body.style.overflow = ''
+      }
     }
   }, [viewerIdx, compareMode, comparePair])
 
@@ -47,7 +49,9 @@ export function PhotoGallery({ photos }: Props) {
 
   function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-      day: 'numeric', month: 'short', year: 'numeric',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     })
   }
 
@@ -116,7 +120,7 @@ export function PhotoGallery({ photos }: Props) {
           <button
             type="button"
             onClick={() => {
-              setCompareMode(v => !v)
+              setCompareMode((v) => !v)
               setComparePair(null)
             }}
             className="flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-[11px] font-bold uppercase tracking-widest transition-colors"
@@ -157,19 +161,26 @@ export function PhotoGallery({ photos }: Props) {
             >
               {p.signed_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.signed_url} alt={p.caption ?? ''} className="w-full h-full object-cover" loading="lazy" />
+                <img
+                  src={p.signed_url}
+                  alt={p.caption ?? ''}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               ) : (
                 <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs">
                   {t('imageMissing')}
                 </div>
               )}
-              <div className="absolute inset-x-0 bottom-0 p-1.5 text-[9px] font-mono text-white"
+              <div
+                className="absolute inset-x-0 bottom-0 p-1.5 text-[9px] font-mono text-white"
                 style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }}
               >
                 {formatDate(p.taken_at)}
               </div>
               {p.weight_kg != null && (
-                <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-sm text-[9px] font-bold font-mono"
+                <div
+                  className="absolute top-1 right-1 px-1.5 py-0.5 rounded-sm text-[9px] font-bold font-mono"
                   style={{ background: 'rgba(0,0,0,0.6)', color: '#FFFFFF' }}
                 >
                   {p.weight_kg}кг
@@ -188,24 +199,36 @@ export function PhotoGallery({ photos }: Props) {
         >
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setComparePair(null) }}
+            onClick={(e) => {
+              e.stopPropagation()
+              setComparePair(null)
+            }}
             className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
           >
             <X className="h-5 w-5" />
           </button>
-          <div className="flex-1 grid grid-cols-2 gap-2 items-center" onClick={e => e.stopPropagation()}>
+          <div
+            className="flex-1 grid grid-cols-2 gap-2 items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             {comparePair.map((idx, i) => {
               const p = photos[idx]
               return (
                 <div key={i} className="space-y-2 h-full flex flex-col">
                   {p.signed_url && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.signed_url} alt="" className="flex-1 min-h-0 w-full object-contain rounded-[10px]" />
+                    <img
+                      src={p.signed_url}
+                      alt=""
+                      className="flex-1 min-h-0 w-full object-contain rounded-[10px]"
+                    />
                   )}
                   <div className="text-center">
                     <p className="font-mono text-[11px] text-white">{formatDate(p.taken_at)}</p>
                     {p.weight_kg != null && (
-                      <p className="text-[10px] mt-0.5" style={{ color: '#FF6E76' }}>{p.weight_kg} кг</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: '#FF6E76' }}>
+                        {p.weight_kg} кг
+                      </p>
                     )}
                   </div>
                 </div>
@@ -223,13 +246,19 @@ export function PhotoGallery({ photos }: Props) {
           onTouchEnd={handleTouchEnd}
         >
           <div className="flex items-center justify-between p-3 text-white">
-            <button type="button" onClick={closeViewer} className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={closeViewer}
+              className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+            >
               <X className="h-5 w-5" />
             </button>
             <div className="text-center">
               <p className="font-mono text-sm font-bold">{formatDate(active.taken_at)}</p>
               {active.weight_kg != null && (
-                <p className="text-[11px]" style={{ color: '#FF6E76' }}>{active.weight_kg} кг</p>
+                <p className="text-[11px]" style={{ color: '#FF6E76' }}>
+                  {active.weight_kg} кг
+                </p>
               )}
             </div>
             <button
@@ -253,7 +282,11 @@ export function PhotoGallery({ photos }: Props) {
             )}
             {active.signed_url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={active.signed_url} alt="" className="max-w-full max-h-full object-contain rounded-[10px]" />
+              <img
+                src={active.signed_url}
+                alt=""
+                className="max-w-full max-h-full object-contain rounded-[10px]"
+              />
             )}
             {photos.length > 1 && (
               <button

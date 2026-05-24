@@ -43,9 +43,7 @@ export default function LoginPage() {
             className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
           />
         </div>
-        {state?.errorKey && (
-          <p className="text-sm text-red-400">{te(state.errorKey)}</p>
-        )}
+        {state?.errorKey && <p className="text-sm text-red-400">{te(state.errorKey)}</p>}
         <Button
           type="submit"
           className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-400 text-black hover:from-amber-400 hover:to-amber-300 border-0"

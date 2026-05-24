@@ -25,15 +25,15 @@ export interface Achievement {
 
 interface Ctx {
   totalSessions: number
-  totalSessionsAt: Record<number, string | undefined>  // tier threshold -> earned date
+  totalSessionsAt: Record<number, string | undefined> // tier threshold -> earned date
   firstFinishedAt: string | null
   longestStreak: number
   streakEarnedAt: Record<number, string | undefined>
   bwBenchRatio: number
   bwSquatRatio: number
   bwDeadliftRatio: number
-  earlyMornings: number   // sessions started before 8:00 local
-  lateEvenings: number    // sessions started after 21:00 local
+  earlyMornings: number // sessions started before 8:00 local
+  lateEvenings: number // sessions started after 21:00 local
   cardioSessions: number
   measurementsLogged: number
   sleepLogged: number
@@ -60,9 +60,13 @@ function buildTier(
   }
   const nextTarget = tier < thresholds.length ? thresholds[tier] : null
   return {
-    id, category, emoji,
-    tier, maxTier: thresholds.length,
-    current, nextTarget,
+    id,
+    category,
+    emoji,
+    tier,
+    maxTier: thresholds.length,
+    current,
+    nextTarget,
     earnedAt,
   }
 }
@@ -77,7 +81,9 @@ function buildSingle(
 ): Achievement {
   const earned = current >= target
   return {
-    id, category, emoji,
+    id,
+    category,
+    emoji,
     tier: earned ? 1 : 0,
     maxTier: 1,
     current,
@@ -108,14 +114,22 @@ export async function getAchievements(
   // --- bodyweight + best e1rm per big lift ---
   const [profileRes, measurementsCount, sleepCount, photosCount] = await Promise.all([
     supabase.from('profiles').select('weight_kg').eq('id', userId).single(),
-    supabase.from('body_measurements').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase
+      .from('body_measurements')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId),
     supabase.from('sleep_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-    supabase.from('progress_photos').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase
+      .from('progress_photos')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId),
   ])
   const bodyweight = (profileRes.data?.weight_kg as number | null) ?? null
 
   // Big-lift e1rms via exercise slug
-  let bwBench = 0, bwSquat = 0, bwDeadlift = 0
+  let bwBench = 0,
+    bwSquat = 0,
+    bwDeadlift = 0
   if (bodyweight && bodyweight > 0) {
     const { data: lifts } = await supabase
       .from('exercises')
@@ -123,7 +137,7 @@ export async function getAchievements(
       .in('slug', ['barbell-bench-press', 'barbell-squat', 'barbell-deadlift'])
 
     const liftMap = new Map<string, string>(
-      ((lifts ?? []) as Array<{ id: string; slug: string }>).map(l => [l.id, l.slug]),
+      ((lifts ?? []) as Array<{ id: string; slug: string }>).map((l) => [l.id, l.slug]),
     )
     if (liftMap.size > 0) {
       const { data: setData } = await supabase
@@ -134,24 +148,31 @@ export async function getAchievements(
         .not('calculated_1rm', 'is', null)
 
       const bestBySlug: Record<string, number> = {}
-      for (const row of (setData ?? []) as Array<{ exercise_id: string; calculated_1rm: number | null }>) {
+      for (const row of (setData ?? []) as Array<{
+        exercise_id: string
+        calculated_1rm: number | null
+      }>) {
         if (row.calculated_1rm == null) continue
         const slug = liftMap.get(row.exercise_id)
         if (!slug) continue
         bestBySlug[slug] = Math.max(bestBySlug[slug] ?? 0, row.calculated_1rm)
       }
-      bwBench = bestBySlug['barbell-bench-press'] ? bestBySlug['barbell-bench-press'] / bodyweight : 0
+      bwBench = bestBySlug['barbell-bench-press']
+        ? bestBySlug['barbell-bench-press'] / bodyweight
+        : 0
       bwSquat = bestBySlug['barbell-squat'] ? bestBySlug['barbell-squat'] / bodyweight : 0
       bwDeadlift = bestBySlug['barbell-deadlift'] ? bestBySlug['barbell-deadlift'] / bodyweight : 0
     }
   }
 
   // Aggregate session-derived metrics
-  const strengthSessions = sessions.filter(s => s.session_type !== 'cardio')
-  const cardioSessions = sessions.filter(s => s.session_type === 'cardio').length
+  const strengthSessions = sessions.filter((s) => s.session_type !== 'cardio')
+  const cardioSessions = sessions.filter((s) => s.session_type === 'cardio').length
 
   // Streak: longest consecutive-day chain across strength sessions
-  const uniqueDays = Array.from(new Set(strengthSessions.map(s => s.started_at.slice(0, 10)))).sort()
+  const uniqueDays = Array.from(
+    new Set(strengthSessions.map((s) => s.started_at.slice(0, 10))),
+  ).sort()
   let longestStreak = 0
   let currentStreak = 0
   let prevDay: Date | null = null
@@ -215,31 +236,33 @@ export async function getAchievements(
 
   const list: Achievement[] = [
     buildTier(
-      'sessions', 'milestone', '🏋️',
+      'sessions',
+      'milestone',
+      '🏋️',
       [1, 10, 50, 100, 250, 500],
       ctx.totalSessions,
       ctx.totalSessionsAt,
     ),
-    buildTier(
-      'streak', 'consistency', '🔥',
-      [3, 7, 14, 30, 60, 100],
-      ctx.longestStreak,
-    ),
-    buildSingle('bench_bw',     'strength', '💪', 1.0, ctx.bwBenchRatio),
-    buildSingle('squat_1_5bw',  'strength', '🦵', 1.5, ctx.bwSquatRatio),
+    buildTier('streak', 'consistency', '🔥', [3, 7, 14, 30, 60, 100], ctx.longestStreak),
+    buildSingle('bench_bw', 'strength', '💪', 1.0, ctx.bwBenchRatio),
+    buildSingle('squat_1_5bw', 'strength', '🦵', 1.5, ctx.bwSquatRatio),
     buildSingle('deadlift_2bw', 'strength', '⚡', 2.0, ctx.bwDeadliftRatio),
     buildTier(
-      'peak_tonnage', 'strength', '💥',
+      'peak_tonnage',
+      'strength',
+      '💥',
       [2500, 5000, 10000, 15000],
       ctx.peakDayTonnage,
-      ctx.peakDayTonnageAt ? { [Math.floor(ctx.peakDayTonnage)]: ctx.peakDayTonnageAt + 'T00:00:00Z' } : {},
+      ctx.peakDayTonnageAt
+        ? { [Math.floor(ctx.peakDayTonnage)]: ctx.peakDayTonnageAt + 'T00:00:00Z' }
+        : {},
     ),
     buildSingle('early_bird', 'consistency', '🌅', 10, ctx.earlyMornings),
-    buildSingle('night_owl',  'consistency', '🌙', 10, ctx.lateEvenings),
+    buildSingle('night_owl', 'consistency', '🌙', 10, ctx.lateEvenings),
     buildSingle('cardio_starter', 'tracking', '🏃', 1, ctx.cardioSessions),
     buildSingle('measurements', 'tracking', '📏', 1, ctx.measurementsLogged),
-    buildSingle('sleep_week',   'tracking', '😴', 7, ctx.sleepLogged),
-    buildSingle('photo_first',  'tracking', '📸', 1, ctx.photosLogged),
+    buildSingle('sleep_week', 'tracking', '😴', 7, ctx.sleepLogged),
+    buildSingle('photo_first', 'tracking', '📸', 1, ctx.photosLogged),
   ]
 
   return list

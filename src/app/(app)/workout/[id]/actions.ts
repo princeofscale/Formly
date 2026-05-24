@@ -4,7 +4,13 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { addSet, getSetsForSession, getBestE1RMForExercise, updateSet, deleteSet } from '@/lib/db/sets'
+import {
+  addSet,
+  getSetsForSession,
+  getBestE1RMForExercise,
+  updateSet,
+  deleteSet,
+} from '@/lib/db/sets'
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
 import { searchExercises } from '@/lib/db/exercises'
 import { getLastSetsForExercise } from '@/lib/db/sets'
@@ -57,9 +63,13 @@ export async function saveSetAction(data: {
     calculated1rm,
   })
 
-  const prResult = calculated1rm != null
-    ? detectPRFromHistory(calculated1rm, await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id))
-    : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
+  const prResult =
+    calculated1rm != null
+      ? detectPRFromHistory(
+          calculated1rm,
+          await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id),
+        )
+      : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
 
   if (calculated1rm != null) {
     // Fire-and-forget goal-achievement update — never block the set save on it.
@@ -152,7 +162,10 @@ export async function deleteSetAction(setId: string): Promise<void> {
   await deleteSet(supabase, id, user.id)
 }
 
-export async function searchExercisesAction(query: string, locale: string = 'en'): Promise<Exercise[]> {
+export async function searchExercisesAction(
+  query: string,
+  locale: string = 'en',
+): Promise<Exercise[]> {
   const { user } = await verifySession()
   const supabase = await createClient()
   return searchExercises(supabase, user.id, query, locale)
@@ -183,19 +196,28 @@ export async function updateExerciseVideoAction(exerciseId: string, url: string)
   await upsertExerciseVideo(supabase, user.id, exerciseId, url)
 }
 
-export async function getLastSetsForExerciseAction(exerciseId: string, sessionId: string): Promise<SetEntry[]> {
+export async function getLastSetsForExerciseAction(
+  exerciseId: string,
+  sessionId: string,
+): Promise<SetEntry[]> {
   const { user } = await verifySession()
   const supabase = await createClient()
   return getLastSetsForExercise(supabase, user.id, exerciseId, sessionId)
 }
 
-export async function saveTemplateAction(name: string, exercises: TemplateExercise[]): Promise<void> {
+export async function saveTemplateAction(
+  name: string,
+  exercises: TemplateExercise[],
+): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
   await createTemplate(supabase, user.id, name, exercises)
 }
 
-export async function updateTemplateAction(templateId: string, exercises: TemplateExercise[]): Promise<void> {
+export async function updateTemplateAction(
+  templateId: string,
+  exercises: TemplateExercise[],
+): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
   await updateTemplate(supabase, user.id, templateId, exercises)
@@ -207,7 +229,7 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
 
   const allSets = await getSetsForSession(supabase, sessionId)
   const totalVolume = allSets
-    .filter(s => !s.is_warmup)
+    .filter((s) => !s.is_warmup)
     .reduce((sum, s) => sum + s.weight_kg * s.reps, 0)
 
   await finishSession(supabase, sessionId, totalVolume)

@@ -3,7 +3,7 @@ import type { WorkoutSession } from '@/lib/types/models'
 
 export async function createSession(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<WorkoutSession> {
   const { data, error } = await supabase
     .from('workout_sessions')
@@ -16,20 +16,16 @@ export async function createSession(
 
 export async function getSession(
   supabase: SupabaseClient,
-  sessionId: string
+  sessionId: string,
 ): Promise<WorkoutSession | null> {
-  const { data } = await supabase
-    .from('workout_sessions')
-    .select('*')
-    .eq('id', sessionId)
-    .single()
+  const { data } = await supabase.from('workout_sessions').select('*').eq('id', sessionId).single()
   return data as WorkoutSession | null
 }
 
 export async function getRecentSessions(
   supabase: SupabaseClient,
   userId: string,
-  limit = 10
+  limit = 10,
 ): Promise<WorkoutSession[]> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -43,7 +39,7 @@ export async function getRecentSessions(
 
 export async function getActiveSession(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<WorkoutSession | null> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -59,7 +55,7 @@ export async function getActiveSession(
 export async function finishSession(
   supabase: SupabaseClient,
   sessionId: string,
-  totalVolumeKg: number
+  totalVolumeKg: number,
 ): Promise<void> {
   const { error } = await supabase
     .from('workout_sessions')
@@ -72,7 +68,7 @@ export async function updateSessionNotes(
   supabase: SupabaseClient,
   sessionId: string,
   userId: string,
-  notes: string | null
+  notes: string | null,
 ): Promise<void> {
   const { error } = await supabase
     .from('workout_sessions')
@@ -86,7 +82,7 @@ export async function updateSessionMood(
   supabase: SupabaseClient,
   sessionId: string,
   userId: string,
-  mood: number | null
+  mood: number | null,
 ): Promise<void> {
   const safeMood = mood !== null && mood >= 1 && mood <= 5 ? mood : null
   const { error } = await supabase
@@ -103,7 +99,7 @@ export async function updateSessionMood(
 export async function getDailyTonnage(
   supabase: SupabaseClient,
   userId: string,
-  days = 84
+  days = 84,
 ): Promise<{ date: string; tonnage_kg: number }[]> {
   const since = new Date()
   since.setUTCDate(since.getUTCDate() - days)

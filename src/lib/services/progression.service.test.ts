@@ -4,9 +4,16 @@ import type { SetEntry } from '@/lib/types/models'
 
 function makeSet(overrides: Partial<SetEntry> = {}): SetEntry {
   return {
-    id: '1', session_id: 's1', user_id: 'u1', exercise_id: 'e1',
-    set_number: 1, weight_kg: 80, reps: 10, rpe: null,
-    calculated_1rm: null, rest_seconds: null,
+    id: '1',
+    session_id: 's1',
+    user_id: 'u1',
+    exercise_id: 'e1',
+    set_number: 1,
+    weight_kg: 80,
+    reps: 10,
+    rpe: null,
+    calculated_1rm: null,
+    rest_seconds: null,
     created_at: new Date().toISOString(),
     ...overrides,
   }

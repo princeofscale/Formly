@@ -11,7 +11,11 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       {/* Left panel */}
       <div
         className="hidden md:flex flex-col justify-between p-12 border-r"
-        style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(5,5,16,0.5)', backdropFilter: 'blur(12px)' }}
+        style={{
+          borderColor: 'rgba(255,255,255,0.08)',
+          background: 'rgba(5,5,16,0.5)',
+          backdropFilter: 'blur(12px)',
+        }}
       >
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center">
@@ -46,9 +50,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         <div className="flex justify-end p-4">
           <LocaleSwitcher current={locale} />
         </div>
-        <div className="flex-1 flex items-center justify-center px-8 pb-12">
-          {children}
-        </div>
+        <div className="flex-1 flex items-center justify-center px-8 pb-12">{children}</div>
       </div>
     </div>
   )

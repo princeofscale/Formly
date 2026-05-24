@@ -7,7 +7,23 @@ import { verifySession } from '@/lib/dal'
 import { deleteExercise } from '@/lib/db/exercises'
 import type { MuscleGroup, Exercise } from '@/lib/types/models'
 
-const MUSCLE_VALUES = ['chest','back','biceps','triceps','forearms','core','quads','hamstrings','glutes','calves','traps','lats','rear_delts','front_delts','side_delts'] as const
+const MUSCLE_VALUES = [
+  'chest',
+  'back',
+  'biceps',
+  'triceps',
+  'forearms',
+  'core',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'calves',
+  'traps',
+  'lats',
+  'rear_delts',
+  'front_delts',
+  'side_delts',
+] as const
 
 const exerciseSchema = z.object({
   name: z.string().min(2).max(100),
@@ -31,7 +47,10 @@ export async function createExerciseAction(formData: FormData): Promise<Exercise
     equipment: formData.get('equipment'),
   })
 
-  const baseSlug = (parsed.name as string).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  const baseSlug = (parsed.name as string)
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
   // Slug must be unique — append short random suffix to avoid collisions
   const slug = `${baseSlug || 'custom'}-${Math.random().toString(36).slice(2, 7)}`
 

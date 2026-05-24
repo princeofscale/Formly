@@ -51,7 +51,8 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
     })
   }
 
-  const tone = hours == null ? '#FFC044' : hours < 6 ? '#FF6E76' : hours >= 7 ? '#5EEAD4' : '#FFC044'
+  const tone =
+    hours == null ? '#FFC044' : hours < 6 ? '#FF6E76' : hours >= 7 ? '#5EEAD4' : '#FFC044'
 
   return (
     <div
@@ -69,17 +70,26 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
           <Moon className="h-4 w-4" style={{ color: '#5EEAD4' }} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#5EEAD4' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: '#5EEAD4' }}
+          >
             {t('label')}
           </p>
           <p className="text-sm font-bold text-white">{t('title')}</p>
         </div>
         {weekAvg != null && (
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <p
+              className="text-[10px] uppercase tracking-widest"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
               {t('weekAvg')}
             </p>
-            <p className="text-sm font-bold font-mono tabular-nums" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            <p
+              className="text-sm font-bold font-mono tabular-nums"
+              style={{ color: 'rgba(255,255,255,0.85)' }}
+            >
               {weekAvg.toFixed(1)} {t('hoursShort')}
             </p>
           </div>
@@ -90,16 +100,25 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
       {!editing && (
         <button
           type="button"
-          onClick={() => { setEditing(true); setDraftValue(String(hours ?? '')) }}
+          onClick={() => {
+            setEditing(true)
+            setDraftValue(String(hours ?? ''))
+          }}
           className="w-full flex items-baseline gap-2 py-2 group"
         >
           <span className="text-3xl font-bold tabular-nums" style={{ color: tone }}>
             {hours != null ? hours.toFixed(1) : '—'}
           </span>
-          <span className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <span
+            className="text-[11px] uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.4)' }}
+          >
             {t('today')}
           </span>
-          <span className="ml-auto text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#FF3B47' }}>
+          <span
+            className="ml-auto text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ color: '#FF3B47' }}
+          >
             {hours != null ? t('edit') : t('log')}
           </span>
         </button>
@@ -109,9 +128,13 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
         <div className="space-y-3 animate-in fade-in duration-150">
           <div className="flex items-center gap-2">
             <input
-              type="number" inputMode="decimal" min="0" max="24" step="0.5"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              max="24"
+              step="0.5"
               value={draftValue}
-              onChange={e => setDraftValue(e.target.value)}
+              onChange={(e) => setDraftValue(e.target.value)}
               autoFocus
               placeholder="7.5"
               className="flex-1 h-10 px-3 rounded-[8px] font-mono font-bold text-base bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -142,7 +165,7 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            {QUICK_HOURS.map(h => (
+            {QUICK_HOURS.map((h) => (
               <button
                 key={h}
                 type="button"
@@ -155,7 +178,8 @@ export function SleepCard({ todayDate, todayHours, weekAvg, weekDays }: Props) {
                   color: 'rgba(255, 255, 255, 0.7)',
                 }}
               >
-                {h}{t('hoursShort')}
+                {h}
+                {t('hoursShort')}
               </button>
             ))}
           </div>

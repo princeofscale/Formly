@@ -78,23 +78,34 @@ export default async function DashboardPage({
   // For brand-new users some of these queries return empty fast; the saved
   // latency for existing users (the common case) is worth the small waste.
   const [
-    sessionsResult, profileResult, weekResult, prevWeekResult, prResult,
-    initialInsights, workoutDates, firstSessionResult,
-    muscleVolumes, weakWindowVolumes, todaySleep, weekSleep, dailyTonnage,
-    recentPRs, goals, friends, activeSession,
+    sessionsResult,
+    profileResult,
+    weekResult,
+    prevWeekResult,
+    prResult,
+    initialInsights,
+    workoutDates,
+    firstSessionResult,
+    muscleVolumes,
+    weakWindowVolumes,
+    todaySleep,
+    weekSleep,
+    dailyTonnage,
+    recentPRs,
+    goals,
+    friends,
+    activeSession,
   ] = await Promise.all([
     supabase
       .from('workout_sessions')
-      .select('id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km')
+      .select(
+        'id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km',
+      )
       .eq('user_id', user.id)
       .not('finished_at', 'is', null)
       .order('started_at', { ascending: false })
       .limit(3),
-    supabase
-      .from('profiles')
-      .select('training_schedule')
-      .eq('id', user.id)
-      .single(),
+    supabase.from('profiles').select('training_schedule').eq('id', user.id).single(),
     supabase
       .from('workout_sessions')
       .select('total_volume_kg')
@@ -161,6 +172,7 @@ export default async function DashboardPage({
 
   // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
   const now = new Date()
+  const nowMs = now.getTime()
   const todayIso = now.toISOString().slice(0, 10)
   const jsDay = now.getUTCDay()
   const todayIsoDay = jsDay === 0 ? 7 : jsDay
@@ -169,7 +181,10 @@ export default async function DashboardPage({
   const streakAtRisk = scheduledToday && !workedOutToday && streakInfo.current >= 3
   const weekTonnage = (weekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const weekSessions = (weekResult.data ?? []).length
-  const prevWeekTonnage = (prevWeekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
+  const prevWeekTonnage = (prevWeekResult.data ?? []).reduce(
+    (s, r) => s + (r.total_volume_kg ?? 0),
+    0,
+  )
   const prevWeekSessions = (prevWeekResult.data ?? []).length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
 
@@ -184,15 +199,14 @@ export default async function DashboardPage({
   }
   const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
 
-  const sleepWeekAvg = weekSleep.length > 0
-    ? weekSleep.reduce((s, r) => s + r.hours, 0) / weekSleep.length
-    : null
+  const sleepWeekAvg =
+    weekSleep.length > 0 ? weekSleep.reduce((s, r) => s + r.hours, 0) / weekSleep.length : null
   const sleepWeekBars: { date: string; hours: number }[] = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date()
     d.setUTCDate(d.getUTCDate() - i)
     const iso = d.toISOString().slice(0, 10)
-    const log = weekSleep.find(r => r.date === iso)
+    const log = weekSleep.find((r) => r.date === iso)
     sleepWeekBars.push({ date: iso, hours: log?.hours ?? 0 })
   }
 
@@ -203,14 +217,14 @@ export default async function DashboardPage({
   let deloadWeekIndex: number | null = null
   if (firstSessionDate) {
     const msPerWeek = 7 * 24 * 60 * 60 * 1000
-    const weeksSinceFirst = Math.floor((Date.now() - firstSessionDate.getTime()) / msPerWeek)
+    const weeksSinceFirst = Math.floor((nowMs - firstSessionDate.getTime()) / msPerWeek)
     if (weeksSinceFirst > 0 && weeksSinceFirst % DELOAD_CYCLE_WEEKS === 0) {
       deloadWeekIndex = weeksSinceFirst
     }
   }
 
   // Get exercise names for each session (first 3 distinct per session)
-  const sessionIds = sessions.map(s => s.id)
+  const sessionIds = sessions.map((s) => s.id)
   const exerciseTagsMap: Record<string, string[]> = {}
   if (sessionIds.length > 0) {
     const { data: setsData } = await supabase
@@ -223,15 +237,23 @@ export default async function DashboardPage({
       const name = locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name
       if (!name) continue
       if (!exerciseTagsMap[row.session_id]) exerciseTagsMap[row.session_id] = []
-      if (!exerciseTagsMap[row.session_id].includes(name) && exerciseTagsMap[row.session_id].length < 3) {
+      if (
+        !exerciseTagsMap[row.session_id].includes(name) &&
+        exerciseTagsMap[row.session_id].length < 3
+      ) {
         exerciseTagsMap[row.session_id].push(name)
       }
     }
   }
 
   const dayLabels = {
-    '1': t('today.days.1'), '2': t('today.days.2'), '3': t('today.days.3'),
-    '4': t('today.days.4'), '5': t('today.days.5'), '6': t('today.days.6'), '7': t('today.days.7'),
+    '1': t('today.days.1'),
+    '2': t('today.days.2'),
+    '3': t('today.days.3'),
+    '4': t('today.days.4'),
+    '5': t('today.days.5'),
+    '6': t('today.days.6'),
+    '7': t('today.days.7'),
   }
 
   return (
@@ -244,8 +266,14 @@ export default async function DashboardPage({
         />
       )}
       <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+        />
 
         <div className="relative">
           <div className="flex items-start justify-between gap-4">
@@ -281,8 +309,12 @@ export default async function DashboardPage({
                     <span
                       className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-bold tabular-nums"
                       style={{
-                        background: freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
-                        border: freezesLeft > 0 ? '1px solid rgba(94,234,212,0.28)' : '1px solid rgba(255,255,255,0.06)',
+                        background:
+                          freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
+                        border:
+                          freezesLeft > 0
+                            ? '1px solid rgba(94,234,212,0.28)'
+                            : '1px solid rgba(255,255,255,0.06)',
                         color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
                       }}
                     >
@@ -312,7 +344,9 @@ export default async function DashboardPage({
             <div className="mt-4 flex items-center gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 p-3">
               <Flame className="h-5 w-5 shrink-0 text-red-300" />
               <div className="min-w-0 text-xs">
-                <div className="font-bold text-red-200">{t('streakAtRiskTitle', { n: streakInfo.current })}</div>
+                <div className="font-bold text-red-200">
+                  {t('streakAtRiskTitle', { n: streakInfo.current })}
+                </div>
                 <div className="text-white/45">{t('streakAtRiskSub')}</div>
               </div>
             </div>
@@ -352,25 +386,37 @@ export default async function DashboardPage({
           <CardContent>
             {sessions.length > 0 ? (
               <div className="space-y-1.5">
-                {sessions.map(s => {
+                {sessions.map((s) => {
                   const date = new Date(s.started_at)
                   const tags = exerciseTagsMap[s.id] ?? []
                   const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
                   const isCardio = s.session_type === 'cardio'
-                  const cardioMin = s.cardio_duration_seconds != null
-                    ? Math.round(s.cardio_duration_seconds / 60)
-                    : null
+                  const cardioMin =
+                    s.cardio_duration_seconds != null
+                      ? Math.round(s.cardio_duration_seconds / 60)
+                      : null
                   return (
-                    <div key={s.id} className="group flex items-center rounded-2xl transition hover:bg-white/[0.04]">
-                      <Link href={isCardio ? '/dashboard' : `/history/${s.id}`} className="flex flex-1 min-w-0 items-center justify-between gap-3 px-1 py-2.5">
+                    <div
+                      key={s.id}
+                      className="group flex items-center rounded-2xl transition hover:bg-white/[0.04]"
+                    >
+                      <Link
+                        href={isCardio ? '/dashboard' : `/history/${s.id}`}
+                        className="flex flex-1 min-w-0 items-center justify-between gap-3 px-1 py-2.5"
+                      >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <p className="font-mono text-sm font-bold">
-                              {date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+                              {date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                              })}
                             </p>
                             {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
                             {isCardio && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
+                              <span
+                                className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
                                 style={{ background: 'rgba(94, 234, 212, 0.14)', color: '#5EEAD4' }}
                               >
                                 CARDIO
@@ -379,14 +425,21 @@ export default async function DashboardPage({
                           </div>
                           {isCardio ? (
                             <p className="mt-0.5 truncate text-xs text-white/40">
-                              {s.cardio_activity ?? ''}{cardioMin != null ? ` · ${cardioMin} мин` : ''}{s.cardio_distance_km != null ? ` · ${s.cardio_distance_km} км` : ''}
+                              {s.cardio_activity ?? ''}
+                              {cardioMin != null ? ` · ${cardioMin} мин` : ''}
+                              {s.cardio_distance_km != null ? ` · ${s.cardio_distance_km} км` : ''}
                             </p>
-                          ) : tags.length > 0 && (
-                            <p className="mt-0.5 truncate text-xs text-white/40">{tags.join(' · ')}</p>
+                          ) : (
+                            tags.length > 0 && (
+                              <p className="mt-0.5 truncate text-xs text-white/40">
+                                {tags.join(' · ')}
+                              </p>
+                            )
                           )}
                         </div>
                         {isCardio ? (
-                          <span className="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
+                          <span
+                            className="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
                             style={{ background: 'rgba(94, 234, 212, 0.12)', color: '#5EEAD4' }}
                           >
                             {cardioMin ?? 0} мин
@@ -437,86 +490,86 @@ export default async function DashboardPage({
           <ChevronDown className="h-5 w-5 shrink-0 text-white/40 transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-4 border-t border-white/[0.06] p-5">
-      <section className="grid gap-4 lg:grid-cols-2">
-        <SleepCard
-          todayDate={todayDate}
-          todayHours={todaySleep?.hours ?? null}
-          weekAvg={sleepWeekAvg}
-          weekDays={sleepWeekBars}
-        />
-        <WeakPointsCard
-          weakPoints={weakPoints}
-          muscleLabels={{
-            chest: tHistory('muscleLabel.chest'),
-            back: tHistory('muscleLabel.back'),
-            biceps: tHistory('muscleLabel.biceps'),
-            triceps: tHistory('muscleLabel.triceps'),
-            forearms: tHistory('muscleLabel.forearms'),
-            core: tHistory('muscleLabel.core'),
-            quads: tHistory('muscleLabel.quads'),
-            hamstrings: tHistory('muscleLabel.hamstrings'),
-            glutes: tHistory('muscleLabel.glutes'),
-            calves: tHistory('muscleLabel.calves'),
-            traps: tHistory('muscleLabel.traps'),
-            lats: tHistory('muscleLabel.lats'),
-            rear_delts: tHistory('muscleLabel.rear_delts'),
-            front_delts: tHistory('muscleLabel.front_delts'),
-            side_delts: tHistory('muscleLabel.side_delts'),
-          }}
-        />
-      </section>
+          <section className="grid gap-4 lg:grid-cols-2">
+            <SleepCard
+              todayDate={todayDate}
+              todayHours={todaySleep?.hours ?? null}
+              weekAvg={sleepWeekAvg}
+              weekDays={sleepWeekBars}
+            />
+            <WeakPointsCard
+              weakPoints={weakPoints}
+              muscleLabels={{
+                chest: tHistory('muscleLabel.chest'),
+                back: tHistory('muscleLabel.back'),
+                biceps: tHistory('muscleLabel.biceps'),
+                triceps: tHistory('muscleLabel.triceps'),
+                forearms: tHistory('muscleLabel.forearms'),
+                core: tHistory('muscleLabel.core'),
+                quads: tHistory('muscleLabel.quads'),
+                hamstrings: tHistory('muscleLabel.hamstrings'),
+                glutes: tHistory('muscleLabel.glutes'),
+                calves: tHistory('muscleLabel.calves'),
+                traps: tHistory('muscleLabel.traps'),
+                lats: tHistory('muscleLabel.lats'),
+                rear_delts: tHistory('muscleLabel.rear_delts'),
+                front_delts: tHistory('muscleLabel.front_delts'),
+                side_delts: tHistory('muscleLabel.side_delts'),
+              }}
+            />
+          </section>
 
-      <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[210ms]">
-        <PRsCard prs={recentPRs} windowDays={PR_WINDOW_DAYS} />
-        <GoalsTeaser goals={goals} />
-      </section>
+          <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[210ms]">
+            <PRsCard prs={recentPRs} windowDays={PR_WINDOW_DAYS} />
+            <GoalsTeaser goals={goals} />
+          </section>
 
-      <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[218ms]">
-        <FriendsTeaser friends={friends} />
-      </section>
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[218ms]">
+            <FriendsTeaser friends={friends} />
+          </section>
 
-      <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
-        <TonnageHeatmap daily={dailyTonnage} weeks={12} />
-      </section>
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
+            <TonnageHeatmap daily={dailyTonnage} weeks={12} />
+          </section>
 
-      <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[275ms]">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-            <Activity className="h-4 w-4 text-primary" />
-            {t('muscleActivity')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <MuscleHeatmap
-            muscleVolumes={muscleVolumes}
-            currentPeriod={safeMusclePeriod}
-            periodLabels={{
-              '7d': t('musclePeriods.7d'),
-              '30d': t('musclePeriods.30d'),
-              '90d': t('musclePeriods.90d'),
-            }}
-            muscleLabels={{
-              chest: tHistory('muscleLabel.chest'),
-              back: tHistory('muscleLabel.back'),
-              biceps: tHistory('muscleLabel.biceps'),
-              triceps: tHistory('muscleLabel.triceps'),
-              forearms: tHistory('muscleLabel.forearms'),
-              core: tHistory('muscleLabel.core'),
-              quads: tHistory('muscleLabel.quads'),
-              hamstrings: tHistory('muscleLabel.hamstrings'),
-              glutes: tHistory('muscleLabel.glutes'),
-              calves: tHistory('muscleLabel.calves'),
-              traps: tHistory('muscleLabel.traps'),
-              lats: tHistory('muscleLabel.lats'),
-              rear_delts: tHistory('muscleLabel.rear_delts'),
-              front_delts: tHistory('muscleLabel.front_delts'),
-              side_delts: tHistory('muscleLabel.side_delts'),
-            }}
-            clickHint={tHistory('muscleClickHint')}
-            setsLabel={tHistory('sets')}
-          />
-        </CardContent>
-      </Card>
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[275ms]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                <Activity className="h-4 w-4 text-primary" />
+                {t('muscleActivity')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MuscleHeatmap
+                muscleVolumes={muscleVolumes}
+                currentPeriod={safeMusclePeriod}
+                periodLabels={{
+                  '7d': t('musclePeriods.7d'),
+                  '30d': t('musclePeriods.30d'),
+                  '90d': t('musclePeriods.90d'),
+                }}
+                muscleLabels={{
+                  chest: tHistory('muscleLabel.chest'),
+                  back: tHistory('muscleLabel.back'),
+                  biceps: tHistory('muscleLabel.biceps'),
+                  triceps: tHistory('muscleLabel.triceps'),
+                  forearms: tHistory('muscleLabel.forearms'),
+                  core: tHistory('muscleLabel.core'),
+                  quads: tHistory('muscleLabel.quads'),
+                  hamstrings: tHistory('muscleLabel.hamstrings'),
+                  glutes: tHistory('muscleLabel.glutes'),
+                  calves: tHistory('muscleLabel.calves'),
+                  traps: tHistory('muscleLabel.traps'),
+                  lats: tHistory('muscleLabel.lats'),
+                  rear_delts: tHistory('muscleLabel.rear_delts'),
+                  front_delts: tHistory('muscleLabel.front_delts'),
+                  side_delts: tHistory('muscleLabel.side_delts'),
+                }}
+                clickHint={tHistory('muscleClickHint')}
+                setsLabel={tHistory('sets')}
+              />
+            </CardContent>
+          </Card>
         </div>
       </details>
 
@@ -524,20 +577,28 @@ export default async function DashboardPage({
         href="/wrapped"
         className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-white/[0.04]"
         style={{
-          background: 'linear-gradient(135deg, rgba(255, 196, 68, 0.05), rgba(167, 139, 250, 0.04))',
+          background:
+            'linear-gradient(135deg, rgba(255, 196, 68, 0.05), rgba(167, 139, 250, 0.04))',
           border: '1px solid rgba(255, 196, 68, 0.18)',
         }}
       >
         <div className="flex items-center gap-3">
           <span className="text-2xl">🎉</span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#FFC044' }}
+            >
               {t('wrapped.label')}
             </p>
-            <p className="text-sm font-bold text-white">{t('wrapped.title', { year: new Date().getUTCFullYear() })}</p>
+            <p className="text-sm font-bold text-white">
+              {t('wrapped.title', { year: new Date().getUTCFullYear() })}
+            </p>
           </div>
         </div>
-        <span className="text-[10px] uppercase tracking-widest text-white/40">{t('wrapped.cta')}</span>
+        <span className="text-[10px] uppercase tracking-widest text-white/40">
+          {t('wrapped.cta')}
+        </span>
       </Link>
 
       <div className="flex flex-col items-center gap-2 pb-1">
@@ -546,9 +607,13 @@ export default async function DashboardPage({
           {t('coachFooter')}
         </div>
         <div className="flex items-center gap-3 text-[9px] uppercase tracking-widest text-white/25">
-          <Link href="/privacy" className="hover:text-white/55 transition-colors">{t('legal.privacy')}</Link>
+          <Link href="/privacy" className="hover:text-white/55 transition-colors">
+            {t('legal.privacy')}
+          </Link>
           <span className="text-white/15">·</span>
-          <Link href="/terms" className="hover:text-white/55 transition-colors">{t('legal.terms')}</Link>
+          <Link href="/terms" className="hover:text-white/55 transition-colors">
+            {t('legal.terms')}
+          </Link>
         </div>
       </div>
     </div>

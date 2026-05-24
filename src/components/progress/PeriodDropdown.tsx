@@ -25,7 +25,10 @@ export function PeriodDropdown({ current, exerciseId, label }: Props) {
 
   return (
     <label className="block">
-      <span className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+      <span
+        className="text-[10px] uppercase tracking-widest"
+        style={{ color: 'rgba(255,255,255,0.5)' }}
+      >
         {label}
       </span>
       <div className="relative mt-1">
@@ -39,7 +42,7 @@ export function PeriodDropdown({ current, exerciseId, label }: Props) {
             color: '#FFFFFF',
           }}
         >
-          {PERIODS.map(p => (
+          {PERIODS.map((p) => (
             <option key={p} value={p} style={{ background: '#15151C' }}>
               {t(p)}
             </option>

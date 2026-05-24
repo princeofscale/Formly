@@ -15,10 +15,7 @@ export interface PlateBreakdown {
   belowBar: boolean
 }
 
-export function calculatePlates(
-  totalWeightKg: number,
-  barWeightKg = 20,
-): PlateBreakdown {
+export function calculatePlates(totalWeightKg: number, barWeightKg = 20): PlateBreakdown {
   const perSide = (totalWeightKg - barWeightKg) / 2
   if (perSide < 0) {
     return { plates: [], loadedPerSide: 0, leftover: 0, belowBar: true }

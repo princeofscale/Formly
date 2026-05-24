@@ -35,7 +35,8 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
   const kg = weightUnit(locale)
 
   const dt = summary.comparison?.deltaTonnagePct ?? null
-  const deltaColor = dt == null ? '#FFFFFF99' : dt > 0 ? '#22D3A8' : dt < 0 ? '#FF6E76' : '#FFFFFF99'
+  const deltaColor =
+    dt == null ? '#FFFFFF99' : dt > 0 ? '#22D3A8' : dt < 0 ? '#FF6E76' : '#FFFFFF99'
   const deltaText = dt == null ? '—' : `${dt > 0 ? '+' : ''}${dt.toFixed(1)}%`
 
   return (
@@ -56,7 +57,10 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
             <Trophy className="h-5 w-5" style={{ color: '#FFC044' }} />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#FFC044' }}
+            >
               {t('label')}
             </p>
             <p className="text-base font-extrabold text-white">{t('title')}</p>
@@ -114,22 +118,27 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
       {/* New PRs */}
       {summary.prs.length > 0 && (
         <div className="mt-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: '#FFC044' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em] mb-2"
+            style={{ color: '#FFC044' }}
+          >
             🏆 {t('prsHeader', { n: summary.prs.length })}
           </p>
           <div className="space-y-1.5">
-            {summary.prs.slice(0, 5).map(pr => {
-              const name = locale === 'ru' ? (pr.exerciseNameRu ?? pr.exerciseName) : pr.exerciseName
+            {summary.prs.slice(0, 5).map((pr) => {
+              const name =
+                locale === 'ru' ? (pr.exerciseNameRu ?? pr.exerciseName) : pr.exerciseName
               const isFirst = pr.improvementPct == null
               return (
                 <div key={pr.exerciseId} className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-white truncate">{name}</span>
-                  <span className="text-xs font-mono tabular-nums shrink-0" style={{ color: '#FFC044' }}>
+                  <span
+                    className="text-xs font-mono tabular-nums shrink-0"
+                    style={{ color: '#FFC044' }}
+                  >
                     {pr.newBest.toFixed(1)} {kg}
                     {!isFirst && (
-                      <span className="text-white/45 ml-2">
-                        +{pr.improvementPct!.toFixed(1)}%
-                      </span>
+                      <span className="text-white/45 ml-2">+{pr.improvementPct!.toFixed(1)}%</span>
                     )}
                     {isFirst && <span className="text-white/45 ml-2">{t('firstTime')}</span>}
                   </span>
@@ -147,7 +156,7 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
             {t('topLifts')}
           </p>
           <div className="space-y-1.5">
-            {summary.topExercises.map(ex => {
+            {summary.topExercises.map((ex) => {
               const name = locale === 'ru' ? (ex.nameRu ?? ex.name) : ex.name
               const maxVol = summary.topExercises[0].volume
               const pct = maxVol > 0 ? (ex.volume / maxVol) * 100 : 0
@@ -155,9 +164,14 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
                 <div key={ex.exerciseId} className="space-y-1">
                   <div className="flex items-baseline justify-between text-xs tabular-nums">
                     <span className="text-white truncate">{name}</span>
-                    <span className="text-white/55 shrink-0">{formatWeight(ex.volume, locale, 0)} · {ex.sets} {t('setsShort')}</span>
+                    <span className="text-white/55 shrink-0">
+                      {formatWeight(ex.volume, locale, 0)} · {ex.sets} {t('setsShort')}
+                    </span>
                   </div>
-                  <div className="relative h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div
+                    className="relative h-1 rounded-full overflow-hidden"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
                     <div
                       className="absolute inset-y-0 left-0 rounded-full"
                       style={{ width: `${pct}%`, background: '#FFC044' }}
@@ -201,7 +215,9 @@ function StatTile({ icon, label, value, unit, subValue, valueColor }: TileProps)
         </span>
         {unit && <span className="text-[10px] text-white/40 font-mono">{unit}</span>}
       </div>
-      {subValue && <span className="mt-0.5 text-[10px] text-white/35 font-mono tabular-nums">{subValue}</span>}
+      {subValue && (
+        <span className="mt-0.5 text-[10px] text-white/35 font-mono tabular-nums">{subValue}</span>
+      )}
     </div>
   )
 }

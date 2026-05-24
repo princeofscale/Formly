@@ -1,8 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type CardioActivity =
-  | 'running' | 'cycling' | 'walking' | 'swimming'
-  | 'rowing' | 'elliptical' | 'hiit' | 'other'
+  | 'running'
+  | 'cycling'
+  | 'walking'
+  | 'swimming'
+  | 'rowing'
+  | 'elliptical'
+  | 'hiit'
+  | 'other'
 
 export interface CardioSession {
   id: string
@@ -29,7 +35,7 @@ export async function createCardioSession(
     calories?: number | null
     notes?: string | null
     startedAt?: string
-  }
+  },
 ): Promise<CardioSession> {
   const startedAt = data.startedAt ?? new Date().toISOString()
   const { data: row, error } = await supabase
@@ -57,7 +63,7 @@ export async function createCardioSession(
 export async function getRecentCardioSessions(
   supabase: SupabaseClient,
   userId: string,
-  limit = 10
+  limit = 10,
 ): Promise<CardioSession[]> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -72,7 +78,7 @@ export async function getRecentCardioSessions(
 export async function deleteCardioSession(
   supabase: SupabaseClient,
   sessionId: string,
-  userId: string
+  userId: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('workout_sessions')

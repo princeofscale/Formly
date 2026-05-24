@@ -13,16 +13,21 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { href: '/dashboard',         icon: Home,          labelKey: 'home' },
-  { href: '/history',           icon: Dumbbell,      labelKey: 'workouts' },
-  { href: '/progress',          icon: TrendingUp,    labelKey: 'progress' },
-  { href: '/workout/new',       icon: ClipboardList, labelKey: 'plan',     altMatches: ['/exercise-library', '/workout'] },
-  { href: '/profile',           icon: User,          labelKey: 'profile' },
+  { href: '/dashboard', icon: Home, labelKey: 'home' },
+  { href: '/history', icon: Dumbbell, labelKey: 'workouts' },
+  { href: '/progress', icon: TrendingUp, labelKey: 'progress' },
+  {
+    href: '/workout/new',
+    icon: ClipboardList,
+    labelKey: 'plan',
+    altMatches: ['/exercise-library', '/workout'],
+  },
+  { href: '/profile', icon: User, labelKey: 'profile' },
 ]
 
 function matchesTab(pathname: string, tab: TabDef): boolean {
   if (pathname === tab.href || pathname.startsWith(tab.href + '/')) return true
-  return (tab.altMatches ?? []).some(p => pathname === p || pathname.startsWith(p + '/'))
+  return (tab.altMatches ?? []).some((p) => pathname === p || pathname.startsWith(p + '/'))
 }
 
 export function BottomTabBar() {
@@ -48,8 +53,8 @@ export function BottomTabBar() {
   }, [pathname, pendingHref])
 
   // Effective "active tab" = pending click target (if any) or actual route match
-  const pendingTab = pendingHref ? TABS.find(t => t.href === pendingHref) : null
-  const routeTab = TABS.find(tab => matchesTab(pathname, tab))
+  const pendingTab = pendingHref ? TABS.find((t) => t.href === pendingHref) : null
+  const routeTab = TABS.find((tab) => matchesTab(pathname, tab))
   const activeTab = pendingTab ?? routeTab
 
   function handleClick(href: string) {
@@ -71,7 +76,7 @@ export function BottomTabBar() {
       }}
     >
       <div className="mx-auto flex h-16 max-w-2xl items-stretch justify-around px-1">
-        {TABS.map(tab => {
+        {TABS.map((tab) => {
           const active = activeTab?.href === tab.href
           const isLoading = isPending && pendingHref === tab.href
           const Icon = tab.icon

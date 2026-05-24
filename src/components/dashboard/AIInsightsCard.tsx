@@ -8,10 +8,10 @@ import { refreshAIInsightsAction } from '@/app/(app)/dashboard/actions'
 import type { AIInsights, AIInsightItem } from '@/lib/types/models'
 
 const SECTION_COLORS: Record<AIInsightItem['type'], { border: string; color: string }> = {
-  today:       { border: '#FF3B47', color: '#FF7A82' },
+  today: { border: '#FF3B47', color: '#FF7A82' },
   progression: { border: '#F97316', color: '#FDBA74' },
-  prediction:  { border: '#34D399', color: '#86EFAC' },
-  warning:     { border: '#F87171', color: '#FCA5A5' },
+  prediction: { border: '#34D399', color: '#86EFAC' },
+  warning: { border: '#F87171', color: '#FCA5A5' },
 }
 
 interface Props {
@@ -26,9 +26,8 @@ export function AIInsightsCard({ initialInsights }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function runGeneration() {
-    const goal = typeof window !== 'undefined'
-      ? localStorage.getItem('gymlog_goal') ?? undefined
-      : undefined
+    const goal =
+      typeof window !== 'undefined' ? (localStorage.getItem('gymlog_goal') ?? undefined) : undefined
 
     setError(null)
     startTransition(async () => {
@@ -47,7 +46,7 @@ export function AIInsightsCard({ initialInsights }: Props) {
       const id = window.setTimeout(runGeneration, 0)
       return () => window.clearTimeout(id)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const updatedTime = insights?.generated_at
@@ -63,9 +62,7 @@ export function AIInsightsCard({ initialInsights }: Props) {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
-            <div
-              className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary/15"
-            >
+            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary/15">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="uppercase tracking-wider font-bold text-xs">{t('title')}</span>
@@ -83,7 +80,9 @@ export function AIInsightsCard({ initialInsights }: Props) {
                 className="flex h-7 w-7 items-center justify-center rounded-xl transition-colors hover:bg-white/10 disabled:opacity-40"
                 title={t('refresh')}
               >
-                <RefreshCw className={`h-3.5 w-3.5 text-white/45 ${isPending ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-3.5 w-3.5 text-white/45 ${isPending ? 'animate-spin' : ''}`}
+                />
               </button>
             )}
           </div>
@@ -95,7 +94,7 @@ export function AIInsightsCard({ initialInsights }: Props) {
         {isPending && !insights && (
           <div className="space-y-2">
             <p className="text-xs text-zinc-500 animate-pulse">{t('updating')}</p>
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map((i) => (
               <div key={i} className="h-12 animate-pulse rounded-2xl bg-white/5" />
             ))}
           </div>

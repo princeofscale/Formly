@@ -18,7 +18,7 @@ export default async function GoalsPage() {
 
   // Only show barbell-ish lifts (anything with calculated_1rm makes sense — but
   // we don't filter here; let the user pick. Could refine later.)
-  const exerciseOptions = exercises.map(e => ({
+  const exerciseOptions = exercises.map((e) => ({
     id: e.id,
     name: e.name,
     name_ru: e.name_ru ?? null,

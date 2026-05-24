@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { calculatePlates } from '@/lib/utils/plate-calculator'
 import { weightUnit } from '@/lib/units'
@@ -16,31 +16,29 @@ const BAR_PREF_KEY = 'plateCalc:bar'
 
 // Visual sizing of plate strips. Width scales with plate weight; height fixed.
 const PLATE_VISUAL: Record<number, { width: number; bg: string; text: string }> = {
-  25:   { width: 56, bg: '#DC2626', text: 'white' },
-  20:   { width: 50, bg: '#2563EB', text: 'white' },
-  15:   { width: 44, bg: '#EAB308', text: '#1A1A1A' },
-  10:   { width: 38, bg: '#16A34A', text: 'white' },
-  5:    { width: 28, bg: '#E5E7EB', text: '#1A1A1A' },
-  2.5:  { width: 22, bg: '#CBD5E1', text: '#1A1A1A' },
+  25: { width: 56, bg: '#DC2626', text: 'white' },
+  20: { width: 50, bg: '#2563EB', text: 'white' },
+  15: { width: 44, bg: '#EAB308', text: '#1A1A1A' },
+  10: { width: 38, bg: '#16A34A', text: 'white' },
+  5: { width: 28, bg: '#E5E7EB', text: '#1A1A1A' },
+  2.5: { width: 22, bg: '#CBD5E1', text: '#1A1A1A' },
   1.25: { width: 18, bg: '#9CA3AF', text: 'white' },
-  0.5:  { width: 14, bg: '#71717A', text: 'white' },
+  0.5: { width: 14, bg: '#71717A', text: 'white' },
 }
 
 export function PlateCalculator({ weightKg }: Props) {
   const t = useTranslations('workout.plateCalculator')
   const locale = useLocale()
   const kg = weightUnit(locale)
-  const [bar, setBar] = useState<BarWeight>(20)
-
-  // Restore bar preference
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  const [bar, setBar] = useState<BarWeight>(() => {
+    if (typeof window === 'undefined') return 20
     const raw = window.localStorage.getItem(BAR_PREF_KEY)
     if (raw) {
       const parsed = Number(raw)
-      if (BAR_OPTIONS.includes(parsed as BarWeight)) setBar(parsed as BarWeight)
+      if (BAR_OPTIONS.includes(parsed as BarWeight)) return parsed as BarWeight
     }
-  }, [])
+    return 20
+  })
 
   function pickBar(b: BarWeight) {
     setBar(b)
@@ -63,7 +61,7 @@ export function PlateCalculator({ weightKg }: Props) {
           {t('label')}
         </p>
         <div className="flex items-center gap-1">
-          {BAR_OPTIONS.map(b => (
+          {BAR_OPTIONS.map((b) => (
             <button
               key={b}
               type="button"
@@ -90,7 +88,7 @@ export function PlateCalculator({ weightKg }: Props) {
           <div className="flex items-center justify-center my-3">
             {/* Left side plates (reverse so heaviest is innermost) */}
             <div className="flex items-center gap-0.5 flex-row-reverse">
-              {plates.flatMap(p =>
+              {plates.flatMap((p) =>
                 Array.from({ length: p.count }, (_, i) => {
                   const v = PLATE_VISUAL[p.weight] ?? PLATE_VISUAL[1.25]
                   return (
@@ -110,7 +108,7 @@ export function PlateCalculator({ weightKg }: Props) {
             <div className="h-3 w-1 bg-zinc-500" />
             {/* Right side plates */}
             <div className="flex items-center gap-0.5">
-              {plates.flatMap(p =>
+              {plates.flatMap((p) =>
                 Array.from({ length: p.count }, (_, i) => {
                   const v = PLATE_VISUAL[p.weight] ?? PLATE_VISUAL[1.25]
                   return (
@@ -128,7 +126,7 @@ export function PlateCalculator({ weightKg }: Props) {
 
           {/* Plate counts (per-side summary) */}
           <div className="flex flex-wrap gap-1.5">
-            {plates.map(p => {
+            {plates.map((p) => {
               const v = PLATE_VISUAL[p.weight] ?? PLATE_VISUAL[1.25]
               return (
                 <span

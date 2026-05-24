@@ -10,7 +10,7 @@ export function ServiceWorkerRegister() {
 
     navigator.serviceWorker
       .register('/sw.js')
-      .then(reg => {
+      .then((reg) => {
         // Watch for a new SW installing. If one becomes 'installed' while a
         // controller is already present, this is an *update* (not first install)
         // and we surface it to UpdateBanner via a window event.
@@ -24,7 +24,7 @@ export function ServiceWorkerRegister() {
           })
         })
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('[SW] registration failed:', err)
       })
   }, [])

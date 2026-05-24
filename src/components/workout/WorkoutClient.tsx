@@ -12,7 +12,11 @@ import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
 import { WorkoutLiveStats } from './WorkoutLiveStats'
-import { getLastSetsForExerciseAction, saveTemplateAction, updateTemplateAction } from '@/app/(app)/workout/[id]/actions'
+import {
+  getLastSetsForExerciseAction,
+  saveTemplateAction,
+  updateTemplateAction,
+} from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
   session: WorkoutSession
@@ -25,7 +29,15 @@ interface Props {
   exerciseVideos?: Record<string, string>
 }
 
-export function WorkoutClient({ session, initialExercises, allExercises, lastSetsMap: initialLastSets, sourceTemplate, suggestedExercises = [], exerciseNotes = {}, exerciseVideos = {} }: Props) {
+export function WorkoutClient({
+  session,
+  initialExercises,
+  lastSetsMap: initialLastSets,
+  sourceTemplate,
+  suggestedExercises = [],
+  exerciseNotes = {},
+  exerciseVideos = {},
+}: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
   const locale = useLocale()
@@ -43,26 +55,26 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
   const [, startSave] = useTransition()
 
   function addExercise(exercise: Exercise) {
-    if (exercises.some(e => e.id === exercise.id)) return
-    setExercises(prev => [...prev, { ...exercise, sets: [] }])
+    if (exercises.some((e) => e.id === exercise.id)) return
+    setExercises((prev) => [...prev, { ...exercise, sets: [] }])
     startFetch(async () => {
       const lastSets = await getLastSetsForExerciseAction(exercise.id, session.id)
-      setLastSetsMap(prev => ({ ...prev, [exercise.id]: lastSets }))
+      setLastSetsMap((prev) => ({ ...prev, [exercise.id]: lastSets }))
     })
   }
 
   function appendSet(exerciseId: string, set: SetEntry) {
-    setExercises(prev =>
-      prev.map(e => e.id === exerciseId ? { ...e, sets: [...e.sets, set] } : e)
+    setExercises((prev) =>
+      prev.map((e) => (e.id === exerciseId ? { ...e, sets: [...e.sets, set] } : e)),
     )
   }
 
   function removeExercise(exerciseId: string) {
-    setExercises(prev => prev.filter(e => e.id !== exerciseId))
+    setExercises((prev) => prev.filter((e) => e.id !== exerciseId))
   }
 
   function buildExerciseList() {
-    return exercises.map(ex => ({
+    return exercises.map((ex) => ({
       exercise_id: ex.id,
       name: ex.name,
       name_ru: ex.name_ru,
@@ -76,7 +88,10 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
     startSave(async () => {
       await updateTemplateAction(sourceTemplate.id, buildExerciseList())
       setTplSaved(true)
-      setTimeout(() => { setShowTplInput(false); setTplSaved(false) }, 1800)
+      setTimeout(() => {
+        setShowTplInput(false)
+        setTplSaved(false)
+      }, 1800)
     })
   }
 
@@ -85,7 +100,11 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
     startSave(async () => {
       await saveTemplateAction(tplName.trim(), buildExerciseList())
       setTplSaved(true)
-      setTimeout(() => { setShowTplInput(false); setTplSaved(false); setTplName('') }, 1800)
+      setTimeout(() => {
+        setShowTplInput(false)
+        setTplSaved(false)
+        setTplName('')
+      }, 1800)
     })
   }
 
@@ -111,7 +130,10 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
         <div className="flex items-center gap-2">
           {exercises.length > 0 && (
             <button
-              onClick={() => { setShowTplInput(v => !v); setSaveAsNew(false) }}
+              onClick={() => {
+                setShowTplInput((v) => !v)
+                setSaveAsNew(false)
+              }}
               className="h-9 w-9 flex items-center justify-center rounded-sm bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-100 transition-colors"
               title={tTpl('saveAsTemplate')}
             >
@@ -149,8 +171,8 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
               <input
                 autoFocus
                 value={tplName}
-                onChange={e => setTplName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSaveTemplate()}
+                onChange={(e) => setTplName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveTemplate()}
                 placeholder={tTpl('namePlaceholder')}
                 className="flex-1 h-9 px-3 bg-white/5 border border-white/10 rounded-sm text-sm focus:border-amber-500 outline-none"
               />
@@ -181,8 +203,8 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {suggestedExercises
-                  .filter(ex => !exercises.some(e => e.id === ex.id))
-                  .map(ex => {
+                  .filter((ex) => !exercises.some((e) => e.id === ex.id))
+                  .map((ex) => {
                     const name = locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name
                     return (
                       <button
@@ -202,7 +224,7 @@ export function WorkoutClient({ session, initialExercises, allExercises, lastSet
       )}
 
       <div className="space-y-3 pt-1">
-        {exercises.map(ex => (
+        {exercises.map((ex) => (
           <div key={ex.id} className="animate-in fade-in slide-in-from-bottom-2 duration-200">
             <ExerciseBlock
               exercise={ex}

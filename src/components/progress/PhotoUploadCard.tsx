@@ -7,7 +7,7 @@ import { Camera, Upload, Loader2, X, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { registerProgressPhotoAction } from '@/app/(app)/progress/photos/actions'
 
-const MAX_BYTES = 8 * 1024 * 1024  // 8 MB
+const MAX_BYTES = 8 * 1024 * 1024 // 8 MB
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic'
 
 export function PhotoUploadCard() {
@@ -19,7 +19,9 @@ export function PhotoUploadCard() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [weight, setWeight] = useState('')
   const [caption, setCaption] = useState('')
-  const [progress, setProgress] = useState<'idle' | 'uploading' | 'saving' | 'done' | 'error'>('idle')
+  const [progress, setProgress] = useState<'idle' | 'uploading' | 'saving' | 'done' | 'error'>(
+    'idle',
+  )
   const [error, setError] = useState<string | null>(null)
   const [, startTransition] = useTransition()
 
@@ -53,15 +55,16 @@ export function PhotoUploadCard() {
     setProgress('uploading')
     try {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
       const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase()
       const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
       const path = `${user.id}/${filename}`
 
-      const { error: uploadError } = await supabase
-        .storage
+      const { error: uploadError } = await supabase.storage
         .from('progress-photos')
         .upload(path, file, { contentType: file.type, upsert: false })
       if (uploadError) throw uploadError
@@ -106,7 +109,10 @@ export function PhotoUploadCard() {
           <Camera className="h-4 w-4" style={{ color: '#FF6E76' }} />
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FF6E76' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: '#FF6E76' }}
+          >
             {t('addLabel')}
           </p>
           <p className="text-sm font-bold text-white">{t('addTitle')}</p>
@@ -142,7 +148,10 @@ export function PhotoUploadCard() {
 
       {file && previewUrl && (
         <div className="space-y-3">
-          <div className="relative rounded-[14px] overflow-hidden" style={{ aspectRatio: '3 / 4', maxHeight: 320 }}>
+          <div
+            className="relative rounded-[14px] overflow-hidden"
+            style={{ aspectRatio: '3 / 4', maxHeight: 320 }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={previewUrl} alt="preview" className="w-full h-full object-cover" />
             {progress === 'idle' && (
@@ -158,23 +167,29 @@ export function PhotoUploadCard() {
 
           <div className="grid grid-cols-2 gap-2">
             <input
-              type="number" inputMode="decimal" step="0.1" min="0" max="500"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
+              max="500"
               value={weight}
-              onChange={e => setWeight(e.target.value)}
+              onChange={(e) => setWeight(e.target.value)}
               placeholder={t('weightPlaceholder')}
               className="h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             <input
               type="text"
               value={caption}
-              onChange={e => setCaption(e.target.value.slice(0, 80))}
+              onChange={(e) => setCaption(e.target.value.slice(0, 80))}
               placeholder={t('captionPlaceholder')}
               className="h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-600"
             />
           </div>
 
           {error && (
-            <p className="text-[11px]" style={{ color: '#FF6E76' }}>{error}</p>
+            <p className="text-[11px]" style={{ color: '#FF6E76' }}>
+              {error}
+            </p>
           )}
 
           <div className="flex items-center gap-2">
@@ -185,9 +200,21 @@ export function PhotoUploadCard() {
               className="flex-1 h-10 rounded-[8px] text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
               style={{ background: '#FF3B47' }}
             >
-              {progress === 'uploading' && <><Loader2 className="h-4 w-4 animate-spin" /> {t('uploading')}</>}
-              {progress === 'saving' && <><Loader2 className="h-4 w-4 animate-spin" /> {t('saving')}</>}
-              {progress === 'done' && <><Check className="h-4 w-4" /> {t('saved')}</>}
+              {progress === 'uploading' && (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t('uploading')}
+                </>
+              )}
+              {progress === 'saving' && (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t('saving')}
+                </>
+              )}
+              {progress === 'done' && (
+                <>
+                  <Check className="h-4 w-4" /> {t('saved')}
+                </>
+              )}
               {(progress === 'idle' || progress === 'error') && <>{t('save')}</>}
             </button>
             <button

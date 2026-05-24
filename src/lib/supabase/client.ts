@@ -3,8 +3,5 @@ import type { Database } from '@/lib/types/database.types'
 import { config } from '@/lib/config'
 
 export function createClient() {
-  return createBrowserClient<Database>(
-    config.supabase.url,
-    config.supabase.anonKey
-  )
+  return createBrowserClient<Database>(config.supabase.url, config.supabase.anonKey)
 }

@@ -26,7 +26,7 @@ import { updateProfileAction } from './actions'
 
 function formatTrainingAge(
   trainingSince: string | null | undefined,
-  labels: { lessThanYear: string; yearShort: string }
+  labels: { lessThanYear: string; yearShort: string },
 ) {
   if (!trainingSince) return null
 
@@ -57,11 +57,7 @@ export default async function ProfilePage() {
   const t = await getTranslations('profile')
   const locale = await getLocale()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
   const p = profile as Profile | null
 
@@ -107,18 +103,28 @@ export default async function ProfilePage() {
           <div className="grid w-full grid-cols-3 gap-2 lg:w-auto lg:min-w-[360px]">
             <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
               <Scale className="mb-2 h-4 w-4 text-primary" />
-              <p className="font-mono text-lg font-black">{displayMetric(p?.weight_kg, ` ${t('stats.weightUnit')}`)}</p>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('form.weight')}</p>
+              <p className="font-mono text-lg font-black">
+                {displayMetric(p?.weight_kg, ` ${t('stats.weightUnit')}`)}
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                {t('form.weight')}
+              </p>
             </div>
             <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
               <Ruler className="mb-2 h-4 w-4 text-amber-300" />
-              <p className="font-mono text-lg font-black">{displayMetric(p?.height_cm, ` ${t('stats.heightUnit')}`)}</p>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('form.height')}</p>
+              <p className="font-mono text-lg font-black">
+                {displayMetric(p?.height_cm, ` ${t('stats.heightUnit')}`)}
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                {t('form.height')}
+              </p>
             </div>
             <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
               <Dumbbell className="mb-2 h-4 w-4 text-primary" />
               <p className="font-mono text-lg font-black">{trainingAge ?? '—'}</p>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500">{t('stats.trainingAge')}</p>
+              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                {t('stats.trainingAge')}
+              </p>
             </div>
           </div>
         </div>
@@ -126,9 +132,13 @@ export default async function ProfilePage() {
 
       <section className="grid gap-3 md:grid-cols-3">
         <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('stats.bmi')}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+            {t('stats.bmi')}
+          </p>
           <div className="mt-2 flex items-end justify-between gap-3">
-            <span className="font-mono text-3xl font-black text-white">{bmi ? bmi.toFixed(1) : '—'}</span>
+            <span className="font-mono text-3xl font-black text-white">
+              {bmi ? bmi.toFixed(1) : '—'}
+            </span>
             {bmiCat && (
               <span className="rounded-full bg-white/8 px-2 py-1 text-[10px] font-bold uppercase text-zinc-300">
                 {t(`bmiCat.${bmiCat.toLowerCase()}`)}
@@ -137,7 +147,9 @@ export default async function ProfilePage() {
           </div>
         </div>
         <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('stats.location')}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+            {t('stats.location')}
+          </p>
           <div className="mt-3 flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
             <span className="text-xl font-black">
@@ -146,9 +158,11 @@ export default async function ProfilePage() {
           </div>
         </div>
         <div className="rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06]">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">{t('form.schedule')}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+            {t('form.schedule')}
+          </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {dayKeys.map(d => {
+            {dayKeys.map((d) => {
               const active = (p?.training_schedule ?? []).includes(Number(d))
               return (
                 <span
@@ -179,19 +193,41 @@ export default async function ProfilePage() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label>{t('form.weight')}</Label>
-                <Input name="weight_kg" type="number" step="0.1" defaultValue={p?.weight_kg ?? ''} className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500" />
+                <Input
+                  name="weight_kg"
+                  type="number"
+                  step="0.1"
+                  defaultValue={p?.weight_kg ?? ''}
+                  className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500"
+                />
               </div>
               <div>
                 <Label>{t('form.height')}</Label>
-                <Input name="height_cm" type="number" step="0.1" defaultValue={p?.height_cm ?? ''} className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500" />
+                <Input
+                  name="height_cm"
+                  type="number"
+                  step="0.1"
+                  defaultValue={p?.height_cm ?? ''}
+                  className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500"
+                />
               </div>
               <div>
                 <Label>{t('form.age')}</Label>
-                <Input name="age" type="number" defaultValue={p?.age ?? ''} className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500" />
+                <Input
+                  name="age"
+                  type="number"
+                  defaultValue={p?.age ?? ''}
+                  className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500"
+                />
               </div>
               <div>
                 <Label>{t('form.trainingSince')}</Label>
-                <Input name="training_since" type="date" defaultValue={p?.training_since ?? ''} className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500" />
+                <Input
+                  name="training_since"
+                  type="date"
+                  defaultValue={p?.training_since ?? ''}
+                  className="mt-1 h-11 bg-black/20 border-white/10 focus-visible:ring-red-500"
+                />
               </div>
             </div>
 
@@ -213,7 +249,7 @@ export default async function ProfilePage() {
               <div>
                 <Label>{t('form.schedule')}</Label>
                 <div className="mt-1 grid grid-cols-7 gap-1.5">
-                  {dayKeys.map(d => (
+                  {dayKeys.map((d) => (
                     <label key={d} className="cursor-pointer">
                       <input
                         type="checkbox"
@@ -233,7 +269,10 @@ export default async function ProfilePage() {
 
             <input type="hidden" name="locale" value={locale} />
 
-            <Button type="submit" className="h-11 w-full rounded-xl bg-red-500 text-sm font-black uppercase tracking-wider text-white hover:bg-red-400">
+            <Button
+              type="submit"
+              className="h-11 w-full rounded-xl bg-red-500 text-sm font-black uppercase tracking-wider text-white hover:bg-red-400"
+            >
               {t('form.save')}
             </Button>
           </form>
@@ -268,7 +307,11 @@ export default async function ProfilePage() {
 
       <section className="flex flex-col gap-3 rounded-[24px] bg-card p-3 ring-1 ring-white/[0.06] sm:flex-row">
         <form action={signOutAction} className="flex-1">
-          <Button variant="ghost" type="submit" className="h-10 w-full justify-center gap-2 rounded-xl text-sm uppercase tracking-wider">
+          <Button
+            variant="ghost"
+            type="submit"
+            className="h-10 w-full justify-center gap-2 rounded-xl text-sm uppercase tracking-wider"
+          >
             <LogOut className="h-4 w-4" />
             {t('signOut')}
           </Button>

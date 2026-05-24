@@ -1,7 +1,17 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Dumbbell, Trophy, Flame, Building2, Home, Hand, Bell, ChevronRight, ChevronLeft } from 'lucide-react'
+import {
+  Dumbbell,
+  Trophy,
+  Flame,
+  Building2,
+  Home,
+  Hand,
+  Bell,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
 import { finishOnboardingAction, skipOnboardingAction } from '@/app/(app)/onboarding/actions'
 import { subscribeToPushAction } from '@/app/(app)/profile/push-actions'
 import { requestPushSubscription } from '@/lib/utils/push-subscribe'
@@ -78,13 +88,18 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
       return
     }
     if (result.status === 'denied') setNotifState('denied')
-    else if (result.status === 'unsupported' || result.status === 'no-key') setNotifState('unsupported')
+    else if (result.status === 'unsupported' || result.status === 'no-key')
+      setNotifState('unsupported')
     else setNotifState('denied')
   }
   const pct = ((step + 1) / total) * 100
 
-  function next() { setStep(s => Math.min(total - 1, s + 1)) }
-  function back() { setStep(s => Math.max(0, s - 1)) }
+  function next() {
+    setStep((s) => Math.min(total - 1, s + 1))
+  }
+  function back() {
+    setStep((s) => Math.max(0, s - 1))
+  }
 
   return (
     <div className="w-full max-w-md mx-auto px-4 py-6 space-y-6">
@@ -100,7 +115,10 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
         <p className="text-[10px] uppercase tracking-widest text-white/40 text-center">
           {labels.step.replace('{n}', String(step + 1)).replace('{total}', String(total))}
         </p>
-        <div className="relative h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div
+          className="relative h-1 rounded-full overflow-hidden"
+          style={{ background: 'rgba(255,255,255,0.06)' }}
+        >
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
             style={{ width: `${pct}%`, background: '#FFC044' }}
@@ -109,21 +127,11 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
       </div>
 
       {/* Step content */}
-      {step === 0 && (
-        <StepGoal value={goal} onChange={setGoal} labels={labels} />
-      )}
-      {step === 1 && (
-        <StepLocation value={location} onChange={setLocation} labels={labels} />
-      )}
-      {step === 2 && (
-        <StepDays value={days} onChange={setDays} labels={labels} />
-      )}
+      {step === 0 && <StepGoal value={goal} onChange={setGoal} labels={labels} />}
+      {step === 1 && <StepLocation value={location} onChange={setLocation} labels={labels} />}
+      {step === 2 && <StepDays value={days} onChange={setDays} labels={labels} />}
       {step === 3 && (
-        <StepNotifications
-          state={notifState}
-          onEnable={enableNotifications}
-          labels={labels}
-        />
+        <StepNotifications state={notifState} onEnable={enableNotifications} labels={labels} />
       )}
 
       {/* Footer buttons */}
@@ -214,7 +222,15 @@ function Option({ active, icon, title, sub, onClick, accent }: OptionProps) {
   )
 }
 
-function StepGoal({ value, onChange, labels }: { value: Goal; onChange: (g: Goal) => void; labels: Labels }) {
+function StepGoal({
+  value,
+  onChange,
+  labels,
+}: {
+  value: Goal
+  onChange: (g: Goal) => void
+  labels: Labels
+}) {
   return (
     <div className="space-y-3">
       <div className="text-center mb-1">
@@ -249,7 +265,15 @@ function StepGoal({ value, onChange, labels }: { value: Goal; onChange: (g: Goal
   )
 }
 
-function StepLocation({ value, onChange, labels }: { value: Location; onChange: (l: Location) => void; labels: Labels }) {
+function StepLocation({
+  value,
+  onChange,
+  labels,
+}: {
+  value: Location
+  onChange: (l: Location) => void
+  labels: Labels
+}) {
   return (
     <div className="space-y-3">
       <div className="text-center mb-1">
@@ -336,7 +360,10 @@ function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) 
       {state === 'denied' && (
         <div
           className="rounded-xl p-3 text-center"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
           <p className="text-xs text-white/55">{labels.notifDenied}</p>
         </div>
@@ -345,7 +372,10 @@ function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) 
       {state === 'unsupported' && (
         <div
           className="rounded-xl p-3 text-center"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
         >
           <p className="text-xs text-white/55">{labels.notifUnsupported}</p>
         </div>
@@ -356,7 +386,15 @@ function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) 
   )
 }
 
-function StepDays({ value, onChange, labels }: { value: number; onChange: (d: number) => void; labels: Labels }) {
+function StepDays({
+  value,
+  onChange,
+  labels,
+}: {
+  value: number
+  onChange: (d: number) => void
+  labels: Labels
+}) {
   return (
     <div className="space-y-4">
       <div className="text-center">
@@ -368,7 +406,10 @@ function StepDays({ value, onChange, labels }: { value: number; onChange: (d: nu
         className="rounded-2xl p-6 text-center"
         style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <p className="text-7xl font-extrabold tabular-nums" style={{ color: '#FFC044', textShadow: '0 6px 20px rgba(255,196,68,0.25)' }}>
+        <p
+          className="text-7xl font-extrabold tabular-nums"
+          style={{ color: '#FFC044', textShadow: '0 6px 20px rgba(255,196,68,0.25)' }}
+        >
           {value}
         </p>
         <p className="text-[10px] uppercase tracking-widest text-white/40 mt-2">
@@ -377,7 +418,7 @@ function StepDays({ value, onChange, labels }: { value: number; onChange: (d: nu
       </div>
 
       <div className="grid grid-cols-6 gap-1.5">
-        {[1, 2, 3, 4, 5, 6, 7].map(n => (
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
           <button
             key={n}
             type="button"
@@ -386,7 +427,8 @@ function StepDays({ value, onChange, labels }: { value: number; onChange: (d: nu
             style={{
               background: value === n ? 'rgba(255,196,68,0.20)' : 'rgba(255,255,255,0.04)',
               color: value === n ? '#FFC044' : 'rgba(255,255,255,0.55)',
-              border: value === n ? '1px solid rgba(255,196,68,0.4)' : '1px solid rgba(255,255,255,0.06)',
+              border:
+                value === n ? '1px solid rgba(255,196,68,0.4)' : '1px solid rgba(255,255,255,0.06)',
               gridColumn: n === 7 ? 'span 2' : 'span 1',
             }}
           >

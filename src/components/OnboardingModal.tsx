@@ -16,9 +16,10 @@ export function OnboardingModal() {
   const t = useTranslations('onboarding')
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('gymlog_onboarded')) {
-      setVisible(true)
-    }
+    const id = window.setTimeout(() => {
+      if (!localStorage.getItem('gymlog_onboarded')) setVisible(true)
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [])
 
   function finish() {
@@ -42,23 +43,26 @@ export function OnboardingModal() {
   function handleScheduleSave() {
     startTransition(async () => {
       const fd = new FormData()
-      schedule.forEach(d => fd.append('training_schedule', String(d)))
+      schedule.forEach((d) => fd.append('training_schedule', String(d)))
       await updateProfileAction(fd)
       finish()
     })
   }
 
   function toggleDay(day: number) {
-    setSchedule(prev =>
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
-    )
+    setSchedule((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
   }
 
   if (!visible) return null
 
   const DAYS = [
-    { n: 1, label: 'Пн' }, { n: 2, label: 'Вт' }, { n: 3, label: 'Ср' },
-    { n: 4, label: 'Чт' }, { n: 5, label: 'Пт' }, { n: 6, label: 'Сб' }, { n: 7, label: 'Вс' },
+    { n: 1, label: 'Пн' },
+    { n: 2, label: 'Вт' },
+    { n: 3, label: 'Ср' },
+    { n: 4, label: 'Чт' },
+    { n: 5, label: 'Пт' },
+    { n: 6, label: 'Сб' },
+    { n: 7, label: 'Вс' },
   ]
 
   return (
@@ -74,11 +78,15 @@ export function OnboardingModal() {
       >
         {/* Progress dots */}
         <div className="flex justify-center gap-2">
-          {[0, 1, 2].map(i => (
+          {[0, 1, 2].map((i) => (
             <div
               key={i}
               className={`h-2 rounded-full transition-all duration-300 ${
-                i === step ? 'bg-amber-500 w-6' : i < step ? 'bg-amber-500/50 w-2' : 'bg-white/20 w-2'
+                i === step
+                  ? 'bg-amber-500 w-6'
+                  : i < step
+                    ? 'bg-amber-500/50 w-2'
+                    : 'bg-white/20 w-2'
               }`}
             />
           ))}
@@ -127,7 +135,7 @@ export function OnboardingModal() {
                   <input
                     type="number"
                     value={value}
-                    onChange={e => onChange(e.target.value)}
+                    onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
                     className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 focus:border-amber-500/50 outline-none text-white font-mono"
                   />

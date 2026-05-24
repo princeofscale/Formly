@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 export interface SleepLog {
   id: string
   user_id: string
-  date: string  // YYYY-MM-DD
+  date: string // YYYY-MM-DD
   hours: number
   notes: string | null
   created_at: string
@@ -15,13 +15,13 @@ export async function upsertSleep(
   userId: string,
   date: string,
   hours: number,
-  notes: string | null = null
+  notes: string | null = null,
 ): Promise<SleepLog> {
   const { data, error } = await supabase
     .from('sleep_logs')
     .upsert(
       { user_id: userId, date, hours, notes: notes && notes.trim() ? notes.trim() : null },
-      { onConflict: 'user_id,date' }
+      { onConflict: 'user_id,date' },
     )
     .select()
     .single()
@@ -32,7 +32,7 @@ export async function upsertSleep(
 export async function getSleepForDate(
   supabase: SupabaseClient,
   userId: string,
-  date: string
+  date: string,
 ): Promise<SleepLog | null> {
   const { data } = await supabase
     .from('sleep_logs')
@@ -46,7 +46,7 @@ export async function getSleepForDate(
 export async function getRecentSleep(
   supabase: SupabaseClient,
   userId: string,
-  days = 7
+  days = 7,
 ): Promise<SleepLog[]> {
   const since = new Date()
   since.setUTCDate(since.getUTCDate() - days)
@@ -64,7 +64,7 @@ export async function getRecentSleep(
 export async function deleteSleepForDate(
   supabase: SupabaseClient,
   userId: string,
-  date: string
+  date: string,
 ): Promise<void> {
   const { error } = await supabase
     .from('sleep_logs')

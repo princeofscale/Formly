@@ -14,9 +14,7 @@ interface ExerciseRow {
 }
 
 async function translateBatch(exercises: ExerciseRow[]): Promise<Record<string, string>> {
-  const parts = exercises.map((e, i) =>
-    `### ${i + 1}\n${e.instructions_en}`
-  ).join('\n\n')
+  const parts = exercises.map((e, i) => `### ${i + 1}\n${e.instructions_en}`).join('\n\n')
 
   const response = await mistral.chat.complete({
     model: 'mistral-medium-3-5',
@@ -33,15 +31,18 @@ ${parts}`,
     ],
   })
 
-  const text = (response.choices?.[0]?.message?.content as string ?? '').trim()
-  const json = text.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim()
+  const text = ((response.choices?.[0]?.message?.content as string) ?? '').trim()
+  const json = text
+    .replace(/^```json?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim()
   return JSON.parse(json)
 }
 
 async function main() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
   const { data: exercises, error } = await supabase
@@ -58,7 +59,9 @@ async function main() {
   }
 
   const totalBatches = Math.ceil(exercises.length / BATCH_SIZE)
-  console.log(`Переводим инструкции для ${exercises.length} упражнений, ${totalBatches} батчей по ${BATCH_SIZE}\n`)
+  console.log(
+    `Переводим инструкции для ${exercises.length} упражнений, ${totalBatches} батчей по ${BATCH_SIZE}\n`,
+  )
 
   let translated = 0
   let failed = 0
@@ -71,30 +74,38 @@ async function main() {
     let translations: Record<string, string>
     try {
       translations = await translateBatch(batch)
-    } catch (err: any) {
-      console.error(`ОШИБКА: ${err?.message ?? err}`)
+    } catch (err: unknown) {
+      console.error(`ОШИБКА: ${err instanceof Error ? err.message : String(err)}`)
       failed += batch.length
-      await new Promise(r => setTimeout(r, 3000))
+      await new Promise((r) => setTimeout(r, 3000))
       continue
     }
 
     let batchOk = 0
     for (let j = 0; j < batch.length; j++) {
       const ruText = translations[String(j + 1)]
-      if (!ruText) { failed++; continue }
+      if (!ruText) {
+        failed++
+        continue
+      }
 
       const { error: updateErr } = await supabase
         .from('exercises')
         .update({ instructions_ru: ruText })
         .eq('id', batch[j].id)
 
-      if (updateErr) { failed++ } else { translated++; batchOk++ }
+      if (updateErr) {
+        failed++
+      } else {
+        translated++
+        batchOk++
+      }
     }
     console.log(`${batchOk} ок  (всего: ${translated})`)
 
     // небольшая пауза между батчами
     if (i + BATCH_SIZE < exercises.length) {
-      await new Promise(r => setTimeout(r, 500))
+      await new Promise((r) => setTimeout(r, 500))
     }
   }
 

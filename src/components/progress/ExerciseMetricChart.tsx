@@ -18,9 +18,9 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
 
   const data = useMemo(() => {
     if (metric === 'e1rm') {
-      return e1rmHistory.map(p => ({ date: p.date, value: Math.round(p.e1rm) }))
+      return e1rmHistory.map((p) => ({ date: p.date, value: Math.round(p.e1rm) }))
     }
-    return volumeHistory.map(p => ({ date: p.date, value: p.volume_kg }))
+    return volumeHistory.map((p) => ({ date: p.date, value: p.volume_kg }))
   }, [metric, e1rmHistory, volumeHistory])
 
   const unit = metric === 'e1rm' ? t('unit1rm') : t('unitVolume')
@@ -66,7 +66,10 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
           <span className="text-2xl font-bold text-white tabular-nums">
             {summary.current.toLocaleString()}
           </span>
-          <span className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <span
+            className="text-[11px] uppercase tracking-widest"
+            style={{ color: 'rgba(255,255,255,0.4)' }}
+          >
             {unit}
           </span>
           {(() => {
@@ -78,12 +81,16 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
                 className="text-[11px] font-bold tabular-nums ml-auto"
                 style={{ color: delta > 0 ? '#22D3A8' : '#FF6E76' }}
               >
-                {delta > 0 ? '+' : ''}{delta.toFixed(1)} {t('unit1rm')}
+                {delta > 0 ? '+' : ''}
+                {delta.toFixed(1)} {t('unit1rm')}
               </span>
             )
           })()}
           {metric === 'volume' && 'totalSets' in summary && (
-            <span className="text-[11px] tabular-nums ml-auto" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <span
+              className="text-[11px] tabular-nums ml-auto"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
               {summary.totalSets} {t('setsCount')}
             </span>
           )}
@@ -95,7 +102,15 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
   )
 }
 
-function MetricTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+function MetricTab({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+}) {
   return (
     <button
       type="button"

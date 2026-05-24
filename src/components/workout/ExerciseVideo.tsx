@@ -39,7 +39,7 @@ function extractYouTubeId(url: string): string | null {
 
       // /shorts/ID, /embed/ID, /live/ID
       const segments = u.pathname.split('/').filter(Boolean)
-      const idx = segments.findIndex(s => ['shorts', 'embed', 'live'].includes(s))
+      const idx = segments.findIndex((s) => ['shorts', 'embed', 'live'].includes(s))
       if (idx >= 0 && segments[idx + 1]) {
         const id = segments[idx + 1]
         return /^[A-Za-z0-9_-]{6,}$/.test(id) ? id : null
@@ -119,7 +119,11 @@ export function ExerciseVideo({ exerciseId, initialUrl }: Props) {
           </div>
           <button
             type="button"
-            onClick={() => { setEditing(false); setDraftUrl(url); setShowError(false) }}
+            onClick={() => {
+              setEditing(false)
+              setDraftUrl(url)
+              setShowError(false)
+            }}
             className="text-zinc-500 hover:text-zinc-200"
           >
             <X className="h-3 w-3" />
@@ -128,8 +132,13 @@ export function ExerciseVideo({ exerciseId, initialUrl }: Props) {
         <input
           type="url"
           value={draftUrl}
-          onChange={e => { setDraftUrl(e.target.value); setShowError(false) }}
-          onKeyDown={e => { if (e.key === 'Enter') handleSave() }}
+          onChange={(e) => {
+            setDraftUrl(e.target.value)
+            setShowError(false)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSave()
+          }}
           placeholder="https://youtu.be/..."
           autoFocus
           className="w-full h-9 px-2.5 rounded-[8px] text-xs outline-none"
@@ -140,7 +149,9 @@ export function ExerciseVideo({ exerciseId, initialUrl }: Props) {
           }}
         />
         {showError && (
-          <p className="text-[10px]" style={{ color: '#FF3B47' }}>{t('invalidUrl')}</p>
+          <p className="text-[10px]" style={{ color: '#FF3B47' }}>
+            {t('invalidUrl')}
+          </p>
         )}
         <div className="flex items-center gap-2">
           <button
@@ -265,7 +276,10 @@ export function ExerciseVideo({ exerciseId, initialUrl }: Props) {
         </div>
       </button>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 text-[10px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <div
+          className="flex items-center gap-1 text-[10px]"
+          style={{ color: 'rgba(255,255,255,0.5)' }}
+        >
           <Video className="h-2.5 w-2.5" />
           <span>{t('label')}</span>
         </div>

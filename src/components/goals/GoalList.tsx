@@ -34,17 +34,23 @@ export function GoalList({ goals }: Props) {
 
   return (
     <div className="space-y-3">
-      {sorted.map(g => {
+      {sorted.map((g) => {
         const name = locale === 'ru' ? (g.exercise_name_ru ?? g.exercise_name) : g.exercise_name
         const isDone = !!g.achieved_at
         const targetDateLabel = g.target_date
-          ? new Date(g.target_date + 'T00:00:00').toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-              day: 'numeric', month: 'short', year: 'numeric',
-            })
+          ? new Date(g.target_date + 'T00:00:00').toLocaleDateString(
+              locale === 'ru' ? 'ru-RU' : 'en-US',
+              {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              },
+            )
           : null
         const achievedDateLabel = g.achieved_at
           ? new Date(g.achieved_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-              day: 'numeric', month: 'short',
+              day: 'numeric',
+              month: 'short',
             })
           : null
 
@@ -83,11 +89,18 @@ export function GoalList({ goals }: Props) {
                 {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
               </span>
               <span className="text-white/55">
-                {isDone ? (achievedDateLabel ? `✓ ${achievedDateLabel}` : '✓') : `${g.progress_pct.toFixed(0)}%`}
+                {isDone
+                  ? achievedDateLabel
+                    ? `✓ ${achievedDateLabel}`
+                    : '✓'
+                  : `${g.progress_pct.toFixed(0)}%`}
               </span>
             </div>
 
-            <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <div
+              className="relative h-1.5 rounded-full overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.05)' }}
+            >
               <div
                 className="absolute inset-y-0 left-0 rounded-full transition-all"
                 style={{ width: `${g.progress_pct}%`, background: barColor }}

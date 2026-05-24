@@ -47,7 +47,9 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
           type="button"
           onClick={decrement}
           className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
-        >−</button>
+        >
+          −
+        </button>
         <div className="flex-1 flex items-center justify-center min-w-0">
           <input
             type="number"
@@ -55,7 +57,7 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
             min={min}
             max={max}
             value={value}
-            onChange={e => onChange(e.target.value)}
+            onChange={(e) => onChange(e.target.value)}
             placeholder={optional ? '—' : ''}
             className="w-full text-center font-mono font-bold text-base bg-transparent border-none outline-none text-white placeholder:text-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
@@ -67,7 +69,9 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
           type="button"
           onClick={increment}
           className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
-        >+</button>
+        >
+          +
+        </button>
       </div>
     </div>
   )
@@ -88,7 +92,17 @@ interface Props {
 
 const QUICK_INCREMENTS = [-5, -2.5, 2.5, 5]
 
-export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaultReps = 8, isBodyweight = false, showPlateCalculator = false, appliedSuggestion, onSaved }: Props) {
+export function SetRow({
+  sessionId,
+  exerciseId,
+  setNumber,
+  defaultWeight,
+  defaultReps = 8,
+  isBodyweight = false,
+  showPlateCalculator = false,
+  appliedSuggestion,
+  onSaved,
+}: Props) {
   const t = useTranslations('workout')
   const draftKey = `setdraft:${sessionId}:${exerciseId}:${setNumber}`
 
@@ -97,25 +111,33 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
   const [rpe, setRpe] = useState('')
   const [hydrated, setHydrated] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const suggestionNonce = appliedSuggestion?.nonce
+  const suggestionWeight = appliedSuggestion?.weight
+  const suggestionReps = appliedSuggestion?.reps
 
   // Restore draft from localStorage after mount (avoids SSR hydration mismatch)
   useEffect(() => {
-    const draft = readDraft(draftKey)
-    if (draft) {
-      setWeight(draft.weight)
-      setReps(draft.reps)
-      setRpe(draft.rpe)
-    }
-    setHydrated(true)
+    const id = window.setTimeout(() => {
+      const draft = readDraft(draftKey)
+      if (draft) {
+        setWeight(draft.weight)
+        setReps(draft.reps)
+        setRpe(draft.rpe)
+      }
+      setHydrated(true)
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [draftKey])
 
   // Apply a one-tap suggestion: bump weight/reps whenever the nonce changes
   useEffect(() => {
-    if (!appliedSuggestion) return
-    setWeight(String(appliedSuggestion.weight))
-    setReps(String(appliedSuggestion.reps))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appliedSuggestion?.nonce])
+    if (suggestionWeight == null || suggestionReps == null) return
+    const id = window.setTimeout(() => {
+      setWeight(String(suggestionWeight))
+      setReps(String(suggestionReps))
+    }, 0)
+    return () => window.clearTimeout(id)
+  }, [suggestionNonce, suggestionWeight, suggestionReps])
 
   // Persist draft as user types
   useEffect(() => {
@@ -128,9 +150,7 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
   }, [weight, reps, rpe, draftKey, defaultReps, hydrated])
 
   // For bodyweight exercises, weight is optional (empty = pure BW, value = added weight or assistance)
-  const canSave = isBodyweight
-    ? !!parseInt(reps)
-    : !!(parseFloat(weight) && parseInt(reps))
+  const canSave = isBodyweight ? !!parseInt(reps) : !!(parseFloat(weight) && parseInt(reps))
 
   function applyQuickInc(delta: number) {
     const base = parseFloat(weight) || (defaultWeight ?? 0)
@@ -148,8 +168,11 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
     const rpeVal = rpe ? Math.max(1, Math.min(10, parseFloat(rpe))) : undefined
     startTransition(async () => {
       const payload = {
-        sessionId, exerciseId, setNumber,
-        weightKg: weightToSave, reps: r,
+        sessionId,
+        exerciseId,
+        setNumber,
+        weightKg: weightToSave,
+        reps: r,
         rpe: rpeVal,
       }
       try {
@@ -180,7 +203,12 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
           window.localStorage.removeItem(draftKey)
           window.dispatchEvent(new CustomEvent('trainingar:set-queued'))
         }
-        onSaved(syntheticSet, { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null })
+        onSaved(syntheticSet, {
+          is_pr: false,
+          previous_1rm: null,
+          current_1rm: 0,
+          improvement_pct: null,
+        })
       }
     })
   }
@@ -205,7 +233,7 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
 
       {/* Quick increments */}
       <div className="flex items-center gap-1.5">
-        {QUICK_INCREMENTS.map(d => (
+        {QUICK_INCREMENTS.map((d) => (
           <button
             key={d}
             type="button"
@@ -213,11 +241,13 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
             className="flex-1 h-7 rounded-[6px] text-[10px] font-mono font-bold tracking-tight transition-colors"
             style={{
               background: d > 0 ? 'rgba(255, 59, 71, 0.08)' : 'rgba(255, 255, 255, 0.04)',
-              border: d > 0 ? '1px solid rgba(255, 59, 71, 0.22)' : '1px solid rgba(255, 255, 255, 0.08)',
+              border:
+                d > 0 ? '1px solid rgba(255, 59, 71, 0.22)' : '1px solid rgba(255, 255, 255, 0.08)',
               color: d > 0 ? '#FF6E76' : 'rgba(255, 255, 255, 0.55)',
             }}
           >
-            {d > 0 ? '+' : ''}{d}
+            {d > 0 ? '+' : ''}
+            {d}
           </button>
         ))}
       </div>
@@ -225,9 +255,19 @@ export function SetRow({ sessionId, exerciseId, setNumber, defaultWeight, defaul
       {showPlateCalculator && <PlateCalculator weightKg={parseFloat(weight) || 0} />}
 
       <div className="grid grid-cols-2 gap-2">
-        <Stepper label={t('rpeLabel')} value={rpe} onChange={setRpe} step={1} min={1} max={10} optional />
+        <Stepper
+          label={t('rpeLabel')}
+          value={rpe}
+          onChange={setRpe}
+          step={1}
+          min={1}
+          max={10}
+          optional
+        />
         <div className="space-y-1">
-          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 opacity-0 select-none">_</p>
+          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 opacity-0 select-none">
+            _
+          </p>
           <button
             type="button"
             onClick={handleSave}
@@ -251,7 +291,11 @@ function readDraft(key: string): { weight: string; reps: string; rpe: string } |
     const raw = window.localStorage.getItem(key)
     if (!raw) return null
     const parsed = JSON.parse(raw)
-    if (typeof parsed?.weight === 'string' && typeof parsed?.reps === 'string' && typeof parsed?.rpe === 'string') {
+    if (
+      typeof parsed?.weight === 'string' &&
+      typeof parsed?.reps === 'string' &&
+      typeof parsed?.rpe === 'string'
+    ) {
       return parsed
     }
   } catch {

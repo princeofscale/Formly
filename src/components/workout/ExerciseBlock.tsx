@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
@@ -27,7 +28,16 @@ interface Props {
   initialVideoUrl?: string
 }
 
-export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete, lastSets = [], initialNote = '', initialVideoUrl = '' }: Props) {
+export function ExerciseBlock({
+  exercise,
+  sessionId,
+  onSetSaved,
+  onPR,
+  onDelete,
+  lastSets = [],
+  initialNote = '',
+  initialVideoUrl = '',
+}: Props) {
   const locale = useLocale()
   const tHistory = useTranslations('history')
   const t = useTranslations('workout')
@@ -35,25 +45,29 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
   const [showInfo, setShowInfo] = useState(false)
   const [showTimer, setShowTimer] = useState(false)
   const [lastPR, setLastPR] = useState<PRResult | null>(null)
-  const [applied, setApplied] = useState<{ weight: number; reps: number; nonce: number } | null>(null)
+  const [applied, setApplied] = useState<{ weight: number; reps: number; nonce: number } | null>(
+    null,
+  )
 
   const lastSet = sets[sets.length - 1]
   const displayName = locale === 'ru' ? (exercise.name_ru ?? exercise.name) : exercise.name
   const muscleLabel = tHistory(`muscleLabel.${exercise.primary_muscle}`)
   const thumbnail = exercise.image_urls?.[0]
-  const instructions = locale === 'ru'
-    ? (exercise.instructions_ru ?? exercise.instructions_en)
-    : exercise.instructions_en
+  const instructions =
+    locale === 'ru'
+      ? (exercise.instructions_ru ?? exercise.instructions_en)
+      : exercise.instructions_en
   const isBodyweight = exercise.equipment === 'bodyweight'
 
   // Before the first set use the prior session's data; once the user has logged
   // a set this session, base the suggestion on what they just did (RPE/reps
   // from the freshest set drive the next-set delta).
   const setsForSuggestion = sets.length > 0 ? sets : lastSets
-  const suggestion = !isBodyweight && setsForSuggestion.length > 0 ? suggestNextSet(setsForSuggestion) : null
+  const suggestion =
+    !isBodyweight && setsForSuggestion.length > 0 ? suggestNextSet(setsForSuggestion) : null
 
   function handleSetSaved(set: SetEntry, prResult: PRResult) {
-    setSets(prev => [...prev, set])
+    setSets((prev) => [...prev, set])
     onSetSaved(set)
     setShowTimer(true)
     setLastPR(prResult.is_pr ? prResult : null)
@@ -68,11 +82,14 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-sm overflow-hidden">
-
       {/* header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         {thumbnail && (
-          <img src={thumbnail} alt={displayName}
+          <Image
+            src={thumbnail}
+            alt={displayName}
+            width={44}
+            height={44}
             className="w-11 h-11 rounded-sm object-cover flex-shrink-0 bg-white/5"
           />
         )}
@@ -85,19 +102,25 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
               </span>
             )}
           </div>
-          <p className="text-[11px] text-zinc-500 mt-0.5">{muscleLabel} · {exercise.equipment}</p>
+          <p className="text-[11px] text-zinc-500 mt-0.5">
+            {muscleLabel} · {exercise.equipment}
+          </p>
         </div>
         <div className="flex items-center gap-0.5 flex-shrink-0">
           {instructions && (
-            <Button variant="ghost" size="sm"
+            <Button
+              variant="ghost"
+              size="sm"
               className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-200"
-              onClick={() => setShowInfo(v => !v)}
+              onClick={() => setShowInfo((v) => !v)}
             >
               {showInfo ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           )}
           {sets.length === 0 && (
-            <Button variant="ghost" size="sm"
+            <Button
+              variant="ghost"
+              size="sm"
               className="h-8 w-8 p-0 text-zinc-600 hover:text-red-400"
               title={t('deleteExercise')}
               onClick={onDelete}
@@ -125,11 +148,9 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
               isLast={i === sets.length - 1}
               isBodyweight={isBodyweight}
               onUpdated={(updated) =>
-                setSets(prev => prev.map(s => s.id === updated.id ? updated : s))
+                setSets((prev) => prev.map((s) => (s.id === updated.id ? updated : s)))
               }
-              onDeleted={(setId) =>
-                setSets(prev => prev.filter(s => s.id !== setId))
-              }
+              onDeleted={(setId) => setSets((prev) => prev.filter((s) => s.id !== setId))}
             />
           ))}
         </div>
@@ -139,28 +160,31 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
       {(lastPR || showTimer) && (
         <div className="px-4 pt-2 pb-1 space-y-1 border-t border-white/10">
           {lastPR && <PRBadge pr={lastPR} />}
-          {showTimer && (
-            <RestTimer seconds={90} onDone={() => setShowTimer(false)} />
-          )}
+          {showTimer && <RestTimer seconds={90} onDone={() => setShowTimer(false)} />}
         </div>
       )}
 
       {/* always-visible new set row */}
       <div className="px-4 pt-3 pb-4 border-t border-white/10 space-y-2">
         {/* "Last time" comparison — always show when we have history */}
-        {lastSets.length > 0 && (
-          sets.length === 0 ? (
+        {lastSets.length > 0 &&
+          (sets.length === 0 ? (
             <LastTimeHint sets={lastSets} />
           ) : (
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <div
+              className="flex items-center gap-2 text-[10px] uppercase tracking-widest"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
               <span className="font-bold">{t('lastTime')}:</span>
               <span className="font-mono font-bold" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                {lastSets.map(s => `${s.weight_kg}×${s.reps}`).slice(0, 4).join(' · ')}
+                {lastSets
+                  .map((s) => `${s.weight_kg}×${s.reps}`)
+                  .slice(0, 4)
+                  .join(' · ')}
                 {lastSets.length > 4 ? ` +${lastSets.length - 4}` : ''}
               </span>
             </div>
-          )
-        )}
+          ))}
 
         <ExerciseVideo exerciseId={exercise.id} initialUrl={initialVideoUrl} />
         <ExerciseNoteEditor exerciseId={exercise.id} initialNote={initialNote} />
@@ -172,14 +196,16 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
           />
         )}
 
-        {sets.length === 0 && !isBodyweight && (lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0) >= 30 && (
-          <WarmupButton
-            sessionId={sessionId}
-            exerciseId={exercise.id}
-            workingWeightKg={lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0}
-            onAdded={(warmups) => setSets(prev => [...prev, ...warmups])}
-          />
-        )}
+        {sets.length === 0 &&
+          !isBodyweight &&
+          (lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0) >= 30 && (
+            <WarmupButton
+              sessionId={sessionId}
+              exerciseId={exercise.id}
+              workingWeightKg={lastSet?.weight_kg ?? lastSets[0]?.weight_kg ?? 0}
+              onAdded={(warmups) => setSets((prev) => [...prev, ...warmups])}
+            />
+          )}
 
         <SetRow
           sessionId={sessionId}
@@ -193,7 +219,6 @@ export function ExerciseBlock({ exercise, sessionId, onSetSaved, onPR, onDelete,
           onSaved={handleSetSaved}
         />
       </div>
-
     </div>
   )
 }

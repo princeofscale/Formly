@@ -45,15 +45,18 @@ export function FriendList({ friends }: Props) {
 
   return (
     <div className="space-y-3">
-      {sorted.map(f => {
+      {sorted.map((f) => {
         const lastDays = daysAgo(f.last_workout_at)
         const isHot = lastDays != null && lastDays <= 2
         const isCold = lastDays != null && lastDays >= 7
-        const lastLabel = lastDays == null
-          ? t('neverTrained')
-          : lastDays === 0 ? t('today')
-          : lastDays === 1 ? t('yesterday')
-          : t('daysAgo', { n: lastDays })
+        const lastLabel =
+          lastDays == null
+            ? t('neverTrained')
+            : lastDays === 0
+              ? t('today')
+              : lastDays === 1
+                ? t('yesterday')
+                : t('daysAgo', { n: lastDays })
 
         const baseDotColor = isHot ? '#22D3A8' : isCold ? '#FF6E76' : '#FFC044'
         const dotColor = f.is_in_gym ? '#22D3A8' : baseDotColor
@@ -91,11 +94,16 @@ export function FriendList({ friends }: Props) {
                   {f.friend_code ?? '······'}
                 </p>
                 {f.is_in_gym ? (
-                  <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#22D3A8' }}>
+                  <p
+                    className="text-[11px] font-bold uppercase tracking-widest"
+                    style={{ color: '#22D3A8' }}
+                  >
                     {t('inGym')}
                   </p>
                 ) : (
-                  <p className="text-[11px]" style={{ color: dotColor }}>{lastLabel}</p>
+                  <p className="text-[11px]" style={{ color: dotColor }}>
+                    {lastLabel}
+                  </p>
                 )}
               </div>
               <form action={removeFriendAction}>
@@ -145,10 +153,7 @@ interface StatProps {
 
 function Stat({ icon, label, value, unit }: StatProps) {
   return (
-    <div
-      className="rounded-lg p-2 flex flex-col"
-      style={{ background: 'rgba(255,255,255,0.02)' }}
-    >
+    <div className="rounded-lg p-2 flex flex-col" style={{ background: 'rgba(255,255,255,0.02)' }}>
       <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
         {icon}
         {label}

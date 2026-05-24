@@ -2,10 +2,16 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { getLocale, getTranslations } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { createSession, getActiveSession } from '@/lib/db/workouts'
-import { createTemplate, deleteTemplate, getTemplates, getSessionExerciseList, updateTemplate } from '@/lib/db/templates'
+import {
+  createTemplate,
+  deleteTemplate,
+  getTemplates,
+  getSessionExerciseList,
+  updateTemplate,
+} from '@/lib/db/templates'
 import { verifySession } from '@/lib/dal'
 import { findPresetDay } from '@/lib/constants/workout-presets'
 import type { TemplateExercise } from '@/lib/types/models'
@@ -55,7 +61,7 @@ export async function repeatSessionAction(formData: FormData): Promise<void> {
 
   const REPEAT_TEMPLATE_NAME = '🔁 Repeat'
   const existing = await getTemplates(supabase, user.id)
-  const rolling = existing.find(t => t.name === REPEAT_TEMPLATE_NAME)
+  const rolling = existing.find((t) => t.name === REPEAT_TEMPLATE_NAME)
 
   let templateId: string
   if (rolling) {
@@ -83,16 +89,11 @@ export async function startFromPresetAction(formData: FormData): Promise<void> {
 
   const { user } = await verifySession()
   const supabase = await createClient()
-  const rawLocale = await getLocale()
-  const locale = rawLocale === 'ru' ? 'ru' : 'en'
   const tPresets = await getTranslations('presets')
 
   // Fetch exercises by slug, plus user's existing templates (parallel)
   const [exerciseResult, existingTemplates] = await Promise.all([
-    supabase
-      .from('exercises')
-      .select('id, name, name_ru, slug')
-      .in('slug', match.day.slugs),
+    supabase.from('exercises').select('id, name, name_ru, slug').in('slug', match.day.slugs),
     getTemplates(supabase, user.id),
   ])
 
@@ -104,7 +105,7 @@ export async function startFromPresetAction(formData: FormData): Promise<void> {
   }>
 
   // Preserve preset order — exercises returned by IN clause may be out of order
-  const exerciseBySlug = new Map(exerciseRows.map(e => [e.slug, e]))
+  const exerciseBySlug = new Map(exerciseRows.map((e) => [e.slug, e]))
   const orderedExercises: TemplateExercise[] = []
   for (const slug of match.day.slugs) {
     const ex = exerciseBySlug.get(slug)
@@ -124,7 +125,7 @@ export async function startFromPresetAction(formData: FormData): Promise<void> {
   const templateName = `${programTitle} · ${dayTitle}`
 
   // Re-use existing template with this exact name if present, otherwise create
-  let templateId = existingTemplates.find(t => t.name === templateName)?.id
+  let templateId = existingTemplates.find((t) => t.name === templateName)?.id
   if (!templateId) {
     const created = await createTemplate(supabase, user.id, templateName, orderedExercises)
     templateId = created.id

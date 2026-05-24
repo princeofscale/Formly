@@ -22,7 +22,7 @@ export async function subscribeToPushAction(input: {
     user.id,
     input.endpoint,
     { p256dh: input.p256dh, auth: input.auth },
-    input.userAgent
+    input.userAgent,
   )
 }
 
@@ -48,13 +48,13 @@ export async function sendTestPushAction(): Promise<{ sent: number; failed: numb
   })
 
   // Clean up expired endpoints
-  const expired = results.filter(r => r.expired)
+  const expired = results.filter((r) => r.expired)
   for (const r of expired) {
     await deletePushSubscriptionByEndpoint(supabase, user.id, r.endpoint)
   }
 
   return {
-    sent: results.filter(r => r.ok).length,
-    failed: results.filter(r => !r.ok).length,
+    sent: results.filter((r) => r.ok).length,
+    failed: results.filter((r) => !r.ok).length,
   }
 }

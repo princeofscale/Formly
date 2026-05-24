@@ -11,14 +11,24 @@ import { getProgressionSuggestion } from '@/lib/services/progression.service'
 import { upsertSleep, deleteSleepForDate, getRecentSleep, type SleepLog } from '@/lib/db/sleep'
 import type { AIInsights, ProgressionSuggestion, SetEntry } from '@/lib/types/models'
 
-export async function logSleepAction(date: string, hours: number, notes?: string): Promise<SleepLog> {
+export async function logSleepAction(
+  date: string,
+  hours: number,
+  notes?: string,
+): Promise<SleepLog> {
   const { user } = await verifySession()
   const supabase = await createClient()
   if (!Number.isFinite(hours) || hours <= 0 || hours > 24) {
     throw new Error('hours must be between 0 and 24')
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('invalid date')
-  const result = await upsertSleep(supabase, user.id, date, Math.round(hours * 10) / 10, notes ?? null)
+  const result = await upsertSleep(
+    supabase,
+    user.id,
+    date,
+    Math.round(hours * 10) / 10,
+    notes ?? null,
+  )
   revalidatePath('/dashboard')
   return result
 }
@@ -48,7 +58,7 @@ interface RecentSetRow {
 
 function buildProgressionOpportunities(
   rows: RecentSetRow[],
-  locale: 'ru' | 'en'
+  locale: 'ru' | 'en',
 ): ProgressionSuggestion[] {
   // Group sets by exercise; within each exercise, keep only the most recent session
   const byExercise = new Map<string, RecentSetRow[]>()
@@ -69,7 +79,7 @@ function buildProgressionOpportunities(
 
   const suggestions: ProgressionSuggestion[] = []
   for (const [exerciseId, sets] of byExercise) {
-    const setEntries: SetEntry[] = sets.map(s => ({
+    const setEntries: SetEntry[] = sets.map((s) => ({
       id: s.id,
       session_id: s.session_id,
       user_id: s.user_id,
@@ -83,7 +93,7 @@ function buildProgressionOpportunities(
       created_at: s.created_at,
     }))
     const ex = sets[0]?.exercises
-    const name = (locale === 'ru' ? ex?.name_ru ?? ex?.name : ex?.name) ?? ''
+    const name = (locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name) ?? ''
     if (!name) continue
     // Use 12 as the "max reps" threshold (hypertrophy range)
     const suggestion = getProgressionSuggestion(setEntries, exerciseId, name, 8, 12)
@@ -102,44 +112,44 @@ export async function refreshAIInsightsAction(goal?: string): Promise<AIInsights
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const [weeklyVolumes, profileResult, sessionsResult, prsResult, recentSetsResult, recentSleep] = await Promise.all([
-    getWeeklyMuscleVolume(supabase, user.id),
-    supabase
-      .from('profiles')
-      .select('age, training_since')
-      .eq('id', user.id)
-      .single(),
-    supabase
-      .from('workout_sessions')
-      .select('started_at, total_volume_kg')
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null)
-      .order('started_at', { ascending: false })
-      .limit(7),
-    supabase
-      .from('set_entries')
-      .select('calculated_1rm, exercises(name, name_ru)')
-      .eq('user_id', user.id)
-      .not('calculated_1rm', 'is', null)
-      .order('calculated_1rm', { ascending: false })
-      .limit(5),
-    supabase
-      .from('set_entries')
-      .select('id, session_id, exercise_id, set_number, weight_kg, reps, rpe, calculated_1rm, rest_seconds, user_id, created_at, exercises(name, name_ru)')
-      .eq('user_id', user.id)
-      .gte('created_at', since14days.toISOString())
-      .order('created_at', { ascending: false }),
-    getRecentSleep(supabase, user.id, 7),
-  ])
+  const [weeklyVolumes, profileResult, sessionsResult, prsResult, recentSetsResult, recentSleep] =
+    await Promise.all([
+      getWeeklyMuscleVolume(supabase, user.id),
+      supabase.from('profiles').select('age, training_since').eq('id', user.id).single(),
+      supabase
+        .from('workout_sessions')
+        .select('started_at, total_volume_kg')
+        .eq('user_id', user.id)
+        .not('finished_at', 'is', null)
+        .order('started_at', { ascending: false })
+        .limit(7),
+      supabase
+        .from('set_entries')
+        .select('calculated_1rm, exercises(name, name_ru)')
+        .eq('user_id', user.id)
+        .not('calculated_1rm', 'is', null)
+        .order('calculated_1rm', { ascending: false })
+        .limit(5),
+      supabase
+        .from('set_entries')
+        .select(
+          'id, session_id, exercise_id, set_number, weight_kg, reps, rpe, calculated_1rm, rest_seconds, user_id, created_at, exercises(name, name_ru)',
+        )
+        .eq('user_id', user.id)
+        .gte('created_at', since14days.toISOString())
+        .order('created_at', { ascending: false }),
+      getRecentSleep(supabase, user.id, 7),
+    ])
 
-  const sleepAvg = recentSleep.length > 0
-    ? Math.round((recentSleep.reduce((s, r) => s + r.hours, 0) / recentSleep.length) * 10) / 10
-    : null
+  const sleepAvg =
+    recentSleep.length > 0
+      ? Math.round((recentSleep.reduce((s, r) => s + r.hours, 0) / recentSleep.length) * 10) / 10
+      : null
 
   const volumeLandmarks = getVolumeLandmarks(weeklyVolumes)
   const progressionOpportunities = buildProgressionOpportunities(
     (recentSetsResult.data ?? []) as unknown as RecentSetRow[],
-    locale
+    locale,
   )
 
   const insights = await generateInsights({
@@ -151,14 +161,14 @@ export async function refreshAIInsightsAction(goal?: string): Promise<AIInsights
     },
     weekly_volumes: weeklyVolumes,
     volume_landmarks: volumeLandmarks,
-    recent_sessions: (sessionsResult.data ?? []).map(s => ({
+    recent_sessions: (sessionsResult.data ?? []).map((s) => ({
       date: s.started_at.slice(0, 10),
       volume_kg: s.total_volume_kg,
     })),
-    top_prs: (prsResult.data ?? []).map(r => {
+    top_prs: (prsResult.data ?? []).map((r) => {
       const ex = r.exercises as { name: string; name_ru?: string | null } | null
       return {
-        exercise: (locale === 'ru' ? ex?.name_ru ?? ex?.name : ex?.name) ?? '',
+        exercise: (locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name) ?? '',
         e1rm: r.calculated_1rm ?? 0,
       }
     }),

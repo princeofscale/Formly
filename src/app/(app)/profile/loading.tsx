@@ -7,7 +7,7 @@ export default function ProfileLoading() {
         className="h-24 rounded-[10px] animate-pulse"
         style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
       />
-      {[0, 1, 2, 3].map(i => (
+      {[0, 1, 2, 3].map((i) => (
         <div
           key={i}
           className="h-16 rounded-[20px] animate-pulse"

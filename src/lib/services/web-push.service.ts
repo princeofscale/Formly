@@ -10,7 +10,9 @@ function configure() {
   const contact = process.env.VAPID_CONTACT_EMAIL ?? 'mailto:noreply@trainingar.app'
 
   if (!publicKey || !privateKey) {
-    throw new Error('VAPID keys are missing — set NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY')
+    throw new Error(
+      'VAPID keys are missing — set NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY',
+    )
   }
 
   webpush.setVapidDetails(contact, publicKey, privateKey)
@@ -32,7 +34,7 @@ export interface SendResult {
 
 export async function sendPushToSubscription(
   sub: PushSubscriptionRow,
-  payload: PushPayload
+  payload: PushPayload,
 ): Promise<SendResult> {
   configure()
 
@@ -42,7 +44,7 @@ export async function sendPushToSubscription(
         endpoint: sub.endpoint,
         keys: { p256dh: sub.p256dh, auth: sub.auth },
       },
-      JSON.stringify(payload)
+      JSON.stringify(payload),
     )
     return { endpoint: sub.endpoint, ok: true, expired: false }
   } catch (err) {
@@ -59,7 +61,7 @@ export async function sendPushToSubscription(
 
 export async function sendPushToMany(
   subs: PushSubscriptionRow[],
-  payload: PushPayload
+  payload: PushPayload,
 ): Promise<SendResult[]> {
-  return Promise.all(subs.map(s => sendPushToSubscription(s, payload)))
+  return Promise.all(subs.map((s) => sendPushToSubscription(s, payload)))
 }

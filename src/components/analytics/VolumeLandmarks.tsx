@@ -13,7 +13,7 @@ export function VolumeLandmarks({ landmarks }: { landmarks: VolumeLandmark[] }) 
 
   return (
     <div className="space-y-2">
-      {landmarks.map(l => {
+      {landmarks.map((l) => {
         const config = STATUS_CONFIG[l.status]
         return (
           <div key={l.muscle} className="flex items-center justify-between">

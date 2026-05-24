@@ -15,11 +15,11 @@ export interface ProgressPhotoWithUrl extends ProgressPhoto {
 }
 
 export const PROGRESS_BUCKET = 'progress-photos'
-const SIGNED_URL_TTL_SECONDS = 60 * 60  // 1 hour
+const SIGNED_URL_TTL_SECONDS = 60 * 60 // 1 hour
 
 export async function listProgressPhotos(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<ProgressPhoto[]> {
   const { data } = await supabase
     .from('progress_photos')
@@ -31,14 +31,13 @@ export async function listProgressPhotos(
 
 export async function listProgressPhotosWithUrls(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<ProgressPhotoWithUrl[]> {
   const rows = await listProgressPhotos(supabase, userId)
   if (rows.length === 0) return []
 
-  const paths = rows.map(r => r.storage_path)
-  const { data: signed } = await supabase
-    .storage
+  const paths = rows.map((r) => r.storage_path)
+  const { data: signed } = await supabase.storage
     .from(PROGRESS_BUCKET)
     .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS)
 
@@ -47,7 +46,7 @@ export async function listProgressPhotosWithUrls(
     if (s.path && s.signedUrl) urlByPath.set(s.path, s.signedUrl)
   }
 
-  return rows.map(r => ({ ...r, signed_url: urlByPath.get(r.storage_path) ?? null }))
+  return rows.map((r) => ({ ...r, signed_url: urlByPath.get(r.storage_path) ?? null }))
 }
 
 export async function insertProgressPhoto(
@@ -56,7 +55,7 @@ export async function insertProgressPhoto(
   storagePath: string,
   takenAt: string,
   weightKg: number | null,
-  caption: string | null
+  caption: string | null,
 ): Promise<ProgressPhoto> {
   const { data, error } = await supabase
     .from('progress_photos')
@@ -76,7 +75,7 @@ export async function insertProgressPhoto(
 export async function deleteProgressPhoto(
   supabase: SupabaseClient,
   userId: string,
-  photoId: string
+  photoId: string,
 ): Promise<{ storage_path: string } | null> {
   const { data: existing } = await supabase
     .from('progress_photos')

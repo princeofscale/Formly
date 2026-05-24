@@ -29,11 +29,16 @@ export async function getGoalsWithProgress(
     .order('created_at', { ascending: false })
 
   const goals = (goalRows ?? []) as unknown as Array<
-    UserGoal & { exercises: { name: string; name_ru: string | null } | { name: string; name_ru: string | null }[] | null }
+    UserGoal & {
+      exercises:
+        | { name: string; name_ru: string | null }
+        | { name: string; name_ru: string | null }[]
+        | null
+    }
   >
   if (goals.length === 0) return []
 
-  const exerciseIds = goals.map(g => g.exercise_id)
+  const exerciseIds = goals.map((g) => g.exercise_id)
   const { data: setData } = await supabase
     .from('set_entries')
     .select('exercise_id, calculated_1rm')
@@ -42,13 +47,16 @@ export async function getGoalsWithProgress(
     .not('calculated_1rm', 'is', null)
 
   const bestByExercise = new Map<string, number>()
-  for (const row of (setData ?? []) as Array<{ exercise_id: string; calculated_1rm: number | null }>) {
+  for (const row of (setData ?? []) as Array<{
+    exercise_id: string
+    calculated_1rm: number | null
+  }>) {
     if (row.calculated_1rm == null) continue
     const cur = bestByExercise.get(row.exercise_id) ?? 0
     if (row.calculated_1rm > cur) bestByExercise.set(row.exercise_id, row.calculated_1rm)
   }
 
-  return goals.map(g => {
+  return goals.map((g) => {
     const exObj = Array.isArray(g.exercises) ? g.exercises[0] : g.exercises
     const current = bestByExercise.get(g.exercise_id) ?? 0
     const span = Math.max(0.01, g.target_e1rm - g.starting_e1rm)

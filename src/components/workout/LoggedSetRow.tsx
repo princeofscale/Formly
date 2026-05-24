@@ -30,6 +30,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
 
   // Swipe state
   const [swipeX, setSwipeX] = useState(0)
+  const [isTouching, setIsTouching] = useState(false)
   const touchStartXRef = useRef<number | null>(null)
   const touchStartYRef = useRef<number | null>(null)
   const cancelledRef = useRef(false)
@@ -38,33 +39,47 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
 
   // Reset draft fields if set prop changes externally
   useEffect(() => {
-    setWeight(String(set.weight_kg))
-    setReps(String(set.reps))
-    setRpe(set.rpe != null ? String(set.rpe) : '')
+    const id = window.setTimeout(() => {
+      setWeight(String(set.weight_kg))
+      setReps(String(set.reps))
+      setRpe(set.rpe != null ? String(set.rpe) : '')
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [set.id, set.weight_kg, set.reps, set.rpe])
 
   if (isOffline) {
     return (
-      <div className={`flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] text-sm opacity-60 ${
-        isLast ? 'border-l-2 border-amber-400/60 pl-2' : ''
-      }`}
+      <div
+        className={`flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] text-sm opacity-60 ${
+          isLast ? 'border-l-2 border-amber-400/60 pl-2' : ''
+        }`}
         style={{ background: 'rgba(255, 196, 68, 0.04)' }}
         title="Set queued offline — syncs when back online"
       >
         <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
         <span className={`font-mono font-bold ${isLast ? 'text-zinc-200' : 'text-zinc-500'}`}>
           {isBodyweight && set.weight_kg === 0 ? (
-            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>BW</span>
+            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              BW
+            </span>
           ) : isBodyweight && set.weight_kg > 0 ? (
-            <>+{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+            <>
+              +{set.weight_kg}
+              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
+            </>
           ) : (
-            <>{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+            <>
+              {set.weight_kg}
+              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
+            </>
           )}
           <span className="text-zinc-700 mx-1.5">×</span>
           {set.reps}
         </span>
         {set.rpe != null && (
-          <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
+          <span className="text-[10px] text-zinc-600">
+            {t('rpe')} {set.rpe}
+          </span>
         )}
         <CloudUpload className="h-3.5 w-3.5 ml-auto flex-shrink-0 animate-pulse text-amber-300" />
       </div>
@@ -76,6 +91,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
     touchStartXRef.current = e.touches[0].clientX
     touchStartYRef.current = e.touches[0].clientY
     cancelledRef.current = false
+    setIsTouching(true)
   }
 
   function handleTouchMove(e: React.TouchEvent) {
@@ -97,6 +113,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
     else setSwipeX(0)
     touchStartXRef.current = null
     touchStartYRef.current = null
+    setIsTouching(false)
   }
 
   function handleSave() {
@@ -110,7 +127,10 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
     startTransition(async () => {
       try {
         const { set: updated } = await updateSetAction({
-          setId: set.id, weightKg: weightToSave, reps: r, rpe: rpeVal,
+          setId: set.id,
+          weightKg: weightToSave,
+          reps: r,
+          rpe: rpeVal,
         })
         onUpdated(updated)
         setEditing(false)
@@ -141,13 +161,15 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
 
   if (editing) {
     return (
-      <div className="rounded-[10px] p-2 my-1 space-y-2 animate-in fade-in duration-150"
+      <div
+        className="rounded-[10px] p-2 my-1 space-y-2 animate-in fade-in duration-150"
         style={{
           background: 'rgba(255, 59, 71, 0.06)',
           border: '1px solid rgba(255, 59, 71, 0.25)',
         }}
       >
-        <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest"
+        <div
+          className="flex items-center gap-2 text-[9px] uppercase tracking-widest"
           style={{ color: 'rgba(255, 59, 71, 0.8)' }}
         >
           <Pencil className="h-3 w-3" />
@@ -160,28 +182,41 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
               {isBodyweight ? t('extraWeightLabel') : t('weightLabel')}
             </p>
             <input
-              type="number" inputMode="decimal" step={2.5} min={0}
+              type="number"
+              inputMode="decimal"
+              step={2.5}
+              min={0}
               value={weight}
-              onChange={e => setWeight(e.target.value)}
+              onChange={(e) => setWeight(e.target.value)}
               placeholder={isBodyweight ? 'BW' : ''}
               className="w-full h-9 px-1.5 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div className="space-y-0.5">
-            <p className="text-[8px] font-mono uppercase tracking-widest text-zinc-600">{t('repsLabel')}</p>
+            <p className="text-[8px] font-mono uppercase tracking-widest text-zinc-600">
+              {t('repsLabel')}
+            </p>
             <input
-              type="number" inputMode="numeric" min={1}
+              type="number"
+              inputMode="numeric"
+              min={1}
               value={reps}
-              onChange={e => setReps(e.target.value)}
+              onChange={(e) => setReps(e.target.value)}
               className="w-full h-9 px-1.5 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div className="space-y-0.5">
-            <p className="text-[8px] font-mono uppercase tracking-widest text-zinc-600">{t('rpeLabel')}</p>
+            <p className="text-[8px] font-mono uppercase tracking-widest text-zinc-600">
+              {t('rpeLabel')}
+            </p>
             <input
-              type="number" inputMode="decimal" step={1} min={1} max={10}
+              type="number"
+              inputMode="decimal"
+              step={1}
+              min={1}
+              max={10}
               value={rpe}
-              onChange={e => setRpe(e.target.value)}
+              onChange={(e) => setRpe(e.target.value)}
               placeholder="—"
               className="w-full h-9 px-1.5 text-center font-mono font-bold text-sm rounded-[6px] bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
@@ -201,7 +236,9 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
           </button>
           <button
             type="button"
-            onClick={() => { setConfirmDelete(true) }}
+            onClick={() => {
+              setConfirmDelete(true)
+            }}
             disabled={isBusy}
             className="h-8 px-2 rounded-[6px] text-[11px] transition-colors disabled:opacity-40"
             style={{
@@ -282,13 +319,16 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        onClick={() => { if (swipeX === 0) setEditing(true); else setSwipeX(0) }}
+        onClick={() => {
+          if (swipeX === 0) setEditing(true)
+          else setSwipeX(0)
+        }}
         className={`relative flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] cursor-pointer hover:bg-white/[0.03] transition-colors text-sm ${
           isLast && !set.is_warmup ? 'border-l-2 border-[#FF3B47] pl-2' : ''
         } ${set.is_warmup ? 'opacity-60' : ''}`}
         style={{
           transform: `translateX(${swipeX}px)`,
-          transition: touchStartXRef.current == null ? 'transform 180ms ease' : 'none',
+          transition: isTouching ? 'none' : 'transform 180ms ease',
           background: set.is_warmup ? 'rgba(94, 234, 212, 0.04)' : '#15151C',
         }}
       >
@@ -297,26 +337,42 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
             className="font-mono text-[9px] font-black w-5 text-center"
             style={{ color: '#5EEAD4' }}
             title="Прогрев — не учитывается в объёме и PR"
-          >W</span>
+          >
+            W
+          </span>
         ) : (
           <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
         )}
-        <span className={`font-mono font-bold ${isLast && !set.is_warmup ? 'text-zinc-100' : 'text-zinc-500'}`}>
+        <span
+          className={`font-mono font-bold ${isLast && !set.is_warmup ? 'text-zinc-100' : 'text-zinc-500'}`}
+        >
           {isBodyweight && set.weight_kg === 0 ? (
-            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>BW</span>
+            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              BW
+            </span>
           ) : isBodyweight && set.weight_kg > 0 ? (
-            <>+{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+            <>
+              +{set.weight_kg}
+              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
+            </>
           ) : (
-            <>{set.weight_kg}<span className="text-zinc-700 font-normal text-[10px]">кг</span></>
+            <>
+              {set.weight_kg}
+              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
+            </>
           )}
           <span className="text-zinc-700 mx-1.5">×</span>
           {set.reps}
         </span>
         {set.rpe != null && (
-          <span className="text-[10px] text-zinc-600">{t('rpe')} {set.rpe}</span>
+          <span className="text-[10px] text-zinc-600">
+            {t('rpe')} {set.rpe}
+          </span>
         )}
         {set.calculated_1rm != null && isLast && !set.is_warmup && (
-          <span className="text-[10px] text-zinc-600 ml-auto">1ПМ {set.calculated_1rm.toFixed(0)}</span>
+          <span className="text-[10px] text-zinc-600 ml-auto">
+            1ПМ {set.calculated_1rm.toFixed(0)}
+          </span>
         )}
         <Pencil className="h-3 w-3 text-zinc-700 ml-auto flex-shrink-0 opacity-0 group-hover:opacity-100 sm:opacity-50" />
       </div>

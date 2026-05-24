@@ -3,7 +3,7 @@ import type { DayActivity } from '@/lib/types/models'
 
 export async function getFinishedSessionDates(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<string[]> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -22,7 +22,7 @@ export async function getFinishedSessionDates(
 export async function getCalendarActivity(
   supabase: SupabaseClient,
   userId: string,
-  days = 84
+  days = 84,
 ): Promise<DayActivity[]> {
   const since = new Date()
   since.setHours(0, 0, 0, 0)

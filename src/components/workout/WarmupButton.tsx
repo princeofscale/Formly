@@ -70,7 +70,7 @@ export function WarmupButton({ sessionId, exerciseId, workingWeightKg, onAdded }
           Разминка
         </p>
         <p className="mt-0.5 text-[11px] text-white/55 leading-tight truncate">
-          {plan.map(s => `${s.weightKg}×${s.reps}`).join(' · ')}
+          {plan.map((s) => `${s.weightKg}×${s.reps}`).join(' · ')}
         </p>
       </div>
 

@@ -42,7 +42,7 @@ export default async function SessionDetailPage({
   const exerciseMap = new Map<string, ExerciseWithSets>()
   for (const set of sets) {
     if (!exerciseMap.has(set.exercise_id)) {
-      const ex = allExercises.find(e => e.id === set.exercise_id)
+      const ex = allExercises.find((e) => e.id === set.exercise_id)
       if (ex) exerciseMap.set(set.exercise_id, { ...ex, sets: [] })
     }
     exerciseMap.get(set.exercise_id)?.sets.push(set)
@@ -62,7 +62,9 @@ export default async function SessionDetailPage({
 
   return (
     <div className="space-y-6">
-      {finished === '1' && summary && <SessionSummaryHero summary={summary} sessionId={sessionId} />}
+      {finished === '1' && summary && (
+        <SessionSummaryHero summary={summary} sessionId={sessionId} />
+      )}
 
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -80,7 +82,12 @@ export default async function SessionDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <form action={async () => { 'use server'; await repeatWorkoutAction(sessionId) }}>
+          <form
+            action={async () => {
+              'use server'
+              await repeatWorkoutAction(sessionId)
+            }}
+          >
             <button
               type="submit"
               className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 text-xs font-bold transition-colors"
@@ -119,7 +126,7 @@ export default async function SessionDetailPage({
         </div>
       )}
 
-      {exercises.map(ex => (
+      {exercises.map((ex) => (
         <Card key={ex.id}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
@@ -139,10 +146,12 @@ export default async function SessionDetailPage({
                 </tr>
               </thead>
               <tbody>
-                {ex.sets.map(s => (
+                {ex.sets.map((s) => (
                   <tr key={s.id} className="border-t border-white/10">
                     <td className="py-1 text-zinc-500">#{s.set_number}</td>
-                    <td className="py-1">{s.weight_kg} {kg}</td>
+                    <td className="py-1">
+                      {s.weight_kg} {kg}
+                    </td>
                     <td className="py-1">{s.reps}</td>
                     <td className="py-1 text-zinc-400">{s.calculated_1rm?.toFixed(1) ?? '—'}</td>
                     <td className="py-1 text-zinc-400">{s.rpe ?? '—'}</td>

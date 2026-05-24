@@ -32,14 +32,12 @@ export function FriendsPrFeed({ prs }: Props) {
       </h2>
       <div className="rounded-[24px] bg-card p-2 ring-1 ring-white/[0.06]">
         <div className="space-y-1">
-          {prs.map(pr => {
-            const name = locale === 'ru'
-              ? (pr.exercise_name_ru ?? pr.exercise_name)
-              : pr.exercise_name
+          {prs.map((pr) => {
+            const name =
+              locale === 'ru' ? (pr.exercise_name_ru ?? pr.exercise_name) : pr.exercise_name
             const e1rm = Math.round(pr.current_best)
-            const delta = pr.improvement_pct != null
-              ? `+${pr.improvement_pct.toFixed(1)}%`
-              : t('firstRecord')
+            const delta =
+              pr.improvement_pct != null ? `+${pr.improvement_pct.toFixed(1)}%` : t('firstRecord')
             return (
               <div
                 key={pr.pr_set_id}
@@ -56,13 +54,14 @@ export function FriendsPrFeed({ prs }: Props) {
                     <span className="font-mono text-xs font-bold text-white/65 tabular-nums">
                       {pr.friend_code ?? '······'}
                     </span>
-                    <span className="text-[10px] text-white/30">{timeAgoLabel(pr.achieved_at, locale)}</span>
+                    <span className="text-[10px] text-white/30">
+                      {timeAgoLabel(pr.achieved_at, locale)}
+                    </span>
                   </div>
-                  <p className="mt-0.5 truncate text-sm font-bold text-white">
-                    {name}
-                  </p>
+                  <p className="mt-0.5 truncate text-sm font-bold text-white">{name}</p>
                   <p className="mt-0.5 text-[11px] text-white/45 tabular-nums">
-                    {pr.weight_kg}кг × {pr.reps} · e1ПМ {e1rm} <span style={{ color: '#22D3A8' }}>{delta}</span>
+                    {pr.weight_kg}кг × {pr.reps} · e1ПМ {e1rm}{' '}
+                    <span style={{ color: '#22D3A8' }}>{delta}</span>
                   </p>
                 </div>
                 <ReactionButton
@@ -106,7 +105,9 @@ function ReactionButton({
       className="flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition active:scale-95 disabled:opacity-50"
       style={{
         background: didReact ? 'rgba(255, 122, 130, 0.18)' : 'rgba(255, 255, 255, 0.04)',
-        border: didReact ? '1px solid rgba(255, 122, 130, 0.4)' : '1px solid rgba(255, 255, 255, 0.06)',
+        border: didReact
+          ? '1px solid rgba(255, 122, 130, 0.4)'
+          : '1px solid rgba(255, 255, 255, 0.06)',
         color: didReact ? '#FF7A82' : 'rgba(255, 255, 255, 0.55)',
       }}
     >

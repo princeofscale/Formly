@@ -1,22 +1,31 @@
 // src/components/profile/LanguageSelector.tsx
 'use client'
 
+import { useEffect, useState } from 'react'
+
 interface Props {
   current: string
   label: string
 }
 
 export function LanguageSelector({ current, label }: Props) {
-  function setLocale(locale: string) {
-    document.cookie = `locale=${locale}; path=/; max-age=31536000; SameSite=Lax`
+  const [nextLocale, setNextLocale] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!nextLocale) return
+    document.cookie = `locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`
     window.location.reload()
+  }, [nextLocale])
+
+  function setLocale(locale: string) {
+    setNextLocale(locale)
   }
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold">{label}</p>
       <div className="flex gap-2">
-        {(['ru', 'en'] as const).map(loc => (
+        {(['ru', 'en'] as const).map((loc) => (
           <button
             key={loc}
             onClick={() => setLocale(loc)}

@@ -26,7 +26,7 @@ export function AchievementsCard({ achievements }: Props) {
   const t = useTranslations('progress.achievements')
   const locale = useLocale()
 
-  const earnedCount = achievements.filter(a => a.tier > 0).length
+  const earnedCount = achievements.filter((a) => a.tier > 0).length
 
   return (
     <div
@@ -42,7 +42,10 @@ export function AchievementsCard({ achievements }: Props) {
             <Trophy className="h-4 w-4" style={{ color: '#A78BFA' }} />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#A78BFA' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#A78BFA' }}
+            >
               {t('label')}
             </p>
             <p className="text-sm font-bold text-white">{t('title')}</p>
@@ -54,12 +57,13 @@ export function AchievementsCard({ achievements }: Props) {
       </div>
 
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-        {achievements.map(a => {
+        {achievements.map((a) => {
           const earned = a.tier > 0
           const tierLabel = a.maxTier > 1 && earned ? ` ${'•'.repeat(a.tier)}` : ''
           const earnedDate = a.earnedAt
             ? new Date(a.earnedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-                day: 'numeric', month: 'short',
+                day: 'numeric',
+                month: 'short',
               })
             : null
           return (
@@ -75,11 +79,15 @@ export function AchievementsCard({ achievements }: Props) {
               }}
               title={t(`items.${a.id}.title`)}
             >
-              <span className="text-2xl mb-1 leading-none" style={{ filter: earned ? 'none' : 'grayscale(0.8)' }}>
+              <span
+                className="text-2xl mb-1 leading-none"
+                style={{ filter: earned ? 'none' : 'grayscale(0.8)' }}
+              >
                 {a.emoji}
               </span>
               <p className="text-[10px] font-bold text-white leading-tight">
-                {t(`items.${a.id}.title`)}{tierLabel}
+                {t(`items.${a.id}.title`)}
+                {tierLabel}
               </p>
               <p
                 className="mt-1 text-[9px] font-mono tabular-nums"

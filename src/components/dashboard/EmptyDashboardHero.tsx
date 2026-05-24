@@ -2,7 +2,16 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Dumbbell, Bookmark, Sparkles, Target, ChevronRight, Trophy, Zap, Timer } from 'lucide-react'
+import {
+  Dumbbell,
+  Bookmark,
+  Sparkles,
+  Target,
+  ChevronRight,
+  Trophy,
+  Zap,
+  Timer,
+} from 'lucide-react'
 
 interface Props {
   hasSchedule: boolean
@@ -22,15 +31,16 @@ export function EmptyDashboardHero({ hasSchedule }: Props) {
           border: '1px solid rgba(255, 196, 68, 0.25)',
         }}
       >
-        <p className="text-[10px] font-bold uppercase tracking-[0.32em]" style={{ color: '#FFC044' }}>
+        <p
+          className="text-[10px] font-bold uppercase tracking-[0.32em]"
+          style={{ color: '#FFC044' }}
+        >
           {t('label')}
         </p>
         <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
           {t('title')}
         </h1>
-        <p className="mt-3 text-sm text-white/60 max-w-md leading-relaxed">
-          {t('subtitle')}
-        </p>
+        <p className="mt-3 text-sm text-white/60 max-w-md leading-relaxed">{t('subtitle')}</p>
 
         <div className="mt-6 flex flex-col sm:flex-row gap-2">
           <Link

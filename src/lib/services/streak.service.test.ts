@@ -16,7 +16,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-13', '2026-05-11'],
       [1, 3, 5],
-      new Date('2026-05-13T12:00:00Z')
+      new Date('2026-05-13T12:00:00Z'),
     )
     expect(result.current).toBe(2)
     expect(result.last_workout_date).toBe('2026-05-13')
@@ -27,7 +27,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-12', '2026-05-11'],
       [1, 3, 5],
-      new Date('2026-05-13T12:00:00Z')
+      new Date('2026-05-13T12:00:00Z'),
     )
     // Mon completed; Wed is today and not done — skip; current = 1 (Mon)
     expect(result.current).toBe(1)
@@ -38,7 +38,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-11', '2026-05-04', '2026-05-01'],
       [1, 3, 5],
-      new Date('2026-05-11T12:00:00Z')
+      new Date('2026-05-11T12:00:00Z'),
     )
     expect(result.current).toBe(1)
   })
@@ -48,7 +48,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-08', '2026-05-06', '2026-05-04'],
       [1, 3, 5],
-      new Date('2026-05-11T08:00:00Z')
+      new Date('2026-05-11T08:00:00Z'),
     )
     expect(result.current).toBe(3)
   })
@@ -59,7 +59,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-13', '2026-05-11', '2026-04-29', '2026-04-27', '2026-04-24', '2026-04-22'],
       [1, 3, 5],
-      new Date('2026-05-13T12:00:00Z')
+      new Date('2026-05-13T12:00:00Z'),
     )
     expect(result.longest).toBe(4)
     expect(result.current).toBe(2)
@@ -69,7 +69,7 @@ describe('calculateStreak', () => {
     const result = calculateStreak(
       ['2026-05-13', '2026-05-12', '2026-05-11', '2026-05-09'],
       [],
-      new Date('2026-05-13T12:00:00Z')
+      new Date('2026-05-13T12:00:00Z'),
     )
     expect(result.current).toBe(0)
     expect(result.longest).toBe(3)

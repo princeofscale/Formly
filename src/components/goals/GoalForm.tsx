@@ -36,7 +36,10 @@ export function GoalForm({ exercises }: Props) {
           <Target className="h-4 w-4" style={{ color: '#FFC044' }} />
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: '#FFC044' }}
+          >
             {t('newGoal')}
           </p>
           <p className="text-sm font-bold text-white">{t('newGoalTitle')}</p>
@@ -48,10 +51,10 @@ export function GoalForm({ exercises }: Props) {
         <select
           name="exerciseId"
           value={exerciseId}
-          onChange={e => setExerciseId(e.target.value)}
+          onChange={(e) => setExerciseId(e.target.value)}
           className="mt-1 w-full rounded-xl bg-white/[0.04] px-3 py-2 text-sm text-white outline-none ring-1 ring-white/10 focus:ring-white/30"
         >
-          {exercises.map(ex => (
+          {exercises.map((ex) => (
             <option key={ex.id} value={ex.id} className="bg-zinc-900 text-white">
               {locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
             </option>
@@ -76,7 +79,9 @@ export function GoalForm({ exercises }: Props) {
           />
         </label>
         <label className="block">
-          <span className="text-[10px] uppercase tracking-widest text-white/40">{t('targetDate')}</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/40">
+            {t('targetDate')}
+          </span>
           <input
             type="date"
             name="targetDate"

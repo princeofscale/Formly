@@ -203,7 +203,7 @@ export const WORKOUT_PRESETS: PresetProgram[] = [
 
 export function findPresetDay(dayId: string): { program: PresetProgram; day: PresetDay } | null {
   for (const program of WORKOUT_PRESETS) {
-    const day = program.days.find(d => d.id === dayId)
+    const day = program.days.find((d) => d.id === dayId)
     if (day) return { program, day }
   }
   return null

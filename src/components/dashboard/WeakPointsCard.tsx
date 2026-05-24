@@ -18,7 +18,8 @@ export function WeakPointsCard({ weakPoints, muscleLabels }: Props) {
       <div
         className="rounded-[20px] p-5"
         style={{
-          background: 'linear-gradient(135deg, rgba(34, 211, 168, 0.08), rgba(255, 255, 255, 0.02))',
+          background:
+            'linear-gradient(135deg, rgba(34, 211, 168, 0.08), rgba(255, 255, 255, 0.02))',
           border: '1px solid rgba(34, 211, 168, 0.18)',
         }}
       >
@@ -28,11 +29,20 @@ export function WeakPointsCard({ weakPoints, muscleLabels }: Props) {
             style={{ background: 'rgba(34, 211, 168, 0.16)' }}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8.5L6.5 12L13 4" stroke="#5EEAD4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M3 8.5L6.5 12L13 4"
+                stroke="#5EEAD4"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#5EEAD4' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#5EEAD4' }}
+            >
               {t('label')}
             </p>
             <p className="mt-0.5 text-sm font-bold text-white">{t('allCovered')}</p>
@@ -59,7 +69,10 @@ export function WeakPointsCard({ weakPoints, muscleLabels }: Props) {
             <AlertTriangle className="h-4 w-4" style={{ color: '#FFC044' }} />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: '#FFC044' }}
+            >
               {t('label')}
             </p>
             <p className="text-sm font-bold text-white">{t('title')}</p>
@@ -68,7 +81,7 @@ export function WeakPointsCard({ weakPoints, muscleLabels }: Props) {
       </div>
 
       <div className="space-y-2">
-        {weakPoints.map(wp => {
+        {weakPoints.map((wp) => {
           const name = muscleLabels[wp.muscle] ?? wp.muscle
           return (
             <Link
@@ -82,7 +95,10 @@ export function WeakPointsCard({ weakPoints, muscleLabels }: Props) {
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   {/* Progress bar */}
-                  <div className="relative h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.06)' }}>
+                  <div
+                    className="relative h-1.5 flex-1 rounded-full overflow-hidden"
+                    style={{ background: 'rgba(255, 255, 255, 0.06)' }}
+                  >
                     <div
                       className="absolute inset-y-0 left-0 rounded-full"
                       style={{
