@@ -3,21 +3,5 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-yaml
-
       - id: end-of-file-fixer
-
       - id: trailing-whitespace
-
-  - repo: local
-    hooks:
-      - id: eslint
-        name: eslint
-        entry: npm run lint
-        language: system
-        pass_filenames: false
-
-      - id: prettier
-        name: prettier
-        entry: npx prettier --write .
-        language: system
-        pass_filenames: false

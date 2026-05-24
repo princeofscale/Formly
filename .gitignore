@@ -52,3 +52,10 @@ CLAUDE.md
 *.db
 *.sqlite
 *.sqlite3
+data/
+
+#codegraph
+.codegraph/
+
+#cursor
+.cursor/
