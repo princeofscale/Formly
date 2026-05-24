@@ -808,6 +808,9 @@
     "wantsToAdd": "хочет в кенты",
     "accept": "Принять",
     "decline": "Отклонить",
+    "prFeedTitle": "Рекорды кентов ({n})",
+    "reactCongrats": "Поздравить",
+    "firstRecord": "первый рекорд",
     "addError": {
       "invalid": "Код должен быть из 6 символов.",
       "notFound": "Такого кода нет.",

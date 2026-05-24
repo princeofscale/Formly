@@ -4,20 +4,23 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
 import { ensureFriendCode, getFriendsWithStats, getPendingFriendRequests } from '@/lib/db/friends'
+import { getFriendsRecentPRs } from '@/lib/db/prs'
 import { MyCodeCard } from '@/components/friends/MyCodeCard'
 import { AddFriendForm } from '@/components/friends/AddFriendForm'
 import { FriendList } from '@/components/friends/FriendList'
 import { FriendRequestList } from '@/components/friends/FriendRequestList'
+import { FriendsPrFeed } from '@/components/friends/FriendsPrFeed'
 
 export default async function FriendsPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('friends')
 
-  const [myCode, friends, pending] = await Promise.all([
+  const [myCode, friends, pending, friendPRs] = await Promise.all([
     ensureFriendCode(supabase),
     getFriendsWithStats(supabase, 7),
     getPendingFriendRequests(supabase),
+    getFriendsRecentPRs(supabase, 14),
   ])
 
   return (
@@ -37,6 +40,8 @@ export default async function FriendsPage() {
       <AddFriendForm />
 
       <FriendRequestList requests={pending} />
+
+      <FriendsPrFeed prs={friendPRs} />
 
       <h2 className="pt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
         {t('listTitle', { n: friends.length })}

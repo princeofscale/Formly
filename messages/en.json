@@ -808,6 +808,9 @@
     "wantsToAdd": "wants to add you",
     "accept": "Accept",
     "decline": "Decline",
+    "prFeedTitle": "Friends' PRs ({n})",
+    "reactCongrats": "Congrats",
+    "firstRecord": "first record",
     "addError": {
       "invalid": "Code must be 6 characters.",
       "notFound": "No one with that code.",
