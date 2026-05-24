@@ -58,6 +58,14 @@ export default async function DashboardPage({
   const tHistory = await getTranslations('history')
   const locale = await getLocale()
 
+  // Close any abandoned session before we read it back — otherwise the
+  // dashboard would still show an ActiveSessionBanner for a 16-hour-stale
+  // session until the daily cron runs. RPC is scoped to auth.uid() so we
+  // can only ever close our own.
+  // ESLint/TS cast: generated database.types predates this RPC.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase as any).rpc('finish_my_stale_sessions', { p_idle_hours: 4 })
+
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
   const since14days = new Date()
