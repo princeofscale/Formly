@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,12 @@ import { loginAction } from './actions'
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, null)
+  // Lazy init reads window.location on the client; server render gets false,
+  // and React hydrates with the right value on first paint.
+  const [linkExpired] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return new URLSearchParams(window.location.search).get('error') === 'link_expired'
+  })
   const t = useTranslations('auth.login')
   const tf = useTranslations('auth.fields')
   const te = useTranslations()
@@ -44,6 +50,9 @@ export default function LoginPage() {
           />
         </div>
         {state?.errorKey && <p className="text-sm text-red-400">{te(state.errorKey)}</p>}
+        {linkExpired && !state?.errorKey && (
+          <p className="text-sm text-amber-400">{te('auth.reset.linkExpired')}</p>
+        )}
         <Button
           type="submit"
           className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-400 text-black hover:from-amber-400 hover:to-amber-300 border-0"
@@ -51,6 +60,15 @@ export default function LoginPage() {
         >
           {pending ? t('submitting') : t('submit')}
         </Button>
+
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-zinc-400 hover:text-amber-400 transition-colors"
+          >
+            {t('forgotLink')}
+          </Link>
+        </div>
       </form>
 
       <p className="text-center text-sm text-zinc-400">

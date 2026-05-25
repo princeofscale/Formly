@@ -6,13 +6,34 @@
       "track": "Track personal records",
       "ai": "AI-powered progression tips"
     },
+    "forgot": {
+      "title": "RESET PASSWORD",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "submit": "SEND LINK",
+      "submitting": "Sending...",
+      "sent": "If that email is registered, we sent a link. Check your inbox (and Spam folder).",
+      "backToLogin": "← Back to login",
+      "invalidEmail": "Enter a valid email."
+    },
+    "reset": {
+      "title": "NEW PASSWORD",
+      "subtitle": "Choose a new password — at least 8 characters.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "SAVE PASSWORD",
+      "submitting": "Saving...",
+      "tooShort": "Password must be at least 8 characters.",
+      "mismatch": "Passwords don't match.",
+      "linkExpired": "This link is expired or already used. Request a new one."
+    },
     "login": {
       "title": "SIGN IN",
       "subtitle": "Welcome back",
       "submit": "SIGN IN",
       "submitting": "Signing in...",
       "noAccount": "No account?",
-      "registerLink": "Register"
+      "registerLink": "Register",
+      "forgotLink": "Forgot password?"
     },
     "register": {
       "title": "REGISTER",

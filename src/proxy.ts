@@ -7,6 +7,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PUBLIC_EXACT = new Set<string>([
   '/login',
   '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/auth/confirm',
   '/privacy',
   '/terms',
   '/manifest.webmanifest',
@@ -17,7 +20,10 @@ const PUBLIC_EXACT = new Set<string>([
 ])
 
 function isAuthRoute(path: string): boolean {
-  return path === '/login' || path === '/register'
+  // Redirect logged-in users away from these. /reset-password is
+  // intentionally excluded: a recovery-session user IS logged in but
+  // needs to land there to finish setting a new password.
+  return path === '/login' || path === '/register' || path === '/forgot-password'
 }
 
 function isPublic(path: string): boolean {
