@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { X, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { SetRow } from './SetRow'
 import { LoggedSetRow } from './LoggedSetRow'
 import { RestTimer } from './RestTimer'
@@ -13,9 +13,10 @@ import { ExerciseNoteEditor } from './ExerciseNoteEditor'
 import { ExerciseVideo } from './ExerciseVideo'
 import { ProgressionHint } from './ProgressionHint'
 import { WarmupButton } from './WarmupButton'
+import { ExerciseAlternativesPanel } from './ExerciseAlternativesPanel'
 import { suggestNextSet } from '@/lib/services/progression.service'
 import { Button } from '@/components/ui/button'
-import type { ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
+import type { Exercise, ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
 interface Props {
   exercise: ExerciseWithSets
@@ -23,6 +24,7 @@ interface Props {
   onSetSaved: (set: SetEntry) => void
   onPR?: (info: { exerciseName: string; newE1rm: number; improvementPct: number | null }) => void
   onDelete: (opts: { hadSets: boolean }) => void
+  onReplace?: (replacement: Exercise) => void
   lastSets?: SetEntry[]
   initialNote?: string
   initialVideoUrl?: string
@@ -34,6 +36,7 @@ export function ExerciseBlock({
   onSetSaved,
   onPR,
   onDelete,
+  onReplace,
   lastSets = [],
   initialNote = '',
   initialVideoUrl = '',
@@ -49,6 +52,7 @@ export function ExerciseBlock({
     null,
   )
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showAlternatives, setShowAlternatives] = useState(false)
 
   const lastSet = sets[sets.length - 1]
   const displayName = locale === 'ru' ? (exercise.name_ru ?? exercise.name) : exercise.name
@@ -118,6 +122,17 @@ export function ExerciseBlock({
               {showInfo ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           )}
+          {sets.length === 0 && onReplace && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-zinc-600 hover:text-amber-400"
+              title={t('alternatives.button')}
+              onClick={() => setShowAlternatives((v) => !v)}
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -135,6 +150,17 @@ export function ExerciseBlock({
           </Button>
         </div>
       </div>
+
+      {showAlternatives && onReplace && (
+        <ExerciseAlternativesPanel
+          exerciseId={exercise.id}
+          onPick={(replacement) => {
+            setShowAlternatives(false)
+            onReplace(replacement)
+          }}
+          onClose={() => setShowAlternatives(false)}
+        />
+      )}
 
       {confirmDelete && (
         <div className="px-4 py-3 border-b border-white/10 bg-red-500/5 flex items-center gap-2 animate-in fade-in duration-150">

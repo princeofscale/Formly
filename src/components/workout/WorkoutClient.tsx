@@ -83,6 +83,19 @@ export function WorkoutClient({
     }
   }
 
+  function replaceExercise(oldId: string, replacement: Exercise) {
+    // Don't allow swapping if the new exercise is already in the session.
+    if (exercises.some((e) => e.id === replacement.id)) {
+      setExercises((prev) => prev.filter((e) => e.id !== oldId))
+      return
+    }
+    setExercises((prev) => prev.map((e) => (e.id === oldId ? { ...replacement, sets: [] } : e)))
+    startFetch(async () => {
+      const lastSets = await getLastSetsForExerciseAction(replacement.id, session.id)
+      setLastSetsMap((prev) => ({ ...prev, [replacement.id]: lastSets }))
+    })
+  }
+
   function buildExerciseList() {
     return exercises.map((ex) => ({
       exercise_id: ex.id,
@@ -242,6 +255,7 @@ export function WorkoutClient({
               onSetSaved={(set) => appendSet(ex.id, set)}
               onPR={(info) => setPrCelebration({ ...info, nonce: Date.now() })}
               onDelete={(opts) => removeExercise(ex.id, opts)}
+              onReplace={(replacement) => replaceExercise(ex.id, replacement)}
               lastSets={lastSetsMap[ex.id] ?? []}
               initialNote={exerciseNotes[ex.id] ?? ''}
               initialVideoUrl={exerciseVideos[ex.id] ?? ''}

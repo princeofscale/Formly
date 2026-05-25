@@ -12,7 +12,9 @@ import {
   deleteSet,
 } from '@/lib/db/sets'
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
-import { searchExercises } from '@/lib/db/exercises'
+import { searchExercises, getExercises } from '@/lib/db/exercises'
+import { pickAlternatives } from '@/lib/services/exercise-alternatives.service'
+import { getLocale } from 'next-intl/server'
 import { getLastSetsForExercise } from '@/lib/db/sets'
 import { createTemplate, updateTemplate } from '@/lib/db/templates'
 import { upsertExerciseNote } from '@/lib/db/exercise-notes'
@@ -177,6 +179,66 @@ export async function deleteExerciseFromSessionAction(data: {
     .eq('exercise_id', exerciseId)
     .eq('user_id', user.id)
   if (error) throw new Error(error.message)
+}
+
+export interface AlternativeWithExercise {
+  exercise: Exercise
+  reason: string
+}
+
+export async function suggestExerciseAlternativesAction(
+  exerciseId: string,
+): Promise<AlternativeWithExercise[]> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  const id = validateUuid(exerciseId, 'exerciseId')
+  const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+  const { data: targetRow } = await supabase
+    .from('exercises')
+    .select('id, name, name_ru, primary_muscle, equipment, mechanic')
+    .eq('id', id)
+    .maybeSingle()
+  if (!targetRow) return []
+
+  // Pull user profile to know what equipment they have access to.
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('training_location')
+    .eq('id', user.id)
+    .maybeSingle()
+  const location = profile?.training_location ?? 'gym'
+
+  // Candidates = all exercises hitting the same primary muscle (excluding target)
+  const allForMuscle = await getExercises(supabase, user.id, {
+    muscle: targetRow.primary_muscle,
+  })
+  let candidates = allForMuscle.filter((c) => c.id !== id)
+
+  // Filter by what equipment is available at user's location.
+  if (location === 'home') {
+    candidates = candidates.filter(
+      (c) => c.equipment === 'dumbbell' || c.equipment === 'bodyweight',
+    )
+  }
+  // 'gym' and 'both' = no equipment filter
+
+  // Cap to keep prompt small + fast
+  if (candidates.length > 30) candidates = candidates.slice(0, 30)
+
+  const picks = await pickAlternatives({
+    locale,
+    target: targetRow as Exercise,
+    candidates,
+  })
+
+  const byId = new Map(candidates.map((c) => [c.id, c]))
+  return picks
+    .map((p) => {
+      const ex = byId.get(p.exercise_id)
+      return ex ? { exercise: ex, reason: p.reason } : null
+    })
+    .filter((x): x is AlternativeWithExercise => x !== null)
 }
 
 export async function searchExercisesAction(

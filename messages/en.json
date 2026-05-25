@@ -582,6 +582,14 @@
     "deleteExercise": "Remove",
     "cancel": "Cancel",
     "confirmDeleteExercise": "Remove this exercise? All {n} logged set(s) will be deleted.",
+    "alternatives": {
+      "button": "AI: swap exercise",
+      "title": "AI alternatives",
+      "loading": "Coach is picking...",
+      "none": "No good alternatives found.",
+      "error": "Failed to load alternatives.",
+      "close": "Close"
+    },
     "lastTime": "Last",
     "firstSet": "🏆 First set!",
     "prImproved": "PR +{pct}%",
