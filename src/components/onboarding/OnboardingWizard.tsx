@@ -65,14 +65,18 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
   const [location, setLocation] = useState<Location>('gym')
   const [days, setDays] = useState(3)
   const [submitting, setSubmitting] = useState(false)
-  const [notifState, setNotifState] = useState<'idle' | 'on' | 'denied' | 'unsupported'>('idle')
+  const [notifState, setNotifState] = useState<
+    'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
+  >('idle')
+  const [notifDiagnostic, setNotifDiagnostic] = useState<string | null>(null)
   const [, startNotif] = useTransition()
 
   const total = 4
 
   async function enableNotifications() {
+    setNotifDiagnostic(null)
     if (!vapidPublicKey) {
-      setNotifState('unsupported')
+      setNotifState('no-key')
       return
     }
     const result = await requestPushSubscription(vapidPublicKey)
@@ -81,16 +85,28 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
         try {
           await subscribeToPushAction(result.payload)
           setNotifState('on')
-        } catch {
-          setNotifState('denied')
+        } catch (e) {
+          setNotifState('error')
+          setNotifDiagnostic(e instanceof Error ? e.message : String(e))
         }
       })
       return
     }
-    if (result.status === 'denied') setNotifState('denied')
-    else if (result.status === 'unsupported' || result.status === 'no-key')
+    if (result.status === 'denied') {
+      setNotifState('denied')
+      return
+    }
+    if (result.status === 'unsupported') {
       setNotifState('unsupported')
-    else setNotifState('denied')
+      setNotifDiagnostic(result.reason)
+      return
+    }
+    if (result.status === 'no-key') {
+      setNotifState('no-key')
+      return
+    }
+    setNotifState('error')
+    setNotifDiagnostic(result.error instanceof Error ? result.error.message : String(result.error))
   }
   const pct = ((step + 1) / total) * 100
 
@@ -131,7 +147,12 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
       {step === 1 && <StepLocation value={location} onChange={setLocation} labels={labels} />}
       {step === 2 && <StepDays value={days} onChange={setDays} labels={labels} />}
       {step === 3 && (
-        <StepNotifications state={notifState} onEnable={enableNotifications} labels={labels} />
+        <StepNotifications
+          state={notifState}
+          diagnostic={notifDiagnostic}
+          onEnable={enableNotifications}
+          labels={labels}
+        />
       )}
 
       {/* Footer buttons */}
@@ -309,12 +330,13 @@ function StepLocation({
 }
 
 interface StepNotificationsProps {
-  state: 'idle' | 'on' | 'denied' | 'unsupported'
+  state: 'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
+  diagnostic: string | null
   onEnable: () => void
   labels: Labels
 }
 
-function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) {
+function StepNotifications({ state, diagnostic, onEnable, labels }: StepNotificationsProps) {
   return (
     <div className="space-y-3">
       <div className="text-center mb-1">
@@ -371,13 +393,45 @@ function StepNotifications({ state, onEnable, labels }: StepNotificationsProps) 
 
       {state === 'unsupported' && (
         <div
-          className="rounded-xl p-3 text-center"
+          className="rounded-xl p-3 text-center space-y-1"
           style={{
             background: 'rgba(255,255,255,0.03)',
             border: '1px solid rgba(255,255,255,0.06)',
           }}
         >
           <p className="text-xs text-white/55">{labels.notifUnsupported}</p>
+          {diagnostic && (
+            <p className="text-[10px] font-mono text-white/35">reason: {diagnostic}</p>
+          )}
+        </div>
+      )}
+
+      {state === 'no-key' && (
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <p className="text-xs text-white/55">
+            Сервер не настроен (VAPID-ключ отсутствует) — это не твой браузер, это сайт.
+          </p>
+        </div>
+      )}
+
+      {state === 'error' && (
+        <div
+          className="rounded-xl p-3 text-center space-y-1"
+          style={{
+            background: 'rgba(239,68,68,0.06)',
+            border: '1px solid rgba(239,68,68,0.20)',
+          }}
+        >
+          <p className="text-xs text-red-300/80">Ошибка подключения уведомлений</p>
+          {diagnostic && (
+            <p className="text-[10px] font-mono text-white/45 break-all">{diagnostic}</p>
+          )}
         </div>
       )}
 

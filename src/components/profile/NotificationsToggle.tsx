@@ -35,18 +35,31 @@ type Status = 'unknown' | 'unsupported' | 'denied' | 'off' | 'on'
 export function NotificationsToggle({ vapidPublicKey }: Props) {
   const t = useTranslations('notifications')
   const [status, setStatus] = useState<Status>('unknown')
+  const [unsupportedReason, setUnsupportedReason] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [testFeedback, setTestFeedback] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     async function refreshStatus() {
-      if (
-        !('Notification' in window) ||
-        !('serviceWorker' in navigator) ||
-        !('PushManager' in window)
-      ) {
+      if (typeof window.isSecureContext === 'boolean' && !window.isSecureContext) {
         setStatus('unsupported')
+        setUnsupportedReason('insecure-context')
+        return
+      }
+      if (!('Notification' in window)) {
+        setStatus('unsupported')
+        setUnsupportedReason('no-notification')
+        return
+      }
+      if (!('serviceWorker' in navigator)) {
+        setStatus('unsupported')
+        setUnsupportedReason('no-serviceworker')
+        return
+      }
+      if (!('PushManager' in window)) {
+        setStatus('unsupported')
+        setUnsupportedReason('no-pushmanager')
         return
       }
 
@@ -175,7 +188,12 @@ export function NotificationsToggle({ vapidPublicKey }: Props) {
         </div>
 
         {status === 'unsupported' ? (
-          <span className="text-[10px] text-zinc-500">{t('unsupported')}</span>
+          <span className="text-[10px] text-zinc-500">
+            {t('unsupported')}
+            {unsupportedReason && (
+              <span className="block font-mono text-zinc-600">{unsupportedReason}</span>
+            )}
+          </span>
         ) : status === 'denied' ? (
           <span className="text-[10px] text-red-400">{t('denied')}</span>
         ) : status === 'on' ? (

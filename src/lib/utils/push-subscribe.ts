@@ -25,30 +25,55 @@ export interface PushSubscribePayload {
   userAgent: string
 }
 
+export type UnsupportedReason =
+  | 'no-window'
+  | 'insecure-context'
+  | 'no-notification'
+  | 'no-serviceworker'
+  | 'no-pushmanager'
+  | 'sw-not-registered'
+
 export type PushSubscribeResult =
   | { status: 'granted'; payload: PushSubscribePayload }
   | { status: 'denied' }
-  | { status: 'unsupported' }
+  | { status: 'unsupported'; reason: UnsupportedReason }
   | { status: 'no-key' }
   | { status: 'error'; error: unknown }
+
+function detectUnsupported(): UnsupportedReason | null {
+  if (typeof window === 'undefined') return 'no-window'
+  // Push requires a secure context. HTTPS (or localhost) is fine; an
+  // in-app browser that bypasses the address bar can sometimes report
+  // false here, which is the most useful signal in those cases.
+  if (typeof window.isSecureContext === 'boolean' && !window.isSecureContext) {
+    return 'insecure-context'
+  }
+  if (!('Notification' in window)) return 'no-notification'
+  if (!('serviceWorker' in navigator)) return 'no-serviceworker'
+  if (!('PushManager' in window)) return 'no-pushmanager'
+  return null
+}
 
 export async function requestPushSubscription(
   vapidPublicKey: string,
 ): Promise<PushSubscribeResult> {
-  if (
-    typeof window === 'undefined' ||
-    !('Notification' in window) ||
-    !('serviceWorker' in navigator)
-  ) {
-    return { status: 'unsupported' }
-  }
+  const reason = detectUnsupported()
+  if (reason) return { status: 'unsupported', reason }
   if (!vapidPublicKey) return { status: 'no-key' }
 
   try {
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') return { status: 'denied' }
 
-    const reg = await navigator.serviceWorker.ready
+    // serviceWorker.ready hangs forever if no SW ever registered. Race it
+    // with a timeout so we can surface 'sw-not-registered' instead of a
+    // permanently-pending promise.
+    const reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+    ])
+    if (!reg) return { status: 'unsupported', reason: 'sw-not-registered' }
+
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToBuffer(vapidPublicKey).buffer as ArrayBuffer,
