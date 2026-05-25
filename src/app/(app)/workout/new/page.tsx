@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { startWorkoutAction, startFromTemplateAction, deleteTemplateAction } from './actions'
 import { PresetPrograms } from '@/components/workout/PresetPrograms'
+import { AIProgramGenerator } from '@/components/workout/AIProgramGenerator'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { Trash2, Bike, Dumbbell, Play, Clock, Layers, ChevronRight } from 'lucide-react'
@@ -17,10 +18,14 @@ export default async function NewWorkoutPage() {
   const tTpl = await getTranslations('templates')
   const tCardio = await getTranslations('cardio')
   const locale = await getLocale()
-  const [active, templates] = await Promise.all([
+  const [active, templates, { data: profile }] = await Promise.all([
     getActiveSession(supabase, user.id),
     getTemplates(supabase, user.id),
+    supabase.from('profiles').select('training_location').eq('id', user.id).maybeSingle(),
   ])
+
+  const defaultLocation: 'gym' | 'home_dumbbells' | 'home_bodyweight' =
+    profile?.training_location === 'home' ? 'home_dumbbells' : 'gym'
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -108,6 +113,8 @@ export default async function NewWorkoutPage() {
           </CardContent>
         </Card>
       )}
+
+      <AIProgramGenerator defaultLocation={defaultLocation} />
 
       <PresetPrograms />
 

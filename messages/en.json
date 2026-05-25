@@ -590,6 +590,21 @@
       "error": "Failed to load alternatives.",
       "close": "Close"
     },
+    "programGen": {
+      "cta": "✨ AI program generator",
+      "title": "AI program",
+      "days": "Days per week",
+      "generate": "Generate",
+      "generating": "Coach is designing your split...",
+      "previewIntro": "{n} training days. Will save {n} templates.",
+      "regen": "Regenerate",
+      "save": "Save templates",
+      "savedTitle": "Done — {n} templates",
+      "savedHint": "Find them below in the templates list and start any workout.",
+      "error": "Failed to generate program.",
+      "retry": "Try again",
+      "emptyResult": "AI returned an empty result. Try again."
+    },
     "lastTime": "Last",
     "firstSet": "🏆 First set!",
     "prImproved": "PR +{pct}%",
