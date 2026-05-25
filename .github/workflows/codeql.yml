@@ -23,6 +23,13 @@ jobs:
       matrix:
         language: ['javascript-typescript']
 
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+      MISTRAL_API_KEY: ci-placeholder
+      CRON_SECRET: ci-placeholder
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
