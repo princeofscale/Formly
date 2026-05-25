@@ -559,6 +559,8 @@
     "finishing": "Finishing...",
     "rpe": "RPE",
     "deleteExercise": "Remove",
+    "cancel": "Cancel",
+    "confirmDeleteExercise": "Remove this exercise? All {n} logged set(s) will be deleted.",
     "lastTime": "Last",
     "firstSet": "🏆 First set!",
     "prImproved": "PR +{pct}%",
@@ -651,19 +653,6 @@
       "deleteYes": "Yes",
       "deleteNo": "No"
     }
-  },
-  "onboarding": {
-    "step1Title": "What's your goal?",
-    "goal": {
-      "mass": "Build Muscle",
-      "lean": "Lose Fat",
-      "strength": "Build Strength"
-    },
-    "step2Title": "Your stats",
-    "step3Title": "Training days",
-    "next": "Next",
-    "skip": "Skip",
-    "start": "Let's go!"
   },
   "aiInsights": {
     "title": "AI Coach",
@@ -759,6 +748,15 @@
     "hero": "Welcome to TrainingAR",
     "subtitle": "Three quick questions and you're set up.",
     "step": "Step {n} of {total}",
+    "step1Title": "What's your goal?",
+    "step2Title": "Your stats",
+    "step3Title": "Training days",
+    "goal": {
+      "mass": "Build Muscle",
+      "lean": "Lose Fat",
+      "strength": "Build Strength"
+    },
+    "start": "Let's go!",
     "back": "Back",
     "next": "Next",
     "skip": "Skip — I'll set it up later",

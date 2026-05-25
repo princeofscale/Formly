@@ -16,6 +16,7 @@ import {
   getLastSetsForExerciseAction,
   saveTemplateAction,
   updateTemplateAction,
+  deleteExerciseFromSessionAction,
 } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
@@ -69,8 +70,17 @@ export function WorkoutClient({
     )
   }
 
-  function removeExercise(exerciseId: string) {
+  function removeExercise(exerciseId: string, opts: { hadSets: boolean }) {
     setExercises((prev) => prev.filter((e) => e.id !== exerciseId))
+    if (opts.hadSets) {
+      startFetch(async () => {
+        try {
+          await deleteExerciseFromSessionAction({ sessionId: session.id, exerciseId })
+        } catch {
+          // best-effort: UI already removed; orphaned rows would reappear on reload
+        }
+      })
+    }
   }
 
   function buildExerciseList() {
@@ -231,7 +241,7 @@ export function WorkoutClient({
               sessionId={session.id}
               onSetSaved={(set) => appendSet(ex.id, set)}
               onPR={(info) => setPrCelebration({ ...info, nonce: Date.now() })}
-              onDelete={() => removeExercise(ex.id)}
+              onDelete={(opts) => removeExercise(ex.id, opts)}
               lastSets={lastSetsMap[ex.id] ?? []}
               initialNote={exerciseNotes[ex.id] ?? ''}
               initialVideoUrl={exerciseVideos[ex.id] ?? ''}

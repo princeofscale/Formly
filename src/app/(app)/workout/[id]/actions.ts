@@ -162,6 +162,23 @@ export async function deleteSetAction(setId: string): Promise<void> {
   await deleteSet(supabase, id, user.id)
 }
 
+export async function deleteExerciseFromSessionAction(data: {
+  sessionId: string
+  exerciseId: string
+}): Promise<void> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+  const sessionId = validateUuid(data.sessionId, 'sessionId')
+  const exerciseId = validateUuid(data.exerciseId, 'exerciseId')
+  const { error } = await supabase
+    .from('set_entries')
+    .delete()
+    .eq('session_id', sessionId)
+    .eq('exercise_id', exerciseId)
+    .eq('user_id', user.id)
+  if (error) throw new Error(error.message)
+}
+
 export async function searchExercisesAction(
   query: string,
   locale: string = 'en',

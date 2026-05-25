@@ -22,7 +22,7 @@ interface Props {
   sessionId: string
   onSetSaved: (set: SetEntry) => void
   onPR?: (info: { exerciseName: string; newE1rm: number; improvementPct: number | null }) => void
-  onDelete: () => void
+  onDelete: (opts: { hadSets: boolean }) => void
   lastSets?: SetEntry[]
   initialNote?: string
   initialVideoUrl?: string
@@ -48,6 +48,7 @@ export function ExerciseBlock({
   const [applied, setApplied] = useState<{ weight: number; reps: number; nonce: number } | null>(
     null,
   )
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const lastSet = sets[sets.length - 1]
   const displayName = locale === 'ru' ? (exercise.name_ru ?? exercise.name) : exercise.name
@@ -117,19 +118,48 @@ export function ExerciseBlock({
               {showInfo ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           )}
-          {sets.length === 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-zinc-600 hover:text-red-400"
-              title={t('deleteExercise')}
-              onClick={onDelete}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-zinc-600 hover:text-red-400"
+            title={t('deleteExercise')}
+            onClick={() => {
+              if (sets.length === 0) {
+                onDelete({ hadSets: false })
+              } else {
+                setConfirmDelete(true)
+              }
+            }}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       </div>
+
+      {confirmDelete && (
+        <div className="px-4 py-3 border-b border-white/10 bg-red-500/5 flex items-center gap-2 animate-in fade-in duration-150">
+          <p className="flex-1 text-xs text-zinc-300">
+            {t('confirmDeleteExercise', { n: sets.length })}
+          </p>
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(false)}
+            className="h-8 px-3 rounded-sm bg-white/5 hover:bg-white/10 text-xs font-bold text-zinc-300"
+          >
+            {t('cancel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmDelete(false)
+              onDelete({ hadSets: true })
+            }}
+            className="h-8 px-3 rounded-sm bg-red-500 hover:bg-red-400 text-xs font-bold text-white"
+          >
+            {t('deleteExercise')}
+          </button>
+        </div>
+      )}
 
       {/* instructions */}
       {showInfo && instructions && (
