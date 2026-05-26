@@ -89,13 +89,15 @@ function sendSwMessage(msg: Record<string, unknown>) {
 export function RestTimer({ seconds, onDone }: Props) {
   const t = useTranslations('workout')
   const tRT = useTranslations('workout.restTimer')
-  const [duration, setDuration] = useState(() => getInitialDuration(seconds))
-  // Absolute end timestamp — single source of truth. Wall-clock based so
-  // background-tab throttling / phone-screen-off can't desync the display.
-  const [endsAt, setEndsAt] = useState<number>(
-    () => Date.now() + getInitialDuration(seconds) * 1000,
+  // Hydration-safe initial values. Real wall-clock endsAt is set on mount
+  // in an effect below to avoid server/client Date.now() drift.
+  const [duration, setDuration] = useState(() =>
+    typeof window === 'undefined' ? seconds : getInitialDuration(seconds),
   )
-  const [remaining, setRemaining] = useState<number>(() => getInitialDuration(seconds))
+  const [endsAt, setEndsAt] = useState<number>(0)
+  const [remaining, setRemaining] = useState<number>(() =>
+    typeof window === 'undefined' ? seconds : getInitialDuration(seconds),
+  )
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(
     typeof window !== 'undefined' && 'Notification' in window
       ? Notification.permission
@@ -104,6 +106,18 @@ export function RestTimer({ seconds, onDone }: Props) {
   const doneRef = useRef(false)
   const wakeLockRef = useRef<WakeLockSentinelLite | null>(null)
   const swScheduledRef = useRef<number>(0) // endsAt we last sent to SW
+
+  // Mount: set real endsAt on client. Server-renders with 0 to avoid
+  // Date.now() drift causing hydration mismatch (React error #418).
+  useEffect(() => {
+    if (endsAt !== 0) return
+    const d = getInitialDuration(seconds)
+    /* eslint-disable react-hooks/set-state-in-effect -- hydration-safe client bootstrap */
+    setDuration(d)
+    setEndsAt(Date.now() + d * 1000)
+    setRemaining(d)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [endsAt, seconds])
 
   // Persist preference
   useEffect(() => {
@@ -145,6 +159,7 @@ export function RestTimer({ seconds, onDone }: Props) {
   // Schedule SW notification once per endsAt — fires reliably even if the tab
   // is backgrounded or the phone screen is off.
   useEffect(() => {
+    if (endsAt === 0) return // not yet initialised on client
     if (swScheduledRef.current === endsAt) return
     swScheduledRef.current = endsAt
     sendSwMessage({
@@ -159,6 +174,7 @@ export function RestTimer({ seconds, onDone }: Props) {
   // it never assumes "1s elapsed" — it asks Date.now() each tick. Also catches
   // up instantly when the user re-foregrounds the tab.
   useEffect(() => {
+    if (endsAt === 0) return // not yet initialised on client
     let id: ReturnType<typeof setTimeout> | null = null
 
     const tick = () => {

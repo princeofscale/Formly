@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { FloatingInput } from '@/components/auth/FloatingInput'
@@ -10,10 +10,16 @@ import { loginAction } from './actions'
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, null)
-  const [linkExpired] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return new URLSearchParams(window.location.search).get('error') === 'link_expired'
-  })
+  // Hydration-safe: render with linkExpired=false on server / first paint,
+  // then read query string on client mount. Avoids hydration mismatch when
+  // the user lands on /login?error=link_expired.
+  const [linkExpired, setLinkExpired] = useState(false)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('error') === 'link_expired') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe init from URL
+      setLinkExpired(true)
+    }
+  }, [])
   const [showPw, setShowPw] = useState(false)
   const [remember, setRemember] = useState(true)
 

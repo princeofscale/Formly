@@ -22,16 +22,15 @@ export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg }: Props
   const t = useTranslations('workout.liveStats')
   const locale = useLocale()
   const kg = weightUnit(locale)
-  const [elapsed, setElapsed] = useState(() =>
-    Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)),
-  )
-
+  // Hydration-safe: render 0 on server / first client paint, then
+  // jump to real value in effect. Avoids server/client time mismatch.
+  const [elapsed, setElapsed] = useState(0)
   useEffect(() => {
-    const id = setInterval(
-      () =>
-        setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))),
-      1000,
-    )
+    const compute = () =>
+      Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe wall-clock init
+    setElapsed(compute())
+    const id = setInterval(() => setElapsed(compute()), 1000)
     return () => clearInterval(id)
   }, [startedAt])
 
