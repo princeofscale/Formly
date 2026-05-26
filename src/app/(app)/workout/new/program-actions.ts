@@ -40,13 +40,6 @@ function buildLibrary(all: Exercise[], location: GenerateProgramInput['location'
   return all
 }
 
-export class ProgramQuotaError extends Error {
-  constructor() {
-    super('Daily program-generation quota exhausted')
-    this.name = 'ProgramQuotaError'
-  }
-}
-
 export async function previewProgramAction(input: GenerateProgramInput): Promise<{
   days: PreviewDay[]
 }> {
@@ -57,7 +50,10 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
   try {
     await consumeAiQuota(supabase, user.id, 'program_generation')
   } catch (e) {
-    if (e instanceof AiQuotaExceededError) throw new ProgramQuotaError()
+    // Server-action files can't export non-function values, so the UI
+    // detects the literal "quota" substring in the error message
+    // instead of getting a typed sentinel back.
+    if (e instanceof AiQuotaExceededError) throw new Error('AI quota exhausted')
     throw e
   }
 
