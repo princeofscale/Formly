@@ -86,9 +86,12 @@ export function ExerciseBlock({
   }
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-sm overflow-hidden">
+    <div className="tar-w-active" style={{ margin: 0 }}>
       {/* header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
+      <div
+        className="flex items-center gap-3 px-4 py-3 border-b border-white/10 relative"
+        style={{ zIndex: 3 }}
+      >
         {thumbnail && (
           <Image
             src={thumbnail}
@@ -101,11 +104,7 @@ export function ExerciseBlock({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-bold text-sm truncate">{displayName}</p>
-            {sets.length > 0 && (
-              <span className="text-[10px] font-mono font-black bg-amber-500 text-black px-1.5 py-0.5 rounded-sm flex-shrink-0">
-                {sets.length}
-              </span>
-            )}
+            {sets.length > 0 && <span className="tar-w-set-pill">{sets.length}</span>}
           </div>
           <p className="text-[11px] text-zinc-500 mt-0.5">
             {muscleLabel} · {exercise.equipment}
