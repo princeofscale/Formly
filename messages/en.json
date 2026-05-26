@@ -7,52 +7,74 @@
       "ai": "AI-powered progression tips"
     },
     "forgot": {
-      "title": "RESET PASSWORD",
-      "subtitle": "Enter your email and we'll send you a reset link.",
-      "submit": "SEND LINK",
+      "eyebrow": "Recovery",
+      "title": "It happens. Let's reset.",
+      "subtitle": "Enter the email tied to your account — we'll send a reset link.",
+      "submit": "Send link",
       "submitting": "Sending...",
-      "sent": "If that email is registered, we sent a link. Check your inbox (and Spam folder).",
+      "sentTitle": "Mail is on its way.",
+      "sentBody": "If that email is registered, we sent a reset link. Check your inbox (including Promotions).",
       "backToLogin": "← Back to login",
-      "invalidEmail": "Enter a valid email."
+      "invalidEmail": "That doesn't look like an email."
     },
     "reset": {
-      "title": "NEW PASSWORD",
-      "subtitle": "Choose a new password — at least 8 characters.",
+      "eyebrow": "Final set",
+      "title": "New password. All shoulders.",
+      "subtitle": "Pick one you won't forget after a heavy deadlift.",
       "newPassword": "New password",
       "confirmPassword": "Confirm password",
-      "submit": "SAVE PASSWORD",
+      "submit": "Save password",
       "submitting": "Saving...",
-      "tooShort": "Password must be at least 8 characters.",
+      "tooShort": "Min. 8 characters",
       "mismatch": "Passwords don't match.",
       "linkExpired": "This link is expired or already used. Request a new one."
     },
     "login": {
-      "title": "SIGN IN",
-      "subtitle": "Welcome back",
-      "submit": "SIGN IN",
+      "eyebrow": "Welcome back",
+      "title": "Back to the gym.",
+      "subtitle": "Sign in to keep your streak alive and your progress saved.",
+      "submit": "Sign in",
       "submitting": "Signing in...",
-      "noAccount": "No account?",
-      "registerLink": "Register",
-      "forgotLink": "Forgot password?"
+      "noAccount": "Not with us yet?",
+      "registerLink": "Create account →",
+      "forgotLink": "Forgot password?",
+      "remember": "Remember me"
     },
     "register": {
-      "title": "REGISTER",
-      "subtitle": "Start tracking your progress",
-      "submit": "CREATE ACCOUNT",
+      "eyebrow": "New PR",
+      "title": "Make an account. Let's go.",
+      "subtitle": "30 seconds — then you can start your first program.",
+      "submit": "Create account",
       "submitting": "Creating...",
       "hasAccount": "Already have an account?",
-      "loginLink": "Sign in",
+      "loginLink": "Sign in →",
       "legalAccept": {
-        "before": "I agree to the",
-        "terms": "Terms of Service",
+        "before": "I accept the",
+        "terms": "terms",
         "and": "and",
-        "privacy": "Privacy Policy"
+        "privacy": "privacy policy"
       }
     },
     "fields": {
       "email": "Email",
       "password": "Password",
-      "passwordPlaceholder": "Min. 8 characters"
+      "passwordPlaceholder": "Min. 8 characters",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "capsLock": "Caps"
+    },
+    "strength": {
+      "label": "Strength",
+      "weak": "Weak",
+      "okay": "Okay",
+      "good": "Good",
+      "iron": "Iron",
+      "checks": {
+        "len": "8+ chars",
+        "case": "Aa case",
+        "digit": "Digit",
+        "symbol": "Symbol"
+      }
     },
     "errors": {
       "emailNotConfirmed": "Email not confirmed. Check your inbox.",

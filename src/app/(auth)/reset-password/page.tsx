@@ -1,58 +1,83 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FloatingInput } from '@/components/auth/FloatingInput'
+import { SubmitButton } from '@/components/auth/SubmitButton'
+import { PasswordStrength } from '@/components/auth/PasswordStrength'
+import { LockIcon, ShieldIcon, EyeIcon, EyeOffIcon } from '@/components/auth/icons'
 import { setNewPasswordAction } from './actions'
 
 export default function ResetPasswordPage() {
   const [state, formAction, pending] = useActionState(setNewPasswordAction, null)
+  const [showPw, setShowPw] = useState(false)
+  const [pw, setPw] = useState('')
   const t = useTranslations('auth.reset')
-  const tf = useTranslations('auth.fields')
   const te = useTranslations()
+  const tf = useTranslations('auth.fields')
+
+  const errorMsg = state?.errorKey ? te(state.errorKey) : null
+  const pwErr = state?.errorKey === 'auth.reset.tooShort' ? errorMsg : null
+  const confirmErr = state?.errorKey === 'auth.reset.mismatch' ? errorMsg : null
 
   return (
-    <div className="w-full max-w-sm space-y-8">
+    <form
+      action={formAction}
+      noValidate
+      className="w-full max-w-sm tar-stagger"
+      style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+    >
       <div>
-        <h1 className="text-4xl font-black uppercase tracking-wider">{t('title')}</h1>
-        <p className="text-zinc-400 mt-2 text-sm">{t('subtitle')}</p>
+        <span className="tar-h-eyebrow">{t('eyebrow')}</span>
+        <h1 className="tar-h" style={{ fontSize: 34 }}>
+          {t('title')}
+        </h1>
+        <p className="tar-sub">{t('subtitle')}</p>
       </div>
 
-      <form action={formAction} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="password">{t('newPassword')}</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={8}
-            placeholder={tf('passwordPlaceholder')}
-            className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm">{t('confirmPassword')}</Label>
-          <Input
-            id="confirm"
-            name="confirm"
-            type="password"
-            required
-            minLength={8}
-            className="bg-white/5 border-white/10 focus-visible:ring-amber-500 h-11 backdrop-blur-sm"
-          />
-        </div>
-        {state?.errorKey && <p className="text-sm text-red-400">{te(state.errorKey)}</p>}
-        <Button
-          type="submit"
-          disabled={pending}
-          className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-400 text-black hover:from-amber-400 hover:to-amber-300 border-0"
-        >
-          {pending ? t('submitting') : t('submit')}
-        </Button>
-      </form>
-    </div>
+      <div style={{ marginTop: 6 }}>
+        <FloatingInput
+          name="password"
+          autoComplete="new-password"
+          label={t('newPassword')}
+          icon={LockIcon}
+          type={showPw ? 'text' : 'password'}
+          required
+          isPassword
+          capsLockLabel={tf('capsLock')}
+          error={pwErr}
+          onValueChange={setPw}
+          rightAction={{
+            icon: showPw ? (
+              <EyeOffIcon style={{ width: 18, height: 18 }} />
+            ) : (
+              <EyeIcon style={{ width: 18, height: 18 }} />
+            ),
+            onClick: () => setShowPw((s) => !s),
+            ariaLabel: showPw ? tf('hidePassword') : tf('showPassword'),
+          }}
+        />
+        <PasswordStrength value={pw} />
+        <FloatingInput
+          name="confirm"
+          autoComplete="new-password"
+          label={t('confirmPassword')}
+          icon={ShieldIcon}
+          type={showPw ? 'text' : 'password'}
+          required
+          isPassword
+          capsLockLabel={tf('capsLock')}
+          error={confirmErr}
+        />
+      </div>
+
+      {errorMsg && state?.errorKey === 'auth.reset.linkExpired' && (
+        <p className="text-sm" style={{ color: 'var(--tar-danger)' }}>
+          {errorMsg}
+        </p>
+      )}
+
+      <SubmitButton pending={pending}>{t('submit')}</SubmitButton>
+    </form>
   )
 }

@@ -10,54 +10,49 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   return (
     <>
       <AnimatedAuthBackground />
-      <div className="min-h-screen grid md:grid-cols-2 relative z-10">
-        {/* Left panel */}
+      <div className="min-h-screen grid md:grid-cols-2 relative">
+        {/* Left panel — desktop only */}
         <div
-          className="hidden md:flex flex-col justify-between p-12 border-r"
+          className="hidden md:flex flex-col justify-between p-12"
           style={{
-            borderColor: 'rgba(255,255,255,0.08)',
-            background: 'rgba(5,5,16,0.5)',
-            backdropFilter: 'blur(12px)',
+            borderRight: '1px solid rgba(245,241,232,0.08)',
+            background: 'rgba(5,5,16,0.45)',
+            backdropFilter: 'blur(14px)',
           }}
         >
-          <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
-            <div className="auth-brand auth-brand-tilt w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center cursor-default">
-              <Dumbbell className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-black text-xl tracking-wider">TRAININGAR</span>
+          <div className="tar-wordmark">
+            <span className="dot" />
+            TrainingAR
           </div>
 
           <div className="space-y-10">
             <p
-              className="text-4xl font-black leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700"
+              className="tar-h text-[44px] leading-[1.02]"
               style={{ animationDelay: '120ms', animationFillMode: 'both' }}
             >
               {t('slogan')}
             </p>
-            <div className="space-y-5">
+            <div className="space-y-5 tar-stagger">
               {(
                 [
-                  { Icon: Dumbbell, key: 'log', delay: 240 },
-                  { Icon: TrendingUp, key: 'track', delay: 360 },
-                  { Icon: Brain, key: 'ai', delay: 480 },
+                  { Icon: Dumbbell, key: 'log' },
+                  { Icon: TrendingUp, key: 'track' },
+                  { Icon: Brain, key: 'ai' },
                 ] as const
-              ).map(({ Icon, key, delay }) => (
+              ).map(({ Icon, key }) => (
                 <div
                   key={key}
-                  className="flex items-center gap-3 text-zinc-400 animate-in fade-in slide-in-from-left-4 duration-700"
-                  style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
+                  className="flex items-center gap-3"
+                  style={{ color: 'var(--tar-ink-dim)' }}
                 >
-                  <Icon className="h-5 w-5 text-amber-500 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" style={{ color: 'var(--tar-brand-2)' }} />
                   <span className="text-sm">{t(`features.${key}`)}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <p
-            className="text-xs text-zinc-700 animate-in fade-in duration-1000"
-            style={{ animationDelay: '700ms', animationFillMode: 'both' }}
-          >
+          <p className="text-xs" style={{ color: 'var(--tar-ink-mute)' }}>
             © 2026 TrainingAR
           </p>
         </div>
@@ -68,15 +63,15 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             <LocaleSwitcher current={locale} />
           </div>
 
-          {/* Mobile-only brand mark (left panel is hidden under md) */}
-          <div className="md:hidden flex items-center justify-center gap-2.5 pt-2 pb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-            <div className="auth-brand auth-brand-tilt w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center cursor-default">
-              <Dumbbell className="h-4 w-4 text-white" />
+          {/* Mobile-only brand mark */}
+          <div className="md:hidden flex items-center justify-center pt-2 pb-6">
+            <div className="tar-wordmark">
+              <span className="dot" />
+              TrainingAR
             </div>
-            <span className="font-black text-lg tracking-wider">TRAININGAR</span>
           </div>
 
-          <div className="flex-1 flex items-center justify-center px-8 pb-12">{children}</div>
+          <div className="flex-1 flex items-center justify-center px-6 pb-12">{children}</div>
         </div>
       </div>
     </>
