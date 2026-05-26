@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 
-const RADIUS = 26
+const RADIUS = 44
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 const STORAGE_KEY = 'gymlog_rest_duration'
 
@@ -198,6 +198,11 @@ export function RestTimer({ seconds, onDone }: Props) {
     doneRef.current = false
   }, [])
 
+  function adjust(deltaSec: number) {
+    setEndsAt((prev) => prev + deltaSec * 1000)
+    doneRef.current = false
+  }
+
   async function requestNotifPermission() {
     if (!('Notification' in window)) return
     const p = await Notification.requestPermission()
@@ -206,60 +211,87 @@ export function RestTimer({ seconds, onDone }: Props) {
 
   const pct = duration > 0 ? remaining / duration : 0
   const offset = CIRCUMFERENCE * (1 - pct)
-  const stroke = remaining > 45 ? '#22c55e' : remaining > 20 ? '#eab308' : '#ef4444'
-  const textColor =
-    remaining > 45 ? 'text-green-400' : remaining > 20 ? 'text-yellow-400' : 'text-red-400'
+  const ringState =
+    remaining === 0 ? 'done' : remaining <= 5 ? 'urgent' : remaining <= 15 ? 'warn' : ''
+  const mm = Math.floor(remaining / 60)
+  const ss = remaining % 60
+  const timeLabel = remaining === 0 ? 'GO' : `${mm}:${String(ss).padStart(2, '0')}`
 
   return (
-    <div className="space-y-2 py-1 animate-in fade-in duration-300">
-      <div className="flex items-center gap-4">
-        <div className="relative w-14 h-14 flex-shrink-0">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r={RADIUS} fill="none" stroke="#27272a" strokeWidth="4" />
-            <circle
-              cx="32"
-              cy="32"
-              r={RADIUS}
-              fill="none"
-              stroke={stroke}
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeDasharray={CIRCUMFERENCE}
-              strokeDashoffset={offset}
-              style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease' }}
-            />
-          </svg>
-          <span
-            className={`absolute inset-0 flex items-center justify-center font-mono font-black text-sm tabular-nums ${textColor}`}
-          >
-            {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}
-          </span>
+    <div
+      className="animate-in fade-in duration-300"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid var(--tar-w-line)',
+        borderRadius: 'var(--tar-w-r-lg)',
+        padding: '14px 16px 12px',
+      }}
+    >
+      <div className="tar-w-sheet-eyebrow" style={{ marginBottom: 8 }}>
+        {t('resting')}
+      </div>
+
+      <div
+        className={`tar-w-ring ${ringState}`}
+        style={{ width: 110, height: 110, margin: '0 auto 12px' }}
+      >
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="tar-w-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FF6B35" />
+              <stop offset="100%" stopColor="#FFB627" />
+            </linearGradient>
+          </defs>
+          <circle className="track" cx="50" cy="50" r={RADIUS} fill="none" strokeWidth="6" />
+          <circle
+            className="progress"
+            cx="50"
+            cy="50"
+            r={RADIUS}
+            fill="none"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={CIRCUMFERENCE}
+            strokeDashoffset={offset}
+          />
+        </svg>
+        <div className="tar-w-ring-inner">
+          <div className="tar-w-ring-num" style={{ fontSize: 32 }}>
+            {timeLabel}
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-zinc-400">{t('resting')}</p>
-          {notifPermission === 'default' && (
-            <button
-              type="button"
-              onClick={requestNotifPermission}
-              className="mt-0.5 text-[10px] underline decoration-dotted underline-offset-2 text-amber-400/80 hover:text-amber-300"
-            >
-              {tRT('enableNotif')}
-            </button>
-          )}
-        </div>
+      </div>
+
+      <div className="tar-w-ring-actions">
+        <button type="button" className="tar-w-ring-action" onClick={() => adjust(-15)}>
+          −15с
+        </button>
         <button
           type="button"
+          className="tar-w-ring-action skip"
           onClick={() => {
             sendSwMessage({ type: 'rest-timer-cancel' })
             onDone()
           }}
-          className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors px-2 py-1 rounded-sm hover:bg-white/10"
         >
           {t('restSkip')}
         </button>
+        <button type="button" className="tar-w-ring-action" onClick={() => adjust(15)}>
+          +15с
+        </button>
       </div>
 
-      <div className="flex gap-1">
+      {notifPermission === 'default' && (
+        <button
+          type="button"
+          onClick={requestNotifPermission}
+          className="mt-2 w-full text-[10px] text-center underline decoration-dotted underline-offset-2 text-amber-400/80 hover:text-amber-300"
+        >
+          {tRT('enableNotif')}
+        </button>
+      )}
+
+      <div className="tar-w-rpe-row" style={{ marginTop: 10 }}>
         {PRESETS.map((p) => {
           const active = duration === p.value
           return (
@@ -267,11 +299,7 @@ export function RestTimer({ seconds, onDone }: Props) {
               key={p.value}
               type="button"
               onClick={() => applyPreset(p.value)}
-              className={`flex-1 h-7 rounded-md text-[10px] font-mono font-bold transition-colors ${
-                active
-                  ? 'bg-amber-500/20 border border-amber-500/40 text-amber-400'
-                  : 'bg-white/5 border border-white/8 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'
-              }`}
+              className={'tar-w-rpe-chip ' + (active ? 'on' : '')}
             >
               {p.label}
             </button>

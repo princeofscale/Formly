@@ -40,17 +40,13 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
   }
 
   return (
-    <div className="space-y-1">
-      <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">{label}</p>
-      <div className="flex items-center h-11 bg-white/5 border border-white/10 rounded-sm overflow-hidden focus-within:border-amber-500/50 transition-colors">
-        <button
-          type="button"
-          onClick={decrement}
-          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
-        >
-          −
-        </button>
-        <div className="flex-1 flex items-center justify-center min-w-0">
+    <div className="tar-w-stepper">
+      <button type="button" onClick={decrement} aria-label="−">
+        −
+      </button>
+      <div className="flex-1 flex flex-col justify-center min-w-0 px-2">
+        <span className="tar-w-input-label">{label}</span>
+        <div className="flex items-baseline gap-1.5">
           <input
             type="number"
             inputMode="decimal"
@@ -59,20 +55,25 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={optional ? '—' : ''}
-            className="w-full text-center font-mono font-bold text-base bg-transparent border-none outline-none text-white placeholder:text-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="tar-w-input-val [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            style={{ width: '100%' }}
           />
           {value && suffix && (
-            <span className="text-[10px] text-zinc-600 mr-2 flex-shrink-0">{suffix}</span>
+            <span
+              style={{
+                font: '500 10px/1 ui-monospace, monospace',
+                color: 'var(--tar-w-ink-mute)',
+                letterSpacing: '0.08em',
+              }}
+            >
+              {suffix}
+            </span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={increment}
-          className="w-10 h-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors text-lg flex-shrink-0 select-none"
-        >
-          +
-        </button>
       </div>
+      <button type="button" onClick={increment} aria-label="+">
+        +
+      </button>
     </div>
   )
 }
@@ -254,34 +255,25 @@ export function SetRow({
 
       {showPlateCalculator && <PlateCalculator weightKg={parseFloat(weight) || 0} />}
 
-      <div className="grid grid-cols-2 gap-2">
-        <Stepper
-          label={t('rpeLabel')}
-          value={rpe}
-          onChange={setRpe}
-          step={1}
-          min={1}
-          max={10}
-          optional
-        />
-        <div className="space-y-1">
-          <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 opacity-0 select-none">
-            _
-          </p>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSave || isPending}
-            className={`w-full h-11 rounded-sm font-black text-sm tracking-wider transition-all ${
-              canSave && !isPending
-                ? 'bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-black'
-                : 'bg-white/5 text-zinc-600 cursor-not-allowed'
-            }`}
-          >
-            {isPending ? '…' : '✓'}
-          </button>
-        </div>
-      </div>
+      <Stepper
+        label={t('rpeLabel')}
+        value={rpe}
+        onChange={setRpe}
+        step={1}
+        min={1}
+        max={10}
+        optional
+      />
+
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={!canSave || isPending}
+        className="tar-w-log"
+        style={!canSave || isPending ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+      >
+        {isPending ? '…' : `+ ${t('logSet')}`}
+      </button>
     </div>
   )
 }

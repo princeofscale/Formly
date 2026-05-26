@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { X, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
+import { MuscleIcon } from './muscle-icon'
 import { SetRow } from './SetRow'
 import { LoggedSetRow } from './LoggedSetRow'
 import { RestTimer } from './RestTimer'
@@ -87,30 +88,34 @@ export function ExerciseBlock({
 
   return (
     <div className="tar-w-active" style={{ margin: 0 }}>
-      {/* header */}
-      <div
-        className="flex items-center gap-3 px-4 py-3 border-b border-white/10 relative"
-        style={{ zIndex: 3 }}
-      >
-        {thumbnail && (
+      {/* header — tar-w-active-head */}
+      <div className="tar-w-active-head relative" style={{ zIndex: 3 }}>
+        {thumbnail ? (
           <Image
             src={thumbnail}
             alt={displayName}
-            width={44}
-            height={44}
-            className="w-11 h-11 rounded-sm object-cover flex-shrink-0 bg-white/5"
+            width={48}
+            height={48}
+            className="tar-w-group-icon"
+            style={{ background: 'none', border: 'none', padding: 0, objectFit: 'cover' }}
           />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-bold text-sm truncate">{displayName}</p>
-            {sets.length > 0 && <span className="tar-w-set-pill">{sets.length}</span>}
+        ) : (
+          <div className="tar-w-group-icon">
+            <MuscleIcon muscle={exercise.primary_muscle} style={{ width: 22, height: 22 }} />
           </div>
-          <p className="text-[11px] text-zinc-500 mt-0.5">
-            {muscleLabel} · {exercise.equipment}
-          </p>
+        )}
+        <div className="min-w-0">
+          <div className="tar-w-ex-title truncate">{displayName}</div>
+          <div className="tar-w-ex-meta">
+            {sets.length > 0 && (
+              <span className="tar-w-set-pill">
+                {t('setShort')} {sets.length}
+              </span>
+            )}
+            <span>{muscleLabel}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-0.5 flex-shrink-0">
+        <div className="tar-w-ex-actions">
           {instructions && (
             <Button
               variant="ghost"

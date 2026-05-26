@@ -297,6 +297,14 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
   }
 
   // ─── Display mode (with swipe-to-delete) ─────────────────────────────────
+  const isPr = set.calculated_1rm != null && isLast && !set.is_warmup
+  const weightDisplay =
+    isBodyweight && set.weight_kg === 0
+      ? 'BW'
+      : isBodyweight && set.weight_kg > 0
+        ? `+${set.weight_kg}`
+        : String(set.weight_kg)
+
   return (
     <div className="relative overflow-hidden">
       {/* delete affordance under the row */}
@@ -305,8 +313,8 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
           type="button"
           onClick={handleDelete}
           disabled={isBusy}
-          className="ml-auto h-8 px-3 rounded-[6px] flex items-center gap-1.5 text-[11px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-          style={{ background: '#FF3B47' }}
+          className="ml-auto h-9 px-3 rounded-[8px] flex items-center gap-1.5 text-[11px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          style={{ background: 'var(--tar-w-danger)' }}
           aria-label={tEdit('delete')}
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -314,7 +322,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
         </button>
       </div>
 
-      {/* swipeable foreground */}
+      {/* swipeable foreground — tar-w-set grid */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -323,58 +331,40 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
           if (swipeX === 0) setEditing(true)
           else setSwipeX(0)
         }}
-        className={`relative flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-[6px] cursor-pointer hover:bg-white/[0.03] transition-colors text-sm ${
-          isLast && !set.is_warmup ? 'border-l-2 border-[#FF3B47] pl-2' : ''
-        } ${set.is_warmup ? 'opacity-60' : ''}`}
+        className={`tar-w-set ${isPr ? 'pr' : ''} ${set.is_warmup ? 'opacity-60' : ''} cursor-pointer`}
         style={{
           transform: `translateX(${swipeX}px)`,
           transition: isTouching ? 'none' : 'transform 180ms ease',
-          background: set.is_warmup ? 'rgba(94, 234, 212, 0.04)' : '#15151C',
         }}
       >
-        {set.is_warmup ? (
-          <span
-            className="font-mono text-[9px] font-black w-5 text-center"
-            style={{ color: '#5EEAD4' }}
-            title="Прогрев — не учитывается в объёме и PR"
-          >
-            W
-          </span>
-        ) : (
-          <span className="font-mono text-[10px] text-zinc-700 w-5">#{set.set_number}</span>
-        )}
-        <span
-          className={`font-mono font-bold ${isLast && !set.is_warmup ? 'text-zinc-100' : 'text-zinc-500'}`}
-        >
-          {isBodyweight && set.weight_kg === 0 ? (
-            <span className="text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              BW
+        <span className="tar-w-set-n">
+          {set.is_warmup ? (
+            <span style={{ color: '#5EEAD4' }} title="Прогрев — не учитывается в объёме и PR">
+              W
             </span>
-          ) : isBodyweight && set.weight_kg > 0 ? (
-            <>
-              +{set.weight_kg}
-              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
-            </>
           ) : (
-            <>
-              {set.weight_kg}
-              <span className="text-zinc-700 font-normal text-[10px]">кг</span>
-            </>
+            <>#{set.set_number}</>
           )}
-          <span className="text-zinc-700 mx-1.5">×</span>
-          {set.reps}
         </span>
-        {set.rpe != null && (
-          <span className="text-[10px] text-zinc-600">
-            {t('rpe')} {set.rpe}
+        <div className="tar-w-set-cell">
+          <span className="tar-w-set-cell-label">{isBodyweight ? '+КГ' : t('weightLabel')}</span>
+          <span className="tar-w-set-cell-val">{weightDisplay}</span>
+        </div>
+        <div className="tar-w-set-cell">
+          <span className="tar-w-set-cell-label">{t('repsLabel')}</span>
+          <span className="tar-w-set-cell-val">{set.reps}</span>
+        </div>
+        <div className="tar-w-set-cell">
+          <span className="tar-w-set-cell-label">
+            {set.calculated_1rm != null && isLast && !set.is_warmup ? '1ПМ' : t('rpeLabel')}
           </span>
-        )}
-        {set.calculated_1rm != null && isLast && !set.is_warmup && (
-          <span className="text-[10px] text-zinc-600 ml-auto">
-            1ПМ {set.calculated_1rm.toFixed(0)}
+          <span className="tar-w-set-cell-val">
+            {set.calculated_1rm != null && isLast && !set.is_warmup
+              ? set.calculated_1rm.toFixed(0)
+              : (set.rpe ?? '—')}
           </span>
-        )}
-        <Pencil className="h-3 w-3 text-zinc-700 ml-auto flex-shrink-0 opacity-0 group-hover:opacity-100 sm:opacity-50" />
+        </div>
+        <Pencil className="h-4 w-4" style={{ color: 'var(--tar-w-ink-mute)', opacity: 0.6 }} />
       </div>
     </div>
   )
