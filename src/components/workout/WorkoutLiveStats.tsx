@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Timer, Layers, Zap } from 'lucide-react'
 import { weightUnit } from '@/lib/units'
 
 interface Props {
@@ -36,60 +35,41 @@ export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg }: Props
     return () => clearInterval(id)
   }, [startedAt])
 
+  const tonnage = Math.round(totalTonnageKg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')
+
   return (
     <div
-      className="sticky top-2 z-20 rounded-2xl backdrop-blur-md"
+      className="sticky top-2 z-20 rounded-2xl backdrop-blur-md grid grid-cols-3"
       style={{
-        background: 'linear-gradient(135deg, rgba(255, 196, 68, 0.06), rgba(255, 110, 118, 0.04))',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.06), rgba(255, 182, 39, 0.04))',
+        border: '1px solid var(--tar-w-line)',
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
       }}
     >
-      <div className="grid grid-cols-3 divide-x divide-white/[0.06]">
-        <Stat
-          icon={<Timer className="h-3.5 w-3.5" style={{ color: '#A78BFA' }} />}
-          label={t('elapsed')}
-          value={formatElapsed(elapsed)}
-          color="#A78BFA"
-        />
-        <Stat
-          icon={<Layers className="h-3.5 w-3.5" style={{ color: '#5EEAD4' }} />}
-          label={t('sets')}
-          value={`${totalSets}`}
-          color="#5EEAD4"
-        />
-        <Stat
-          icon={<Zap className="h-3.5 w-3.5" style={{ color: '#FFC044' }} />}
-          label={t('tonnage')}
-          value={`${Math.round(totalTonnageKg).toLocaleString()}`}
-          unit={kg}
-          color="#FFC044"
-        />
-      </div>
+      <Stat label={t('tonnage')} value={tonnage} unit={kg} />
+      <Stat label={t('sets')} value={String(totalSets)} divider />
+      <Stat label={t('elapsed')} value={formatElapsed(elapsed)} divider />
     </div>
   )
 }
 
 interface StatProps {
-  icon: React.ReactNode
   label: string
   value: string
   unit?: string
-  color: string
+  divider?: boolean
 }
 
-function Stat({ icon, label, value, unit, color }: StatProps) {
+function Stat({ label, value, unit, divider }: StatProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-2.5 px-2">
-      <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/45">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-0.5 flex items-baseline gap-1">
-        <span className="text-base font-extrabold tabular-nums leading-none" style={{ color }}>
-          {value}
-        </span>
-        {unit && <span className="text-[9px] text-white/35 font-mono">{unit}</span>}
+    <div
+      className="px-4 py-3"
+      style={divider ? { borderLeft: '1px solid var(--tar-w-line)' } : undefined}
+    >
+      <div className="tar-w-stat-label">{label}</div>
+      <div className="tar-w-stat-value" style={{ marginTop: 6 }}>
+        {value}
+        {unit && <span className="unit">{unit}</span>}
       </div>
     </div>
   )
