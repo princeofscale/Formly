@@ -5,6 +5,7 @@ import {
   deletePushSubscriptionByEndpoint,
   type PushSubscriptionRow,
 } from '@/lib/db/push-subscriptions'
+import { generatePushHook, type PushHookContext } from '@/lib/services/push-hook.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -130,16 +131,112 @@ export async function GET(request: Request) {
     subsByUser.set(s.user_id, list)
   }
 
-  const payload = {
-    title: 'TrainingAR ⏰',
-    body: 'Привычное время тренировки. Готов начать?',
-    url: '/workout/new',
+  // Build personalized hook per user from their recent training data.
+  // Falls back to a generic string if the AI call fails for any reason —
+  // we never want to skip a notification because of an LLM hiccup.
+  const FALLBACK_BODY = 'Привычное время тренировки. Готов начать?'
+
+  async function buildContext(userId: string): Promise<PushHookContext> {
+    const sevenDaysAgo = new Date(now)
+    sevenDaysAgo.setUTCDate(now.getUTCDate() - 7)
+
+    const { data: lastSessionRows } = await supabase
+      .from('workout_sessions')
+      .select('started_at')
+      .eq('user_id', userId)
+      .not('finished_at', 'is', null)
+      .order('started_at', { ascending: false })
+      .limit(1)
+    const lastStartedAt = (lastSessionRows ?? [])[0]?.started_at as string | undefined
+    const lastSessionDaysAgo = lastStartedAt
+      ? Math.floor((now.getTime() - new Date(lastStartedAt).getTime()) / 86400000)
+      : null
+
+    // Recent sets — get last 30 with exercise + muscle to derive top-N
+    const { data: recentSetsData } = await supabase
+      .from('set_entries')
+      .select('weight_kg, reps, created_at, exercises(name, name_ru, primary_muscle)')
+      .eq('user_id', userId)
+      .gte('created_at', sevenDaysAgo.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(60)
+
+    const recent = (recentSetsData ?? []) as unknown as Array<{
+      weight_kg: number
+      reps: number
+      created_at: string
+      exercises: { name: string; name_ru: string | null; primary_muscle: string } | null
+    }>
+
+    const seenExercises = new Map<
+      string,
+      { name: string; lastWeightKg: number; lastReps: number }
+    >()
+    const muscleSets = new Map<string, number>()
+    for (const r of recent) {
+      const ex = r.exercises
+      if (!ex) continue
+      const name = ex.name_ru ?? ex.name
+      if (!seenExercises.has(name)) {
+        seenExercises.set(name, { name, lastWeightKg: r.weight_kg, lastReps: r.reps })
+      }
+      muscleSets.set(ex.primary_muscle, (muscleSets.get(ex.primary_muscle) ?? 0) + 1)
+    }
+
+    const topMuscles = Array.from(muscleSets.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([muscle, sets]) => ({ muscle, sets }))
+
+    const ALL_MUSCLES = [
+      'chest',
+      'back',
+      'quads',
+      'hamstrings',
+      'glutes',
+      'biceps',
+      'triceps',
+      'shoulders',
+    ]
+    const underworked = ALL_MUSCLES.filter((m) => (muscleSets.get(m) ?? 0) < 3)
+
+    return {
+      locale: 'ru',
+      lastSessionDaysAgo,
+      recentExercises: Array.from(seenExercises.values()).slice(0, 5),
+      topMusclesByVolumeLast7d: topMuscles,
+      underworkedMuscles: underworked,
+    }
+  }
+
+  // Generate hooks in parallel, capped at 5 concurrent to avoid Mistral rate limits.
+  const usersToHook = Array.from(subsByUser.keys())
+  const bodyByUser = new Map<string, string>()
+  const concurrency = 5
+  for (let i = 0; i < usersToHook.length; i += concurrency) {
+    const batch = usersToHook.slice(i, i + concurrency)
+    const results = await Promise.all(
+      batch.map(async (uid) => {
+        try {
+          const ctx = await buildContext(uid)
+          const body = await generatePushHook(ctx, FALLBACK_BODY)
+          return [uid, body] as const
+        } catch {
+          return [uid, FALLBACK_BODY] as const
+        }
+      }),
+    )
+    for (const [uid, body] of results) bodyByUser.set(uid, body)
   }
 
   let sent = 0
   let failed = 0
   let expired = 0
   for (const [userId, userSubs] of subsByUser) {
+    const payload = {
+      title: 'TrainingAR ⏰',
+      body: bodyByUser.get(userId) ?? FALLBACK_BODY,
+      url: '/workout/new',
+    }
     for (const sub of userSubs) {
       const result = await sendPushToSubscription(sub, payload)
       if (result.ok) sent++

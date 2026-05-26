@@ -12,6 +12,7 @@ import { repeatWorkoutAction } from '../actions'
 import { RotateCcw } from 'lucide-react'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { SessionSummaryHero } from '@/components/history/SessionSummaryHero'
+import { SessionAIDebrief } from '@/components/history/SessionAIDebrief'
 import { getSessionSummary } from '@/lib/services/session-summary.service'
 import { weightUnit } from '@/lib/units'
 
@@ -63,7 +64,10 @@ export default async function SessionDetailPage({
   return (
     <div className="space-y-6">
       {finished === '1' && summary && (
-        <SessionSummaryHero summary={summary} sessionId={sessionId} />
+        <>
+          <SessionSummaryHero summary={summary} sessionId={sessionId} />
+          <SessionAIDebrief sessionId={sessionId} />
+        </>
       )}
 
       <div className="flex items-start justify-between gap-4">

@@ -500,6 +500,10 @@
     "deleteCancel": "Cancel",
     "deleteConfirmText": "Permanently delete this workout?",
     "finishedBanner": "Workout complete! Great work 💪",
+    "debrief": {
+      "title": "AI debrief",
+      "loading": "Coach is analyzing..."
+    },
     "summary": {
       "label": "Workout complete",
       "title": "Great work 💪",
