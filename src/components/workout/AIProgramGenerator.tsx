@@ -45,7 +45,9 @@ export function AIProgramGenerator({ defaultLocation }: Props) {
       }
       setState({ kind: 'preview', days: previewDays })
     } catch (e) {
-      setState({ kind: 'error', message: e instanceof Error ? e.message : String(e) })
+      const raw = e instanceof Error ? e.message : String(e)
+      const isQuota = raw.toLowerCase().includes('quota')
+      setState({ kind: 'error', message: isQuota ? t('quotaExhausted') : raw })
     }
   }
 

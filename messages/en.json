@@ -607,7 +607,8 @@
       "savedHint": "Find them below in the templates list and start any workout.",
       "error": "Failed to generate program.",
       "retry": "Try again",
-      "emptyResult": "AI returned an empty result. Try again."
+      "emptyResult": "AI returned an empty result. Try again.",
+      "quotaExhausted": "Daily AI generation limit reached. Try again tomorrow."
     },
     "lastTime": "Last",
     "firstSet": "🏆 First set!",

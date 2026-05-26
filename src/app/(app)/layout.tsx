@@ -1,20 +1,26 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { BottomTabBar } from '@/components/BottomTabBar'
-import { OnboardingModal } from '@/components/OnboardingModal'
 import { PageWrapper } from '@/components/PageWrapper'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = await verifySession()
   const supabase = await createClient()
 
-  const { data: profile } = await supabase
+  // Gate: anyone who hasn't completed onboarding (or skipped it explicitly)
+  // gets bounced to the wizard. /onboarding lives outside this layout so
+  // it's not subject to this redirect → no loop.
+  const { data: profileRaw } = await supabase
     .from('profiles')
-    .select('weight_kg, height_cm')
+    .select('onboarded_at')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  const needsOnboarding = !profile?.weight_kg && !profile?.height_cm
+  const profile = profileRaw as unknown as { onboarded_at: string | null } | null
+  if (!profile?.onboarded_at) {
+    redirect('/onboarding')
+  }
 
   return (
     <div className="min-h-screen">
@@ -25,8 +31,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </main>
 
       <BottomTabBar />
-
-      {needsOnboarding && <OnboardingModal />}
     </div>
   )
 }

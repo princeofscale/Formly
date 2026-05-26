@@ -9,6 +9,7 @@ import { createSession, getActiveSession } from '@/lib/db/workouts'
 import { createTemplate } from '@/lib/db/templates'
 import { getSessionSummary } from '@/lib/services/session-summary.service'
 import { generateDebrief, type SessionDebrief } from '@/lib/services/session-debrief.service'
+import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import type { TemplateExercise } from '@/lib/types/models'
 
 export async function deleteSessionAction(sessionId: string) {
@@ -149,6 +150,13 @@ export async function getOrGenerateSessionDebriefAction(
   }
 
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+  try {
+    await consumeAiQuota(supabase, user.id, 'session_debrief')
+  } catch (e) {
+    if (e instanceof AiQuotaExceededError) return null
+    throw e
+  }
 
   let debrief: SessionDebrief
   try {

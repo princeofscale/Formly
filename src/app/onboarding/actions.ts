@@ -54,11 +54,14 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
   //    so collapse our finer-grained UI options into that.
   const schedule = distributeDays(days)
   const dbLocation: 'gym' | 'home' = location === 'gym' ? 'gym' : 'home'
-  await supabase
-    .from('profiles')
+  // onboarded_at column was added via 20260526150000 migration but isn't
+  // in the generated Database typings yet. Cast through any to bypass.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase.from('profiles') as any)
     .update({
       training_schedule: schedule,
       training_location: dbLocation,
+      onboarded_at: new Date().toISOString(),
     })
     .eq('id', user.id)
 
@@ -114,8 +117,15 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
 export async function skipOnboardingAction(): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
-  // Mark schedule as "explicitly empty" so dashboard knows not to bounce them back
-  await supabase.from('profiles').update({ training_schedule: [] }).eq('id', user.id)
+  // Mark schedule as "explicitly empty" + flag onboarded_at so the layout
+  // gate stops bouncing them here on every page load.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (supabase.from('profiles') as any)
+    .update({
+      training_schedule: [],
+      onboarded_at: new Date().toISOString(),
+    })
+    .eq('id', user.id)
   revalidatePath('/dashboard')
   redirect('/dashboard')
 }

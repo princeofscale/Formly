@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Manrope } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
+import { Analytics } from '@vercel/analytics/next'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import { UpdateBanner } from '@/components/UpdateBanner'
 import { ClientErrorReporter } from '@/components/ClientErrorReporter'
@@ -47,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
         <ClientErrorReporter />
+        <Analytics />
       </body>
     </html>
   )

@@ -35,5 +35,5 @@ export async function registerAction(_: unknown, formData: FormData) {
   if (error) return { errorKey: mapAuthError(error.message) }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect('/onboarding')
 }

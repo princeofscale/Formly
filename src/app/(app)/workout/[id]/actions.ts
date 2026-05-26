@@ -14,6 +14,7 @@ import {
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
 import { searchExercises, getExercises } from '@/lib/db/exercises'
 import { pickAlternatives } from '@/lib/services/exercise-alternatives.service'
+import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import { getLocale } from 'next-intl/server'
 import { getLastSetsForExercise } from '@/lib/db/sets'
 import { createTemplate, updateTemplate } from '@/lib/db/templates'
@@ -193,6 +194,13 @@ export async function suggestExerciseAlternativesAction(
   const supabase = await createClient()
   const id = validateUuid(exerciseId, 'exerciseId')
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+  try {
+    await consumeAiQuota(supabase, user.id, 'exercise_swap')
+  } catch (e) {
+    if (e instanceof AiQuotaExceededError) return []
+    throw e
+  }
 
   const { data: targetRow } = await supabase
     .from('exercises')

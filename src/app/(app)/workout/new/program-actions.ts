@@ -11,6 +11,7 @@ import {
   type GeneratedDay,
   type ProgramGoal,
 } from '@/lib/services/program-generator.service'
+import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import type { Exercise, TemplateExercise } from '@/lib/types/models'
 
 export interface PreviewDay {
@@ -39,12 +40,26 @@ function buildLibrary(all: Exercise[], location: GenerateProgramInput['location'
   return all
 }
 
+export class ProgramQuotaError extends Error {
+  constructor() {
+    super('Daily program-generation quota exhausted')
+    this.name = 'ProgramQuotaError'
+  }
+}
+
 export async function previewProgramAction(input: GenerateProgramInput): Promise<{
   days: PreviewDay[]
 }> {
   const { user } = await verifySession()
   const supabase = await createClient()
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+  try {
+    await consumeAiQuota(supabase, user.id, 'program_generation')
+  } catch (e) {
+    if (e instanceof AiQuotaExceededError) throw new ProgramQuotaError()
+    throw e
+  }
 
   const daysPerWeek = Math.min(7, Math.max(1, Math.round(input.daysPerWeek)))
   const all = await getExercises(supabase, user.id)

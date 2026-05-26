@@ -12,7 +12,7 @@ import {
   ChevronRight,
   ChevronLeft,
 } from 'lucide-react'
-import { finishOnboardingAction, skipOnboardingAction } from '@/app/(app)/onboarding/actions'
+import { finishOnboardingAction, skipOnboardingAction } from '@/app/onboarding/actions'
 import { subscribeToPushAction } from '@/app/(app)/profile/push-actions'
 import { requestPushSubscription } from '@/lib/utils/push-subscribe'
 
