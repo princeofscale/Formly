@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { Dumbbell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -74,7 +75,14 @@ export default function LoginPage() {
           className="w-full h-12 uppercase tracking-wider font-bold text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 bg-[length:200%_100%] hover:bg-[position:100%_0] text-black border-0 shadow-[0_8px_24px_rgba(255,196,68,0.25)] transition-[background-position] duration-500 active:scale-[0.98]"
           disabled={pending}
         >
-          {pending ? t('submitting') : t('submit')}
+          {pending ? (
+            <span className="inline-flex items-center gap-2">
+              <Dumbbell className="auth-curl-icon h-4 w-4" />
+              {t('submitting')}
+            </span>
+          ) : (
+            t('submit')
+          )}
         </Button>
 
         <div className="text-right">

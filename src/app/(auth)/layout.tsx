@@ -21,7 +21,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           }}
         >
           <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
-            <div className="auth-brand w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center">
+            <div className="auth-brand auth-brand-tilt w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center cursor-default">
               <Dumbbell className="h-4 w-4 text-white" />
             </div>
             <span className="font-black text-xl tracking-wider">TRAININGAR</span>
@@ -70,7 +70,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
           {/* Mobile-only brand mark (left panel is hidden under md) */}
           <div className="md:hidden flex items-center justify-center gap-2.5 pt-2 pb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-            <div className="auth-brand w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center">
+            <div className="auth-brand auth-brand-tilt w-9 h-9 bg-gradient-to-br from-amber-500 to-red-500 rounded-xl flex items-center justify-center cursor-default">
               <Dumbbell className="h-4 w-4 text-white" />
             </div>
             <span className="font-black text-lg tracking-wider">TRAININGAR</span>

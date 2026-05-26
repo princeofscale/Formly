@@ -213,13 +213,80 @@
   animation: auth-brand-pulse 3.5s ease-in-out infinite;
 }
 
+@keyframes auth-plate-spin-a {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes auth-plate-spin-b {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes auth-plate-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2vh);
+  }
+}
+@keyframes auth-curl {
+  0%,
+  100% {
+    transform: rotate(-30deg) translateY(2px);
+  }
+  50% {
+    transform: rotate(30deg) translateY(-2px);
+  }
+}
+
+.auth-plate-a {
+  animation:
+    auth-plate-spin-a 60s linear infinite,
+    auth-plate-bob 9s ease-in-out infinite;
+}
+.auth-plate-b {
+  animation:
+    auth-plate-spin-b 75s linear infinite,
+    auth-plate-bob 11s ease-in-out infinite reverse;
+}
+.auth-plate-c {
+  animation: auth-plate-spin-a 90s linear infinite;
+}
+.auth-brand-tilt {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.auth-brand-tilt:hover {
+  transform: rotate(-8deg) scale(1.08);
+}
+.auth-curl-icon {
+  display: inline-block;
+  animation: auth-curl 0.9s ease-in-out infinite;
+  transform-origin: 50% 70%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-blob-a,
   .auth-blob-b,
   .auth-blob-c,
   .auth-grid,
-  .auth-brand {
+  .auth-brand,
+  .auth-plate-a,
+  .auth-plate-b,
+  .auth-plate-c,
+  .auth-curl-icon {
     animation: none;
+  }
+  .auth-brand-tilt:hover {
+    transform: none;
   }
 }
 
