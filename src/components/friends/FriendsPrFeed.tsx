@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Flame, Trophy } from 'lucide-react'
 import { toggleReactionAction } from '@/app/(app)/friends/actions'
 import type { FriendRecentPR } from '@/lib/db/prs'
+import { weightUnit } from '@/lib/units'
 
 interface Props {
   prs: FriendRecentPR[]
@@ -37,6 +38,8 @@ function buildTimeAgoLabels(prs: FriendRecentPR[], locale: string): Map<string, 
 export function FriendsPrFeed({ prs }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
+  const kg = weightUnit(locale)
+  const e1rmLabel = locale === 'ru' ? 'e1ПМ' : 'e1RM'
 
   const timeAgoMap = useMemo(() => buildTimeAgoLabels(prs, locale), [prs, locale])
 
@@ -122,7 +125,8 @@ export function FriendsPrFeed({ prs }: Props) {
                     color: 'var(--tar-ink-mute)',
                   }}
                 >
-                  {pr.weight_kg}кг × {pr.reps} · e1ПМ {e1rm}{' '}
+                  {pr.weight_kg}
+                  {kg} × {pr.reps} · {e1rmLabel} {e1rm}{' '}
                   <span style={{ color: 'var(--tar-success)' }}>{delta}</span>
                 </p>
               </div>

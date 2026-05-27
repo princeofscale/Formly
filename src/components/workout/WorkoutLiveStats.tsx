@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl'
 import { weightUnit } from '@/lib/units'
 
 interface Props {
-  startedAt: string
   totalSets: number
   totalTonnageKg: number
   exerciseCount: number
@@ -19,22 +18,12 @@ function formatElapsed(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export function WorkoutLiveStats({ startedAt, totalSets, totalTonnageKg, exerciseCount }: Props) {
+export function WorkoutLiveStats({ totalSets, totalTonnageKg, exerciseCount }: Props) {
   const t = useTranslations('workout.liveStats')
   const locale = useLocale()
   const kg = weightUnit(locale)
-  const [elapsed, setElapsed] = useState(0)
-  useEffect(() => {
-    const compute = () =>
-      Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000))
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe wall-clock init
-    setElapsed(compute())
-    const id = setInterval(() => setElapsed(compute()), 1000)
-    return () => clearInterval(id)
-  }, [startedAt])
 
   const tonnage = Math.round(totalTonnageKg).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')
-  void formatElapsed // elapsed now rendered in WorkoutHeader
 
   return (
     <div className="tar-w-stats">

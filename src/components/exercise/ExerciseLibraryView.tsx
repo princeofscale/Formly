@@ -168,7 +168,7 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
                     : idx === 1
                       ? t('heaviestPr')
                       : idx === 2
-                        ? t('thisMonth', { n: Math.min(it.count, 9) })
+                        ? t('thisMonth')
                         : t('trending')
                 return (
                   <Link

@@ -181,7 +181,6 @@ export function WorkoutClient({
       </header>
 
       <WorkoutLiveStats
-        startedAt={session.started_at}
         totalSets={totalSets}
         totalTonnageKg={totalTonnage}
         exerciseCount={exercises.length}

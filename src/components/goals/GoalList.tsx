@@ -66,7 +66,7 @@ export function GoalList({ goals, tab }: Props) {
   if (filtered.length === 0) {
     return (
       <div className="tar-pl-empty tar-d-rise tar-d-rise-4">
-        <div className="t">{tab === 'done' ? t('listTitle') + '…' : t('allAchieved')}</div>
+        <div className="t">{tab === 'done' ? t('noneDone') : t('allAchieved')}</div>
       </div>
     )
   }
