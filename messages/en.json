@@ -14,6 +14,8 @@
       "submitting": "Sending...",
       "sentTitle": "Mail is on its way.",
       "sentBody": "If that email is registered, we sent a reset link. Check your inbox (including Promotions).",
+      "sentBodyWithEmail": "If <strong>{email}</strong> is registered, we sent a reset link. Check your inbox (including Promotions).",
+      "resend": "Send again",
       "backToLogin": "← Back to login",
       "invalidEmail": "That doesn't look like an email."
     },

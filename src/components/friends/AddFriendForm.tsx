@@ -23,14 +23,8 @@ export function AddFriendForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl p-4 space-y-3"
-      style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
-      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-        {t('addLabel')}
-      </p>
+    <form onSubmit={onSubmit} className="tar-pg-card space-y-3">
+      <div className="tar-d-eyebrow">{t('addLabel')}</div>
       <div className="flex items-center gap-2">
         <input
           name="code"
@@ -38,12 +32,30 @@ export function AddFriendForm() {
           onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 6))}
           placeholder="ABCD12"
           maxLength={6}
-          className="flex-1 rounded-xl bg-white/[0.04] px-3 py-2.5 text-base font-mono font-bold tabular-nums tracking-widest text-white outline-none ring-1 ring-white/10 placeholder:text-white/20 focus:ring-white/30 uppercase"
+          className="flex-1 outline-none uppercase"
+          style={{
+            background: 'var(--tar-card)',
+            border: '1px solid var(--tar-line)',
+            borderRadius: 14,
+            padding: '10px 14px',
+            font: '800 18px/1 var(--tar-tight)',
+            letterSpacing: '0.18em',
+            color: 'var(--tar-ink)',
+            fontVariantNumeric: 'tabular-nums',
+          }}
         />
         <button
           type="submit"
           disabled={pending || code.length !== 6}
-          className="h-11 px-4 rounded-xl bg-primary text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_10px_24px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+          className="tar-c-start"
+          style={{
+            height: 44,
+            width: 'auto',
+            padding: '0 18px',
+            font: '800 13px/1 var(--tar-text)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+          }}
         >
           {pending ? (
             '...'
@@ -58,12 +70,12 @@ export function AddFriendForm() {
         </button>
       </div>
       {result && !result.ok && result.errorKey && (
-        <p className="text-xs" style={{ color: '#FF6E76' }}>
+        <p className="text-xs" style={{ color: 'var(--tar-danger)' }}>
           {t(`addError.${result.errorKey}`)}
         </p>
       )}
       {result?.ok && (
-        <p className="text-xs" style={{ color: '#22D3A8' }}>
+        <p className="text-xs" style={{ color: 'var(--tar-success)' }}>
           {t('addSuccess')}
         </p>
       )}

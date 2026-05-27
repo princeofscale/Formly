@@ -15,12 +15,19 @@ export function ExerciseSelector({
   const router = useRouter()
   return (
     <select
-      className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm text-zinc-200"
+      className="rounded-full px-3 py-1.5 text-xs font-semibold outline-none transition-colors"
+      style={{
+        background: 'var(--tar-card)',
+        border: '1px solid var(--tar-line)',
+        color: 'var(--tar-ink-dim)',
+        fontFamily: 'var(--tar-mono)',
+        letterSpacing: '0.04em',
+      }}
       defaultValue={selected}
       onChange={(e) => router.push(`/analytics?exercise=${e.target.value}`)}
     >
       {exercises.map((e) => (
-        <option key={e.id} value={e.id}>
+        <option key={e.id} value={e.id} className="bg-zinc-900 text-white">
           {locale === 'ru' ? (e.name_ru ?? e.name) : e.name}
         </option>
       ))}

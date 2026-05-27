@@ -1,8 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { RotateCcw } from 'lucide-react'
 import { FloatingInput } from '@/components/auth/FloatingInput'
 import { SubmitButton } from '@/components/auth/SubmitButton'
 import { MailIcon } from '@/components/auth/icons'
@@ -10,16 +11,19 @@ import { requestPasswordResetAction } from './actions'
 
 export default function ForgotPasswordPage() {
   const [state, formAction, pending] = useActionState(requestPasswordResetAction, null)
+  const [resendNonce, setResendNonce] = useState(0)
   const t = useTranslations('auth.forgot')
   const tf = useTranslations('auth.fields')
   const te = useTranslations()
 
   const sent = state && 'ok' in state && state.ok
+  const sentEmail = sent && 'email' in state ? state.email : null
   const errorMsg = state && 'errorKey' in state && state.errorKey ? te(state.errorKey) : null
 
   if (sent) {
     return (
       <div
+        key={resendNonce}
         className="w-full max-w-sm tar-stagger"
         style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
       >
@@ -43,8 +47,40 @@ export default function ForgotPasswordPage() {
           <h1 className="tar-h" style={{ fontSize: 32 }}>
             {t('sentTitle')}
           </h1>
-          <p className="tar-sub">{t('sentBody')}</p>
+          <p className="tar-sub">
+            {sentEmail
+              ? t.rich('sentBodyWithEmail', {
+                  email: sentEmail,
+                  strong: (chunks) => <strong style={{ color: 'var(--tar-ink)' }}>{chunks}</strong>,
+                })
+              : t('sentBody')}
+          </p>
         </div>
+        {sentEmail && (
+          <form
+            action={async () => {
+              const fd = new FormData()
+              fd.set('email', sentEmail)
+              await requestPasswordResetAction(null, fd)
+              setResendNonce((n) => n + 1)
+            }}
+          >
+            <button
+              type="submit"
+              className="tar-btn-ghost"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {t('resend')}
+            </button>
+          </form>
+        )}
         <Link href="/login" className="tar-link" style={{ alignSelf: 'center', marginTop: 6 }}>
           {t('backToLogin')}
         </Link>

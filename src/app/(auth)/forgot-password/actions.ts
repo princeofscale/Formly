@@ -22,5 +22,5 @@ export async function requestPasswordResetAction(_: unknown, formData: FormData)
     redirectTo: `${origin}/auth/confirm?next=/reset-password`,
   })
 
-  return { ok: true as const }
+  return { ok: true as const, email: parsed.data.email }
 }

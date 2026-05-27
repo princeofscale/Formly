@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProgressChart } from '@/components/analytics/ProgressChart'
 import { TonnageChart } from '@/components/analytics/TonnageChart'
 import { VolumeLandmarks } from '@/components/analytics/VolumeLandmarks'
@@ -42,42 +41,34 @@ export default async function AnalyticsPage({
     locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{t('title')}</h1>
+    <div className="space-y-3 pb-4">
+      <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
+        <h1 className="tar-d-hello-name" style={{ fontSize: 28, marginTop: 4 }}>
+          {t('title')}
+        </h1>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{t('e1rmProgress')}</CardTitle>
-            <ExerciseSelector
-              exercises={exercises}
-              selected={selectedExercise?.id}
-              locale={locale}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ProgressChart data={e1rmHistory} exerciseName={displayName(selectedExercise)} />
-        </CardContent>
-      </Card>
+      <section className="tar-pg-card tar-d-rise tar-d-rise-2">
+        <div className="flex items-center justify-between gap-3" style={{ marginBottom: 12 }}>
+          <div className="tar-d-eyebrow">{t('e1rmProgress')}</div>
+          <ExerciseSelector exercises={exercises} selected={selectedExercise?.id} locale={locale} />
+        </div>
+        <ProgressChart data={e1rmHistory} exerciseName={displayName(selectedExercise)} />
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t('monthlyVolume')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TonnageChart data={tonnage} />
-        </CardContent>
-      </Card>
+      <section className="tar-pg-card tar-d-rise tar-d-rise-3">
+        <div className="tar-d-eyebrow" style={{ marginBottom: 12 }}>
+          {t('monthlyVolume')}
+        </div>
+        <TonnageChart data={tonnage} />
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t('volumeLandmarks')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <VolumeLandmarks landmarks={landmarks} />
-        </CardContent>
-      </Card>
+      <section className="tar-pg-card tar-d-rise tar-d-rise-4">
+        <div className="tar-d-eyebrow" style={{ marginBottom: 12 }}>
+          {t('volumeLandmarks')}
+        </div>
+        <VolumeLandmarks landmarks={landmarks} />
+      </section>
     </div>
   )
 }

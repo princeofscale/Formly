@@ -39,34 +39,42 @@ export function OneRMCalculator() {
   }, [weight, reps])
 
   return (
-    <div className="space-y-4">
-      {/* Input card */}
-      <div
-        className="rounded-[20px] p-5"
-        style={{ background: '#15151C', border: '1px solid rgba(255, 255, 255, 0.06)' }}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <div
-            className="h-9 w-9 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+    <div className="space-y-3">
+      {/* Input + hero result card — uses the same tar-pl-ai aesthetic
+          (rotating-ish gradient stroke + radial glow) for visual interest */}
+      <section className="tar-rec-hero">
+        <div className="flex items-center gap-3" style={{ marginBottom: 14 }}>
+          <span
+            className="tar-s-mglyph chest"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'var(--tar-brand-grad-soft)',
+              border: '1px solid rgba(255,182,39,0.35)',
+              color: 'var(--tar-brand-2)',
+            }}
           >
-            <Sigma className="h-4 w-4" style={{ color: '#FFC044' }} />
-          </div>
+            <Sigma />
+          </span>
           <div>
-            <p
-              className="text-[10px] font-bold uppercase tracking-[0.22em]"
-              style={{ color: '#FFC044' }}
+            <div className="tar-d-eyebrow">{t('label')}</div>
+            <div
+              style={{
+                font: '700 14px/1.2 var(--tar-text)',
+                color: 'var(--tar-ink)',
+                marginTop: 2,
+              }}
             >
-              {t('label')}
-            </p>
-            <p className="text-sm font-bold text-white">{t('formTitle')}</p>
+              {t('formTitle')}
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="text-[10px] uppercase tracking-widest text-white/40">
-              {t('weight')} <span className="text-white/25">({kg})</span>
+          <label className="tar-c-field" style={{ padding: '12px 14px' }}>
+            <span className="lbl">
+              {t('weight')} <span style={{ opacity: 0.6 }}>({kg})</span>
             </span>
             <input
               type="number"
@@ -75,11 +83,14 @@ export function OneRMCalculator() {
               onChange={(e) => setWeight(e.target.value)}
               step="0.5"
               min="0.5"
-              className="mt-1 w-full rounded-xl bg-white/[0.04] px-3 py-3 text-xl font-bold tabular-nums text-white outline-none ring-1 ring-white/10 focus:ring-white/30"
+              style={{
+                font: '800 22px/1 var(--tar-tight)',
+                letterSpacing: '-0.02em',
+              }}
             />
           </label>
-          <label className="block">
-            <span className="text-[10px] uppercase tracking-widest text-white/40">{t('reps')}</span>
+          <label className="tar-c-field" style={{ padding: '12px 14px' }}>
+            <span className="lbl">{t('reps')}</span>
             <input
               type="number"
               inputMode="numeric"
@@ -88,43 +99,61 @@ export function OneRMCalculator() {
               step="1"
               min="1"
               max="30"
-              className="mt-1 w-full rounded-xl bg-white/[0.04] px-3 py-3 text-xl font-bold tabular-nums text-white outline-none ring-1 ring-white/10 focus:ring-white/30"
+              style={{
+                font: '800 22px/1 var(--tar-tight)',
+                letterSpacing: '-0.02em',
+              }}
             />
           </label>
         </div>
 
-        {/* Hero result */}
-        <div className="mt-5 flex items-baseline justify-between">
+        <div
+          className="flex items-baseline justify-between"
+          style={{ marginTop: 18, position: 'relative', zIndex: 1 }}
+        >
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-white/45">
-              {t('estimated1rm')}
-            </p>
-            <p className="mt-1 text-5xl font-extrabold tabular-nums" style={{ color: '#FFC044' }}>
+            <div className="tar-d-eyebrow">{t('estimated1rm')}</div>
+            <div
+              style={{
+                font: '800 52px/1 var(--tar-tight)',
+                letterSpacing: '-0.04em',
+                fontVariantNumeric: 'tabular-nums',
+                background: 'var(--tar-brand-grad)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+                marginTop: 6,
+              }}
+            >
               {result ? result.e1rm.toFixed(1) : '—'}
-              <span className="text-xl text-white/40 font-mono ml-2">{kg}</span>
-            </p>
+              <span
+                style={{
+                  font: '500 18px/1 var(--tar-mono)',
+                  marginLeft: 8,
+                  color: 'var(--tar-ink-mute)',
+                  letterSpacing: '0.1em',
+                  WebkitTextFillColor: 'var(--tar-ink-mute)',
+                }}
+              >
+                {kg}
+              </span>
+            </div>
           </div>
           {result && (
-            <span
-              className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm"
-              style={{ background: 'rgba(255, 196, 68, 0.14)', color: '#FFC044' }}
-            >
+            <span className="tar-lib-feat-badge" style={{ alignSelf: 'flex-end', marginBottom: 6 }}>
               {result.formula === 'brzycki' ? 'Brzycki' : 'Epley'}
             </span>
           )}
         </div>
-      </div>
+      </section>
 
       {/* % chart */}
       {result && (
-        <div
-          className="rounded-[20px] p-5"
-          style={{ background: '#15151C', border: '1px solid rgba(255, 255, 255, 0.06)' }}
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] mb-3 text-white/40">
+        <section className="tar-pg-card">
+          <div className="tar-d-eyebrow" style={{ marginBottom: 10 }}>
             {t('percentChart')}
-          </p>
-          <div className="space-y-1.5">
+          </div>
+          <div>
             {PERCENTAGES.map((row) => {
               const load = (result.e1rm * row.pct) / 100
               const tierColor =
@@ -134,27 +163,55 @@ export function OneRMCalculator() {
                     ? '#FFC044'
                     : row.pct >= 70
                       ? '#5EEAD4'
-                      : '#94A3B8'
+                      : 'var(--tar-ink-mute)'
               return (
                 <div
                   key={row.pct}
-                  className="flex items-center gap-3 py-1 border-t border-white/[0.04]"
+                  className="flex items-center gap-3"
+                  style={{
+                    padding: '8px 0',
+                    borderTop: '1px solid var(--tar-line)',
+                  }}
                 >
                   <span
-                    className="w-10 text-xs font-mono font-bold tabular-nums"
-                    style={{ color: tierColor }}
+                    style={{
+                      width: 44,
+                      font: '700 12px/1 var(--tar-mono)',
+                      fontVariantNumeric: 'tabular-nums',
+                      color: tierColor,
+                    }}
                   >
                     {row.pct}%
                   </span>
-                  <span className="flex-1 text-sm font-mono font-bold tabular-nums text-white">
+                  <span
+                    style={{
+                      flex: 1,
+                      font: '700 14px/1 var(--tar-mono)',
+                      fontVariantNumeric: 'tabular-nums',
+                      color: 'var(--tar-ink)',
+                    }}
+                  >
                     {load.toFixed(1)} {kg}
                   </span>
-                  <span className="text-[10px] font-mono text-white/40 w-12 text-right">
+                  <span
+                    style={{
+                      font: '500 10px/1 var(--tar-mono)',
+                      color: 'var(--tar-ink-mute)',
+                      width: 44,
+                      textAlign: 'right',
+                    }}
+                  >
                     × {row.reps}
                   </span>
                   <span
-                    className="text-[9px] font-bold uppercase tracking-widest w-24 text-right"
-                    style={{ color: tierColor }}
+                    style={{
+                      font: '700 9px/1 var(--tar-mono)',
+                      letterSpacing: '0.16em',
+                      textTransform: 'uppercase',
+                      color: tierColor,
+                      width: 92,
+                      textAlign: 'right',
+                    }}
                   >
                     {t(`zones.${row.label.toLowerCase()}`)}
                   </span>
@@ -162,7 +219,7 @@ export function OneRMCalculator() {
               )
             })}
           </div>
-        </div>
+        </section>
       )}
     </div>
   )
