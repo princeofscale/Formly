@@ -248,24 +248,15 @@ export default async function ProfilePage() {
           <Label className="l">{t('form.schedule')}</Label>
           <div className="mt-2 grid grid-cols-7 gap-1.5">
             {dayKeys.map((d) => (
-              <label key={d} className="cursor-pointer">
+              <label key={d}>
                 <input
                   type="checkbox"
                   name="training_schedule"
                   value={d}
                   defaultChecked={(p?.training_schedule ?? []).includes(Number(d))}
-                  className="sr-only peer"
+                  className="tar-pr-day-input sr-only"
                 />
-                <div
-                  className="flex h-10 items-center justify-center rounded-lg border bg-white/[0.02] text-[11px] font-black transition-colors peer-checked:border-[rgba(255,182,39,0.5)] peer-checked:bg-[rgba(255,182,39,0.12)] peer-checked:text-[color:var(--tar-brand-2)]"
-                  style={{
-                    borderColor: 'var(--tar-line)',
-                    color: 'var(--tar-ink-mute)',
-                    fontFamily: 'var(--tar-mono)',
-                  }}
-                >
-                  {t(`days.${d}`)}
-                </div>
+                <div className="tar-pr-day-cell">{t(`days.${d}`)}</div>
               </label>
             ))}
           </div>
