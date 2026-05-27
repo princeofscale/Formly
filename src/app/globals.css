@@ -1015,6 +1015,14 @@
   opacity: 0;
   transform: translateY(8px);
 }
+.tar-btn .tar-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+}
 .tar-btn.success {
   background: linear-gradient(135deg, #2bd884 0%, #00b26b 100%);
   box-shadow: 0 14px 36px rgba(43, 216, 132, 0.4);
