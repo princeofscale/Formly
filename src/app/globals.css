@@ -3084,6 +3084,13 @@
   text-decoration: none;
   color: var(--tar-ink);
 }
+@media (min-width: 600px) {
+  .tar-d-quick .glass {
+    aspect-ratio: auto;
+    min-height: 100px;
+    max-height: 130px;
+  }
+}
 .tar-d-quick .glass:hover {
   background: var(--tar-card-hot);
   border-color: var(--tar-line-hot);
