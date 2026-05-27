@@ -35,10 +35,8 @@ export function MoodSelector({ sessionId, initialMood }: Props) {
   }
 
   return (
-    <div className="space-y-1.5">
-      <div className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">
-        {t('label')}
-      </div>
+    <div className="space-y-2">
+      <div className="tar-d-eyebrow">{t('label')}</div>
       <div className="flex gap-1.5">
         {MOODS.map((m) => {
           const active = mood === m.value
@@ -48,11 +46,17 @@ export function MoodSelector({ sessionId, initialMood }: Props) {
               type="button"
               onClick={() => handlePick(m.value)}
               title={t(m.labelKey)}
-              className={`flex-1 h-10 rounded-lg text-xl transition-all ${
-                active
-                  ? 'bg-amber-500/20 border border-amber-500/40 scale-105'
-                  : 'bg-white/3 border border-white/8 hover:bg-white/8 opacity-60 hover:opacity-100'
-              }`}
+              className="flex-1 transition-all"
+              style={{
+                height: 44,
+                borderRadius: 12,
+                fontSize: 22,
+                background: active ? 'var(--tar-brand-grad-soft)' : 'var(--tar-card)',
+                border: active ? '1px solid rgba(255, 182, 39, 0.45)' : '1px solid var(--tar-line)',
+                transform: active ? 'scale(1.06)' : 'scale(1)',
+                boxShadow: active ? '0 4px 18px rgba(255, 107, 53, 0.18)' : undefined,
+                opacity: active ? 1 : 0.65,
+              }}
             >
               {m.emoji}
             </button>

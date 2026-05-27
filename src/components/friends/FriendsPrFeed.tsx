@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useMemo, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Flame, Trophy } from 'lucide-react'
 import { toggleReactionAction } from '@/app/(app)/friends/actions'
@@ -10,69 +10,130 @@ interface Props {
   prs: FriendRecentPR[]
 }
 
-function timeAgoLabel(iso: string, locale: string): string {
-  const then = new Date(iso).getTime()
-  const days = Math.floor((Date.now() - then) / 86400000)
-  if (days <= 0) return locale === 'ru' ? 'сегодня' : 'today'
-  if (days === 1) return locale === 'ru' ? 'вчера' : 'yesterday'
-  return locale === 'ru' ? `${days}д назад` : `${days}d ago`
+// Top-level helper so Date.now() stays out of the render path
+// (React Compiler purity rule).
+function buildTimeAgoLabels(prs: FriendRecentPR[], locale: string): Map<string, string> {
+  const now = Date.now()
+  const m = new Map<string, string>()
+  for (const pr of prs) {
+    const days = Math.floor((now - new Date(pr.achieved_at).getTime()) / 86400000)
+    const label =
+      days <= 0
+        ? locale === 'ru'
+          ? 'сегодня'
+          : 'today'
+        : days === 1
+          ? locale === 'ru'
+            ? 'вчера'
+            : 'yesterday'
+          : locale === 'ru'
+            ? `${days}д назад`
+            : `${days}d ago`
+    m.set(pr.pr_set_id, label)
+  }
+  return m
 }
 
 export function FriendsPrFeed({ prs }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
 
+  const timeAgoMap = useMemo(() => buildTimeAgoLabels(prs, locale), [prs, locale])
+
   if (prs.length === 0) return null
 
   return (
-    <div className="space-y-3">
-      <h2 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-        <Trophy className="h-3 w-3" style={{ color: '#FFC044' }} />
+    <div className="space-y-2">
+      <div className="tar-d-eyebrow flex items-center gap-1.5">
+        <Trophy className="h-3 w-3" style={{ color: 'var(--tar-brand-2)' }} />
         {t('prFeedTitle', { n: prs.length })}
-      </h2>
-      <div className="rounded-[24px] bg-card p-2 ring-1 ring-white/[0.06]">
-        <div className="space-y-1">
-          {prs.map((pr) => {
-            const name =
-              locale === 'ru' ? (pr.exercise_name_ru ?? pr.exercise_name) : pr.exercise_name
-            const e1rm = Math.round(pr.current_best)
-            const delta =
-              pr.improvement_pct != null ? `+${pr.improvement_pct.toFixed(1)}%` : t('firstRecord')
-            return (
+      </div>
+      <div
+        className="space-y-1"
+        style={{
+          padding: 8,
+          borderRadius: 'var(--tar-r-xl)',
+          background: 'var(--tar-bg-elevated)',
+          border: '1px solid var(--tar-line)',
+        }}
+      >
+        {prs.map((pr) => {
+          const name =
+            locale === 'ru' ? (pr.exercise_name_ru ?? pr.exercise_name) : pr.exercise_name
+          const e1rm = Math.round(pr.current_best)
+          const delta =
+            pr.improvement_pct != null ? `+${pr.improvement_pct.toFixed(1)}%` : t('firstRecord')
+          return (
+            <div
+              key={pr.pr_set_id}
+              className="flex items-center gap-3 transition"
+              style={{
+                padding: '10px 12px',
+                borderRadius: 'var(--tar-r-md)',
+              }}
+            >
               <div
-                key={pr.pr_set_id}
-                className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-white/[0.04]"
+                className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center tabular-nums"
+                style={{
+                  background: 'rgba(167, 139, 250, 0.16)',
+                  color: '#A78BFA',
+                  font: '800 13px/1 var(--tar-tight)',
+                  letterSpacing: '0.04em',
+                }}
               >
-                <div
-                  className="h-9 w-9 shrink-0 rounded-full flex items-center justify-center font-mono font-extrabold text-[11px]"
-                  style={{ background: 'rgba(167, 139, 250, 0.16)', color: '#A78BFA' }}
-                >
-                  {(pr.friend_code ?? '??').slice(0, 2)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-white/65 tabular-nums">
-                      {pr.friend_code ?? '······'}
-                    </span>
-                    <span className="text-[10px] text-white/30">
-                      {timeAgoLabel(pr.achieved_at, locale)}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 truncate text-sm font-bold text-white">{name}</p>
-                  <p className="mt-0.5 text-[11px] text-white/45 tabular-nums">
-                    {pr.weight_kg}кг × {pr.reps} · e1ПМ {e1rm}{' '}
-                    <span style={{ color: '#22D3A8' }}>{delta}</span>
-                  </p>
-                </div>
-                <ReactionButton
-                  prSetId={pr.pr_set_id}
-                  didReact={pr.did_react}
-                  count={pr.reaction_count}
-                />
+                {(pr.friend_code ?? '??').slice(0, 2)}
               </div>
-            )
-          })}
-        </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="tabular-nums"
+                    style={{
+                      font: '700 12px/1 var(--tar-mono)',
+                      letterSpacing: '0.08em',
+                      color: 'var(--tar-ink-dim)',
+                    }}
+                  >
+                    {pr.friend_code ?? '······'}
+                  </span>
+                  <span
+                    style={{
+                      font: '500 10px/1 var(--tar-mono)',
+                      letterSpacing: '0.06em',
+                      color: 'var(--tar-ink-soft)',
+                    }}
+                  >
+                    {timeAgoMap.get(pr.pr_set_id)}
+                  </span>
+                </div>
+                <p
+                  className="mt-1 truncate"
+                  style={{
+                    font: '700 14px/1.2 var(--tar-text)',
+                    color: 'var(--tar-ink)',
+                  }}
+                >
+                  {name}
+                </p>
+                <p
+                  className="mt-1 tabular-nums"
+                  style={{
+                    font: '500 11px/1 var(--tar-mono)',
+                    letterSpacing: '0.06em',
+                    color: 'var(--tar-ink-mute)',
+                  }}
+                >
+                  {pr.weight_kg}кг × {pr.reps} · e1ПМ {e1rm}{' '}
+                  <span style={{ color: 'var(--tar-success)' }}>{delta}</span>
+                </p>
+              </div>
+              <ReactionButton
+                prSetId={pr.pr_set_id}
+                didReact={pr.did_react}
+                count={pr.reaction_count}
+              />
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -102,13 +163,15 @@ function ReactionButton({
       onClick={handle}
       disabled={isPending}
       aria-label={t('reactCongrats')}
-      className="flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition active:scale-95 disabled:opacity-50"
+      className="flex shrink-0 items-center gap-1 transition active:scale-95 disabled:opacity-50"
       style={{
-        background: didReact ? 'rgba(255, 122, 130, 0.18)' : 'rgba(255, 255, 255, 0.04)',
-        border: didReact
-          ? '1px solid rgba(255, 122, 130, 0.4)'
-          : '1px solid rgba(255, 255, 255, 0.06)',
-        color: didReact ? '#FF7A82' : 'rgba(255, 255, 255, 0.55)',
+        padding: '7px 12px',
+        borderRadius: 100,
+        background: didReact ? 'rgba(255, 122, 130, 0.16)' : 'var(--tar-card)',
+        border: didReact ? '1px solid rgba(255, 122, 130, 0.42)' : '1px solid var(--tar-line)',
+        color: didReact ? '#FF7A82' : 'var(--tar-ink-mute)',
+        font: '700 11px/1 var(--tar-mono)',
+        letterSpacing: '0.04em',
       }}
     >
       <Flame className={`h-3.5 w-3.5 ${isPending ? 'animate-pulse' : ''}`} />

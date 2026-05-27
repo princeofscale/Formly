@@ -118,26 +118,42 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
   }
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-6 space-y-6">
+    <div className="w-full max-w-md mx-auto px-4 py-6 space-y-5">
       {/* Hero */}
       <div className="text-center pt-4">
-        <p className="text-2xl mb-2">🏋️</p>
-        <h1 className="text-2xl font-extrabold tracking-tight text-white">{labels.hero}</h1>
-        <p className="mt-1 text-sm text-white/55">{labels.subtitle}</p>
+        <p style={{ font: '400 26px/1 var(--tar-tight)', marginBottom: 8 }}>🏋️</p>
+        <h1
+          style={{
+            font: '800 28px/1.1 var(--tar-tight)',
+            letterSpacing: '-0.03em',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {labels.hero}
+        </h1>
+        <p
+          className="mt-2"
+          style={{
+            font: '500 13px/1.4 var(--tar-text)',
+            color: 'var(--tar-ink-mute)',
+          }}
+        >
+          {labels.subtitle}
+        </p>
       </div>
 
       {/* Progress bar */}
-      <div className="space-y-1.5">
-        <p className="text-[10px] uppercase tracking-widest text-white/40 text-center">
+      <div className="space-y-2">
+        <div className="tar-d-eyebrow text-center">
           {labels.step.replace('{n}', String(step + 1)).replace('{total}', String(total))}
-        </p>
+        </div>
         <div
           className="relative h-1 rounded-full overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--tar-line)' }}
         >
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
-            style={{ width: `${pct}%`, background: '#FFC044' }}
+            style={{ width: `${pct}%`, background: 'var(--tar-brand-grad)' }}
           />
         </div>
       </div>
@@ -156,54 +172,72 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
       )}
 
       {/* Footer buttons */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          {step > 0 ? (
+      <div className="flex items-center gap-2">
+        {step > 0 ? (
+          <button
+            type="button"
+            onClick={back}
+            className="flex-1 flex items-center justify-center gap-1 transition"
+            style={{
+              height: 48,
+              borderRadius: 14,
+              background: 'var(--tar-card)',
+              border: '1px solid var(--tar-line)',
+              color: 'var(--tar-ink-dim)',
+              font: '700 13px/1 var(--tar-text)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" /> {labels.back}
+          </button>
+        ) : (
+          <form action={skipOnboardingAction} className="flex-1">
             <button
-              type="button"
-              onClick={back}
-              className="flex-1 flex items-center justify-center gap-1 h-12 rounded-xl bg-white/5 text-sm font-bold text-white/70 hover:bg-white/10 transition"
+              type="submit"
+              className="w-full transition"
+              style={{
+                height: 48,
+                borderRadius: 14,
+                background: 'var(--tar-card)',
+                border: '1px solid var(--tar-line)',
+                color: 'var(--tar-ink-mute)',
+                font: '600 13px/1 var(--tar-text)',
+                letterSpacing: '0.02em',
+              }}
             >
-              <ChevronLeft className="h-4 w-4" /> {labels.back}
+              {labels.skip}
             </button>
-          ) : (
-            <form action={skipOnboardingAction} className="flex-1">
-              <button
-                type="submit"
-                className="w-full h-12 rounded-xl bg-white/5 text-sm font-bold text-white/45 hover:bg-white/10 transition"
-              >
-                {labels.skip}
-              </button>
-            </form>
-          )}
+          </form>
+        )}
 
-          {step < total - 1 ? (
+        {step < total - 1 ? (
+          <button
+            type="button"
+            onClick={next}
+            className="flex-1 tar-c-start"
+            style={{ height: 48, font: '800 13px/1 var(--tar-text)' }}
+          >
+            {labels.next} <ChevronRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <form
+            action={finishOnboardingAction}
+            onSubmit={() => setSubmitting(true)}
+            className="flex-1"
+          >
+            <input type="hidden" name="goal" value={goal} />
+            <input type="hidden" name="location" value={location} />
+            <input type="hidden" name="days" value={days} />
             <button
-              type="button"
-              onClick={next}
-              className="flex-1 flex items-center justify-center gap-1 h-12 rounded-xl bg-primary text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98]"
+              type="submit"
+              disabled={submitting}
+              className="w-full tar-c-start"
+              style={{ height: 48, font: '800 13px/1 var(--tar-text)' }}
             >
-              {labels.next} <ChevronRight className="h-4 w-4" />
+              {submitting ? '...' : labels.finish}
             </button>
-          ) : (
-            <form
-              action={finishOnboardingAction}
-              onSubmit={() => setSubmitting(true)}
-              className="flex-1"
-            >
-              <input type="hidden" name="goal" value={goal} />
-              <input type="hidden" name="location" value={location} />
-              <input type="hidden" name="days" value={days} />
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-12 rounded-xl bg-primary text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50"
-              >
-                {submitting ? '...' : labels.finish}
-              </button>
-            </form>
-          )}
-        </div>
+          </form>
+        )}
       </div>
     </div>
   )
@@ -223,21 +257,44 @@ function Option({ active, icon, title, sub, onClick, accent }: OptionProps) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-3 rounded-xl p-4 transition active:scale-[0.99]"
+      className="w-full flex items-center gap-3 transition active:scale-[0.99]"
       style={{
-        background: active ? `${accent}1F` : 'rgba(255,255,255,0.03)',
-        border: active ? `1px solid ${accent}55` : '1px solid rgba(255,255,255,0.06)',
+        padding: 16,
+        borderRadius: 'var(--tar-r-lg)',
+        background: active ? `${accent}1F` : 'var(--tar-card)',
+        border: active ? `1px solid ${accent}55` : '1px solid var(--tar-line)',
+        boxShadow: active ? `0 6px 18px ${accent}1A` : undefined,
       }}
     >
       <div
-        className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
-        style={{ background: `${accent}24`, color: accent }}
+        className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
+        style={{
+          background: `${accent}24`,
+          color: accent,
+          border: `1px solid ${accent}44`,
+        }}
       >
         {icon}
       </div>
       <div className="text-left flex-1 min-w-0">
-        <p className="text-sm font-bold text-white">{title}</p>
-        <p className="text-[11px] text-white/55 leading-tight">{sub}</p>
+        <div
+          style={{
+            font: '700 14px/1.2 var(--tar-text)',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {title}
+        </div>
+        <div
+          className="mt-1"
+          style={{
+            font: '500 11px/1.35 var(--tar-mono)',
+            letterSpacing: '0.04em',
+            color: 'var(--tar-ink-mute)',
+          }}
+        >
+          {sub}
+        </div>
       </div>
     </button>
   )
@@ -255,8 +312,21 @@ function StepGoal({
   return (
     <div className="space-y-3">
       <div className="text-center mb-1">
-        <h2 className="text-xl font-extrabold text-white">{labels.goalTitle}</h2>
-        <p className="text-sm text-white/55 mt-1">{labels.goalSub}</p>
+        <h2
+          style={{
+            font: '800 20px/1.1 var(--tar-tight)',
+            letterSpacing: '-0.02em',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {labels.goalTitle}
+        </h2>
+        <p
+          className="mt-2"
+          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
+        >
+          {labels.goalSub}
+        </p>
       </div>
       <Option
         active={value === 'strength'}
@@ -298,8 +368,21 @@ function StepLocation({
   return (
     <div className="space-y-3">
       <div className="text-center mb-1">
-        <h2 className="text-xl font-extrabold text-white">{labels.locTitle}</h2>
-        <p className="text-sm text-white/55 mt-1">{labels.locSub}</p>
+        <h2
+          style={{
+            font: '800 20px/1.1 var(--tar-tight)',
+            letterSpacing: '-0.02em',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {labels.locTitle}
+        </h2>
+        <p
+          className="mt-2"
+          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
+        >
+          {labels.locSub}
+        </p>
       </div>
       <Option
         active={value === 'gym'}
@@ -341,24 +424,49 @@ function StepNotifications({ state, diagnostic, onEnable, labels }: StepNotifica
     <div className="space-y-3">
       <div className="text-center mb-1">
         <div
-          className="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-3"
-          style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+          className="mx-auto flex items-center justify-center mb-3"
+          style={{
+            height: 56,
+            width: 56,
+            borderRadius: 16,
+            background: 'var(--tar-brand-grad-soft)',
+            border: '1px solid rgba(255, 182, 39, 0.36)',
+            color: 'var(--tar-brand-2)',
+          }}
         >
-          <Bell className="h-5 w-5" style={{ color: '#FFC044' }} />
+          <Bell className="h-6 w-6" />
         </div>
-        <h2 className="text-xl font-extrabold text-white">{labels.notifTitle}</h2>
-        <p className="text-sm text-white/55 mt-1">{labels.notifSub}</p>
+        <h2
+          style={{
+            font: '800 20px/1.1 var(--tar-tight)',
+            letterSpacing: '-0.02em',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {labels.notifTitle}
+        </h2>
+        <p
+          className="mt-2"
+          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
+        >
+          {labels.notifSub}
+        </p>
       </div>
 
       {state === 'idle' && (
         <button
           type="button"
           onClick={onEnable}
-          className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-extrabold uppercase tracking-wide transition active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 transition active:scale-[0.98]"
           style={{
-            background: 'rgba(255, 196, 68, 0.12)',
-            color: '#FFC044',
-            border: '1px solid rgba(255, 196, 68, 0.32)',
+            height: 48,
+            borderRadius: 14,
+            background: 'var(--tar-brand-grad-soft)',
+            color: 'var(--tar-brand-2)',
+            border: '1px solid rgba(255, 182, 39, 0.36)',
+            font: '800 13px/1 var(--tar-text)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
           }}
         >
           <Bell className="h-4 w-4" />
@@ -368,14 +476,17 @@ function StepNotifications({ state, diagnostic, onEnable, labels }: StepNotifica
 
       {state === 'on' && (
         <div
-          className="rounded-xl p-3 text-center"
+          className="text-center"
           style={{
-            background: 'rgba(34, 211, 168, 0.08)',
-            border: '1px solid rgba(34, 211, 168, 0.30)',
-            color: '#22D3A8',
+            padding: 12,
+            borderRadius: 'var(--tar-r-md)',
+            background: 'rgba(43, 216, 132, 0.10)',
+            border: '1px solid rgba(43, 216, 132, 0.32)',
+            color: 'var(--tar-success)',
+            font: '700 13px/1.2 var(--tar-text)',
           }}
         >
-          <p className="text-sm font-bold">✓ {labels.notifEnabled}</p>
+          ✓ {labels.notifEnabled}
         </div>
       )}
 
@@ -452,43 +563,75 @@ function StepDays({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h2 className="text-xl font-extrabold text-white">{labels.daysTitle}</h2>
-        <p className="text-sm text-white/55 mt-1">{labels.daysSub}</p>
+        <h2
+          style={{
+            font: '800 20px/1.1 var(--tar-tight)',
+            letterSpacing: '-0.02em',
+            color: 'var(--tar-ink)',
+          }}
+        >
+          {labels.daysTitle}
+        </h2>
+        <p
+          className="mt-2"
+          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
+        >
+          {labels.daysSub}
+        </p>
       </div>
 
       <div
-        className="rounded-2xl p-6 text-center"
-        style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
+        className="text-center relative overflow-hidden"
+        style={{
+          padding: 24,
+          borderRadius: 'var(--tar-r-xl)',
+          background:
+            'radial-gradient(120% 80% at 0% 0%, rgba(255,182,39,0.10), transparent 60%), var(--tar-bg-elevated)',
+          border: '1px solid var(--tar-line)',
+        }}
       >
         <p
-          className="text-7xl font-extrabold tabular-nums"
-          style={{ color: '#FFC044', textShadow: '0 6px 20px rgba(255,196,68,0.25)' }}
+          className="tabular-nums"
+          style={{
+            font: '900 80px/0.95 var(--tar-tight)',
+            letterSpacing: '-0.04em',
+            background: 'var(--tar-brand-grad)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            filter: 'drop-shadow(0 6px 20px rgba(255,182,39,0.28))',
+          }}
         >
           {value}
         </p>
-        <p className="text-[10px] uppercase tracking-widest text-white/40 mt-2">
+        <div className="tar-d-eyebrow" style={{ marginTop: 8 }}>
           {labels.daysSuffix}
-        </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-6 gap-1.5">
-        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => onChange(n)}
-            className="h-10 rounded-lg text-sm font-bold transition"
-            style={{
-              background: value === n ? 'rgba(255,196,68,0.20)' : 'rgba(255,255,255,0.04)',
-              color: value === n ? '#FFC044' : 'rgba(255,255,255,0.55)',
-              border:
-                value === n ? '1px solid rgba(255,196,68,0.4)' : '1px solid rgba(255,255,255,0.06)',
-              gridColumn: n === 7 ? 'span 2' : 'span 1',
-            }}
-          >
-            {n}
-          </button>
-        ))}
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => {
+          const active = value === n
+          return (
+            <button
+              key={n}
+              type="button"
+              onClick={() => onChange(n)}
+              className="transition"
+              style={{
+                height: 44,
+                borderRadius: 12,
+                background: active ? 'var(--tar-brand-grad-soft)' : 'var(--tar-card)',
+                color: active ? 'var(--tar-brand-2)' : 'var(--tar-ink-dim)',
+                border: active ? '1px solid rgba(255, 182, 39, 0.42)' : '1px solid var(--tar-line)',
+                font: '800 14px/1 var(--tar-tight)',
+                gridColumn: n === 7 ? 'span 2' : 'span 1',
+              }}
+            >
+              {n}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

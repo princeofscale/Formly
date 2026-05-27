@@ -53,7 +53,17 @@ export function WorkoutNotes({ sessionId, initialNotes }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-white/3 border border-white/8 text-xs text-zinc-500 hover:text-zinc-300 hover:bg-white/8 transition-colors"
+        className="w-full flex items-center justify-center gap-2 transition-colors"
+        style={{
+          height: 40,
+          borderRadius: 12,
+          background: 'var(--tar-card)',
+          border: '1px solid var(--tar-line)',
+          color: 'var(--tar-ink-mute)',
+          font: '600 12px/1 var(--tar-mono)',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+        }}
       >
         <StickyNote className="h-3.5 w-3.5" />
         {t('add')}
@@ -63,19 +73,29 @@ export function WorkoutNotes({ sessionId, initialNotes }: Props) {
 
   return (
     <div
-      className="p-3 rounded-xl space-y-2"
+      className="space-y-2"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 14,
+        borderRadius: 'var(--tar-r-lg)',
+        background: 'var(--tar-card)',
+        border: '1px solid var(--tar-line)',
       }}
     >
-      <div className="flex items-center justify-between text-[10px]">
-        <div className="flex items-center gap-1.5 text-zinc-500">
+      <div className="flex items-center justify-between">
+        <div className="tar-d-eyebrow flex items-center gap-1.5">
           <StickyNote className="h-3 w-3" />
-          <span className="uppercase tracking-widest font-bold">{t('label')}</span>
+          {t('label')}
         </div>
         {savedTick && (
-          <div className="flex items-center gap-1 text-green-400 animate-in fade-in duration-200">
+          <div
+            className="flex items-center gap-1 animate-in fade-in duration-200"
+            style={{
+              color: 'var(--tar-success)',
+              font: '600 10px/1 var(--tar-mono)',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+            }}
+          >
             <Check className="h-3 w-3" />
             <span>{t('saved')}</span>
           </div>
@@ -87,7 +107,11 @@ export function WorkoutNotes({ sessionId, initialNotes }: Props) {
         placeholder={t('placeholder')}
         rows={3}
         maxLength={MAX_LENGTH}
-        className="w-full bg-transparent text-xs text-zinc-200 placeholder:text-zinc-600 outline-none resize-y leading-relaxed"
+        className="w-full bg-transparent outline-none resize-y"
+        style={{
+          color: 'var(--tar-ink)',
+          font: '500 13px/1.5 var(--tar-text)',
+        }}
       />
     </div>
   )

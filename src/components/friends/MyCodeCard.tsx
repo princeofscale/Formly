@@ -37,22 +37,38 @@ export function MyCodeCard({ code }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-5"
+      className="relative overflow-hidden"
       style={{
+        padding: 20,
+        borderRadius: 'var(--tar-r-xl)',
         background:
-          'radial-gradient(circle at 0% 0%, rgba(255, 196, 68, 0.10), transparent 55%), #15151C',
-        border: '1px solid rgba(255, 196, 68, 0.22)',
+          'radial-gradient(120% 80% at 0% 0%, rgba(255, 182, 39, 0.12), transparent 60%), var(--tar-bg-elevated)',
+        border: '1px solid rgba(255, 182, 39, 0.28)',
       }}
     >
-      <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: '#FFC044' }}>
-        {t('label')}
-      </p>
-      <p className="text-sm text-white/55 mt-1">{t('subtitle')}</p>
+      <div className="tar-d-eyebrow accent">{t('label')}</div>
+      <div
+        style={{
+          font: '500 13px/1.4 var(--tar-text)',
+          color: 'var(--tar-ink-mute)',
+          marginTop: 4,
+        }}
+      >
+        {t('subtitle')}
+      </div>
 
       <div className="mt-4 flex items-center justify-center">
         <p
-          className="font-mono font-extrabold text-5xl tabular-nums tracking-[0.18em]"
-          style={{ color: '#FFC044', textShadow: '0 6px 24px rgba(255,196,68,0.32)' }}
+          className="tabular-nums"
+          style={{
+            font: '900 48px/1 var(--tar-tight)',
+            letterSpacing: '0.16em',
+            background: 'var(--tar-brand-grad)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            filter: 'drop-shadow(0 6px 20px rgba(255, 182, 39, 0.32))',
+          }}
         >
           {code}
         </p>
@@ -62,11 +78,15 @@ export function MyCodeCard({ code }: Props) {
         <button
           type="button"
           onClick={copy}
-          className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-bold transition"
+          className="flex-1 flex items-center justify-center gap-2 transition"
           style={{
-            background: 'rgba(255, 196, 68, 0.10)',
-            color: '#FFC044',
-            border: '1px solid rgba(255, 196, 68, 0.28)',
+            height: 42,
+            borderRadius: 12,
+            background: 'var(--tar-brand-grad-soft)',
+            color: 'var(--tar-brand-2)',
+            border: '1px solid rgba(255, 182, 39, 0.36)',
+            font: '700 13px/1 var(--tar-text)',
+            letterSpacing: '0.02em',
           }}
         >
           {copied ? (
@@ -84,11 +104,15 @@ export function MyCodeCard({ code }: Props) {
         <button
           type="button"
           onClick={share}
-          className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-bold transition active:scale-[0.98]"
+          className="flex-1 flex items-center justify-center gap-2 transition active:scale-[0.98]"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            color: 'rgba(255,255,255,0.75)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            height: 42,
+            borderRadius: 12,
+            background: 'var(--tar-card)',
+            color: 'var(--tar-ink-dim)',
+            border: '1px solid var(--tar-line)',
+            font: '700 13px/1 var(--tar-text)',
+            letterSpacing: '0.02em',
           }}
         >
           <Share2 className="h-4 w-4" />
