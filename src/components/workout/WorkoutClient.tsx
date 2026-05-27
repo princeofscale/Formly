@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { BookmarkPlus, Check } from 'lucide-react'
+import { BookmarkPlus, Check, ChevronLeft } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
@@ -11,7 +12,7 @@ import { OfflineSyncWatcher } from './OfflineSyncWatcher'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
-import { WorkoutLiveStats } from './WorkoutLiveStats'
+import { WorkoutLiveStats, WorkoutElapsed } from './WorkoutLiveStats'
 import {
   getLastSetsForExerciseAction,
   saveTemplateAction,
@@ -137,18 +138,29 @@ export function WorkoutClient({
     0,
   )
 
-  return (
-    <div className="space-y-4 pb-24">
-      <WorkoutLiveStats
-        startedAt={session.started_at}
-        totalSets={totalSets}
-        totalTonnageKg={totalTonnage}
-      />
+  const weekday = new Date(session.started_at).toLocaleDateString(
+    locale === 'ru' ? 'ru-RU' : 'en-US',
+    { weekday: 'long' },
+  )
+  const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
 
-      {/* header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider">{t('title')}</h1>
+  return (
+    <div className="space-y-3 pb-24">
+      {/* tar-w-header — back arrow + title + live subtitle + Finish */}
+      <header className="tar-w-header">
+        <Link href="/dashboard" className="tar-w-iconbtn" aria-label={t('back')}>
+          <ChevronLeft className="h-[18px] w-[18px]" />
+        </Link>
+        <div className="tar-w-title-block">
+          <div className="tar-w-title">{t('title')}</div>
+          <div className="tar-w-subtitle">
+            <span className="tar-w-session-dot" />
+            <span>
+              <WorkoutElapsed startedAt={session.started_at} />
+            </span>
+            <span style={{ opacity: 0.5 }}>·</span>
+            <span>{weekdayCap}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {exercises.length > 0 && (
@@ -157,15 +169,23 @@ export function WorkoutClient({
                 setShowTplInput((v) => !v)
                 setSaveAsNew(false)
               }}
-              className="h-9 w-9 flex items-center justify-center rounded-sm bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-100 transition-colors"
+              className="tar-w-iconbtn"
+              aria-label={tTpl('saveAsTemplate')}
               title={tTpl('saveAsTemplate')}
             >
-              <BookmarkPlus className="h-4 w-4" />
+              <BookmarkPlus className="h-[18px] w-[18px]" />
             </button>
           )}
           <FinishWorkoutButton sessionId={session.id} />
         </div>
-      </div>
+      </header>
+
+      <WorkoutLiveStats
+        startedAt={session.started_at}
+        totalSets={totalSets}
+        totalTonnageKg={totalTonnage}
+        exerciseCount={exercises.length}
+      />
 
       {/* save as template inline */}
       {showTplInput && (

@@ -5534,3 +5534,75 @@
   border-color: var(--tar-line-hot);
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.06);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Active Workout header + stats (tar-w-*) — bundle #2
+   The rest of tar-w-* (active card, sets, sheets) already exists
+   from an earlier iteration; these are the missing shell pieces.
+   ───────────────────────────────────────────────────────────── */
+.tar-w-header {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--tar-w-line);
+  border-radius: var(--tar-w-r-lg);
+  background: rgba(10, 10, 15, 0.7);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+.tar-w-title-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tar-w-title {
+  font: 700 16px/1.1 var(--tar-tight);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--tar-w-ink);
+}
+.tar-w-subtitle {
+  font: 500 11px/1 var(--tar-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tar-w-ink-mute);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.tar-w-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border: 1px solid var(--tar-w-line);
+  border-radius: var(--tar-w-r-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.06) 0%, rgba(255, 182, 39, 0.04) 100%);
+  position: relative;
+}
+.tar-w-stats::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(80% 60% at 100% 0%, rgba(255, 107, 53, 0.08), transparent 60%);
+}
+.tar-w-stat {
+  padding: 14px 12px;
+  position: relative;
+  z-index: 1;
+}
+.tar-w-stat + .tar-w-stat {
+  border-left: 1px solid var(--tar-w-line);
+}
+.tar-w-stat-value.accent {
+  background: var(--tar-brand-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

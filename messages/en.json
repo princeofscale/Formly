@@ -750,10 +750,12 @@
       "title": "NEW PR!",
       "firstTime": "first time"
     },
+    "back": "Back",
     "liveStats": {
       "elapsed": "Elapsed",
       "sets": "Sets",
-      "tonnage": "Tonnage"
+      "tonnage": "Tonnage",
+      "exercises": "Exercises"
     },
     "progression": {
       "tapToApply": "Tap to apply",

@@ -750,10 +750,12 @@
       "title": "НОВЫЙ PR!",
       "firstTime": "впервые"
     },
+    "back": "Назад",
     "liveStats": {
       "elapsed": "Время",
       "sets": "Сетов",
-      "tonnage": "Тоннаж"
+      "tonnage": "Тоннаж",
+      "exercises": "Упражнений"
     },
     "progression": {
       "tapToApply": "Тап чтобы вставить",
