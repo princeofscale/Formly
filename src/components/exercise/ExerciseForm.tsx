@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { Plus, X, Check, Loader2 } from 'lucide-react'
 import { createExerciseAction } from '@/app/(app)/exercise-library/actions'
@@ -115,7 +116,9 @@ export function ExerciseForm({
     )
   }
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150"
       style={{ background: 'rgba(0, 0, 0, 0.65)' }}
@@ -298,6 +301,7 @@ export function ExerciseForm({
           </button>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   )
 }
