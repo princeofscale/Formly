@@ -96,9 +96,21 @@
   },
   "records": {
     "title": "Personal Records",
+    "subtitle": "All time",
     "noRecords": "No records yet. Start lifting!",
+    "noRecordsHint": "Finish a heavy set and it'll land here.",
     "e1rm": "e1RM",
-    "date": "Date"
+    "date": "Date",
+    "totalPrs": "Total PRs",
+    "lifts": "Lifts",
+    "latestPr": "Latest PR",
+    "tabs": {
+      "all": "All lifts",
+      "recent": "Recent",
+      "muscle": "By muscle"
+    },
+    "thisWeek": "{n} PRs this week",
+    "activeSeason": "↑ Active season"
   },
   "templates": {
     "title": "Templates",
