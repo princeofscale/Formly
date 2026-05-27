@@ -124,141 +124,155 @@ export function ExerciseForm({
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-[20px] p-5 space-y-4 animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
+        className="w-full max-w-md rounded-[20px] flex flex-col animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
         style={{
           background: '#15151C',
           border: '1px solid rgba(255, 255, 255, 0.08)',
+          maxHeight: 'calc(100dvh - 24px)',
         }}
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">{t('title')}</h2>
-          <button
-            type="button"
-            onClick={close}
-            className="h-8 w-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-200"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-white">{t('title')}</h2>
+            <button
+              type="button"
+              onClick={close}
+              className="h-8 w-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-200"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-        {/* Name (en + ru) */}
-        <div className="space-y-2">
-          <div className="space-y-1">
+          {/* Name (en + ru) */}
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                {t('name')}
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t('namePlaceholder')}
+                autoFocus
+                required
+                minLength={2}
+                maxLength={100}
+                className="w-full h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                {t('nameRu')}
+              </label>
+              <input
+                value={nameRu}
+                onChange={(e) => setNameRu(e.target.value)}
+                placeholder={t('nameRuPlaceholder')}
+                maxLength={100}
+                className="w-full h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700"
+              />
+            </div>
+          </div>
+
+          {/* Primary muscle — pill grid */}
+          <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-              {t('name')}
+              {t('primaryMuscle')}
             </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('namePlaceholder')}
-              autoFocus
-              required
-              minLength={2}
-              maxLength={100}
-              className="w-full h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700"
-            />
+            <div className="grid grid-cols-3 gap-1.5">
+              {MUSCLES.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setPrimaryMuscle(m)}
+                  className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
+                  style={{
+                    background:
+                      primaryMuscle === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                    border:
+                      primaryMuscle === m
+                        ? '1px solid #FF3B47'
+                        : '1px solid rgba(255, 255, 255, 0.08)',
+                    color: primaryMuscle === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
+                  }}
+                >
+                  {tHistory(`muscleLabel.${m}`)}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="space-y-1">
+
+          {/* Equipment */}
+          <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-              {t('nameRu')}
+              {t('equipment')}
             </label>
-            <input
-              value={nameRu}
-              onChange={(e) => setNameRu(e.target.value)}
-              placeholder={t('nameRuPlaceholder')}
-              maxLength={100}
-              className="w-full h-10 px-3 rounded-[8px] text-sm bg-white/5 border border-white/10 outline-none focus:border-[#FF3B47]/60 text-white placeholder:text-zinc-700"
-            />
+            <div className="grid grid-cols-3 gap-1.5">
+              {EQUIPMENT.map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  onClick={() => setEquipment(e)}
+                  className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
+                  style={{
+                    background:
+                      equipment === e ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                    border:
+                      equipment === e ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
+                    color: equipment === e ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
+                  }}
+                >
+                  {tLib(`equipment.${e}`)}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Mechanic */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              {t('mechanic')}
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {MECHANIC.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMechanic(m as 'compound' | 'isolation')}
+                  className="h-9 text-[11px] font-bold rounded-[6px] transition-colors"
+                  style={{
+                    background:
+                      mechanic === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                    border:
+                      mechanic === m ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
+                    color: mechanic === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
+                  }}
+                >
+                  {t(`mechanicOption.${m}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-[11px]" style={{ color: '#FF6E76' }}>
+              {error}
+            </p>
+          )}
         </div>
 
-        {/* Primary muscle — pill grid */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-            {t('primaryMuscle')}
-          </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {MUSCLES.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setPrimaryMuscle(m)}
-                className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
-                style={{
-                  background:
-                    primaryMuscle === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border:
-                    primaryMuscle === m
-                      ? '1px solid #FF3B47'
-                      : '1px solid rgba(255, 255, 255, 0.08)',
-                  color: primaryMuscle === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
-                }}
-              >
-                {tHistory(`muscleLabel.${m}`)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Equipment */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-            {t('equipment')}
-          </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {EQUIPMENT.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => setEquipment(e)}
-                className="h-9 text-[11px] font-bold rounded-[6px] transition-colors truncate px-1"
-                style={{
-                  background:
-                    equipment === e ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border:
-                    equipment === e ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
-                  color: equipment === e ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
-                }}
-              >
-                {tLib(`equipment.${e}`)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mechanic */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-            {t('mechanic')}
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            {MECHANIC.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMechanic(m as 'compound' | 'isolation')}
-                className="h-9 text-[11px] font-bold rounded-[6px] transition-colors"
-                style={{
-                  background:
-                    mechanic === m ? 'rgba(255, 59, 71, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                  border:
-                    mechanic === m ? '1px solid #FF3B47' : '1px solid rgba(255, 255, 255, 0.08)',
-                  color: mechanic === m ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
-                }}
-              >
-                {t(`mechanicOption.${m}`)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {error && (
-          <p className="text-[11px]" style={{ color: '#FF6E76' }}>
-            {error}
-          </p>
-        )}
-
-        <div className="flex gap-2 pt-1">
+        <div
+          className="flex gap-2 p-5 pt-3"
+          style={{
+            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            background: '#15151C',
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+          }}
+        >
           <button
             type="submit"
             disabled={isPending || !name.trim() || name.trim().length < 2}
