@@ -1,52 +1,86 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Trash2, Check } from 'lucide-react'
+import { Check, Dumbbell, Trash2 } from 'lucide-react'
 import { deleteGoalAction } from '@/app/(app)/goals/actions'
 import type { GoalWithProgress } from '@/lib/db/goals'
 import { weightUnit } from '@/lib/units'
 
 interface Props {
   goals: GoalWithProgress[]
+  tab: 'active' | 'done' | 'all'
 }
 
-export function GoalList({ goals }: Props) {
+interface PreparedGoal {
+  goal: GoalWithProgress
+  daysRemaining: number | null
+}
+
+function prepareGoals(filtered: GoalWithProgress[]): PreparedGoal[] {
+  const now = Date.now()
+  return [...filtered]
+    .sort((a, b) => {
+      if (!!a.achieved_at !== !!b.achieved_at) return a.achieved_at ? 1 : -1
+      if (a.achieved_at && b.achieved_at) {
+        return new Date(b.achieved_at).getTime() - new Date(a.achieved_at).getTime()
+      }
+      return b.progress_pct - a.progress_pct
+    })
+    .map((g) => {
+      let daysRemaining: number | null = null
+      if (!g.achieved_at && g.target_date) {
+        const ms = new Date(g.target_date + 'T00:00:00').getTime() - now
+        daysRemaining = Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)))
+      }
+      return { goal: g, daysRemaining }
+    })
+}
+
+export function GoalList({ goals, tab }: Props) {
   const t = useTranslations('goals')
   const locale = useLocale()
   const kg = weightUnit(locale)
 
+  const filtered = useMemo(() => {
+    if (tab === 'active') return goals.filter((g) => !g.achieved_at)
+    if (tab === 'done') return goals.filter((g) => !!g.achieved_at)
+    return goals
+  }, [goals, tab])
+
+  // Prep work goes through a top-level helper so Date.now() stays outside
+  // the React Compiler-tracked render path.
+  const sorted = useMemo(() => prepareGoals(filtered), [filtered])
+
   if (goals.length === 0) {
     return (
-      <div
-        className="rounded-[20px] p-5 text-center"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <p className="text-sm text-white/45">{t('empty')}</p>
+      <div className="tar-pl-empty tar-d-rise tar-d-rise-4">
+        <div className="plus">
+          <Dumbbell />
+        </div>
+        <div className="t">{t('empty')}</div>
       </div>
     )
   }
 
-  // Sort: active first (by progress desc), then achieved at the bottom
-  const sorted = [...goals].sort((a, b) => {
-    if (!!a.achieved_at !== !!b.achieved_at) return a.achieved_at ? 1 : -1
-    return b.progress_pct - a.progress_pct
-  })
+  if (filtered.length === 0) {
+    return (
+      <div className="tar-pl-empty tar-d-rise tar-d-rise-4">
+        <div className="t">{tab === 'done' ? t('listTitle') + '…' : t('allAchieved')}</div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-3">
-      {sorted.map((g) => {
+    <div className="tar-g-list tar-d-rise tar-d-rise-4">
+      {sorted.map(({ goal: g, daysRemaining }) => {
         const name = locale === 'ru' ? (g.exercise_name_ru ?? g.exercise_name) : g.exercise_name
         const isDone = !!g.achieved_at
-        const targetDateLabel = g.target_date
-          ? new Date(g.target_date + 'T00:00:00').toLocaleDateString(
-              locale === 'ru' ? 'ru-RU' : 'en-US',
-              {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              },
-            )
-          : null
+        const pct = Math.max(0, Math.min(100, g.progress_pct))
+        const ringFill = isDone
+          ? `conic-gradient(from -90deg, #2BD884 0%, #2BD884 100%)`
+          : `conic-gradient(from -90deg, #FF6B35 0%, #FFB627 ${pct}%, rgba(255,255,255,0.05) ${pct}%)`
+
         const achievedDateLabel = g.achieved_at
           ? new Date(g.achieved_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
               day: 'numeric',
@@ -54,64 +88,64 @@ export function GoalList({ goals }: Props) {
             })
           : null
 
-        const barColor = isDone ? '#22D3A8' : g.progress_pct >= 80 ? '#FFC044' : '#FF6E76'
-
         return (
-          <div
-            key={g.id}
-            className="rounded-[16px] p-4"
-            style={{
-              background: isDone ? 'rgba(34, 211, 168, 0.06)' : '#15151C',
-              border: isDone
-                ? '1px solid rgba(34, 211, 168, 0.24)'
-                : '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2 min-w-0">
-                {isDone && <Check className="h-4 w-4 shrink-0" style={{ color: '#22D3A8' }} />}
-                <p className="text-sm font-bold text-white truncate">{name}</p>
+          <div key={g.id} className={`tar-g-card${isDone ? ' done' : ''}`}>
+            <div className="tar-g-ring">
+              <div className="tar-g-ring-fill" style={{ background: ringFill }} />
+              <div className="tar-g-ring-hole">
+                {isDone ? (
+                  <>
+                    <Check className="h-4 w-4" style={{ color: '#2BD884' }} strokeWidth={3} />
+                    <div className="tar-g-ring-lbl">{t('ringDone')}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="tar-g-ring-pct">{Math.round(pct)}%</div>
+                    <div className="tar-g-ring-lbl">{t('ringDone')}</div>
+                  </>
+                )}
               </div>
-              <form action={deleteGoalAction}>
-                <input type="hidden" name="goalId" value={g.id} />
-                <button
-                  type="submit"
-                  aria-label={t('delete')}
-                  className="text-white/30 hover:text-red-300 transition"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </form>
             </div>
-
-            <div className="flex items-baseline justify-between mb-1.5 text-xs tabular-nums">
-              <span style={{ color: barColor }} className="font-bold">
-                {g.current_e1rm.toFixed(0)} → {g.target_e1rm.toFixed(0)} {kg}
-              </span>
-              <span className="text-white/55">
-                {isDone
-                  ? achievedDateLabel
-                    ? `✓ ${achievedDateLabel}`
-                    : '✓'
-                  : `${g.progress_pct.toFixed(0)}%`}
-              </span>
+            <div className="tar-g-body">
+              <div className="tar-g-type">
+                <Dumbbell />
+                <span className="tar-g-type-lbl">{t('strengthTarget')}</span>
+              </div>
+              <div className="tar-g-name">{name}</div>
+              <div className="tar-g-vals">
+                <span className="cur">{g.current_e1rm.toFixed(0)}</span>
+                <span className="sep">/</span>
+                <span className="tgt">
+                  {g.target_e1rm.toFixed(0)} {kg}
+                </span>
+              </div>
+              <div className="tar-g-remaining">
+                {isDone ? (
+                  <span className="tar-g-donetag">
+                    <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                    {achievedDateLabel
+                      ? t('completedOn', { date: achievedDateLabel })
+                      : t('ringDone')}
+                  </span>
+                ) : daysRemaining !== null ? (
+                  t.rich('remainingDays', {
+                    n: daysRemaining,
+                    days: (ch) => <span className="days">{ch}</span>,
+                  })
+                ) : (
+                  t('noDeadline')
+                )}
+              </div>
+              <div className="tar-g-actions">
+                <form action={deleteGoalAction}>
+                  <input type="hidden" name="goalId" value={g.id} />
+                  <button type="submit" aria-label={t('delete')}>
+                    <Trash2 />
+                    {t('delete')}
+                  </button>
+                </form>
+              </div>
             </div>
-
-            <div
-              className="relative h-1.5 rounded-full overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.05)' }}
-            >
-              <div
-                className="absolute inset-y-0 left-0 rounded-full transition-all"
-                style={{ width: `${g.progress_pct}%`, background: barColor }}
-              />
-            </div>
-
-            {targetDateLabel && !isDone && (
-              <p className="mt-2 text-[10px] text-white/40">
-                {t('targetBy', { date: targetDateLabel })}
-              </p>
-            )}
           </div>
         )
       })}

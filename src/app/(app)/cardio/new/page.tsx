@@ -7,7 +7,7 @@ export default async function NewCardioPage() {
   const t = await getTranslations('cardio')
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3 pb-4">
       <Link
         href="/workout/new"
         className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
@@ -16,7 +16,12 @@ export default async function NewCardioPage() {
         {t('back')}
       </Link>
 
-      <h1 className="text-[28px] font-bold tracking-tight">{t('logTitle')}</h1>
+      <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
+        <div className="tar-d-eyebrow">{t('eyebrow')}</div>
+        <h1 className="tar-d-hello-name" style={{ fontSize: 28, marginTop: 4 }}>
+          {t('heroTitle')}
+        </h1>
+      </div>
 
       <CardioLogForm />
     </div>

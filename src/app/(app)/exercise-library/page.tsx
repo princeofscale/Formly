@@ -1,130 +1,95 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getExercises } from '@/lib/db/exercises'
-import { Badge } from '@/components/ui/badge'
 import { ExerciseForm } from '@/components/exercise/ExerciseForm'
-import { ExerciseCard } from '@/components/exercise/ExerciseCard'
-import { MuscleIcon } from '@/components/exercise/MuscleIcon'
-import { Check } from 'lucide-react'
-import Link from 'next/link'
-import type { MuscleGroup, Equipment } from '@/lib/types/models'
+import { ExerciseLibraryView } from '@/components/exercise/ExerciseLibraryView'
+import type { MuscleGroup } from '@/lib/types/models'
 import { getTranslations, getLocale } from 'next-intl/server'
 
-const PRIMARY_MUSCLE_GROUPS: MuscleGroup[] = [
-  'chest',
-  'back',
-  'front_delts',
-  'biceps',
-  'triceps',
-  'quads',
-  'hamstrings',
-  'glutes',
-  'core',
-  'calves',
-]
-const EQUIPMENT: Equipment[] = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']
-
-export default async function ExerciseLibraryPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ muscle?: string; equipment?: string }>
-}) {
-  const { muscle, equipment } = await searchParams
+export default async function ExerciseLibraryPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('exerciseLibrary')
-  const tHistory = await getTranslations('history')
   const locale = await getLocale()
 
-  const exercises = await getExercises(supabase, user.id, {
-    muscle: muscle as MuscleGroup | undefined,
-    equipment: equipment as Equipment | undefined,
+  // Load all (no server-side filter — let the client filter for snappy interaction)
+  const exercises = await getExercises(supabase, user.id)
+
+  // Per-exercise aggregates: last-used date, max e1rm, log count
+  const { data: setRows } = await supabase
+    .from('set_entries')
+    .select('exercise_id, created_at, calculated_1rm, weight_kg, reps')
+    .eq('user_id', user.id)
+
+  type Agg = {
+    count: number
+    lastAt: string | null
+    bestE1rm: number
+    bestSet: { weight: number; reps: number } | null
+  }
+  const aggByExercise = new Map<string, Agg>()
+  for (const row of (setRows ?? []) as Array<{
+    exercise_id: string
+    created_at: string
+    calculated_1rm: number | null
+    weight_kg: number
+    reps: number
+  }>) {
+    const cur = aggByExercise.get(row.exercise_id) ?? {
+      count: 0,
+      lastAt: null,
+      bestE1rm: 0,
+      bestSet: null,
+    }
+    cur.count += 1
+    if (!cur.lastAt || row.created_at > cur.lastAt) cur.lastAt = row.created_at
+    if (row.calculated_1rm && row.calculated_1rm > cur.bestE1rm) {
+      cur.bestE1rm = row.calculated_1rm
+      cur.bestSet = { weight: row.weight_kg, reps: row.reps }
+    }
+    aggByExercise.set(row.exercise_id, cur)
+  }
+
+  // Muscle bucket label map
+  const bucketLabels = {
+    chest: t('bucket.chest'),
+    back: t('bucket.back'),
+    legs: t('bucket.legs'),
+    shoulder: t('bucket.shoulder'),
+    arms: t('bucket.arms'),
+    core: t('bucket.core'),
+  }
+
+  const items = exercises.map((ex) => {
+    const agg = aggByExercise.get(ex.id) ?? null
+    return {
+      id: ex.id,
+      name: locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name,
+      primary_muscle: ex.primary_muscle as MuscleGroup,
+      equipment: ex.equipment,
+      equipmentLabel: t(`equipment.${ex.equipment}`),
+      mechanic: ex.mechanic,
+      mechanicLabel: t(ex.mechanic === 'compound' ? 'compound' : 'isolation'),
+      count: agg?.count ?? 0,
+      lastAt: agg?.lastAt ?? null,
+      bestE1rm: agg?.bestE1rm ?? 0,
+      bestSet: agg?.bestSet ?? null,
+    }
   })
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <ExerciseForm />
-      </div>
-
-      <div>
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">
-          {t('targetArea')}
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-          {PRIMARY_MUSCLE_GROUPS.map((m) => {
-            const isActive = muscle === m
-            const params = new URLSearchParams()
-            if (!isActive) params.set('muscle', m)
-            if (equipment) params.set('equipment', equipment)
-            const href = params.toString()
-              ? `/exercise-library?${params.toString()}`
-              : '/exercise-library'
-
-            return (
-              <Link
-                key={m}
-                href={href}
-                className={`relative flex flex-col items-center gap-1 p-2 rounded-xl border transition-all ${
-                  isActive
-                    ? 'bg-amber-500/10 border-amber-500/40'
-                    : 'bg-white/4 border-white/8 hover:bg-white/8 hover:border-white/15'
-                }`}
-              >
-                {isActive && (
-                  <div className="absolute top-1 right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center shadow-md">
-                    <Check className="h-3 w-3 text-black" strokeWidth={3} />
-                  </div>
-                )}
-                <MuscleIcon muscle={m} size={48} active={isActive} />
-                <div
-                  className={`text-[10px] font-bold text-center ${isActive ? 'text-amber-400' : 'text-zinc-400'}`}
-                >
-                  {tHistory(`muscleLabel.${m}`)}
-                </div>
-              </Link>
-            )
-          })}
+    <div className="space-y-3 pb-4">
+      <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
+        <div className="tar-d-eyebrow">{t('subCount', { n: items.length })}</div>
+        <div className="flex items-baseline justify-between gap-3">
+          <h1 className="tar-d-hello-name" style={{ fontSize: 28, marginTop: 4 }}>
+            {t('title')}
+          </h1>
+          <ExerciseForm />
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {EQUIPMENT.map((e) => (
-          <Link
-            key={e}
-            href={`/exercise-library?${muscle ? `muscle=${muscle}&` : ''}equipment=${e}`}
-          >
-            <Badge variant={equipment === e ? 'default' : 'outline'} className="cursor-pointer">
-              {t(`equipment.${e}`)}
-            </Badge>
-          </Link>
-        ))}
-        {(muscle || equipment) && (
-          <Link href="/exercise-library">
-            <Badge variant="destructive" className="cursor-pointer">
-              {t('clearFilter')}
-            </Badge>
-          </Link>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        {exercises.map((ex) => (
-          <ExerciseCard
-            key={ex.id}
-            exercise={ex}
-            displayName={locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name}
-            muscleLabel={tHistory(`muscleLabel.${ex.primary_muscle}`)}
-            equipmentLabel={t(`equipment.${ex.equipment}`)}
-            customLabel={t('custom')}
-            locale={locale}
-          />
-        ))}
-        {exercises.length === 0 && (
-          <p className="text-zinc-500 text-center py-8">{t('noExercises')}</p>
-        )}
-      </div>
+      <ExerciseLibraryView items={items} bucketLabels={bucketLabels} />
     </div>
   )
 }
