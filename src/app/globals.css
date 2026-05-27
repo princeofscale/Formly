@@ -2724,9 +2724,8 @@
 }
 .tar-d-streak .lab {
   position: relative;
-  font: 500 9px/1 var(--tar-mono);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font: 600 11px/1 var(--tar-text);
+  letter-spacing: 0;
   color: var(--tar-ink-mute);
 }
 
@@ -2756,21 +2755,8 @@
   position: absolute;
   inset: 0;
   border-radius: 22px;
-  padding: 1.5px;
   pointer-events: none;
-  background: conic-gradient(from 90deg, #ff6b35, #ffb627, #ff4d2c, #ff6b35);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: tar-d-cta-rotate 8s linear infinite;
-  opacity: 0.85;
-}
-@keyframes tar-d-cta-rotate {
-  to {
-    transform: rotate(360deg);
-  }
+  border: 1px solid rgba(255, 182, 39, 0.18);
 }
 .tar-d-cta-head {
   display: flex;
@@ -2827,9 +2813,8 @@
   gap: 6px;
 }
 .tar-d-cta-meta .k {
-  font: 500 9px/1 var(--tar-mono);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font: 600 11px/1 var(--tar-text);
+  letter-spacing: 0;
   color: var(--tar-ink-mute);
 }
 .tar-d-cta-meta .v {
@@ -2872,9 +2857,8 @@
   border-radius: var(--tar-r-lg);
 }
 .tar-d-week .k {
-  font: 500 9px/1 var(--tar-mono);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font: 600 11px/1 var(--tar-text);
+  letter-spacing: 0;
   color: var(--tar-ink-mute);
 }
 .tar-d-week .v {
@@ -2928,9 +2912,8 @@
   gap: 6px;
 }
 .tar-d-weekstrip .day .lab {
-  font: 500 9px/1 var(--tar-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font: 600 10px/1 var(--tar-text);
+  letter-spacing: 0;
   color: var(--tar-ink-mute);
 }
 .tar-d-weekstrip .day .cell {

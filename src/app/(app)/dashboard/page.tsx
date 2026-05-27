@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
-import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
 import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { WeekdayStrip } from '@/components/dashboard/WeekdayStrip'
@@ -375,40 +374,26 @@ export default async function DashboardPage({
         </div>
       </Link>
 
-      {/* Schedule status (compact) + freezes */}
-      {(schedule.length > 0 || showFreeze) && (
-        <div className="tar-d-rise tar-d-rise-3 grid gap-3 sm:grid-cols-[1fr_auto]">
-          <ScheduleStatus
-            schedule={schedule}
-            labels={{
-              trainingDay: t('today.trainingDay'),
-              restDay: t('today.restDay'),
-              next: t('today.next'),
-              noSchedule: t('today.noSchedule'),
-              days: dayLabels,
+      {/* Freezes badge (compact) */}
+      {showFreeze && (
+        <div className="tar-d-rise tar-d-rise-3 flex items-center justify-end gap-2">
+          <span className="text-[10px] uppercase tracking-widest text-white/40">
+            {t('bestStreakShort', { n: streakInfo.longest })}
+          </span>
+          <span
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-[10px] font-bold tabular-nums"
+            style={{
+              background: freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
+              border:
+                freezesLeft > 0
+                  ? '1px solid rgba(94,234,212,0.28)'
+                  : '1px solid rgba(255,255,255,0.06)',
+              color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
             }}
-          />
-          {showFreeze && (
-            <div className="flex items-center gap-2 self-center">
-              <span className="text-[10px] uppercase tracking-widest text-white/40">
-                {t('bestStreakShort', { n: streakInfo.longest })}
-              </span>
-              <span
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-[10px] font-bold tabular-nums"
-                style={{
-                  background: freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
-                  border:
-                    freezesLeft > 0
-                      ? '1px solid rgba(94,234,212,0.28)'
-                      : '1px solid rgba(255,255,255,0.06)',
-                  color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
-                }}
-              >
-                <Snowflake className="h-3 w-3" />
-                {t('freezesShort', { left: freezesLeft, total: freezesPerMonth })}
-              </span>
-            </div>
-          )}
+          >
+            <Snowflake className="h-3 w-3" />
+            {t('freezesShort', { left: freezesLeft, total: freezesPerMonth })}
+          </span>
         </div>
       )}
 

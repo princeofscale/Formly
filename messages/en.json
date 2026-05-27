@@ -397,6 +397,8 @@
       "hint": "Hover a day",
       "less": "less",
       "more": "more",
+      "emptyTitle": "Nothing here yet",
+      "emptySub": "Log your first workout — your green cells start showing up here",
       "days": {
         "mon": "Mon",
         "wed": "Wed",

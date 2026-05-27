@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { Activity } from 'lucide-react'
+import { Activity, Sparkles } from 'lucide-react'
 
 interface Props {
   daily: { date: string; tonnage_kg: number }[] // YYYY-MM-DD
@@ -28,6 +29,7 @@ export function TonnageHeatmap({ daily, weeks = 12 }: Props) {
   const t = useTranslations('dashboard.heatmap')
   const locale = useLocale()
   const [hover, setHover] = useState<{ date: string; tonnage: number } | null>(null)
+  const hasData = daily.some((d) => d.tonnage_kg > 0)
 
   const data = useMemo(() => {
     const byDate = new Map(daily.map((d) => [d.date, d.tonnage_kg]))
@@ -85,6 +87,38 @@ export function TonnageHeatmap({ daily, weeks = 12 }: Props) {
       day: 'numeric',
       month: 'short',
     })
+  }
+
+  if (!hasData) {
+    return (
+      <Link
+        href="/workout/new"
+        className="block rounded-[20px] p-6 text-center transition active:scale-[0.99]"
+        style={{
+          background:
+            'radial-gradient(140% 90% at 50% 0%, rgba(255, 107, 53, 0.10), transparent 60%), #15151C',
+          border: '1px solid rgba(255, 182, 39, 0.16)',
+          textDecoration: 'none',
+        }}
+      >
+        <div
+          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
+          style={{
+            background: 'rgba(255, 182, 39, 0.12)',
+            border: '1px solid rgba(255, 182, 39, 0.3)',
+          }}
+        >
+          <Sparkles className="h-5 w-5" style={{ color: 'var(--tar-brand-2)' }} />
+        </div>
+        <p className="text-base font-bold text-white">{t('emptyTitle')}</p>
+        <p
+          className="mt-1.5 text-[13px]"
+          style={{ color: 'var(--tar-ink-mute)', lineHeight: 1.45 }}
+        >
+          {t('emptySub')}
+        </p>
+      </Link>
+    )
   }
 
   // Month labels — show first cell of each new month at the top
