@@ -66,18 +66,20 @@ export function AIProgramGenerator({ defaultLocation }: Props) {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-between rounded-2xl bg-gradient-to-r from-amber-500/15 to-amber-400/5 px-4 py-3 ring-1 ring-amber-500/30 hover:from-amber-500/20 hover:to-amber-400/10 transition active:scale-[0.99]"
-      >
-        <span className="flex items-center gap-2.5">
-          <Sparkles className="h-4 w-4 text-amber-400" />
-          <span className="text-sm font-bold uppercase tracking-wide text-amber-100">
-            {t('cta')}
-          </span>
-        </span>
-        <ChevronRight className="h-4 w-4 text-amber-400/70" />
+      <button type="button" onClick={() => setOpen(true)} className="tar-pl-ai w-full text-left">
+        <div className="tar-pl-ai-head">
+          <div className="tar-pl-ai-badge">
+            <Sparkles />
+          </div>
+          <div>
+            <div className="e">AI · {t('cta')}</div>
+            <div className="t">{t('title')}</div>
+          </div>
+          <ChevronRight className="ml-auto h-5 w-5 text-[color:var(--tar-brand-2)]" />
+        </div>
+        <div className="tar-pl-ai-sub" style={{ margin: '8px 0 0' }}>
+          {t('subtitle')}
+        </div>
       </button>
     )
   }

@@ -6,6 +6,7 @@ import { getE1RMHistory, getVolumeHistoryForExercise } from '@/lib/db/sets'
 import { ExerciseMetricChart } from '@/components/progress/ExerciseMetricChart'
 import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
+import { MajorLiftsGrid, type MajorLift } from '@/components/progress/MajorLiftsGrid'
 import { BodyWeightCard } from '@/components/progress/BodyWeightCard'
 import { StrengthRatiosCard } from '@/components/progress/StrengthRatiosCard'
 import { getStrengthRatios } from '@/lib/services/strength-standards.service'
@@ -75,10 +76,112 @@ export default async function ProgressPage({
   const currentHeight = profileResult.data?.height_cm ?? null
   const kg = weightUnit(locale)
 
-  const [strengthRatios, achievements] = await Promise.all([
+  // Major lifts — 4 big compound exercises with mini sparklines.
+  const MAJOR_SLUGS = [
+    'barbell-bench-press',
+    'barbell-squat',
+    'barbell-deadlift',
+    'barbell-overhead-press',
+  ] as const
+  const majorExercises = MAJOR_SLUGS.map((slug) => exercises.find((e) => e.slug === slug)).filter(
+    (e): e is NonNullable<typeof e> => Boolean(e),
+  )
+
+  const [strengthRatios, achievements, majorHistories] = await Promise.all([
     currentWeight ? getStrengthRatios(supabase, user.id, currentWeight) : Promise.resolve([]),
     getAchievements(supabase, user.id),
+    Promise.all(majorExercises.map((ex) => getE1RMHistory(supabase, user.id, ex.id))),
   ])
+
+  // Build MajorLift list — exclude exercises with no history.
+  const majorMeta: Record<
+    (typeof MAJOR_SLUGS)[number],
+    { muscle: 'chest' | 'back' | 'legs' | 'shoulder'; color: string; glyph: React.ReactNode }
+  > = {
+    'barbell-bench-press': {
+      muscle: 'chest',
+      color: '#FFB627',
+      glyph: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 9c2-2 5-3 9-3s7 1 9 3v3a4 4 0 0 1-4 4h-2.5a2.5 2.5 0 0 1-2.5-2.5V12h-2v1.5A2.5 2.5 0 0 1 7.5 16H5a4 4 0 0 1-4-4V9Z" />
+        </svg>
+      ),
+    },
+    'barbell-squat': {
+      muscle: 'legs',
+      color: '#B4FF6F',
+      glyph: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 3h6v6l-1 12h-2l-.5-8h-1l-.5 8h-2L8 9V3Z" />
+        </svg>
+      ),
+    },
+    'barbell-deadlift': {
+      muscle: 'back',
+      color: '#6FA6FF',
+      glyph: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 3v18M5 6c2 1 4 2 7 2s5-1 7-2M5 18c2-1 4-2 7-2s5 1 7 2" />
+        </svg>
+      ),
+    },
+    'barbell-overhead-press': {
+      muscle: 'shoulder',
+      color: '#FFD64A',
+      glyph: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="6" cy="10" r="3.5" />
+          <circle cx="18" cy="10" r="3.5" />
+          <path d="M6 13c0 3 2 5 6 5s6-2 6-5" />
+        </svg>
+      ),
+    },
+  }
+
+  const majorLifts: MajorLift[] = majorExercises
+    .map((ex, i) => {
+      const history = majorHistories[i] ?? []
+      if (history.length === 0) return null
+      const meta = majorMeta[ex.slug as (typeof MAJOR_SLUGS)[number]]
+      return {
+        exerciseId: ex.id,
+        slug: ex.slug,
+        name: locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name,
+        history,
+        glyph: meta.glyph,
+        muscle: meta.muscle,
+        color: meta.color,
+      }
+    })
+    .filter((x): x is MajorLift => x !== null)
 
   const displayName = (ex: typeof selectedExercise) =>
     locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
@@ -141,8 +244,21 @@ export default async function ProgressPage({
         </div>
       </div>
 
+      {/* Major lifts grid (4 sparkline cards) */}
+      {majorLifts.length > 0 && (
+        <>
+          <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">
+            {t('majorLifts') ?? 'Major lifts'}
+            <span className="counter">1RM est.</span>
+          </div>
+          <div className="tar-d-rise tar-d-rise-3">
+            <MajorLiftsGrid lifts={majorLifts} />
+          </div>
+        </>
+      )}
+
       {/* Chart card */}
-      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-4">
         {t('exerciseLabel') ?? 'Exercise'}
       </div>
       <div

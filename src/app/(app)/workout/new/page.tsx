@@ -53,8 +53,8 @@ export default async function NewWorkoutPage() {
         </Link>
       )}
 
-      {/* AI generator with rotating gradient stroke */}
-      <div className="tar-pl-ai tar-d-rise tar-d-rise-2">
+      {/* AI generator — component owns its tar-pl-ai card styling */}
+      <div className="tar-d-rise tar-d-rise-2">
         <AIProgramGenerator defaultLocation={defaultLocation} />
       </div>
 

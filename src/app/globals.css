@@ -3604,6 +3604,14 @@
   font-size: 14px;
   color-scheme: dark;
 }
+.tar-pr-field:focus-within {
+  border-color: rgba(255, 182, 39, 0.5);
+  background: rgba(255, 182, 39, 0.04);
+  box-shadow: 0 0 0 3px rgba(255, 182, 39, 0.08);
+}
+.tar-pr-field:focus-within .l {
+  color: var(--tar-brand-2);
+}
 
 .tar-pr-pref {
   background: var(--tar-card);

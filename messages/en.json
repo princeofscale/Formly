@@ -163,6 +163,8 @@
     "unlocked": "unlocked",
     "bodyweightLabel": "Bodyweight",
     "exerciseLabel": "Exercise",
+    "majorLifts": "Major lifts",
+    "shortcuts": "Tools",
     "periodLabel": "Period",
     "unit1rm": "kg",
     "weightLabel": "Body weight",
@@ -667,8 +669,9 @@
       "close": "Close"
     },
     "programGen": {
-      "cta": "✨ AI program generator",
-      "title": "AI program",
+      "cta": "AI generator",
+      "title": "Build today's session",
+      "subtitle": "Pulls from your history, recovery and PR cadence. Hit go — you'll have a split in 30 seconds.",
       "days": "Days per week",
       "generate": "Generate",
       "generating": "Coach is designing your split...",
