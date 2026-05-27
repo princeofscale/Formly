@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { getRecentSessions } from '@/lib/db/workouts'
+import { getRecentSessions, getDailyTonnage } from '@/lib/db/workouts'
 import Link from 'next/link'
-import { ChevronRight, Dumbbell, Flame, Activity } from 'lucide-react'
+import { ChevronRight, Dumbbell, Activity, Trophy } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { weightUnit } from '@/lib/units'
@@ -24,13 +24,14 @@ export default async function HistoryPage() {
   const kg = weightUnit(locale)
 
   // Two independent reads — one Promise.all round-trip.
-  const [sessions, allSessionsAgg] = await Promise.all([
+  const [sessions, allSessionsAgg, dailyTonnage] = await Promise.all([
     getRecentSessions(supabase, user.id, 100),
     supabase
       .from('workout_sessions')
       .select('total_volume_kg', { count: 'exact' })
       .eq('user_id', user.id)
       .not('finished_at', 'is', null),
+    getDailyTonnage(supabase, user.id, 84),
   ])
 
   const totalSessions = allSessionsAgg.count ?? 0
@@ -86,172 +87,237 @@ export default async function HistoryPage() {
 
   const nf = new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US')
 
+  // Build 12×7 heatmap from dailyTonnage, ending at today
+  const today = new Date()
+  const start = new Date(today)
+  start.setDate(start.getDate() - 83)
+  // Align start to Monday of that week (ISO)
+  const startJsDay = start.getDay() || 7
+  start.setDate(start.getDate() - (startJsDay - 1))
+
+  const tonnageByDate = new Map<string, number>()
+  for (const r of dailyTonnage) {
+    tonnageByDate.set(r.date, r.tonnage_kg)
+  }
+  const maxTonnage = Math.max(1, ...dailyTonnage.map((d) => d.tonnage_kg))
+  const cells: Array<{ iso: string; level: 0 | 1 | 2 | 3 | 4; today: boolean }> = []
+  const totalDays = 12 * 7
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(start)
+    d.setDate(start.getDate() + i)
+    const iso = d.toISOString().slice(0, 10)
+    const tonnage = tonnageByDate.get(iso) ?? 0
+    const ratio = tonnage / maxTonnage
+    const level: 0 | 1 | 2 | 3 | 4 =
+      tonnage === 0 ? 0 : ratio < 0.25 ? 1 : ratio < 0.5 ? 2 : ratio < 0.75 ? 3 : 4
+    const isToday = iso === today.toISOString().slice(0, 10)
+    cells.push({ iso, level, today: isToday })
+  }
+  // Re-arrange to grid: row d (0-6 = Mon-Sun), col w (0-11)
+  const trainedDays = dailyTonnage.filter((d) => d.tonnage_kg > 0).length
+  const consistency = Math.round((trainedDays / Math.min(84, totalDays)) * 100)
+
   return (
-    <div className="space-y-4 sm:space-y-5">
-      {/* HERO — mirrors the dashboard streak hero (flame icon + huge number
-          + uppercase eyebrow + secondary stats in a tight grid) */}
-      <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="space-y-3 pb-4">
+      {/* Title eyebrow */}
+      <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
+        <div className="tar-d-eyebrow">
+          {t('eyebrow')} · {totalSessions} {t('sessionsShort')}
+        </div>
+        <h1 className="tar-d-hello-name" style={{ fontSize: 28, marginTop: 4 }}>
+          {t('totalSessions')}
+        </h1>
+      </div>
+
+      {/* 12-week heatmap */}
+      <div className="tar-h-heat tar-d-rise tar-d-rise-2">
+        <div className="head">
+          <span className="lab">{t('last12weeks')}</span>
+          <span className="meta">
+            <span className="v">{consistency}%</span> {t('consistency')}
+          </span>
+        </div>
         <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-        />
+          className="tar-h-grid"
+          style={{ gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: 'repeat(7, 1fr)' }}
+        >
+          {cells.map((c, idx) => {
+            const w = Math.floor(idx / 7)
+            const d = idx % 7
+            return (
+              <span
+                key={c.iso}
+                className={`tar-h-cell ${c.level ? `l${c.level}` : ''} ${c.today ? 'today' : ''}`}
+                style={{ gridColumn: w + 1, gridRow: d + 1 }}
+                title={`${c.iso} · ${nf.format(Math.round(tonnageByDate.get(c.iso) ?? 0))} ${kg}`}
+              />
+            )
+          })}
+        </div>
+        <div className="tar-h-leg">
+          <span>{t('less')}</span>
+          <span className="scale">
+            <span className="sw" />
+            <span className="sw l1" />
+            <span className="sw l2" />
+            <span className="sw l3" />
+            <span className="sw l4" />
+          </span>
+          <span>{t('more')}</span>
+        </div>
+      </div>
 
-        <div className="relative">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-            {t('eyebrow')}
-          </p>
-
-          <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary/15 ring-1 ring-primary/25">
-                <Dumbbell className="h-8 w-8 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-mono text-[68px] font-black leading-[0.9] text-primary tabular-nums sm:text-[80px]">
-                  {totalSessions}
-                </div>
-                <div className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/55">
-                  {t('totalSessions')}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
-                <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
-                  <Flame className="h-3 w-3" style={{ color: '#FF6E76' }} />
-                  {t('totalTonnage')}
-                </div>
-                <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
-                  {nf.format(Math.round(totalVolumeKg))}
-                </p>
-                <p className="text-[9px] text-white/30">{kg}</p>
-              </div>
-              <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
-                <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
-                  <Activity className="h-3 w-3" style={{ color: '#FFC044' }} />
-                  {t('avgPerSession')}
-                </div>
-                <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
-                  {totalSessions > 0 ? nf.format(avgPerSession) : '—'}
-                </p>
-                <p className="text-[9px] text-white/30">{kg}</p>
-              </div>
-            </div>
+      {/* Stats row */}
+      <div className="tar-pr-stats tar-d-rise tar-d-rise-3">
+        <div className="tar-pr-stat">
+          <div className="v">{totalSessions}</div>
+          <div className="k">{t('totalSessions')}</div>
+        </div>
+        <div className="tar-pr-stat">
+          <div className="v gold">{nf.format(Math.round(totalVolumeKg))}</div>
+          <div className="k">
+            {t('totalTonnage')} · {kg}
           </div>
         </div>
-      </section>
+        <div className="tar-pr-stat">
+          <div className="v">{totalSessions > 0 ? nf.format(avgPerSession) : '—'}</div>
+          <div className="k">{t('avgPerSession')}</div>
+        </div>
+      </div>
 
       {sessions.length === 0 && (
-        <div className="rounded-[24px] bg-card p-10 ring-1 ring-white/[0.06] text-center space-y-3">
-          <Dumbbell className="h-10 w-10 text-zinc-700 mx-auto" />
-          <p className="text-zinc-500 text-sm">{t('noWorkouts')}</p>
+        <div className="tar-pl-empty">
+          <div className="plus">
+            <Dumbbell />
+          </div>
+          <div className="t">{t('noWorkouts')}</div>
         </div>
       )}
 
-      {/* SESSION LIST grouped by month */}
+      {/* Timeline */}
       {groups.map((group) => (
-        <section
-          key={group.key}
-          className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-100"
-        >
-          <h2 className="px-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-            {group.label}
-          </h2>
-          <div className="rounded-[24px] bg-card p-2 ring-1 ring-white/[0.06]">
-            <div className="space-y-0.5">
-              {group.items.map((s) => {
-                const date = new Date(s.started_at)
-                const duration = s.finished_at
-                  ? Math.round((new Date(s.finished_at).getTime() - date.getTime()) / 60000)
+        <section key={group.key} className="space-y-2 tar-d-rise tar-d-rise-4">
+          <div className="tar-d-sectionhead" style={{ marginTop: 14 }}>
+            <span className="capitalize">{group.label}</span>
+            <span className="counter">
+              {group.items.length} {t('sessionsShort')}
+            </span>
+          </div>
+          <div className="tar-h-timeline">
+            {group.items.map((s) => {
+              const date = new Date(s.started_at)
+              const duration = s.finished_at
+                ? Math.round((new Date(s.finished_at).getTime() - date.getTime()) / 60000)
+                : null
+              const tags = exerciseTags.get(s.id) ?? []
+              const setCount = setCounts.get(s.id) ?? 0
+              const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
+              const isCardio = s.session_type === 'cardio'
+              const cardioMin =
+                s.cardio_duration_seconds != null
+                  ? Math.round(s.cardio_duration_seconds / 60)
                   : null
+              const dayNum = date.getDate()
+              const weekday = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                weekday: 'short',
+              })
+              const title = isCardio
+                ? (s.cardio_activity ?? 'Cardio')
+                : tags.slice(0, 2).join(' · ') || t('totalSessions')
+              const tonnage = Math.round(s.total_volume_kg ?? 0)
+              // PR is a stretch — we don't have per-session PR info loaded here.
+              // Mark sessions with >2000kg tonnage as visually elevated for now.
+              const isStandout = !isCardio && tonnage >= 2000
 
-                const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB', {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                })
-
-                const tags = exerciseTags.get(s.id) ?? []
-                const setCount = setCounts.get(s.id) ?? 0
-                const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
-                const isCardio = s.session_type === 'cardio'
-                const cardioMin =
-                  s.cardio_duration_seconds != null
-                    ? Math.round(s.cardio_duration_seconds / 60)
-                    : null
-
-                return (
+              return (
+                <div key={s.id} className={`tar-h-day ${isStandout ? 'pr' : ''}`}>
+                  <div className="node">
+                    <span className="dot" />
+                    <span className="d">{dayNum}</span>
+                    <span className="m">{weekday}</span>
+                  </div>
                   <Link
-                    key={s.id}
                     href={isCardio ? '/history' : `/history/${s.id}`}
-                    className="group flex items-center rounded-2xl transition hover:bg-white/[0.04]"
+                    className={`tar-h-sess ${isStandout ? 'pr' : ''}`}
                   >
-                    <div className="flex flex-1 min-w-0 items-center justify-between gap-3 px-3 py-2.5">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-mono text-sm font-bold capitalize">{dateStr}</p>
-                          {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
-                          {isCardio && (
-                            <span
-                              className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
-                              style={{ background: 'rgba(94, 234, 212, 0.14)', color: '#5EEAD4' }}
-                            >
-                              CARDIO
-                            </span>
-                          )}
-                        </div>
-                        {isCardio ? (
-                          <p className="mt-0.5 truncate text-xs text-white/40">
-                            {s.cardio_activity ?? ''}
-                            {cardioMin != null ? ` · ${cardioMin} ${t('minutes')}` : ''}
-                            {s.cardio_distance_km != null ? ` · ${s.cardio_distance_km} км` : ''}
-                          </p>
-                        ) : (
-                          <p className="mt-0.5 truncate text-xs text-white/40">
-                            {tags.length > 0 && <>{tags.join(' · ')}</>}
-                            {tags.length > 0 && (setCount > 0 || duration) && (
-                              <span className="text-white/20"> · </span>
-                            )}
-                            {setCount > 0 && (
-                              <>
-                                {setCount} {t('sets')}
-                              </>
-                            )}
-                            {duration && (
-                              <>
-                                {setCount > 0 && <span className="text-white/20"> · </span>}
-                                {duration} {t('minutes')}
-                              </>
-                            )}
-                          </p>
-                        )}
-                      </div>
-                      {isCardio ? (
-                        <span
-                          className="shrink-0 rounded-full px-3 py-1 text-sm font-bold tabular-nums"
-                          style={{ background: 'rgba(94, 234, 212, 0.12)', color: '#5EEAD4' }}
-                        >
-                          {cardioMin ?? 0} {t('minutes')}
+                    <div className="top">
+                      <div>
+                        <span className="e">
+                          {date.toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                          {duration != null ? ` · ${duration} ${t('minutes')}` : ''}
+                          {moodEmoji ? <span style={{ marginLeft: 6 }}>{moodEmoji}</span> : null}
                         </span>
-                      ) : (
-                        <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary tabular-nums">
-                          {Math.round(s.total_volume_kg ?? 0)} {kg}
+                        <div className="t">{title}</div>
+                      </div>
+                      {isStandout && (
+                        <span className="tar-s-prtag">
+                          <Trophy />
+                          {t('big') ?? 'BIG'}
                         </span>
                       )}
-                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-zinc-600" />
+                    </div>
+                    <div className="stats">
+                      {isCardio ? (
+                        <>
+                          <div className="cell">
+                            <span className="v">
+                              {cardioMin ?? 0}
+                              <span className="u">{t('minutes')}</span>
+                            </span>
+                            <span className="k">{t('duration') ?? 'Duration'}</span>
+                          </div>
+                          {s.cardio_distance_km != null && (
+                            <div className="cell">
+                              <span className="v">
+                                {s.cardio_distance_km}
+                                <span className="u">км</span>
+                              </span>
+                              <span className="k">{t('distance') ?? 'Distance'}</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="cell">
+                            <span className={`v ${isStandout ? 'gold' : ''}`}>
+                              {nf.format(tonnage)}
+                              <span className="u">{kg}</span>
+                            </span>
+                            <span className="k">{t('totalTonnage')}</span>
+                          </div>
+                          {setCount > 0 && (
+                            <div className="cell">
+                              <span className="v">
+                                {setCount}
+                                <span className="u">{t('sets')}</span>
+                              </span>
+                              <span className="k">{t('volume') ?? 'Volume'}</span>
+                            </div>
+                          )}
+                          {duration != null && (
+                            <div className="cell">
+                              <span className="v">{duration}</span>
+                              <span className="k">{t('minutes')}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      <ChevronRight className="h-4 w-4 ml-auto self-center text-white/30" />
                     </div>
                   </Link>
-                )
-              })}
-            </div>
+                </div>
+              )
+            })}
           </div>
         </section>
       ))}
+
+      <div className="hidden">
+        <Activity aria-hidden />
+      </div>
     </div>
   )
 }

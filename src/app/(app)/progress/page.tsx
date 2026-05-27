@@ -13,7 +13,7 @@ import { AchievementsCard } from '@/components/progress/AchievementsCard'
 import { getAchievements } from '@/lib/services/achievements.service'
 import { weightUnit } from '@/lib/units'
 import Link from 'next/link'
-import { Camera, ChevronRight, Ruler, Target, Sigma, TrendingUp, Trophy, Flame } from 'lucide-react'
+import { Camera, ChevronRight, Ruler, Target, Sigma, TrendingUp, Trophy } from 'lucide-react'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d': 7,
@@ -94,73 +94,69 @@ export default async function ProgressPage({
   const unlockedAchievements = achievements.filter((a) => a.tier > 0).length
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      {/* HERO — best lifetime e1RM, achievements unlocked, bodyweight */}
-      <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-        />
+    <div className="space-y-3 pb-4">
+      {/* Title */}
+      <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
+        <div className="tar-d-eyebrow">{t('eyebrow')}</div>
+        <h1 className="tar-d-hello-name" style={{ fontSize: 28, marginTop: 4 }}>
+          {t('title') ?? 'Progress'}
+        </h1>
+      </div>
 
-        <div className="relative">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-            {t('eyebrow')}
-          </p>
-
-          <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary/15 ring-1 ring-primary/25">
-                <TrendingUp className="h-8 w-8 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-mono text-[68px] font-black leading-[0.9] text-primary tabular-nums sm:text-[80px]">
-                  {bestE1RM != null ? Math.round(bestE1RM) : '—'}
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/55">
-                    {t('bestE1rmLabel')}
-                  </span>
-                  {bestE1RMExercise && (
-                    <span className="text-[11px] uppercase tracking-widest text-white/35 truncate">
-                      {bestE1RMExercise}
-                    </span>
-                  )}
-                </div>
-              </div>
+      {/* Hero — best e1RM */}
+      <div className="tar-pg-hero tar-d-rise tar-d-rise-2">
+        <div>
+          <span className="e">{t('bestE1rmLabel')}</span>
+          <div className="v">
+            {bestE1RM != null ? Math.round(bestE1RM) : '—'}
+            <span className="u">{kg}</span>
+          </div>
+          {bestE1RMExercise && (
+            <div
+              className="d"
+              style={{ color: 'var(--tar-ink-mute)', marginTop: 6, fontWeight: 500 }}
+            >
+              {bestE1RMExercise}
             </div>
+          )}
+        </div>
+        <TrendingUp className="h-10 w-10 text-[color:var(--tar-brand-2)] opacity-60" />
+      </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
-                <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
-                  <Trophy className="h-3 w-3" style={{ color: '#FFC044' }} />
-                  {t('achievementsLabel')}
-                </div>
-                <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
-                  {unlockedAchievements}
-                </p>
-                <p className="text-[9px] text-white/30">{t('unlocked')}</p>
-              </div>
-              <div className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.06]">
-                <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-white/35">
-                  <Flame className="h-3 w-3" style={{ color: '#FF6E76' }} />
-                  {t('bodyweightLabel')}
-                </div>
-                <p className="mt-1 font-mono text-lg font-extrabold tabular-nums text-white">
-                  {currentWeight != null ? currentWeight : '—'}
-                </p>
-                <p className="text-[9px] text-white/30">{kg}</p>
-              </div>
-            </div>
+      {/* Quick stats row */}
+      <div className="tar-pr-stats tar-d-rise tar-d-rise-2">
+        <div className="tar-pr-stat">
+          <div className="v gold">{unlockedAchievements}</div>
+          <div className="k">{t('achievementsLabel')}</div>
+        </div>
+        <div className="tar-pr-stat">
+          <div className="v">{currentWeight != null ? currentWeight : '—'}</div>
+          <div className="k">
+            {t('bodyweightLabel')} · {kg}
           </div>
         </div>
-      </section>
+        <div className="tar-pr-stat">
+          <div className="v">{periodHistory.length}</div>
+          <div className="k">{t('periodLabel') ?? 'Sets'}</div>
+        </div>
+      </div>
 
       {/* Chart card */}
-      <div className="rounded-[24px] bg-card p-5 ring-1 ring-white/[0.06] space-y-4">
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">
+        {t('exerciseLabel') ?? 'Exercise'}
+      </div>
+      <div
+        className="tar-d-rise tar-d-rise-3"
+        style={{
+          background: 'var(--tar-card)',
+          border: '1px solid var(--tar-line)',
+          borderRadius: 'var(--tar-r-md)',
+          padding: 14,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+        }}
+      >
         <div className="grid grid-cols-2 gap-3">
           <ExerciseDropdown
             exercises={exercises}
@@ -200,73 +196,42 @@ export default async function ProgressPage({
 
       <AchievementsCard achievements={achievements} />
 
-      <Link
-        href="/progress/photos"
-        className="flex items-center gap-3 rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.04]"
-      >
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(255, 59, 71, 0.12)' }}
-        >
-          <Camera className="h-5 w-5" style={{ color: '#FF6E76' }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white">{t('photos.linkTitle')}</p>
-          <p className="text-[11px] text-white/50">{t('photos.linkSub')}</p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
-      </Link>
-
-      <Link
-        href="/progress/measurements"
-        className="flex items-center gap-3 rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.04]"
-      >
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(34, 211, 168, 0.14)' }}
-        >
-          <Ruler className="h-5 w-5" style={{ color: '#22D3A8' }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white">{t('measurements.linkTitle')}</p>
-          <p className="text-[11px] text-white/50">{t('measurements.linkSub')}</p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
-      </Link>
-
-      <Link
-        href="/tools/1rm"
-        className="flex items-center gap-3 rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.04]"
-      >
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(255, 196, 68, 0.16)' }}
-        >
-          <Sigma className="h-5 w-5" style={{ color: '#FFC044' }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white">{t('oneRMLink.title')}</p>
-          <p className="text-[11px] text-white/50">{t('oneRMLink.sub')}</p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
-      </Link>
-
-      <Link
-        href="/goals"
-        className="flex items-center gap-3 rounded-[24px] bg-card p-4 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.04]"
-      >
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(255, 196, 68, 0.16)' }}
-        >
-          <Target className="h-5 w-5" style={{ color: '#FFC044' }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white">{t('goalsLink.title')}</p>
-          <p className="text-[11px] text-white/50">{t('goalsLink.sub')}</p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-zinc-600 flex-shrink-0" />
-      </Link>
+      {/* Bottom link cards */}
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-5">{t('shortcuts') ?? 'Tools'}</div>
+      <div className="grid grid-cols-2 gap-2 tar-d-rise tar-d-rise-5">
+        <Link href="/progress/photos" className="tar-pl-qbtn">
+          <div className="ico" style={{ color: '#FF6E76' }}>
+            <Camera />
+          </div>
+          <div className="t">{t('photos.linkTitle')}</div>
+          <div className="s">{t('photos.linkSub')}</div>
+        </Link>
+        <Link href="/progress/measurements" className="tar-pl-qbtn">
+          <div className="ico" style={{ color: '#22D3A8' }}>
+            <Ruler />
+          </div>
+          <div className="t">{t('measurements.linkTitle')}</div>
+          <div className="s">{t('measurements.linkSub')}</div>
+        </Link>
+        <Link href="/tools/1rm" className="tar-pl-qbtn">
+          <div className="ico">
+            <Sigma />
+          </div>
+          <div className="t">{t('oneRMLink.title')}</div>
+          <div className="s">{t('oneRMLink.sub')}</div>
+        </Link>
+        <Link href="/goals" className="tar-pl-qbtn">
+          <div className="ico">
+            <Target />
+          </div>
+          <div className="t">{t('goalsLink.title')}</div>
+          <div className="s">{t('goalsLink.sub')}</div>
+        </Link>
+      </div>
+      <div className="hidden">
+        <Trophy aria-hidden />
+        <ChevronRight aria-hidden />
+      </div>
     </div>
   )
 }
