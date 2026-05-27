@@ -26,10 +26,11 @@ export default async function WrappedPage({
   const report = await getWrappedReport(supabase, user.id, year)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 pb-4">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+        className="inline-flex items-center gap-1 text-sm transition-colors"
+        style={{ color: 'var(--tar-ink-mute)' }}
       >
         <ChevronLeft className="h-4 w-4" />
         {t('back')}

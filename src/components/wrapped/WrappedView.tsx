@@ -35,10 +35,17 @@ export function WrappedView({ report }: Props) {
     return (
       <div
         className="rounded-[24px] p-8 text-center"
-        style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--tar-bg-elevated)', border: '1px solid var(--tar-line)' }}
       >
-        <p className="text-2xl font-extrabold text-white mb-2">{report.year}</p>
-        <p className="text-sm text-white/45">{t('noData')}</p>
+        <p
+          className="mb-2"
+          style={{ font: '800 32px/1 var(--tar-tight)', color: 'var(--tar-ink)' }}
+        >
+          {report.year}
+        </p>
+        <p className="text-sm" style={{ color: 'var(--tar-ink-mute)' }}>
+          {t('noData')}
+        </p>
       </div>
     )
   }
@@ -53,20 +60,42 @@ export function WrappedView({ report }: Props) {
   }
 
   return (
-    <div className="space-y-4 pb-8">
-      {/* Title card */}
+    <div className="space-y-3 pb-8">
+      {/* Title card — conic-gradient hero, year in gradient text */}
       <Card gradient="conic">
-        <div className="flex flex-col items-center justify-center text-center py-4">
-          <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/55">
+        <div className="flex flex-col items-center justify-center text-center py-2">
+          <span
+            style={{
+              font: '700 11px/1 var(--tar-mono)',
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              color: 'var(--tar-ink-mute)',
+            }}
+          >
             {report.isInProgress ? t('introInProgress') : t('intro')}
           </span>
           <p
-            className="mt-2 text-[80px] sm:text-[110px] leading-none font-extrabold tabular-nums"
-            style={{ color: '#FFC044', textShadow: '0 6px 30px rgba(255,196,68,0.35)' }}
+            className="mt-2 tabular-nums"
+            style={{
+              font: '900 110px/0.9 var(--tar-tight)',
+              letterSpacing: '-0.05em',
+              background:
+                'linear-gradient(135deg, #FFD64A 0%, #FFB627 35%, #FF6B35 75%, #FF4D5E 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+              filter: 'drop-shadow(0 8px 30px rgba(255,182,39,0.35))',
+            }}
           >
             {report.year}
           </p>
-          <p className="mt-2 text-sm text-white/55 max-w-xs">
+          <p
+            className="mt-3 max-w-xs"
+            style={{
+              font: '500 13px/1.4 var(--tar-text)',
+              color: 'var(--tar-ink-mute)',
+            }}
+          >
             {report.isInProgress ? t('subtitleInProgress') : t('subtitle')}
           </p>
         </div>
@@ -171,21 +200,31 @@ export function WrappedView({ report }: Props) {
       {/* Top PRs */}
       {report.topPRs.length > 0 && (
         <Card>
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className="h-9 w-9 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(255, 196, 68, 0.16)' }}
+          <div className="flex items-center gap-3 mb-4">
+            <span
+              className="tar-s-mglyph"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: 'var(--tar-brand-grad-soft)',
+                border: '1px solid rgba(255,182,39,0.35)',
+                color: 'var(--tar-brand-2)',
+              }}
             >
-              <Trophy className="h-4 w-4" style={{ color: '#FFC044' }} />
-            </div>
+              <Trophy className="h-[18px] w-[18px]" />
+            </span>
             <div>
-              <p
-                className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                style={{ color: '#FFC044' }}
+              <div className="tar-d-eyebrow">{t('cards.topPRs.label')}</div>
+              <div
+                style={{
+                  font: '700 14px/1.2 var(--tar-text)',
+                  color: 'var(--tar-ink)',
+                  marginTop: 2,
+                }}
               >
-                {t('cards.topPRs.label')}
-              </p>
-              <p className="text-sm font-bold text-white">{t('cards.topPRs.title')}</p>
+                {t('cards.topPRs.title')}
+              </div>
             </div>
           </div>
           <div className="space-y-2.5">
@@ -193,19 +232,45 @@ export function WrappedView({ report }: Props) {
               const name =
                 locale === 'ru' ? (pr.exerciseNameRu ?? pr.exerciseName) : pr.exerciseName
               return (
-                <div key={i} className="flex items-baseline justify-between gap-3">
+                <div
+                  key={i}
+                  className="flex items-baseline justify-between gap-3"
+                  style={{
+                    padding: '8px 0',
+                    borderTop: i > 0 ? '1px solid var(--tar-line)' : undefined,
+                  }}
+                >
                   <div className="flex items-center gap-3 min-w-0">
                     <span
-                      className="text-2xl font-extrabold tabular-nums w-7"
-                      style={{ color: 'rgba(255,196,68,0.55)' }}
+                      className="tabular-nums w-7"
+                      style={{
+                        font: '900 22px/1 var(--tar-tight)',
+                        letterSpacing: '-0.02em',
+                        color: 'rgba(255,196,68,0.55)',
+                      }}
                     >
                       {i + 1}
                     </span>
-                    <span className="text-sm font-bold text-white truncate">{name}</span>
+                    <span
+                      className="truncate"
+                      style={{
+                        font: '700 14px/1.2 var(--tar-text)',
+                        color: 'var(--tar-ink)',
+                      }}
+                    >
+                      {name}
+                    </span>
                   </div>
                   <span
-                    className="shrink-0 text-base font-extrabold tabular-nums"
-                    style={{ color: '#FFC044' }}
+                    className="shrink-0 tabular-nums"
+                    style={{
+                      font: '800 17px/1 var(--tar-tight)',
+                      letterSpacing: '-0.02em',
+                      background: 'var(--tar-brand-grad)',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                    }}
                   >
                     {pr.e1rm.toFixed(1)} {kg}
                   </span>
@@ -219,10 +284,16 @@ export function WrappedView({ report }: Props) {
       {/* Monthly sparkline */}
       <Card>
         <div className="mb-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-            {t('cards.monthly.label')}
-          </p>
-          <p className="text-sm font-bold text-white">{t('cards.monthly.title')}</p>
+          <div className="tar-d-eyebrow">{t('cards.monthly.label')}</div>
+          <div
+            style={{
+              font: '700 14px/1.2 var(--tar-text)',
+              color: 'var(--tar-ink)',
+              marginTop: 2,
+            }}
+          >
+            {t('cards.monthly.title')}
+          </div>
         </div>
         <div className="flex items-end gap-1.5 h-28">
           {report.monthly.map((m) => {
@@ -235,12 +306,18 @@ export function WrappedView({ report }: Props) {
                     height: `${h}%`,
                     background:
                       m.sessions > 0
-                        ? 'linear-gradient(180deg, #FFC044, rgba(255,196,68,0.18))'
+                        ? 'linear-gradient(180deg, #FFB627, rgba(255,107,53,0.25))'
                         : 'rgba(255,255,255,0.04)',
                   }}
                   title={`${m.sessions} sessions · ${m.tonnageKg.toLocaleString()} ${kg}`}
                 />
-                <span className="text-[9px] font-mono text-white/35 tabular-nums">
+                <span
+                  className="tabular-nums"
+                  style={{
+                    font: '500 9px/1 var(--tar-mono)',
+                    color: 'var(--tar-ink-soft)',
+                  }}
+                >
                   {monthShort(m.month, locale)}
                 </span>
               </div>
@@ -251,7 +328,16 @@ export function WrappedView({ report }: Props) {
 
       {/* Footer */}
       <div className="text-center pt-2">
-        <p className="text-[10px] uppercase tracking-[0.32em] text-white/35">{t('footer')}</p>
+        <p
+          style={{
+            font: '500 10px/1 var(--tar-mono)',
+            letterSpacing: '0.32em',
+            textTransform: 'uppercase',
+            color: 'var(--tar-ink-soft)',
+          }}
+        >
+          {t('footer')}
+        </p>
       </div>
     </div>
   )
@@ -270,12 +356,12 @@ interface CardProps {
 function Card({ children, gradient = 'none' }: CardProps) {
   const bg =
     gradient === 'conic'
-      ? 'conic-gradient(from 230deg at 50% 50%, rgba(255,196,68,0.14), rgba(255, 110, 118, 0.08), rgba(167, 139, 250, 0.12), rgba(94, 234, 212, 0.10), rgba(255,196,68,0.14)), #0D0D12'
-      : '#15151C'
+      ? 'conic-gradient(from 230deg at 50% 50%, rgba(255,196,68,0.16), rgba(255, 110, 118, 0.10), rgba(167, 139, 250, 0.14), rgba(94, 234, 212, 0.10), rgba(255,196,68,0.16)), var(--tar-bg-elevated)'
+      : 'var(--tar-bg-elevated)'
   return (
     <div
-      className="rounded-[24px] p-5 sm:p-6"
-      style={{ background: bg, border: '1px solid rgba(255,255,255,0.06)' }}
+      className="rounded-[24px] p-5 sm:p-6 relative overflow-hidden"
+      style={{ background: bg, border: '1px solid var(--tar-line)' }}
     >
       {children}
     </div>
@@ -295,35 +381,72 @@ interface BigStatProps {
 function BigStatCard({ icon, label, value, unit, sub, accent, smallValue }: BigStatProps) {
   return (
     <div
-      className="rounded-[24px] p-5 sm:p-6"
+      className="rounded-[24px] p-5 sm:p-6 relative overflow-hidden"
       style={{
-        background: `radial-gradient(circle at 0% 0%, ${accent}1F, transparent 50%), #15151C`,
+        background: `radial-gradient(circle at 0% 0%, ${accent}1F, transparent 55%), var(--tar-bg-elevated)`,
         border: `1px solid ${accent}33`,
       }}
     >
-      <div className="flex items-center gap-2 mb-5">
-        <div
-          className="h-9 w-9 rounded-full flex items-center justify-center"
-          style={{ background: `${accent}24` }}
+      <div className="flex items-center gap-3 mb-5">
+        <span
+          className="tar-s-mglyph"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            background: `${accent}24`,
+            border: `1px solid ${accent}44`,
+            color: accent,
+          }}
         >
           {icon}
-        </div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: accent }}>
+        </span>
+        <div
+          style={{
+            font: '700 10px/1 var(--tar-mono)',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: accent,
+          }}
+        >
           {label}
-        </p>
+        </div>
       </div>
 
       <div className="flex items-baseline gap-2 flex-wrap">
         <span
-          className={`font-extrabold tabular-nums leading-none ${smallValue ? 'text-[42px] sm:text-[56px]' : 'text-[68px] sm:text-[92px]'}`}
-          style={{ color: accent, textShadow: `0 6px 30px ${accent}55` }}
+          className="tabular-nums"
+          style={{
+            font: smallValue ? '900 52px/0.95 var(--tar-tight)' : '900 92px/0.9 var(--tar-tight)',
+            letterSpacing: '-0.04em',
+            color: accent,
+            textShadow: `0 6px 30px ${accent}55`,
+          }}
         >
           {value}
         </span>
-        {unit && <span className="text-lg sm:text-xl text-white/45 font-mono">{unit}</span>}
+        {unit && (
+          <span
+            style={{
+              font: '500 18px/1 var(--tar-mono)',
+              letterSpacing: '0.06em',
+              color: 'var(--tar-ink-mute)',
+            }}
+          >
+            {unit}
+          </span>
+        )}
       </div>
 
-      <p className="mt-3 text-sm text-white/55">{sub}</p>
+      <p
+        className="mt-3"
+        style={{
+          font: '500 13px/1.4 var(--tar-text)',
+          color: 'var(--tar-ink-mute)',
+        }}
+      >
+        {sub}
+      </p>
     </div>
   )
 }
