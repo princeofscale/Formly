@@ -9,6 +9,7 @@ import {
   ActivitySquare,
   Zap,
   MoreHorizontal,
+  PersonStanding,
   Loader2,
   Play,
 } from 'lucide-react'
@@ -19,7 +20,7 @@ const ACTIVITIES = [
   { key: 'cycling', icon: Bike, accent: '#6FA6FF', bg: 'rgba(111,166,255,0.12)' },
   { key: 'swimming', icon: Waves, accent: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
   { key: 'rowing', icon: ActivitySquare, accent: '#FF6B35', bg: 'rgba(255,107,53,0.12)' },
-  { key: 'walking', icon: Footprints, accent: '#FFD64A', bg: 'rgba(255,214,74,0.12)' },
+  { key: 'walking', icon: PersonStanding, accent: '#FFD64A', bg: 'rgba(255,214,74,0.12)' },
   { key: 'elliptical', icon: ActivitySquare, accent: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },
   { key: 'hiit', icon: Zap, accent: '#FF6E76', bg: 'rgba(255,110,118,0.12)' },
   { key: 'other', icon: MoreHorizontal, accent: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },

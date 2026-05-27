@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { LanguageSelector } from '@/components/profile/LanguageSelector'
 import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
+import { InstallAppButton } from '@/components/profile/InstallAppButton'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
@@ -310,6 +311,11 @@ export default async function ProfilePage() {
       >
         <LanguageSelector current={locale} label={t('language')} />
         <NotificationsToggle vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ''} />
+      </div>
+
+      {/* Install app (PWA) — only renders if installable */}
+      <div className="tar-d-rise tar-d-rise-5">
+        <InstallAppButton />
       </div>
 
       {/* Export CSV */}

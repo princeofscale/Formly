@@ -517,6 +517,18 @@
     "deleteAccountCancel": "Cancel",
     "exportCsv": "Export data",
     "exportCsvSub": "Download all workouts as CSV",
+    "install": {
+      "title": "Install app",
+      "subtitle": "Open as a native app",
+      "subtitleIOS": "Add to Home Screen",
+      "iosTitle": "Install on iPhone",
+      "iosIntro": "On iOS, the app is installed manually through Safari. It takes about 10 seconds.",
+      "iosStep1": "Open this app in Safari (not Chrome or Telegram)",
+      "iosStep2": "Tap the Share button at the bottom of the screen",
+      "iosStep3": "Choose “Add to Home Screen”",
+      "iosStep4": "Tap “Add” — the icon will appear like a regular app",
+      "iosCta": "Got it"
+    },
     "sectionIdentity": "Identity",
     "sectionPreferences": "Preferences",
     "sectionAccount": "Account",

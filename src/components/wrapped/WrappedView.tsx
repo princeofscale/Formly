@@ -77,7 +77,7 @@ export function WrappedView({ report }: Props) {
           <p
             className="mt-2 tabular-nums"
             style={{
-              font: '900 110px/0.9 var(--tar-tight)',
+              font: '900 clamp(72px, 22vw, 110px)/0.9 var(--tar-tight)',
               letterSpacing: '-0.05em',
               background:
                 'linear-gradient(135deg, #FFD64A 0%, #FFB627 35%, #FF6B35 75%, #FF4D5E 100%)',
@@ -417,7 +417,9 @@ function BigStatCard({ icon, label, value, unit, sub, accent, smallValue }: BigS
         <span
           className="tabular-nums"
           style={{
-            font: smallValue ? '900 52px/0.95 var(--tar-tight)' : '900 92px/0.9 var(--tar-tight)',
+            font: smallValue
+              ? '900 clamp(40px, 13vw, 52px)/0.95 var(--tar-tight)'
+              : '900 clamp(60px, 18vw, 92px)/0.9 var(--tar-tight)',
             letterSpacing: '-0.04em',
             color: accent,
             textShadow: `0 6px 30px ${accent}55`,

@@ -52,10 +52,11 @@ export function MoodSelector({ sessionId, initialMood }: Props) {
                 borderRadius: 12,
                 fontSize: 22,
                 background: active ? 'var(--tar-brand-grad-soft)' : 'var(--tar-card)',
-                border: active ? '1px solid rgba(255, 182, 39, 0.45)' : '1px solid var(--tar-line)',
-                transform: active ? 'scale(1.06)' : 'scale(1)',
-                boxShadow: active ? '0 4px 18px rgba(255, 107, 53, 0.18)' : undefined,
-                opacity: active ? 1 : 0.65,
+                border: active
+                  ? '1.5px solid rgba(255, 182, 39, 0.7)'
+                  : '1px solid var(--tar-line)',
+                boxShadow: active ? '0 4px 18px rgba(255, 107, 53, 0.22)' : undefined,
+                opacity: active ? 1 : 0.55,
               }}
             >
               {m.emoji}
