@@ -2,12 +2,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Activity, ChevronDown, Dumbbell, Flame, Snowflake, Sparkles } from 'lucide-react'
+import {
+  Activity,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
+  Dumbbell,
+  Flame,
+  Snowflake,
+  Sparkles,
+  TrendingUp,
+  Trophy,
+} from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { ScheduleStatus } from '@/components/dashboard/ScheduleStatus'
 import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
+import { WeekdayStrip } from '@/components/dashboard/WeekdayStrip'
 import { getMuscleVolumeForDays } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
 import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
@@ -256,6 +268,34 @@ export default async function DashboardPage({
     '7': t('today.days.7'),
   }
 
+  // Greeting + name. Profile has no display_name; fall back to email prefix.
+  const hour = now.getHours()
+  const greetingKey =
+    hour < 5 ? 'night' : hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
+  const emailPrefix = (user.email ?? '').split('@')[0] ?? ''
+  const cleanName = emailPrefix.replace(/[._-]/g, ' ').trim()
+  const displayName = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : ''
+
+  // ISO week number
+  function isoWeek(d: Date) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+    const day = t.getUTCDay() || 7
+    t.setUTCDate(t.getUTCDate() + 4 - day)
+    const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1))
+    return Math.ceil(((t.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
+  }
+  const weekNum = isoWeek(now)
+
+  const dateLine = now.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+  })
+
+  // Counts for the shortcuts grid — reuse data we've already fetched.
+  const historyCount = workoutDates.length // finished sessions total
+  const recentPRCount = recentPRs.length // last 30 days
+
   return (
     <div className="space-y-4 sm:space-y-5">
       {activeSession && (
@@ -265,216 +305,289 @@ export default async function DashboardPage({
           setCount={activeSessionSetCount}
         />
       )}
-      <section className="relative overflow-hidden rounded-[28px] bg-card p-5 ring-1 ring-white/[0.06] sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
-        />
 
-        <div className="relative">
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-              {t('overview')}
-            </p>
-            <Link
-              href="/workout/new"
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_14px_30px_rgba(255,59,71,0.26)] transition hover:bg-primary/90 active:scale-[0.98]"
-            >
-              <Dumbbell className="h-4 w-4" />
-              {t('startWorkout')}
-            </Link>
-          </div>
-
-          <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary/15 ring-1 ring-primary/25">
-                <Flame className="h-8 w-8 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-mono text-[68px] font-black leading-[0.9] text-primary tabular-nums sm:text-[80px]">
-                  {streakInfo.current}
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/55">
-                    {t('streakDaysLabel')}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-widest text-white/35 tabular-nums">
-                    {t('bestStreakShort', { n: streakInfo.longest })}
-                  </span>
-                  {showFreeze && (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-bold tabular-nums"
-                      style={{
-                        background:
-                          freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
-                        border:
-                          freezesLeft > 0
-                            ? '1px solid rgba(94,234,212,0.28)'
-                            : '1px solid rgba(255,255,255,0.06)',
-                        color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
-                      }}
-                    >
-                      <Snowflake className="h-3 w-3" />
-                      {t('freezesShort', { left: freezesLeft, total: freezesPerMonth })}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <ScheduleStatus
-                schedule={schedule}
-                labels={{
-                  trainingDay: t('today.trainingDay'),
-                  restDay: t('today.restDay'),
-                  next: t('today.next'),
-                  noSchedule: t('today.noSchedule'),
-                  days: dayLabels,
-                }}
-              />
-            </div>
-          </div>
-
-          {streakAtRisk && (
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 p-3">
-              <Flame className="h-5 w-5 shrink-0 text-red-300" />
-              <div className="min-w-0 text-xs">
-                <div className="font-bold text-red-200">
-                  {t('streakAtRiskTitle', { n: streakInfo.current })}
-                </div>
-                <div className="text-white/45">{t('streakAtRiskSub')}</div>
-              </div>
-            </div>
-          )}
-
-          {deloadWeekIndex !== null && (
-            <div className="mt-4">
-              <DeloadBanner weekIndex={deloadWeekIndex} cycleWeeks={DELOAD_CYCLE_WEEKS} />
-            </div>
-          )}
-
-          <div className="mt-5">
-            <WeeklyStats
-              tonnage={weekTonnage}
-              sessions={weekSessions}
-              bestE1rm={bestE1rm}
-              prevTonnage={prevWeekTonnage}
-              prevSessions={prevWeekSessions}
-              labels={{
-                tonnage: t('week.tonnage'),
-                sessions: t('week.sessions'),
-                bestE1rm: t('week.bestE1rm'),
-              }}
-            />
+      {/* Hello + streak pill */}
+      <div className="tar-d-hello tar-d-rise tar-d-rise-1">
+        <div>
+          <div className="tar-d-hello-eye">{dateLine}</div>
+          <h1 className="tar-d-hello-name">
+            {t(`greeting.${greetingKey}`)}
+            {displayName ? (
+              <>
+                ,<br />
+                <span>{displayName}</span>
+              </>
+            ) : null}
+          </h1>
+        </div>
+        <div className="tar-d-streak" title={t('streakDaysLabel')}>
+          <Flame className="h-4 w-4" />
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              alignItems: 'flex-start',
+              lineHeight: 1,
+            }}
+          >
+            <span className="n">{streakInfo.current}</span>
+            <span className="lab">{t('streakDaysLabel')}</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-150">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-              <Dumbbell className="h-4 w-4 text-primary" />
-              {t('recentTraining')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {sessions.length > 0 ? (
-              <div className="space-y-1.5">
-                {sessions.map((s) => {
-                  const date = new Date(s.started_at)
-                  const tags = exerciseTagsMap[s.id] ?? []
-                  const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
-                  const isCardio = s.session_type === 'cardio'
-                  const cardioMin =
-                    s.cardio_duration_seconds != null
-                      ? Math.round(s.cardio_duration_seconds / 60)
-                      : null
-                  return (
-                    <div
-                      key={s.id}
-                      className="group flex items-center rounded-2xl transition hover:bg-white/[0.04]"
-                    >
-                      <Link
-                        href={isCardio ? '/dashboard' : `/history/${s.id}`}
-                        className="flex flex-1 min-w-0 items-center justify-between gap-3 px-1 py-2.5"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-mono text-sm font-bold">
-                              {date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                              })}
-                            </p>
-                            {moodEmoji && <span className="text-sm leading-none">{moodEmoji}</span>}
-                            {isCardio && (
-                              <span
-                                className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
-                                style={{ background: 'rgba(94, 234, 212, 0.14)', color: '#5EEAD4' }}
-                              >
-                                CARDIO
-                              </span>
-                            )}
-                          </div>
-                          {isCardio ? (
-                            <p className="mt-0.5 truncate text-xs text-white/40">
-                              {s.cardio_activity ?? ''}
-                              {cardioMin != null ? ` · ${cardioMin} мин` : ''}
-                              {s.cardio_distance_km != null ? ` · ${s.cardio_distance_km} км` : ''}
-                            </p>
-                          ) : (
-                            tags.length > 0 && (
-                              <p className="mt-0.5 truncate text-xs text-white/40">
-                                {tags.join(' · ')}
-                              </p>
-                            )
-                          )}
-                        </div>
-                        {isCardio ? (
-                          <span
-                            className="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
-                            style={{ background: 'rgba(94, 234, 212, 0.12)', color: '#5EEAD4' }}
-                          >
-                            {cardioMin ?? 0} мин
-                          </span>
-                        ) : (
-                          <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
-                            {(s.total_volume_kg ?? 0).toFixed(0)} кг
-                          </span>
-                        )}
-                      </Link>
-                      {!isCardio && (
-                        <form action={repeatSessionAction} className="shrink-0 pr-1">
-                          <input type="hidden" name="sessionId" value={s.id} />
-                          <button
-                            type="submit"
-                            aria-label={t('repeatWorkout')}
-                            title={t('repeatWorkout')}
-                            className="flex h-9 w-9 items-center justify-center rounded-full text-white/45 transition hover:bg-white/[0.06] hover:text-white active:scale-95"
-                          >
-                            <RotateCw className="h-4 w-4" />
-                          </button>
-                        </form>
+      {/* Primary CTA */}
+      <Link
+        href={activeSession ? `/workout/${activeSession.id}` : '/workout/new'}
+        className="tar-d-cta tar-d-rise tar-d-rise-2"
+        role="button"
+      >
+        <div className="tar-d-cta-head">
+          <span className="tar-d-cta-eye">
+            <span className="live" />
+            {t('ctaCard.ready')}
+          </span>
+        </div>
+        <div className="tar-d-cta-title">
+          {activeSession ? t('ctaCard.continue') : t('ctaCard.title')}
+        </div>
+        <div className="tar-d-cta-sub">
+          {activeSession ? t('ctaCard.subActive') : t('ctaCard.sub')}
+        </div>
+        <div className="tar-d-cta-foot">
+          <div style={{ display: 'flex', gap: 18 }}>
+            <div className="tar-d-cta-meta">
+              <span className="k">{t('ctaCard.duration')}</span>
+              <span className="v">~ 45-60 мин</span>
+            </div>
+            <div className="tar-d-cta-meta">
+              <span className="k">{t('ctaCard.focus')}</span>
+              <span className="v">
+                <Dumbbell className="h-4 w-4 text-[color:var(--tar-brand-2)]" />
+                {schedule.length > 0 ? t('today.trainingDay') : t('today.next')}
+              </span>
+            </div>
+          </div>
+          <span className="tar-d-cta-go" aria-hidden="true">
+            <ChevronRight className="h-5 w-5" />
+          </span>
+        </div>
+      </Link>
+
+      {/* Schedule status (compact) + freezes */}
+      {(schedule.length > 0 || showFreeze) && (
+        <div className="tar-d-rise tar-d-rise-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+          <ScheduleStatus
+            schedule={schedule}
+            labels={{
+              trainingDay: t('today.trainingDay'),
+              restDay: t('today.restDay'),
+              next: t('today.next'),
+              noSchedule: t('today.noSchedule'),
+              days: dayLabels,
+            }}
+          />
+          {showFreeze && (
+            <div className="flex items-center gap-2 self-center">
+              <span className="text-[10px] uppercase tracking-widest text-white/40">
+                {t('bestStreakShort', { n: streakInfo.longest })}
+              </span>
+              <span
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-[10px] font-bold tabular-nums"
+                style={{
+                  background: freezesLeft > 0 ? 'rgba(94,234,212,0.10)' : 'rgba(255,255,255,0.04)',
+                  border:
+                    freezesLeft > 0
+                      ? '1px solid rgba(94,234,212,0.28)'
+                      : '1px solid rgba(255,255,255,0.06)',
+                  color: freezesLeft > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.4)',
+                }}
+              >
+                <Snowflake className="h-3 w-3" />
+                {t('freezesShort', { left: freezesLeft, total: freezesPerMonth })}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {streakAtRisk && (
+        <div className="tar-d-rise tar-d-rise-3 flex items-center gap-3 rounded-2xl border border-red-400/25 bg-red-500/10 p-3">
+          <Flame className="h-5 w-5 shrink-0 text-red-300" />
+          <div className="min-w-0 text-xs">
+            <div className="font-bold text-red-200">
+              {t('streakAtRiskTitle', { n: streakInfo.current })}
+            </div>
+            <div className="text-white/45">{t('streakAtRiskSub')}</div>
+          </div>
+        </div>
+      )}
+
+      {deloadWeekIndex !== null && (
+        <div className="tar-d-rise tar-d-rise-3">
+          <DeloadBanner weekIndex={deloadWeekIndex} cycleWeeks={DELOAD_CYCLE_WEEKS} />
+        </div>
+      )}
+
+      {/* This week */}
+      <div className="tar-d-rise tar-d-rise-3">
+        <div className="tar-d-sectionhead">
+          {t('thisWeek')}
+          <span className="counter">{t('weekShort', { n: weekNum })}</span>
+        </div>
+        <WeeklyStats
+          tonnage={weekTonnage}
+          sessions={weekSessions}
+          bestE1rm={bestE1rm}
+          prevTonnage={prevWeekTonnage}
+          prevSessions={prevWeekSessions}
+          labels={{
+            tonnage: t('week.tonnage'),
+            sessions: t('week.sessions'),
+            bestE1rm: t('week.bestE1rm'),
+          }}
+        />
+      </div>
+
+      {/* Weekday strip — last 7 days */}
+      <div className="tar-d-rise tar-d-rise-4">
+        <WeekdayStrip
+          workoutDates={workoutDates}
+          schedule={schedule}
+          labels={{ days: dayLabels }}
+        />
+      </div>
+
+      {/* Recent activity */}
+      <div className="tar-d-rise tar-d-rise-5">
+        <div className="tar-d-sectionhead">
+          {t('recentTraining')}
+          {sessions.length > 0 ? (
+            <span className="counter">{t('lastN', { n: sessions.length })}</span>
+          ) : null}
+        </div>
+        {sessions.length > 0 ? (
+          <div className="tar-d-feed">
+            {sessions.map((s) => {
+              const date = new Date(s.started_at)
+              const tags = exerciseTagsMap[s.id] ?? []
+              const moodEmoji = s.mood_score && MOOD_EMOJIS[s.mood_score]
+              const isCardio = s.session_type === 'cardio'
+              const cardioMin =
+                s.cardio_duration_seconds != null
+                  ? Math.round(s.cardio_duration_seconds / 60)
+                  : null
+              const whenLabel = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                weekday: 'short',
+              })
+              const title = isCardio
+                ? (s.cardio_activity ?? 'Cardio')
+                : tags[0]
+                  ? tags.slice(0, 2).join(' · ')
+                  : t('recentTraining')
+              const subParts = isCardio
+                ? [
+                    cardioMin != null ? `${cardioMin} мин` : null,
+                    s.cardio_distance_km != null ? `${s.cardio_distance_km} км` : null,
+                  ].filter(Boolean)
+                : [
+                    `${(s.total_volume_kg ?? 0).toFixed(0)} кг`,
+                    tags.length > 2 ? `+${tags.length - 2}` : null,
+                  ].filter(Boolean)
+
+              return (
+                <div key={s.id} className="flex items-center gap-2">
+                  <Link
+                    href={isCardio ? '/dashboard' : `/history/${s.id}`}
+                    className="tar-d-feed-row flex-1"
+                  >
+                    <div className="ico" style={isCardio ? { color: '#5EEAD4' } : undefined}>
+                      {isCardio ? (
+                        <Activity className="h-4 w-4" />
+                      ) : (
+                        <Dumbbell className="h-4 w-4" />
                       )}
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-white/45">{t('noWorkouts')}</p>
-            )}
-          </CardContent>
-        </Card>
+                    <div className="meta">
+                      <div className="t">
+                        {title}
+                        {moodEmoji ? (
+                          <span className="ml-2 align-middle text-sm">{moodEmoji}</span>
+                        ) : null}
+                      </div>
+                      <div className="s">
+                        {subParts.map((p, i) => (
+                          <span key={i}>
+                            {i > 0 ? <span className="sep">·</span> : null}
+                            {p}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="end">
+                      <span className="when">{whenLabel}</span>
+                    </div>
+                  </Link>
+                  {!isCardio && (
+                    <form action={repeatSessionAction}>
+                      <input type="hidden" name="sessionId" value={s.id} />
+                      <button
+                        type="submit"
+                        aria-label={t('repeatWorkout')}
+                        title={t('repeatWorkout')}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl text-white/45 transition hover:bg-white/[0.06] hover:text-white active:scale-95 border border-white/[0.08]"
+                      >
+                        <RotateCw className="h-4 w-4" />
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-white/45 px-2">{t('noWorkouts')}</p>
+        )}
+      </div>
 
+      {/* Shortcuts */}
+      <div className="tar-d-rise tar-d-rise-6">
+        <div className="tar-d-sectionhead">{t('shortcuts')}</div>
+        <div className="tar-d-quick">
+          <Link href="/history" className="glass">
+            <div className="ico">
+              <Calendar />
+            </div>
+            <div>
+              <div className="sub">{t('history')}</div>
+              <div className="v">{historyCount}</div>
+            </div>
+          </Link>
+          <Link href="/progress" className="glass">
+            <div className="ico">
+              <TrendingUp />
+            </div>
+            <div>
+              <div className="sub">{t('progress')}</div>
+              <div className="v small">{bestE1rm ? `${Math.round(bestE1rm)} kg` : '—'}</div>
+            </div>
+          </Link>
+          <Link href="/records" className="glass">
+            <div className="ico">
+              <Trophy />
+            </div>
+            <div>
+              <div className="sub">{t('records')}</div>
+              <div className="v">{recentPRCount}</div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-1">
         <AIInsightsCard initialInsights={initialInsights} />
-      </section>
+      </div>
 
       <details className="group rounded-[28px] bg-card ring-1 ring-white/[0.06] animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200 open:bg-card/95">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 marker:hidden [&::-webkit-details-marker]:hidden">

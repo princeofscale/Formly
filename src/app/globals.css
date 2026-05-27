@@ -324,18 +324,36 @@
 :root {
   --tar-bg: #0a0a0f;
   --tar-bg-2: #0e0e16;
+  --tar-bg-3: #11111a;
   --tar-ink: #f5f1e8;
   --tar-ink-dim: rgba(245, 241, 232, 0.62);
   --tar-ink-mute: rgba(245, 241, 232, 0.42);
+  --tar-ink-soft: rgba(245, 241, 232, 0.22);
   --tar-line: rgba(245, 241, 232, 0.08);
   --tar-line-hot: rgba(245, 241, 232, 0.18);
   --tar-card: rgba(255, 255, 255, 0.025);
   --tar-card-hot: rgba(255, 255, 255, 0.05);
   --tar-brand-1: #ff6b35;
   --tar-brand-2: #ffb627;
+  --tar-brand-3: #ff4d2c;
   --tar-brand-grad: linear-gradient(135deg, #ff6b35 0%, #ffb627 100%);
+  --tar-brand-grad-r: linear-gradient(225deg, #ff6b35 0%, #ffb627 100%);
+  --tar-brand-grad-soft: linear-gradient(
+    135deg,
+    rgba(255, 107, 53, 0.18) 0%,
+    rgba(255, 182, 39, 0.18) 100%
+  );
+  --tar-brand-glow: 0 14px 30px rgba(255, 107, 53, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   --tar-danger: #ff4d5e;
   --tar-success: #2bd884;
+  --tar-warning: #ffd64a;
+  --tar-r-sm: 10px;
+  --tar-r-md: 14px;
+  --tar-r-lg: 18px;
+  --tar-r-xl: 24px;
+  --tar-mono: var(--font-mono, 'JetBrains Mono'), ui-monospace, monospace;
+  --tar-tight: var(--font-tight, 'Inter Tight'), system-ui, sans-serif;
+  --tar-text: 'Manrope', system-ui, sans-serif;
 }
 
 /* ─── Background ───────────────────────────────────────────── */
@@ -2582,6 +2600,605 @@
   .tar-w-stat-value.tick,
   .tar-w-ai,
   .tar-w-plate-vis {
+    animation: none !important;
+  }
+}
+
+/* ─── Dashboard (tar-d-*) ──────────────────────────────────────
+   Namespaced styles for the redesigned dashboard. Builds on top
+   of existing tar-* vars (brand, ink, card, line, radii, fonts).
+*/
+
+.tar-d-section {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Eyebrow + kinetic — small primitives reused across dashboard sections */
+.tar-d-eyebrow {
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-eyebrow.accent {
+  background: var(--tar-brand-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tar-d-sectionhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 2px 10px;
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-sectionhead::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--tar-line);
+}
+.tar-d-sectionhead .counter {
+  font: 700 10px/1 var(--tar-mono);
+  color: var(--tar-ink-soft);
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--tar-line);
+}
+
+/* Hello / greeting block */
+.tar-d-hello {
+  padding: 4px 2px 6px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+.tar-d-hello-eye {
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-hello-name {
+  font: 700 30px/1.05 var(--tar-tight);
+  letter-spacing: -0.03em;
+  margin: 8px 0 0;
+  color: var(--tar-ink);
+}
+.tar-d-hello-name span {
+  background: var(--tar-brand-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Streak pill (compact, with flame) */
+.tar-d-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 10px;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.14), rgba(255, 182, 39, 0.1));
+  border: 1px solid rgba(255, 107, 53, 0.32);
+  border-radius: 100px;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+.tar-d-streak::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(closest-side at 18% 50%, rgba(255, 182, 39, 0.4), transparent 70%);
+  opacity: 0.6;
+}
+.tar-d-streak svg {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  color: var(--tar-brand-2);
+  filter: drop-shadow(0 0 6px rgba(255, 182, 39, 0.6));
+}
+.tar-d-streak .n {
+  position: relative;
+  font: 800 16px/1 var(--tar-tight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--tar-ink);
+}
+.tar-d-streak .lab {
+  position: relative;
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+
+/* Primary CTA card with rotating conic-gradient stroke */
+.tar-d-cta {
+  margin-top: 14px;
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(140% 90% at 100% 0%, rgba(255, 107, 53, 0.2), transparent 55%),
+    radial-gradient(140% 100% at 0% 100%, rgba(255, 182, 39, 0.12), transparent 60%),
+    rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: block;
+  color: var(--tar-ink);
+  text-decoration: none;
+}
+.tar-d-cta:active {
+  transform: scale(0.99);
+}
+.tar-d-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  padding: 1.5px;
+  pointer-events: none;
+  background: conic-gradient(from 90deg, #ff6b35, #ffb627, #ff4d2c, #ff6b35);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: tar-d-cta-rotate 8s linear infinite;
+  opacity: 0.85;
+}
+@keyframes tar-d-cta-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.tar-d-cta-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.tar-d-cta-eye {
+  font: 700 10px/1 var(--tar-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tar-brand-2);
+}
+.tar-d-cta-eye .live {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tar-brand-2);
+  margin-right: 8px;
+  box-shadow: 0 0 8px var(--tar-brand-2);
+  vertical-align: middle;
+  animation: tar-d-live-pulse 1.8s ease-in-out infinite;
+}
+@keyframes tar-d-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.tar-d-cta-title {
+  font: 700 26px/1.05 var(--tar-tight);
+  letter-spacing: -0.025em;
+}
+.tar-d-cta-sub {
+  margin-top: 6px;
+  font: 500 12px/1.4 var(--tar-text);
+  color: var(--tar-ink-dim);
+}
+.tar-d-cta-foot {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tar-d-cta-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tar-d-cta-meta .k {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-cta-meta .v {
+  font: 700 13px/1 var(--tar-text);
+  color: var(--tar-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tar-d-cta-go {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--tar-brand-grad);
+  color: #1a0f08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 10px 24px rgba(255, 107, 53, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  border: 0;
+}
+.tar-d-cta-go svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Weekly stats — 3 cards */
+.tar-d-week {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 8px;
+}
+.tar-d-week .tar-d-stat {
+  padding: 14px 14px 12px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  border-radius: var(--tar-r-lg);
+}
+.tar-d-week .k {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-week .v {
+  margin-top: 8px;
+  font: 800 22px/1 var(--tar-tight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--tar-ink);
+}
+.tar-d-week .v .u {
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.1em;
+  color: var(--tar-ink-mute);
+}
+.tar-d-week .d {
+  margin-top: 6px;
+  font: 700 10px/1 var(--tar-mono);
+  letter-spacing: 0.08em;
+  color: var(--tar-success);
+}
+.tar-d-week .d.down {
+  color: var(--tar-danger);
+}
+.tar-d-week .d.muted {
+  color: var(--tar-ink-mute);
+}
+.tar-d-week .v.gold {
+  background: var(--tar-brand-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Weekday strip — 7 cells, checkmark for done, today highlighted */
+.tar-d-weekstrip {
+  padding: 12px 14px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  border-radius: var(--tar-r-md);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.tar-d-weekstrip .day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.tar-d-weekstrip .day .lab {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tar-ink-mute);
+}
+.tar-d-weekstrip .day .cell {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--tar-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--tar-ink-mute);
+}
+.tar-d-weekstrip .day.done .cell {
+  background: var(--tar-brand-grad);
+  border-color: transparent;
+  color: #1a0f08;
+  box-shadow: 0 4px 10px rgba(255, 107, 53, 0.25);
+}
+.tar-d-weekstrip .day.done .cell svg {
+  width: 14px;
+  height: 14px;
+}
+.tar-d-weekstrip .day.today .cell {
+  border-color: rgba(255, 182, 39, 0.55);
+  background: rgba(255, 182, 39, 0.08);
+}
+.tar-d-weekstrip .day.today.done .cell {
+  background: var(--tar-brand-grad);
+  border-color: transparent;
+}
+.tar-d-weekstrip .day.today .lab {
+  color: var(--tar-brand-2);
+}
+.tar-d-weekstrip .day.scheduled .cell {
+  border-style: dashed;
+  border-color: rgba(255, 182, 39, 0.35);
+}
+
+/* Activity feed rows */
+.tar-d-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tar-d-feed-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  border-radius: var(--tar-r-md);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  text-decoration: none;
+  color: var(--tar-ink);
+}
+.tar-d-feed-row:hover {
+  background: var(--tar-card-hot);
+  border-color: var(--tar-line-hot);
+}
+.tar-d-feed-row .ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tar-d-feed-row .ico svg {
+  width: 16px;
+  height: 16px;
+}
+.tar-d-feed-row .meta {
+  min-width: 0;
+}
+.tar-d-feed-row .meta .t {
+  font: 600 14px/1.2 var(--tar-text);
+  color: var(--tar-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tar-d-feed-row .meta .s {
+  margin-top: 4px;
+  font: 500 11px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  color: var(--tar-ink-mute);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tar-d-feed-row .meta .s .sep {
+  color: var(--tar-ink-soft);
+}
+.tar-d-feed-row .end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.tar-d-feed-row .end .when {
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.08em;
+  color: var(--tar-ink-mute);
+  text-transform: uppercase;
+}
+
+/* PR badge (matches design's pr-tag) */
+.tar-d-pr-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 214, 74, 0.16), rgba(255, 182, 39, 0.1));
+  border: 1px solid rgba(255, 182, 39, 0.4);
+  font: 800 10px/1 var(--tar-mono);
+  letter-spacing: 0.14em;
+  color: var(--tar-warning);
+}
+.tar-d-pr-tag svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Quick links grid — 3 glass cards */
+.tar-d-quick {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.tar-d-quick .glass {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 1.05;
+  padding: 14px 12px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  border-radius: var(--tar-r-md);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.12s;
+  text-decoration: none;
+  color: var(--tar-ink);
+}
+.tar-d-quick .glass:hover {
+  background: var(--tar-card-hot);
+  border-color: var(--tar-line-hot);
+}
+.tar-d-quick .glass:active {
+  transform: scale(0.97);
+}
+.tar-d-quick .glass .ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  color: var(--tar-brand-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 182, 39, 0.08);
+  border: 1px solid rgba(255, 182, 39, 0.18);
+}
+.tar-d-quick .glass .ico svg {
+  width: 18px;
+  height: 18px;
+}
+.tar-d-quick .glass .sub {
+  font: 500 10px/1 var(--tar-mono);
+  letter-spacing: 0.12em;
+  color: var(--tar-ink-mute);
+  text-transform: uppercase;
+}
+.tar-d-quick .glass .v {
+  margin-top: 4px;
+  font: 800 22px/1 var(--tar-tight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--tar-ink);
+}
+.tar-d-quick .glass .v.small {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  font-family: var(--tar-mono);
+  font-weight: 600;
+}
+
+/* Muscle glyph chip (used in CTA + feed rows) */
+.tar-d-mglyph {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink-dim);
+  flex-shrink: 0;
+}
+.tar-d-mglyph svg {
+  width: 13px;
+  height: 13px;
+}
+.tar-d-mglyph.chest {
+  color: #ff9b70;
+}
+.tar-d-mglyph.back {
+  color: #6fa6ff;
+}
+.tar-d-mglyph.legs {
+  color: #b4ff6f;
+}
+.tar-d-mglyph.shoulder {
+  color: #ffd64a;
+}
+.tar-d-mglyph.arms {
+  color: #ff8a6e;
+}
+.tar-d-mglyph.core {
+  color: #a78bfa;
+}
+
+/* Entry stagger animation */
+@keyframes tar-d-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.tar-d-rise {
+  animation: tar-d-rise 0.5s cubic-bezier(0.16, 0.84, 0.32, 1) backwards;
+}
+.tar-d-rise-1 {
+  animation-delay: 0.04s;
+}
+.tar-d-rise-2 {
+  animation-delay: 0.1s;
+}
+.tar-d-rise-3 {
+  animation-delay: 0.16s;
+}
+.tar-d-rise-4 {
+  animation-delay: 0.22s;
+}
+.tar-d-rise-5 {
+  animation-delay: 0.28s;
+}
+.tar-d-rise-6 {
+  animation-delay: 0.34s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tar-d-cta::before,
+  .tar-d-cta-eye .live,
+  .tar-d-rise {
     animation: none !important;
   }
 }

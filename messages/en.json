@@ -402,6 +402,28 @@
       "title": "{year} in numbers",
       "cta": "Open →"
     },
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Up late"
+    },
+    "ctaCard": {
+      "ready": "Ready when you are",
+      "title": "Start workout",
+      "sub": "Every set is logged automatically. Just hit go.",
+      "subActive": "Workout already in progress — jump back in.",
+      "continue": "Continue",
+      "duration": "Duration",
+      "focus": "Focus"
+    },
+    "thisWeek": "This week",
+    "weekShort": "W{n}",
+    "lastN": "Last {n}",
+    "shortcuts": "Shortcuts",
+    "history": "History",
+    "progress": "Progress",
+    "records": "Records",
     "activeSession": {
       "label": "Workout in progress",
       "continue": "Tap to continue →",

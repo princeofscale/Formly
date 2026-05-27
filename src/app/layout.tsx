@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Manrope } from 'next/font/google'
+import { Manrope, Inter_Tight, JetBrains_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { Analytics } from '@vercel/analytics/next'
@@ -12,6 +12,18 @@ import './globals.css'
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
   weight: ['400', '500', '600', '700', '800'],
+})
+const interTight = Inter_Tight({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-tight',
+  display: 'swap',
+})
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -36,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} className={`dark ${interTight.variable} ${jetbrainsMono.variable}`}>
       <body
         className={`${manrope.className} text-white min-h-screen`}
         style={{ background: '#0A0A0F' }}
