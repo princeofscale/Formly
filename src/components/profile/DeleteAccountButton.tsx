@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { Loader2, ShieldAlert, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Loader2, ShieldAlert, X, ChevronRight } from 'lucide-react'
 import { deleteAccountAction } from '@/app/(app)/actions'
 
 export function DeleteAccountButton() {
@@ -21,41 +20,44 @@ export function DeleteAccountButton() {
 
   if (armed) {
     return (
-      <div className="flex flex-1 items-center gap-2">
-        <Button
-          variant="destructive"
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          type="button"
           onClick={handleClick}
           disabled={isPending}
-          className="h-10 flex-1 justify-center gap-2 rounded-xl text-sm uppercase tracking-wider"
+          className="del"
+          style={{ flex: 1 }}
         >
-          {isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ShieldAlert className="h-4 w-4" />
-          )}
-          {t('deleteAccountConfirm')}
-        </Button>
-        <Button
-          variant="ghost"
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ShieldAlert className="h-4 w-4" />
+            )}
+            {t('deleteAccountConfirm')}
+          </span>
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
           onClick={() => setArmed(false)}
           disabled={isPending}
-          className="h-10 rounded-xl px-3"
           aria-label={t('deleteAccountCancel')}
+          style={{ width: 44, flex: '0 0 auto', justifyContent: 'center' }}
         >
           <X className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
     )
   }
 
   return (
-    <Button
-      variant="destructive"
-      onClick={handleClick}
-      className="h-10 flex-1 justify-center gap-2 rounded-xl text-sm uppercase tracking-wider"
-    >
-      <ShieldAlert className="h-4 w-4" />
-      {t('deleteAccount')}
-    </Button>
+    <button type="button" onClick={handleClick} className="del">
+      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <ShieldAlert className="h-4 w-4" />
+        {t('deleteAccount')}
+      </span>
+      <ChevronRight className="h-4 w-4" />
+    </button>
   )
 }
