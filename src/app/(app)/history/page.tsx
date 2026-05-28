@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { getRecentSessions, getDailyTonnage } from '@/lib/db/workouts'
+import { getRecentSessions } from '@/lib/db/workouts'
 import Link from 'next/link'
 import { ChevronRight, Dumbbell, Activity, Trophy } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
@@ -24,14 +24,13 @@ export default async function HistoryPage() {
   const kg = weightUnit(locale)
 
   // Two independent reads — one Promise.all round-trip.
-  const [sessions, allSessionsAgg, dailyTonnage] = await Promise.all([
+  const [sessions, allSessionsAgg] = await Promise.all([
     getRecentSessions(supabase, user.id, 100),
     supabase
       .from('workout_sessions')
       .select('total_volume_kg', { count: 'exact' })
       .eq('user_id', user.id)
       .not('finished_at', 'is', null),
-    getDailyTonnage(supabase, user.id, 84),
   ])
 
   const totalSessions = allSessionsAgg.count ?? 0
@@ -87,36 +86,6 @@ export default async function HistoryPage() {
 
   const nf = new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US')
 
-  // Build 12×7 heatmap from dailyTonnage, ending at today
-  const today = new Date()
-  const start = new Date(today)
-  start.setDate(start.getDate() - 83)
-  // Align start to Monday of that week (ISO)
-  const startJsDay = start.getDay() || 7
-  start.setDate(start.getDate() - (startJsDay - 1))
-
-  const tonnageByDate = new Map<string, number>()
-  for (const r of dailyTonnage) {
-    tonnageByDate.set(r.date, r.tonnage_kg)
-  }
-  const maxTonnage = Math.max(1, ...dailyTonnage.map((d) => d.tonnage_kg))
-  const cells: Array<{ iso: string; level: 0 | 1 | 2 | 3 | 4; today: boolean }> = []
-  const totalDays = 12 * 7
-  for (let i = 0; i < totalDays; i++) {
-    const d = new Date(start)
-    d.setDate(start.getDate() + i)
-    const iso = d.toISOString().slice(0, 10)
-    const tonnage = tonnageByDate.get(iso) ?? 0
-    const ratio = tonnage / maxTonnage
-    const level: 0 | 1 | 2 | 3 | 4 =
-      tonnage === 0 ? 0 : ratio < 0.25 ? 1 : ratio < 0.5 ? 2 : ratio < 0.75 ? 3 : 4
-    const isToday = iso === today.toISOString().slice(0, 10)
-    cells.push({ iso, level, today: isToday })
-  }
-  // Re-arrange to grid: row d (0-6 = Mon-Sun), col w (0-11)
-  const trainedDays = dailyTonnage.filter((d) => d.tonnage_kg > 0).length
-  const consistency = Math.round((trainedDays / Math.min(84, totalDays)) * 100)
-
   return (
     <div className="space-y-3 pb-4">
       {/* Title eyebrow */}
@@ -129,46 +98,8 @@ export default async function HistoryPage() {
         </h1>
       </div>
 
-      {/* 12-week heatmap */}
-      <div className="tar-h-heat tar-d-rise tar-d-rise-2">
-        <div className="head">
-          <span className="lab">{t('last12weeks')}</span>
-          <span className="meta">
-            <span className="v">{consistency}%</span> {t('consistency')}
-          </span>
-        </div>
-        <div
-          className="tar-h-grid"
-          style={{ gridTemplateColumns: 'repeat(12, 1fr)', gridTemplateRows: 'repeat(7, 1fr)' }}
-        >
-          {cells.map((c, idx) => {
-            const w = Math.floor(idx / 7)
-            const d = idx % 7
-            return (
-              <span
-                key={c.iso}
-                className={`tar-h-cell ${c.level ? `l${c.level}` : ''} ${c.today ? 'today' : ''}`}
-                style={{ gridColumn: w + 1, gridRow: d + 1 }}
-                title={`${c.iso} · ${nf.format(Math.round(tonnageByDate.get(c.iso) ?? 0))} ${kg}`}
-              />
-            )
-          })}
-        </div>
-        <div className="tar-h-leg">
-          <span>{t('less')}</span>
-          <span className="scale">
-            <span className="sw" />
-            <span className="sw l1" />
-            <span className="sw l2" />
-            <span className="sw l3" />
-            <span className="sw l4" />
-          </span>
-          <span>{t('more')}</span>
-        </div>
-      </div>
-
       {/* Stats row */}
-      <div className="tar-pr-stats tar-d-rise tar-d-rise-3">
+      <div className="tar-pr-stats tar-d-rise tar-d-rise-2">
         <div className="tar-pr-stat">
           <div className="v">{totalSessions}</div>
           <div className="k">{t('totalSessions')}</div>
