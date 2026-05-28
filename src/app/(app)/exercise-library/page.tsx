@@ -62,9 +62,15 @@ export default async function ExerciseLibraryPage() {
 
   const items = exercises.map((ex) => {
     const agg = aggByExercise.get(ex.id) ?? null
+    const displayName = locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name
+    // Searching always spans both EN and RU names — a Russian user typing
+    // "жим" should still find English-only exercises that have a Russian
+    // translation, and vice versa. Normalize ё→е up-front.
+    const searchKey = `${ex.name}\n${ex.name_ru ?? ''}`.toLowerCase().replace(/ё/g, 'е')
     return {
       id: ex.id,
-      name: locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name,
+      name: displayName,
+      searchKey,
       primary_muscle: ex.primary_muscle as MuscleGroup,
       equipment: ex.equipment,
       equipmentLabel: t(`equipment.${ex.equipment}`),

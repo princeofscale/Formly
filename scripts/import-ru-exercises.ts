@@ -184,7 +184,7 @@ interface PlannedRow {
   mechanic: 'compound' | 'isolation'
   aliases: string[]
   matchedExistingId: string | null
-  matchReason: 'slug' | 'name' | 'new'
+  matchReason: 'slug' | 'new'
 }
 
 async function main() {
@@ -210,22 +210,12 @@ async function main() {
   const existing = (existingData as ExistingExercise[]) ?? []
   console.error(`Found ${existing.length} existing non-custom exercises`)
 
-  // Map for fast lookup
+  // Match only by slug — we additively layer RU exercises on top of the
+  // existing EN base. Matching by name would risk overwriting an English
+  // exercise (e.g. "Bench Press") with a Russian translation, which is not
+  // what we want here. Re-running the script is idempotent via slug.
   const bySlug = new Map<string, ExistingExercise>()
-  const byNorm = new Map<string, ExistingExercise>()
-  for (const e of existing) {
-    bySlug.set(e.slug, e)
-    byNorm.set(normalizeName(e.name), e)
-    if (e.name_ru) byNorm.set(normalizeName(e.name_ru), e)
-  }
-
-  // Fetch exercise_ids referenced by workout_sets (protected — never delete)
-  const { data: inUseData, error: useErr } = await supabase
-    .from('workout_sets')
-    .select('exercise_id')
-  if (useErr) throw new Error(`Failed to fetch workout_sets: ${useErr.message}`)
-  const inUseIds = new Set<string>((inUseData ?? []).map((r) => r.exercise_id as string))
-  console.error(`${inUseIds.size} exercise_ids are referenced by your workout history — protected`)
+  for (const e of existing) bySlug.set(e.slug, e)
 
   // Build plan
   const planned: PlannedRow[] = []
@@ -245,14 +235,8 @@ async function main() {
     }
     const slug = normalizeSlug(ex.id, ex.equipment)
 
-    // Match: slug → normalized name
-    let matched: ExistingExercise | undefined = bySlug.get(slug)
-    let reason: PlannedRow['matchReason'] = 'slug'
-    if (!matched) {
-      matched = byNorm.get(normalizeName(ex.name))
-      if (matched) reason = 'name'
-    }
-    if (!matched) reason = 'new'
+    const matched = bySlug.get(slug)
+    const reason: PlannedRow['matchReason'] = matched ? 'slug' : 'new'
 
     planned.push({
       source: ex,
@@ -296,18 +280,10 @@ async function main() {
     }
     const inserts = planned.filter((p) => p.matchReason === 'new').length
     const updates = planned.length - inserts
-    const matchedIds = new Set(
-      planned.map((p) => p.matchedExistingId).filter((x): x is string => !!x),
-    )
-    const toDelete = existing.filter((e) => !matchedIds.has(e.id) && !inUseIds.has(e.id))
-    const toKeepProtected = existing.filter((e) => !matchedIds.has(e.id) && inUseIds.has(e.id))
+    const untouched = existing.length
     console.error(
-      `\nSummary: ${updates} updates, ${inserts} inserts, ${toDelete.length} deletes, ${toKeepProtected.length} kept (in use by your workouts)`,
+      `\nSummary: ${inserts} inserts, ${updates} updates by slug, ${untouched} existing rows left untouched`,
     )
-    if (toKeepProtected.length > 0) {
-      console.error('\nKept (referenced by workout_sets):')
-      for (const e of toKeepProtected) console.error(`  - ${e.name} (${e.slug})`)
-    }
     if (dryRun) {
       console.error('\nDry run — no DB changes made. Re-run without --dry-run to apply.')
       return
@@ -315,7 +291,8 @@ async function main() {
     if (csvOnly) return
   }
 
-  // Apply
+  // Apply — insert new, update existing rows that match by slug. Never delete:
+  // the existing EN base coexists with the RU additions.
   let updates = 0
   let inserts = 0
   for (const p of planned) {
@@ -336,34 +313,16 @@ async function main() {
         .from('exercises')
         .update(payload)
         .eq('id', p.matchedExistingId)
-      if (error) {
-        console.error(`UPDATE ${p.name_ru}: ${error.message}`)
-      } else updates++
+      if (error) console.error(`UPDATE ${p.name_ru}: ${error.message}`)
+      else updates++
     } else {
       const { error } = await supabase.from('exercises').insert(payload)
-      if (error) {
-        console.error(`INSERT ${p.name_ru}: ${error.message}`)
-      } else inserts++
+      if (error) console.error(`INSERT ${p.name_ru}: ${error.message}`)
+      else inserts++
     }
   }
 
-  // Delete leftover non-custom exercises that aren't matched and aren't in use
-  const matchedIds = new Set(
-    planned.map((p) => p.matchedExistingId).filter((x): x is string => !!x),
-  )
-  const toDelete = existing.filter((e) => !matchedIds.has(e.id) && !inUseIds.has(e.id))
-  let deletes = 0
-  for (const e of toDelete) {
-    const { error } = await supabase.from('exercises').delete().eq('id', e.id)
-    if (error) console.error(`DELETE ${e.name}: ${error.message}`)
-    else deletes++
-  }
-
-  console.error(
-    `\n✅ Done: ${updates} updated, ${inserts} inserted, ${deletes} deleted, ${
-      existing.length - matchedIds.size - toDelete.length
-    } kept (in use)`,
-  )
+  console.error(`\n✅ Done: ${inserts} inserted, ${updates} updated, ${existing.length} untouched`)
 }
 
 main().catch((e) => {

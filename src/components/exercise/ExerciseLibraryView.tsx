@@ -3,16 +3,23 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { Search, Flame, Zap, TrendingUp, Calendar } from 'lucide-react'
+import { Search, Flame } from 'lucide-react'
 import type { MuscleGroup, Equipment, Mechanic } from '@/lib/types/models'
 import { MuscleIcon } from '@/components/workout/muscle-icon'
 import { weightUnit } from '@/lib/units'
 
 export type Bucket = 'chest' | 'back' | 'legs' | 'shoulder' | 'arms' | 'core'
 
+// Normalize ё→е and lowercase so "лежа" matches "Жим лёжа".
+// Server-side search uses the same rule (see src/lib/db/exercises.ts).
+function normalizeSearch(s: string): string {
+  return s.toLowerCase().replace(/ё/g, 'е')
+}
+
 interface Item {
   id: string
   name: string
+  searchKey: string
   primary_muscle: MuscleGroup
   equipment: Equipment
   equipmentLabel: string
@@ -95,11 +102,11 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
   const recentSet = useMemo(() => buildRecentSet(items), [items])
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = normalizeSearch(query.trim())
     return items.filter((i) => {
       if (bucket !== 'all' && muscleBucket(i.primary_muscle) !== bucket) return false
       if (eq !== 'all' && i.equipment !== eq) return false
-      if (q && !i.name.toLowerCase().includes(q)) return false
+      if (q && !i.searchKey.includes(q)) return false
       return true
     })
   }, [items, query, bucket, eq])
@@ -189,17 +196,8 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
               </div>
             </div>
             <div className="tar-lib-featured-wrap">
-              {featured.map((it, idx) => {
+              {featured.map((it) => {
                 const b = muscleBucket(it.primary_muscle)
-                const Icon = idx === 0 ? Flame : idx === 1 ? Zap : idx === 2 ? Calendar : TrendingUp
-                const badgeLbl =
-                  idx === 0
-                    ? t('mostLogged')
-                    : idx === 1
-                      ? t('heaviestPr')
-                      : idx === 2
-                        ? t('thisMonth')
-                        : t('trending')
                 return (
                   <Link
                     key={it.id}
@@ -207,8 +205,8 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
                     className="tar-lib-feat-card"
                   >
                     <span className="tar-lib-feat-badge">
-                      <Icon className="h-2.5 w-2.5" />
-                      {badgeLbl}
+                      <Flame className="h-2.5 w-2.5" />
+                      {t('mostLogged')}
                     </span>
                     <div className="tar-lib-feat-name">{it.name}</div>
                     <div className="tar-lib-feat-meta">
