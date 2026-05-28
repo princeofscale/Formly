@@ -41,8 +41,6 @@ import { repeatSessionAction } from '@/app/(app)/workout/new/actions'
 import { RotateCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { EmptyDashboardHero } from '@/components/dashboard/EmptyDashboardHero'
-import { TonnageHeatmap } from '@/components/dashboard/TonnageHeatmap'
-import { getDailyTonnage } from '@/lib/db/workouts'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 const DELOAD_CYCLE_WEEKS = 5
@@ -101,7 +99,6 @@ export default async function DashboardPage({
     weakWindowVolumes,
     todaySleep,
     weekSleep,
-    dailyTonnage,
     recentPRs,
     goals,
     friends,
@@ -152,7 +149,6 @@ export default async function DashboardPage({
     getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
     getSleepForDate(supabase, user.id, todayDate),
     getRecentSleep(supabase, user.id, 7),
-    getDailyTonnage(supabase, user.id, 84),
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
     getGoalsWithProgress(supabase, user.id),
     getFriendsWithStats(supabase, 7),
@@ -624,10 +620,6 @@ export default async function DashboardPage({
 
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[218ms]">
             <FriendsTeaser friends={friends} />
-          </section>
-
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[225ms]">
-            <TonnageHeatmap daily={dailyTonnage} weeks={12} />
           </section>
 
           <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[275ms]">

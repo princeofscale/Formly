@@ -92,33 +92,3 @@ export async function updateSessionMood(
     .eq('user_id', userId)
   if (error) throw new Error(error.message)
 }
-
-/**
- * Daily tonnage history over the last `days`. Days without a workout are omitted.
- */
-export async function getDailyTonnage(
-  supabase: SupabaseClient,
-  userId: string,
-  days = 84,
-): Promise<{ date: string; tonnage_kg: number }[]> {
-  const since = new Date()
-  since.setUTCDate(since.getUTCDate() - days)
-
-  const { data } = await supabase
-    .from('workout_sessions')
-    .select('started_at, total_volume_kg')
-    .eq('user_id', userId)
-    .not('finished_at', 'is', null)
-    .gte('started_at', since.toISOString())
-    .order('started_at')
-
-  if (!data) return []
-
-  const byDay = new Map<string, number>()
-  for (const row of data) {
-    const day = (row.started_at as string).slice(0, 10)
-    byDay.set(day, (byDay.get(day) ?? 0) + (row.total_volume_kg ?? 0))
-  }
-
-  return Array.from(byDay.entries()).map(([date, tonnage_kg]) => ({ date, tonnage_kg }))
-}

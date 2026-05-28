@@ -390,15 +390,6 @@
       "firstRecord": "first record",
       "hint": "Estimated 1RM. Beating any previous best counts as a new PR."
     },
-    "heatmap": {
-      "label": "{weeks} weeks",
-      "title": "Weekly volume",
-      "unit": "kg",
-      "vsAvg": "vs avg",
-      "weekOf": "Week of",
-      "emptyTitle": "Nothing here yet",
-      "emptySub": "Log your first workout — your weekly volume shows up here"
-    },
     "sleep": {
       "label": "Sleep",
       "title": "How much did you sleep?",
