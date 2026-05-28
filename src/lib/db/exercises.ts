@@ -24,11 +24,12 @@ function normalizeYo(s: string): string {
 }
 
 // PostgREST .or() parses commas as OR separators and parentheses as grouping;
-// % and \ are special inside ilike. Strip these so a malicious search term
+// % and \ are special inside ilike; curly braces delimit array literals used
+// by the aliases containment filter. Strip these so a malicious search term
 // can't escape its filter and inject extra conditions.
 export function sanitizeFilterTerm(s: string): string {
   return s
-    .replace(/[,()*\\%]/g, ' ')
+    .replace(/[,()*\\%{}]/g, ' ')
     .slice(0, 64)
     .trim()
 }
@@ -46,10 +47,13 @@ export async function searchExercises(
   const q = sanitizeFilterTerm(normalizeYo(query))
   if (!q) return []
   const filter = `is_custom.eq.false,created_by.eq.${userId}`
+  // Search name + name_ru via ILIKE substring, plus aliases via exact array
+  // containment (so "бенч" hits an exercise with aliases=['бенч','bench press']).
+  // Curly braces inside .or() value need to be inline-escaped for PostgREST.
   const { data } = await supabase
     .from('exercises')
     .select('*')
-    .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%`)
+    .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%,aliases.cs.{${q.toLowerCase()}}`)
     .or(filter)
     .order('name')
     .limit(20)

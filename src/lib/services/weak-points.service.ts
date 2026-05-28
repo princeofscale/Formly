@@ -20,6 +20,7 @@ const ALL_MUSCLES: MuscleGroup[] = [
 
 // Research-based weekly Minimum Volume per muscle group (sets/week).
 // Numbers blend Schoenfeld, Israetel (RP), and common evidence-based ranges.
+// Cardio is intentionally excluded — it is not a resistance-trained muscle.
 const WEEKLY_MV: Record<MuscleGroup, number> = {
   chest: 8,
   back: 10,
@@ -36,6 +37,7 @@ const WEEKLY_MV: Record<MuscleGroup, number> = {
   hamstrings: 6,
   glutes: 8,
   calves: 6,
+  cardio: 0,
 }
 
 export interface WeakPoint {

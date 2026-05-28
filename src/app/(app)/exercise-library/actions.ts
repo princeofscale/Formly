@@ -31,7 +31,19 @@ const exerciseSchema = z.object({
   primary_muscle: z.enum(MUSCLE_VALUES),
   secondary_muscles: z.array(z.string()).default([]),
   mechanic: z.enum(['compound', 'isolation']),
-  equipment: z.enum(['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']),
+  equipment: z.enum([
+    'barbell',
+    'dumbbell',
+    'machine',
+    'cable',
+    'bodyweight',
+    'smith',
+    'ez_bar',
+    'kettlebell',
+    'band',
+    'plate',
+    'other',
+  ]),
 })
 
 export async function createExerciseAction(formData: FormData): Promise<Exercise> {

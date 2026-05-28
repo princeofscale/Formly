@@ -74,6 +74,13 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
 
   const [query, setQuery] = useState('')
   const [bucket, setBucket] = useState<Bucket | 'all'>('all')
+  const [eq, setEq] = useState<Equipment | 'all'>('all')
+
+  const equipmentOptions = useMemo(() => {
+    const seen = new Map<Equipment, string>()
+    for (const i of items) if (!seen.has(i.equipment)) seen.set(i.equipment, i.equipmentLabel)
+    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }))
+  }, [items])
 
   const featured = useMemo(() => {
     return [...items]
@@ -91,10 +98,11 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
     const q = query.trim().toLowerCase()
     return items.filter((i) => {
       if (bucket !== 'all' && muscleBucket(i.primary_muscle) !== bucket) return false
+      if (eq !== 'all' && i.equipment !== eq) return false
       if (q && !i.name.toLowerCase().includes(q)) return false
       return true
     })
-  }, [items, query, bucket])
+  }, [items, query, bucket, eq])
 
   // Group by bucket
   const grouped = useMemo(() => {
@@ -147,6 +155,28 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
           </button>
         ))}
       </div>
+
+      {equipmentOptions.length > 1 && (
+        <div className="tar-lib-filters tar-d-rise tar-d-rise-2">
+          <button
+            type="button"
+            onClick={() => setEq('all')}
+            className={`tar-s-chip ${eq === 'all' ? 'on' : ''}`}
+          >
+            {t('filterAll')}
+          </button>
+          {equipmentOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setEq(opt.value)}
+              className={`tar-s-chip ${eq === opt.value ? 'on' : ''}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Featured row */}
       {featured.length > 0 && (

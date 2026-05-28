@@ -16,7 +16,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "knip": "knip",
-    "ts-prune": "ts-prune"
+    "ts-prune": "ts-prune",
+    "import:ru:dry": "tsx scripts/import-ru-exercises.ts --dry-run",
+    "import:ru": "tsx scripts/import-ru-exercises.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

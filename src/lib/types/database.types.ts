@@ -289,6 +289,11 @@ export type Database = {
         | "machine"
         | "cable"
         | "bodyweight"
+        | "smith"
+        | "ez_bar"
+        | "kettlebell"
+        | "band"
+        | "plate"
         | "other"
       muscle_group:
         | "chest"
@@ -306,6 +311,7 @@ export type Database = {
         | "rear_delts"
         | "front_delts"
         | "side_delts"
+        | "cardio"
       training_location: "gym" | "home" | "both"
     }
     CompositeTypes: {
@@ -443,6 +449,11 @@ export const Constants = {
         "machine",
         "cable",
         "bodyweight",
+        "smith",
+        "ez_bar",
+        "kettlebell",
+        "band",
+        "plate",
         "other",
       ],
       muscle_group: [
@@ -461,6 +472,7 @@ export const Constants = {
         "rear_delts",
         "front_delts",
         "side_delts",
+        "cardio",
       ],
       training_location: ["gym", "home", "both"],
     },

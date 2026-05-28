@@ -14,8 +14,20 @@ export type MuscleGroup =
   | 'rear_delts'
   | 'front_delts'
   | 'side_delts'
+  | 'cardio'
 
-export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'other'
+export type Equipment =
+  | 'barbell'
+  | 'dumbbell'
+  | 'machine'
+  | 'cable'
+  | 'bodyweight'
+  | 'smith'
+  | 'ez_bar'
+  | 'kettlebell'
+  | 'band'
+  | 'plate'
+  | 'other'
 export type Mechanic = 'compound' | 'isolation'
 export type TrainingLocation = 'gym' | 'home' | 'both'
 export type UnitSystem = 'metric' | 'imperial'
@@ -48,6 +60,7 @@ export interface Exercise {
   instructions_en?: string | null
   instructions_ru?: string | null
   image_urls?: string[]
+  aliases?: string[]
 }
 
 export type CardioActivity =

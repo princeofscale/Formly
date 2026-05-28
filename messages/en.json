@@ -629,7 +629,8 @@
       "lats": "Lats",
       "rear_delts": "Rear Delts",
       "front_delts": "Front Delts",
-      "side_delts": "Side Delts"
+      "side_delts": "Side Delts",
+      "cardio": "Cardio"
     },
     "muscleClickHint": "Tap a muscle",
     "sets": "sets"
@@ -676,6 +677,11 @@
       "machine": "Machine",
       "cable": "Cable",
       "bodyweight": "Bodyweight",
+      "smith": "Smith",
+      "ez_bar": "EZ-bar",
+      "kettlebell": "Kettlebell",
+      "band": "Band",
+      "plate": "Plate",
       "other": "Other"
     }
   },
