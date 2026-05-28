@@ -392,19 +392,12 @@
     },
     "heatmap": {
       "label": "{weeks} weeks",
-      "title": "Training activity",
+      "title": "Weekly volume",
       "unit": "kg",
-      "hint": "Hover a day",
-      "less": "less",
-      "more": "more",
+      "vsAvg": "vs avg",
+      "weekOf": "Week of",
       "emptyTitle": "Nothing here yet",
-      "emptySub": "Log your first workout — your green cells start showing up here",
-      "days": {
-        "mon": "Mon",
-        "wed": "Wed",
-        "fri": "Fri",
-        "sun": "Sun"
-      }
+      "emptySub": "Log your first workout — your weekly volume shows up here"
     },
     "sleep": {
       "label": "Sleep",
