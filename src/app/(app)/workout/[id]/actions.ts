@@ -14,6 +14,7 @@ import {
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
 import { searchExercises, getExercises } from '@/lib/db/exercises'
 import { pickAlternatives } from '@/lib/services/exercise-alternatives.service'
+import { suggestFromCatalog } from '@/lib/services/exercise-suggest.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import { getLocale } from 'next-intl/server'
 import { getLastSetsForExercise } from '@/lib/db/sets'
@@ -256,6 +257,38 @@ export async function searchExercisesAction(
   const { user } = await verifySession()
   const supabase = await createClient()
   return searchExercises(supabase, user.id, query, locale)
+}
+
+export interface ExerciseSuggestion {
+  exercise: Exercise
+  reason: string
+}
+
+export async function suggestExercisesAction(query: string): Promise<ExerciseSuggestion[]> {
+  const { user } = await verifySession()
+  const supabase = await createClient()
+
+  const q = query.trim().slice(0, 80)
+  if (q.length < 2) return []
+  const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+  try {
+    await consumeAiQuota(supabase, user.id, 'exercise_suggest')
+  } catch (e) {
+    if (e instanceof AiQuotaExceededError) return []
+    throw e
+  }
+
+  const catalog = await getExercises(supabase, user.id)
+  try {
+    const picks = await suggestFromCatalog({ locale, query: q, catalog })
+    return picks.map((p) => ({ exercise: catalog[p.index - 1], reason: p.reason }))
+  } catch (e) {
+    // Mistral down / bad JSON — degrade to "nothing found"; the client then
+    // shows the create-custom CTA.
+    console.error('suggestExercisesAction:', e)
+    return []
+  }
 }
 
 export async function updateNotesAction(sessionId: string, notes: string): Promise<void> {
