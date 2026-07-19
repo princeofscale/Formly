@@ -4,7 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { CloudOff, CloudUpload } from 'lucide-react'
-import { getQueuedSets, removeQueuedSet, type QueuedSetRecord } from '@/lib/utils/offline-queue'
+import {
+  getQueuedSets,
+  removeQueuedSet,
+  getQueuedFinishes,
+  removeQueuedFinish,
+  type QueuedSetRecord,
+  type QueuedFinishRecord,
+} from '@/lib/utils/offline-queue'
 
 async function flushOne(record: QueuedSetRecord): Promise<boolean> {
   try {
@@ -21,15 +28,40 @@ async function flushOne(record: QueuedSetRecord): Promise<boolean> {
   }
 }
 
-async function drainQueue(): Promise<number> {
-  const queued = await getQueuedSets()
-  if (queued.length === 0) return 0
-  let drained = 0
-  for (const record of queued) {
-    const ok = await flushOne(record)
-    if (ok) drained++
-    else break
+async function flushFinish(record: QueuedFinishRecord): Promise<boolean> {
+  try {
+    const res = await fetch('/api/workouts/finish-queue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: record.sessionId }),
+    })
+    if (!res.ok) return false
+    await removeQueuedFinish(record.id)
+    return true
+  } catch {
+    return false
   }
+}
+
+async function drainQueue(): Promise<number> {
+  let drained = 0
+
+  const queuedSets = await getQueuedSets()
+  for (const record of queuedSets) {
+    const ok = await flushOne(record)
+    if (!ok) return drained
+    drained++
+  }
+
+  // Finishes only after ALL sets are on the server, so the recomputed
+  // tonnage sees the complete session.
+  const queuedFinishes = await getQueuedFinishes()
+  for (const record of queuedFinishes) {
+    const ok = await flushFinish(record)
+    if (!ok) return drained
+    drained++
+  }
+
   return drained
 }
 
@@ -45,8 +77,8 @@ export function OfflineSyncWatcher() {
   useEffect(() => {
     async function refresh() {
       try {
-        const queued = await getQueuedSets()
-        setPendingCount(queued.length)
+        const [sets, finishes] = await Promise.all([getQueuedSets(), getQueuedFinishes()])
+        setPendingCount(sets.length + finishes.length)
       } catch {
         // IDB unavailable (private mode in old Safari etc.) — silently ignore
       }
@@ -60,9 +92,10 @@ export function OfflineSyncWatcher() {
       setSyncing(true)
       try {
         const drained = await drainQueue()
-        const remaining = await getQueuedSets()
-        setPendingCount(remaining.length)
-        if (drained > 0 && remaining.length === 0) {
+        const [sets, finishes] = await Promise.all([getQueuedSets(), getQueuedFinishes()])
+        const remainingCount = sets.length + finishes.length
+        setPendingCount(remainingCount)
+        if (drained > 0 && remainingCount === 0) {
           router.refresh()
         }
       } catch {
