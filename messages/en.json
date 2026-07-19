@@ -322,7 +322,10 @@
     "syncing": "Syncing {n} sets…",
     "offline": "{n} sets offline",
     "pending": "{n} sets queued",
-    "finishQueued": "Workout finished — will sync when you're back online"
+    "finishQueued": "Workout finished — will sync when you're back online",
+    "pageTitle": "You're offline",
+    "pageSub": "Your data is safe: everything you logged is queued and will sync as soon as you're back online.",
+    "retry": "Retry"
   },
   "updateBanner": {
     "available": "New version",
