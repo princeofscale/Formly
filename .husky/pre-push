@@ -1,4 +1,8 @@
 npm run audit
 npm run lint
 npm run test
+# Build only needs the env vars to exist at compile time; fall back to
+# placeholders so pushing works from clones without .env.local.
+NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-https://placeholder.supabase.co}" \
+NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-placeholder-anon-key}" \
 npm run build
