@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { BookmarkPlus, Check, CheckCircle, ChevronLeft } from 'lucide-react'
@@ -9,6 +9,8 @@ import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
 import { PRCelebration, type PRCelebrationData } from './PRCelebration'
 import { OfflineSyncWatcher } from './OfflineSyncWatcher'
+import { getQueuedSets, getQueuedFinishes, hasQueuedFinish } from '@/lib/utils/offline-queue'
+import { mergeQueuedSets } from '@/lib/utils/offline-merge'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
@@ -34,6 +36,7 @@ interface Props {
 export function WorkoutClient({
   session,
   initialExercises,
+  allExercises,
   lastSetsMap: initialLastSets,
   sourceTemplate,
   suggestedExercises = [],
@@ -49,6 +52,33 @@ export function WorkoutClient({
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
   const [prCelebration, setPrCelebration] = useState<PRCelebrationData | null>(null)
   const [finishQueued, setFinishQueued] = useState(false)
+
+  // After an offline reload the cached HTML doesn't include sets still in
+  // IndexedDB — merge them in so the screen tells the truth. Runs once.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const [queuedSets, queuedFinishes] = await Promise.all([
+          getQueuedSets(),
+          getQueuedFinishes(),
+        ])
+        if (cancelled) return
+        if (queuedSets.length > 0) {
+          setExercises((prev) => mergeQueuedSets(prev, allExercises, queuedSets, session.id))
+        }
+        if (hasQueuedFinish(queuedFinishes, session.id)) {
+          setFinishQueued(true)
+        }
+      } catch {
+        // IDB unavailable — offline features silently off
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only sync with IDB
+  }, [])
 
   // Template saving state
   const [showTplInput, setShowTplInput] = useState(false)
