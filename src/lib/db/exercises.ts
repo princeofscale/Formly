@@ -1,6 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Exercise, MuscleGroup, Equipment } from '@/lib/types/models'
 
+// List/search payload columns. instructions_* are long free text on the
+// imported base (~800 rows) and never shown in lists — keeping them out of
+// hot paths saves ~1 MB on the workout page payload.
+export const EXERCISE_LIST_COLUMNS =
+  'id, name, slug, primary_muscle, secondary_muscles, mechanic, equipment, is_custom, created_by, name_ru, aliases, image_urls'
+
 export async function getExercises(
   supabase: SupabaseClient,
   userId: string,
@@ -8,7 +14,7 @@ export async function getExercises(
 ): Promise<Exercise[]> {
   let query = supabase
     .from('exercises')
-    .select('*')
+    .select(EXERCISE_LIST_COLUMNS)
     .or(`is_custom.eq.false,created_by.eq.${userId}`)
     .order('name')
 
@@ -52,12 +58,19 @@ export async function searchExercises(
   // Curly braces inside .or() value need to be inline-escaped for PostgREST.
   const { data } = await supabase
     .from('exercises')
-    .select('*')
+    .select(EXERCISE_LIST_COLUMNS)
     .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%,aliases.cs.{${q.toLowerCase()}}`)
     .or(filter)
     .order('name')
     .limit(20)
-  return (data as Exercise[]) ?? []
+  let rows = (data as unknown as Exercise[]) ?? []
+  if (rows.length === 0) {
+    // Typo fallback: trigram similarity via RPC. RLS still applies (security
+    // invoker), the extra filter is defense in depth.
+    const { data: fuzzy } = await supabase.rpc('search_exercises_fuzzy', { q })
+    rows = ((fuzzy as Exercise[]) ?? []).filter((e) => !e.is_custom || e.created_by === userId)
+  }
+  return rows
 }
 
 export async function createExercise(
