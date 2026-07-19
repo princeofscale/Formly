@@ -71,6 +71,7 @@
     "shadcn": "^4.8.0",
     "tailwindcss": "^4",
     "ts-prune": "^0.10.3",
+    "tsx": "^4.23.1",
     "typescript": "^6",
     "vitest": "^4.1.7"
   }
