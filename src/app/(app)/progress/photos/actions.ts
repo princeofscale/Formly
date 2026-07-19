@@ -14,19 +14,32 @@ export async function registerProgressPhotoAction(data: {
   const { user } = await verifySession()
   const supabase = await createClient()
 
-  // Sanity: path must live under the user's folder
+  // Sanity: path must live under the user's folder. Reject anything that could
+  // escape it (`..`, absolute paths) even though Supabase treats keys literally.
   const expectedPrefix = `${user.id}/`
-  if (!data.storagePath.startsWith(expectedPrefix)) {
+  if (!data.storagePath.startsWith(expectedPrefix) || data.storagePath.includes('..')) {
     throw new Error('Invalid storage path')
   }
+
+  // The client already caps these, but the server is the real boundary — never
+  // trust client-supplied lengths / ranges / date strings.
+  const caption = data.caption && data.caption.trim() ? data.caption.trim().slice(0, 200) : null
+  const weightKg =
+    data.weightKg != null && Number.isFinite(data.weightKg) && data.weightKg > 0
+      ? Math.min(500, data.weightKg)
+      : null
+  const takenAtMs = Date.parse(data.takenAt)
+  const takenAt = Number.isFinite(takenAtMs)
+    ? new Date(takenAtMs).toISOString()
+    : new Date().toISOString()
 
   const row = await insertProgressPhoto(
     supabase,
     user.id,
     data.storagePath,
-    data.takenAt,
-    data.weightKg,
-    data.caption,
+    takenAt,
+    weightKg,
+    caption,
   )
   revalidatePath('/progress/photos')
   revalidatePath('/progress')

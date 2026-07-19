@@ -7,22 +7,17 @@ export default async function OneRMPage() {
   const t = await getTranslations('tools.oneRM')
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <Link
-          href="/progress"
-          className="flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {t('back')}
-        </Link>
-      </div>
+    <div className="tar-rm">
+      <Link href="/progress" className="tar-fr-back tar-d-rise tar-d-rise-1">
+        <ChevronLeft className="i" strokeWidth={2.5} />
+        {t('back')}
+      </Link>
 
-      <h1 className="text-[28px] font-bold tracking-tight">{t('title')}</h1>
+      <h1 className="tar-fr-h tar-d-rise tar-d-rise-1">{t('title')}</h1>
 
       <OneRMCalculator />
 
-      <p className="text-[10px] leading-relaxed text-white/35">{t('formulaHint')}</p>
+      <p className="tar-rm-hint tar-d-rise tar-d-rise-4">{t('formulaHint')}</p>
     </div>
   )
 }

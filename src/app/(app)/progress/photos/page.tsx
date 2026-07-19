@@ -3,9 +3,8 @@ import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
 import { listProgressPhotosWithUrls } from '@/lib/db/progress-photos'
 import { PhotoGallery } from '@/components/progress/PhotoGallery'
-import { PhotoUploadCard } from '@/components/progress/PhotoUploadCard'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Lock } from 'lucide-react'
 
 export default async function ProgressPhotosPage() {
   const { user } = await verifySession()
@@ -15,20 +14,18 @@ export default async function ProgressPhotosPage() {
   const photos = await listProgressPhotosWithUrls(supabase, user.id)
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <Link
-          href="/progress"
-          className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {t('back')}
-        </Link>
+    <div className="tar-ph">
+      <Link href="/progress" className="tar-fr-back tar-d-rise tar-d-rise-1">
+        <ChevronLeft className="i" strokeWidth={2.5} />
+        {t('back')}
+      </Link>
+
+      <h1 className="tar-fr-h tar-d-rise tar-d-rise-1">{t('title')}</h1>
+
+      <div className="tar-ph-priv tar-d-rise tar-d-rise-2">
+        <Lock className="i" />
+        {t('privacy')}
       </div>
-
-      <h1 className="text-[28px] font-bold tracking-tight">{t('title')}</h1>
-
-      <PhotoUploadCard />
 
       <PhotoGallery photos={photos} />
     </div>

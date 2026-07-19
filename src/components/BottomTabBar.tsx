@@ -66,16 +66,8 @@ export function BottomTabBar() {
   }
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-30"
-      style={{
-        background: 'rgba(10, 10, 15, 0.85)',
-        backdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-      }}
-    >
-      <div className="mx-auto flex h-16 max-w-2xl items-stretch justify-around px-1">
+    <nav className="tar-nav">
+      <div className="tar-nav-list">
         {TABS.map((tab) => {
           const active = activeTab?.href === tab.href
           const isLoading = isPending && pendingHref === tab.href
@@ -86,31 +78,13 @@ export function BottomTabBar() {
               type="button"
               onClick={() => handleClick(tab.href)}
               onMouseEnter={() => router.prefetch(tab.href)}
-              className="flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-95"
+              className={`tar-nav-item${active ? ' on' : ''}`}
               aria-label={t(tab.labelKey)}
+              aria-current={active ? 'page' : undefined}
             >
-              <div
-                className="relative flex flex-col items-center gap-1 rounded-[10px] px-2 py-1.5 transition-all duration-150 sm:px-3"
-                style={
-                  active
-                    ? {
-                        background: 'rgba(255, 59, 71, 0.12)',
-                        boxShadow: '0 0 16px rgba(255, 59, 71, 0.25)',
-                      }
-                    : undefined
-                }
-              >
-                <Icon
-                  className={`h-5 w-5 transition-colors ${isLoading ? 'animate-pulse' : ''}`}
-                  style={{ color: active ? '#FF3B47' : 'rgba(255,255,255,0.5)' }}
-                />
-                <span
-                  className="text-[10px] font-medium tracking-wide transition-colors"
-                  style={{ color: active ? '#FF3B47' : 'rgba(255,255,255,0.5)' }}
-                >
-                  {t(tab.labelKey)}
-                </span>
-              </div>
+              <span className="tar-nav-pill" aria-hidden />
+              <Icon className={`tar-nav-ico${isLoading ? ' animate-pulse' : ''}`} />
+              <span className="tar-nav-lab">{t(tab.labelKey)}</span>
             </button>
           )
         })}

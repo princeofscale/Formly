@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getMeasurementForDate, getRecentMeasurements } from '@/lib/db/body-measurements'
 import { MeasurementForm } from '@/components/progress/MeasurementForm'
 import { MeasurementHistory } from '@/components/progress/MeasurementHistory'
+import { MeasurementSparks } from '@/components/progress/MeasurementSparks'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 
@@ -19,25 +20,22 @@ export default async function MeasurementsPage() {
   ])
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <Link
-          href="/progress"
-          className="flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {t('back')}
-        </Link>
+    <div className="tar-ms">
+      <Link href="/progress" className="tar-fr-back tar-d-rise tar-d-rise-1">
+        <ChevronLeft className="i" strokeWidth={2.5} />
+        {t('back')}
+      </Link>
+
+      <h1 className="tar-fr-h tar-d-rise tar-d-rise-1">{t('title')}</h1>
+
+      <MeasurementSparks entries={history} />
+
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">{t('formTitle')}</div>
+      <div className="tar-d-rise tar-d-rise-3">
+        <MeasurementForm initial={todayEntry} defaultDate={today} hasHistory={history.length > 0} />
       </div>
 
-      <h1 className="text-[28px] font-bold tracking-tight">{t('title')}</h1>
-
-      <MeasurementForm initial={todayEntry} defaultDate={today} />
-
-      <h2 className="pt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-        {t('historyTitle')}
-      </h2>
-
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-4">{t('historyTitle')}</div>
       <MeasurementHistory entries={history} />
     </div>
   )

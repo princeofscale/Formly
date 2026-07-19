@@ -1,77 +1,52 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import {
-  Dumbbell,
-  Trophy,
-  Flame,
-  Building2,
-  Home,
-  Hand,
+  Activity,
   Bell,
-  ChevronRight,
+  Building2,
+  Calendar,
+  Check,
   ChevronLeft,
+  ChevronRight,
+  Dumbbell,
+  Hand,
+  Home,
+  Trophy,
 } from 'lucide-react'
 import { finishOnboardingAction, skipOnboardingAction } from '@/app/onboarding/actions'
 import { subscribeToPushAction } from '@/app/(app)/profile/push-actions'
 import { requestPushSubscription } from '@/lib/utils/push-subscribe'
 
-interface Labels {
-  step: string
-  back: string
-  next: string
-  skip: string
-  finish: string
-  hero: string
-  subtitle: string
-  goalTitle: string
-  goalSub: string
-  goalStrength: string
-  goalStrengthSub: string
-  goalHypertrophy: string
-  goalHypertrophySub: string
-  goalGeneral: string
-  goalGeneralSub: string
-  locTitle: string
-  locSub: string
-  locGym: string
-  locGymSub: string
-  locDumbbells: string
-  locDumbbellsSub: string
-  locBodyweight: string
-  locBodyweightSub: string
-  daysTitle: string
-  daysSub: string
-  daysSuffix: string
-  notifTitle: string
-  notifSub: string
-  notifEnable: string
-  notifEnabled: string
-  notifLater: string
-  notifDenied: string
-  notifUnsupported: string
-}
-
-interface ExtraProps {
-  vapidPublicKey?: string
-}
-
 type Goal = 'strength' | 'hypertrophy' | 'general'
 type Location = 'gym' | 'home_dumbbells' | 'home_bodyweight'
+type NotifState = 'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
 
-export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } & ExtraProps) {
+const TOTAL_STEPS = 4
+const ISO_DAYS = [1, 2, 3, 4, 5, 6, 7] as const
+
+const BURST: Array<{ dx: string; dy: string; delay: string }> = [
+  { dx: '-92px', dy: '-64px', delay: '.15s' },
+  { dx: '88px', dy: '-78px', delay: '.22s' },
+  { dx: '-58px', dy: '-110px', delay: '.3s' },
+  { dx: '120px', dy: '-30px', delay: '.26s' },
+  { dx: '-126px', dy: '-6px', delay: '.34s' },
+  { dx: '52px', dy: '-122px', delay: '.4s' },
+  { dx: '104px', dy: '-96px', delay: '.45s' },
+  { dx: '-30px', dy: '-134px', delay: '.5s' },
+]
+
+export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }) {
+  const t = useTranslations('onboarding')
   const [step, setStep] = useState(0)
   const [goal, setGoal] = useState<Goal>('hypertrophy')
   const [location, setLocation] = useState<Location>('gym')
-  const [days, setDays] = useState(3)
+  const [days, setDays] = useState<number[]>([1, 3, 5])
   const [submitting, setSubmitting] = useState(false)
-  const [notifState, setNotifState] = useState<
-    'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
-  >('idle')
+  const [notifState, setNotifState] = useState<NotifState>('idle')
   const [notifDiagnostic, setNotifDiagnostic] = useState<string | null>(null)
   const [, startNotif] = useTransition()
-
-  const total = 4
 
   async function enableNotifications() {
     setNotifDiagnostic(null)
@@ -108,531 +83,338 @@ export function OnboardingWizard({ labels, vapidPublicKey }: { labels: Labels } 
     setNotifState('error')
     setNotifDiagnostic(result.error instanceof Error ? result.error.message : String(result.error))
   }
-  const pct = ((step + 1) / total) * 100
 
-  function next() {
-    setStep((s) => Math.min(total - 1, s + 1))
+  function toggleDay(n: number) {
+    setDays((d) => (d.includes(n) ? d.filter((x) => x !== n) : [...d, n].sort((a, b) => a - b)))
   }
-  function back() {
-    setStep((s) => Math.max(0, s - 1))
+
+  const goalLabel = {
+    strength: t('goalStrength'),
+    hypertrophy: t('goalHypertrophy'),
+    general: t('goalGeneral'),
+  }[goal]
+  const locLabel = {
+    gym: t('locGym'),
+    home_dumbbells: t('locDumbbells'),
+    home_bodyweight: t('locBodyweight'),
+  }[location]
+
+  // Final celebrate view lives past the counted steps
+  if (step === TOTAL_STEPS) {
+    return (
+      <div className="tar-ob">
+        <div className="tar-ob-fin">
+          <div className="tar-ob-burst" aria-hidden="true">
+            {BURST.map((b, i) => (
+              <i
+                key={i}
+                style={
+                  { '--dx': b.dx, '--dy': b.dy, animationDelay: b.delay } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
+          <div className="tar-ob-ring">
+            <Check className="i" strokeWidth={2.5} />
+          </div>
+          <h2 className="tar-ob-fin-h tar-d-rise tar-d-rise-2">
+            {t('finTitle')} <span className="tar-grad-text">{t('finTitleAccent')}</span>
+          </h2>
+          <p className="tar-ob-fin-sub tar-d-rise tar-d-rise-3">{t('finSub')}</p>
+          <div className="tar-ob-chips tar-d-rise tar-d-rise-4">
+            <span className="tar-ob-chip">
+              <Dumbbell className="i" />
+              {goalLabel}
+            </span>
+            <span className="tar-ob-chip">
+              <Building2 className="i" />
+              {locLabel}
+            </span>
+            <span className="tar-ob-chip">
+              <Calendar className="i" />
+              {days.map((n) => t(`day${n}`)).join(' · ')}
+            </span>
+            {notifState === 'on' && (
+              <span className="tar-ob-chip">
+                <Bell className="i" />
+                {t('finPushOn')}
+              </span>
+            )}
+          </div>
+        </div>
+        <form
+          action={finishOnboardingAction}
+          onSubmit={() => setSubmitting(true)}
+          className="tar-ob-footer"
+          style={{ flexDirection: 'column' }}
+        >
+          <input type="hidden" name="goal" value={goal} />
+          <input type="hidden" name="location" value={location} />
+          <input type="hidden" name="days" value={days.length} />
+          <input type="hidden" name="schedule" value={days.join(',')} />
+          <button type="submit" disabled={submitting} className="tar-cta" style={{ width: '100%' }}>
+            {submitting ? '...' : t('finStart')}
+            <ChevronRight className="i" style={{ width: 16, height: 16 }} />
+          </button>
+          <button
+            type="submit"
+            name="dest"
+            value="profile"
+            disabled={submitting}
+            className="tar-ob-skip"
+            style={{ alignSelf: 'center', padding: 10 }}
+          >
+            {t('finProfile')}
+          </button>
+        </form>
+      </div>
+    )
   }
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-6 space-y-5">
-      {/* Hero */}
-      <div className="text-center pt-4">
-        <p style={{ font: '400 26px/1 var(--tar-tight)', marginBottom: 8 }}>🏋️</p>
-        <h1
-          style={{
-            font: '800 28px/1.1 var(--tar-tight)',
-            letterSpacing: '-0.03em',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {labels.hero}
-        </h1>
-        <p
-          className="mt-2"
-          style={{
-            font: '500 13px/1.4 var(--tar-text)',
-            color: 'var(--tar-ink-mute)',
-          }}
-        >
-          {labels.subtitle}
-        </p>
+    <div className="tar-ob">
+      <div className="tar-ob-top tar-d-rise tar-d-rise-1">
+        <span className="tar-ob-step">{t('step', { n: step + 1, total: TOTAL_STEPS })}</span>
+        <form action={skipOnboardingAction}>
+          <button type="submit" className="tar-ob-skip">
+            {t('skip')}
+          </button>
+        </form>
+      </div>
+      <div className="tar-ob-bar tar-d-rise tar-d-rise-1">
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+          <span key={i} className={`tar-ob-seg${i <= step ? ' on' : ''}`} />
+        ))}
       </div>
 
-      {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="tar-d-eyebrow text-center">
-          {labels.step.replace('{n}', String(step + 1)).replace('{total}', String(total))}
-        </div>
-        <div
-          className="relative h-1 rounded-full overflow-hidden"
-          style={{ background: 'var(--tar-line)' }}
-        >
-          <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
-            style={{ width: `${pct}%`, background: 'var(--tar-brand-grad)' }}
-          />
-        </div>
-      </div>
-
-      {/* Step content */}
-      {step === 0 && <StepGoal value={goal} onChange={setGoal} labels={labels} />}
-      {step === 1 && <StepLocation value={location} onChange={setLocation} labels={labels} />}
-      {step === 2 && <StepDays value={days} onChange={setDays} labels={labels} />}
-      {step === 3 && (
-        <StepNotifications
-          state={notifState}
-          diagnostic={notifDiagnostic}
-          onEnable={enableNotifications}
-          labels={labels}
-        />
+      {step === 0 && (
+        <>
+          <StepHead title={t('goalTitle')} sub={t('goalSub')} />
+          <div className="tar-ob-opts tar-d-rise tar-d-rise-3">
+            <OptionCard
+              active={goal === 'strength'}
+              icon={<Trophy className="i" />}
+              title={t('goalStrength')}
+              sub={t('goalStrengthSub')}
+              onClick={() => setGoal('strength')}
+            />
+            <OptionCard
+              active={goal === 'hypertrophy'}
+              icon={<Dumbbell className="i" />}
+              title={t('goalHypertrophy')}
+              sub={t('goalHypertrophySub')}
+              onClick={() => setGoal('hypertrophy')}
+            />
+            <OptionCard
+              active={goal === 'general'}
+              icon={<Activity className="i" />}
+              title={t('goalGeneral')}
+              sub={t('goalGeneralSub')}
+              onClick={() => setGoal('general')}
+            />
+          </div>
+        </>
       )}
 
-      {/* Footer buttons */}
-      <div className="flex items-center gap-2">
-        {step > 0 ? (
-          <button
-            type="button"
-            onClick={back}
-            className="flex-1 flex items-center justify-center gap-1 transition"
-            style={{
-              height: 48,
-              borderRadius: 14,
-              background: 'var(--tar-card)',
-              border: '1px solid var(--tar-line)',
-              color: 'var(--tar-ink-dim)',
-              font: '700 13px/1 var(--tar-text)',
-              letterSpacing: '0.02em',
-            }}
-          >
-            <ChevronLeft className="h-4 w-4" /> {labels.back}
-          </button>
-        ) : (
-          <form action={skipOnboardingAction} className="flex-1">
+      {step === 1 && (
+        <>
+          <StepHead title={t('locTitle')} sub={t('locSub')} />
+          <div className="tar-ob-opts tar-d-rise tar-d-rise-3">
+            <OptionCard
+              active={location === 'gym'}
+              icon={<Building2 className="i" />}
+              title={t('locGym')}
+              sub={t('locGymSub')}
+              onClick={() => setLocation('gym')}
+            />
+            <OptionCard
+              active={location === 'home_dumbbells'}
+              icon={<Home className="i" />}
+              title={t('locDumbbells')}
+              sub={t('locDumbbellsSub')}
+              onClick={() => setLocation('home_dumbbells')}
+            />
+            <OptionCard
+              active={location === 'home_bodyweight'}
+              icon={<Hand className="i" />}
+              title={t('locBodyweight')}
+              sub={t('locBodyweightSub')}
+              onClick={() => setLocation('home_bodyweight')}
+            />
+          </div>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <StepHead title={t('daysTitle')} sub={t('daysSub')} />
+          <div className="tar-ob-daysum tar-d-rise tar-d-rise-3">
+            <div className="n tar-grad-text tar-ob-daycount tabular-nums">{days.length}</div>
+            <div className="tar-d-eyebrow">{t('daysCount', { n: days.length })}</div>
+          </div>
+          <div className="tar-ob-days tar-d-rise tar-d-rise-4">
+            {ISO_DAYS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => toggleDay(n)}
+                className={`tar-ob-day${days.includes(n) ? ' on' : ''}`}
+                aria-pressed={days.includes(n)}
+              >
+                {t(`day${n}`)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <div className="tar-ob-head tar-d-rise tar-d-rise-2">
+            <div className="tar-ob-belltile">
+              <Bell className="i" />
+            </div>
+            <h2 className="tar-ob-h">{t('notifTitle')}</h2>
+            <p className="tar-ob-sub">{t('notifSub')}</p>
+          </div>
+          <div className="tar-ob-push tar-d-rise tar-d-rise-3">
+            <span className="app">
+              <Dumbbell className="i" strokeWidth={2.5} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="row1">
+                <span className="an">TrainingAR</span>
+                <span className="tm">{t('pushNow')}</span>
+              </div>
+              <div className="bt">{t('pushTitle')}</div>
+              <div className="bs">{t('pushBody')}</div>
+            </div>
+          </div>
+
+          {notifState === 'idle' && (
             <button
-              type="submit"
-              className="w-full transition"
+              type="button"
+              onClick={enableNotifications}
+              className="tar-cta tar-d-rise tar-d-rise-4"
+              style={{ width: '100%' }}
+            >
+              <Bell className="i" style={{ width: 16, height: 16 }} />
+              {t('notifEnable')}
+            </button>
+          )}
+          {notifState === 'on' && (
+            <div
+              className="text-center"
               style={{
-                height: 48,
-                borderRadius: 14,
-                background: 'var(--tar-card)',
-                border: '1px solid var(--tar-line)',
-                color: 'var(--tar-ink-mute)',
-                font: '600 13px/1 var(--tar-text)',
-                letterSpacing: '0.02em',
+                padding: 12,
+                borderRadius: 'var(--tar-r-md)',
+                background: 'rgba(43, 216, 132, 0.10)',
+                border: '1px solid rgba(43, 216, 132, 0.32)',
+                color: 'var(--tar-success)',
+                font: '700 13px/1.2 var(--tar-text)',
               }}
             >
-              {labels.skip}
-            </button>
-          </form>
-        )}
-
-        {step < total - 1 ? (
-          <button
-            type="button"
-            onClick={next}
-            className="flex-1 tar-c-start"
-            style={{ height: 48, font: '800 13px/1 var(--tar-text)' }}
-          >
-            {labels.next} <ChevronRight className="h-4 w-4" />
-          </button>
-        ) : (
-          <form
-            action={finishOnboardingAction}
-            onSubmit={() => setSubmitting(true)}
-            className="flex-1"
-          >
-            <input type="hidden" name="goal" value={goal} />
-            <input type="hidden" name="location" value={location} />
-            <input type="hidden" name="days" value={days} />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full tar-c-start"
-              style={{ height: 48, font: '800 13px/1 var(--tar-text)' }}
+              ✓ {t('notifEnabled')}
+            </div>
+          )}
+          {notifState === 'denied' && <NotifBox text={t('notifDenied')} />}
+          {notifState === 'unsupported' && (
+            <NotifBox
+              text={t('notifUnsupported')}
+              diagnostic={notifDiagnostic ? `reason: ${notifDiagnostic}` : null}
+            />
+          )}
+          {notifState === 'no-key' && (
+            <NotifBox text="Сервер не настроен (VAPID-ключ отсутствует) — это не твой браузер, это сайт." />
+          )}
+          {notifState === 'error' && (
+            <div
+              className="text-center space-y-1"
+              style={{
+                padding: 12,
+                borderRadius: 'var(--tar-r-md)',
+                background: 'rgba(239,68,68,0.06)',
+                border: '1px solid rgba(239,68,68,0.20)',
+              }}
             >
-              {submitting ? '...' : labels.finish}
-            </button>
-          </form>
+              <p className="text-xs text-red-300/80">Ошибка подключения уведомлений</p>
+              {notifDiagnostic && (
+                <p className="text-[10px] font-mono text-white/45 break-all">{notifDiagnostic}</p>
+              )}
+            </div>
+          )}
+          <p className="tar-ob-note">{t('notifLater')}</p>
+        </>
+      )}
+
+      <div className="tar-ob-footer tar-d-rise tar-d-rise-5">
+        {step > 0 && (
+          <button type="button" onClick={() => setStep((s) => s - 1)} className="tar-cta-ghost">
+            <ChevronLeft className="i" style={{ width: 16, height: 16 }} />
+            {t('back')}
+          </button>
         )}
+        <button
+          type="button"
+          onClick={() => setStep((s) => s + 1)}
+          disabled={step === 2 && days.length === 0}
+          className="tar-cta"
+        >
+          {step === TOTAL_STEPS - 1 ? t('finish') : t('next')}
+          <ChevronRight className="i" style={{ width: 16, height: 16 }} />
+        </button>
       </div>
     </div>
   )
 }
 
-interface OptionProps {
+function StepHead({ title, sub }: { title: string; sub: string }) {
+  return (
+    <div className="tar-ob-head tar-d-rise tar-d-rise-2">
+      <h2 className="tar-ob-h">{title}</h2>
+      <p className="tar-ob-sub">{sub}</p>
+    </div>
+  )
+}
+
+function OptionCard({
+  active,
+  icon,
+  title,
+  sub,
+  onClick,
+}: {
   active: boolean
   icon: React.ReactNode
   title: string
   sub: string
   onClick: () => void
-  accent: string
-}
-
-function Option({ active, icon, title, sub, onClick, accent }: OptionProps) {
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full flex items-center gap-3 transition active:scale-[0.99]"
-      style={{
-        padding: 16,
-        borderRadius: 'var(--tar-r-lg)',
-        background: active ? `${accent}1F` : 'var(--tar-card)',
-        border: active ? `1px solid ${accent}55` : '1px solid var(--tar-line)',
-        boxShadow: active ? `0 6px 18px ${accent}1A` : undefined,
-      }}
-    >
-      <div
-        className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
-        style={{
-          background: `${accent}24`,
-          color: accent,
-          border: `1px solid ${accent}44`,
-        }}
-      >
-        {icon}
-      </div>
-      <div className="text-left flex-1 min-w-0">
-        <div
-          style={{
-            font: '700 14px/1.2 var(--tar-text)',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {title}
-        </div>
-        <div
-          className="mt-1"
-          style={{
-            font: '500 11px/1.35 var(--tar-mono)',
-            letterSpacing: '0.04em',
-            color: 'var(--tar-ink-mute)',
-          }}
-        >
-          {sub}
-        </div>
-      </div>
+    <button type="button" onClick={onClick} className={`tar-ob-opt${active ? ' on' : ''}`}>
+      <span className="ico">{icon}</span>
+      <span className="tx">
+        <span className="t">{title}</span>
+        <span className="s">{sub}</span>
+      </span>
+      <span className="tick">
+        <Check className="i" strokeWidth={3} />
+      </span>
     </button>
   )
 }
 
-function StepGoal({
-  value,
-  onChange,
-  labels,
-}: {
-  value: Goal
-  onChange: (g: Goal) => void
-  labels: Labels
-}) {
+function NotifBox({ text, diagnostic }: { text: string; diagnostic?: string | null }) {
   return (
-    <div className="space-y-3">
-      <div className="text-center mb-1">
-        <h2
-          style={{
-            font: '800 20px/1.1 var(--tar-tight)',
-            letterSpacing: '-0.02em',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {labels.goalTitle}
-        </h2>
-        <p
-          className="mt-2"
-          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
-        >
-          {labels.goalSub}
-        </p>
-      </div>
-      <Option
-        active={value === 'strength'}
-        icon={<Trophy className="h-5 w-5" />}
-        title={labels.goalStrength}
-        sub={labels.goalStrengthSub}
-        accent="#FFC044"
-        onClick={() => onChange('strength')}
-      />
-      <Option
-        active={value === 'hypertrophy'}
-        icon={<Dumbbell className="h-5 w-5" />}
-        title={labels.goalHypertrophy}
-        sub={labels.goalHypertrophySub}
-        accent="#FF6E76"
-        onClick={() => onChange('hypertrophy')}
-      />
-      <Option
-        active={value === 'general'}
-        icon={<Flame className="h-5 w-5" />}
-        title={labels.goalGeneral}
-        sub={labels.goalGeneralSub}
-        accent="#5EEAD4"
-        onClick={() => onChange('general')}
-      />
-    </div>
-  )
-}
-
-function StepLocation({
-  value,
-  onChange,
-  labels,
-}: {
-  value: Location
-  onChange: (l: Location) => void
-  labels: Labels
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="text-center mb-1">
-        <h2
-          style={{
-            font: '800 20px/1.1 var(--tar-tight)',
-            letterSpacing: '-0.02em',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {labels.locTitle}
-        </h2>
-        <p
-          className="mt-2"
-          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
-        >
-          {labels.locSub}
-        </p>
-      </div>
-      <Option
-        active={value === 'gym'}
-        icon={<Building2 className="h-5 w-5" />}
-        title={labels.locGym}
-        sub={labels.locGymSub}
-        accent="#A78BFA"
-        onClick={() => onChange('gym')}
-      />
-      <Option
-        active={value === 'home_dumbbells'}
-        icon={<Home className="h-5 w-5" />}
-        title={labels.locDumbbells}
-        sub={labels.locDumbbellsSub}
-        accent="#5EEAD4"
-        onClick={() => onChange('home_dumbbells')}
-      />
-      <Option
-        active={value === 'home_bodyweight'}
-        icon={<Hand className="h-5 w-5" />}
-        title={labels.locBodyweight}
-        sub={labels.locBodyweightSub}
-        accent="#FFC044"
-        onClick={() => onChange('home_bodyweight')}
-      />
-    </div>
-  )
-}
-
-interface StepNotificationsProps {
-  state: 'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
-  diagnostic: string | null
-  onEnable: () => void
-  labels: Labels
-}
-
-function StepNotifications({ state, diagnostic, onEnable, labels }: StepNotificationsProps) {
-  return (
-    <div className="space-y-3">
-      <div className="text-center mb-1">
-        <div
-          className="mx-auto flex items-center justify-center mb-3"
-          style={{
-            height: 56,
-            width: 56,
-            borderRadius: 16,
-            background: 'var(--tar-brand-grad-soft)',
-            border: '1px solid rgba(255, 182, 39, 0.36)',
-            color: 'var(--tar-brand-2)',
-          }}
-        >
-          <Bell className="h-6 w-6" />
-        </div>
-        <h2
-          style={{
-            font: '800 20px/1.1 var(--tar-tight)',
-            letterSpacing: '-0.02em',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {labels.notifTitle}
-        </h2>
-        <p
-          className="mt-2"
-          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
-        >
-          {labels.notifSub}
-        </p>
-      </div>
-
-      {state === 'idle' && (
-        <button
-          type="button"
-          onClick={onEnable}
-          className="w-full flex items-center justify-center gap-2 transition active:scale-[0.98]"
-          style={{
-            height: 48,
-            borderRadius: 14,
-            background: 'var(--tar-brand-grad-soft)',
-            color: 'var(--tar-brand-2)',
-            border: '1px solid rgba(255, 182, 39, 0.36)',
-            font: '800 13px/1 var(--tar-text)',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <Bell className="h-4 w-4" />
-          {labels.notifEnable}
-        </button>
-      )}
-
-      {state === 'on' && (
-        <div
-          className="text-center"
-          style={{
-            padding: 12,
-            borderRadius: 'var(--tar-r-md)',
-            background: 'rgba(43, 216, 132, 0.10)',
-            border: '1px solid rgba(43, 216, 132, 0.32)',
-            color: 'var(--tar-success)',
-            font: '700 13px/1.2 var(--tar-text)',
-          }}
-        >
-          ✓ {labels.notifEnabled}
-        </div>
-      )}
-
-      {state === 'denied' && (
-        <div
-          className="rounded-xl p-3 text-center"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          <p className="text-xs text-white/55">{labels.notifDenied}</p>
-        </div>
-      )}
-
-      {state === 'unsupported' && (
-        <div
-          className="rounded-xl p-3 text-center space-y-1"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          <p className="text-xs text-white/55">{labels.notifUnsupported}</p>
-          {diagnostic && (
-            <p className="text-[10px] font-mono text-white/35">reason: {diagnostic}</p>
-          )}
-        </div>
-      )}
-
-      {state === 'no-key' && (
-        <div
-          className="rounded-xl p-3 text-center"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          <p className="text-xs text-white/55">
-            Сервер не настроен (VAPID-ключ отсутствует) — это не твой браузер, это сайт.
-          </p>
-        </div>
-      )}
-
-      {state === 'error' && (
-        <div
-          className="rounded-xl p-3 text-center space-y-1"
-          style={{
-            background: 'rgba(239,68,68,0.06)',
-            border: '1px solid rgba(239,68,68,0.20)',
-          }}
-        >
-          <p className="text-xs text-red-300/80">Ошибка подключения уведомлений</p>
-          {diagnostic && (
-            <p className="text-[10px] font-mono text-white/45 break-all">{diagnostic}</p>
-          )}
-        </div>
-      )}
-
-      <p className="text-[11px] text-white/35 text-center px-4">{labels.notifLater}</p>
-    </div>
-  )
-}
-
-function StepDays({
-  value,
-  onChange,
-  labels,
-}: {
-  value: number
-  onChange: (d: number) => void
-  labels: Labels
-}) {
-  return (
-    <div className="space-y-4">
-      <div className="text-center">
-        <h2
-          style={{
-            font: '800 20px/1.1 var(--tar-tight)',
-            letterSpacing: '-0.02em',
-            color: 'var(--tar-ink)',
-          }}
-        >
-          {labels.daysTitle}
-        </h2>
-        <p
-          className="mt-2"
-          style={{ font: '500 13px/1.4 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
-        >
-          {labels.daysSub}
-        </p>
-      </div>
-
-      <div
-        className="text-center relative overflow-hidden"
-        style={{
-          padding: 24,
-          borderRadius: 'var(--tar-r-xl)',
-          background:
-            'radial-gradient(120% 80% at 0% 0%, rgba(255,182,39,0.10), transparent 60%), var(--tar-bg-elevated)',
-          border: '1px solid var(--tar-line)',
-        }}
-      >
-        <p
-          className="tabular-nums"
-          style={{
-            font: '900 80px/0.95 var(--tar-tight)',
-            letterSpacing: '-0.04em',
-            background: 'var(--tar-brand-grad)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-            filter: 'drop-shadow(0 6px 20px rgba(255,182,39,0.28))',
-          }}
-        >
-          {value}
-        </p>
-        <div className="tar-d-eyebrow" style={{ marginTop: 8 }}>
-          {labels.daysSuffix}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-6 gap-1.5">
-        {[1, 2, 3, 4, 5, 6, 7].map((n) => {
-          const active = value === n
-          return (
-            <button
-              key={n}
-              type="button"
-              onClick={() => onChange(n)}
-              className="transition"
-              style={{
-                height: 44,
-                borderRadius: 12,
-                background: active ? 'var(--tar-brand-grad-soft)' : 'var(--tar-card)',
-                color: active ? 'var(--tar-brand-2)' : 'var(--tar-ink-dim)',
-                border: active ? '1px solid rgba(255, 182, 39, 0.42)' : '1px solid var(--tar-line)',
-                font: '800 14px/1 var(--tar-tight)',
-                gridColumn: n === 7 ? 'span 2' : 'span 1',
-              }}
-            >
-              {n}
-            </button>
-          )
-        })}
-      </div>
+    <div
+      className="rounded-xl p-3 text-center space-y-1"
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <p className="text-xs text-white/55">{text}</p>
+      {diagnostic && <p className="text-[10px] font-mono text-white/35">{diagnostic}</p>}
     </div>
   )
 }

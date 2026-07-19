@@ -2,21 +2,30 @@
 
 import { useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Sigma } from 'lucide-react'
 import { calculate1RM, selectFormula } from '@/lib/utils/one-rep-max'
 import { weightUnit } from '@/lib/units'
 
-const PERCENTAGES = [
-  { pct: 60, reps: 16, label: 'Endurance' },
-  { pct: 65, reps: 14, label: 'Endurance' },
-  { pct: 70, reps: 12, label: 'Hypertrophy' },
-  { pct: 75, reps: 10, label: 'Hypertrophy' },
-  { pct: 80, reps: 8, label: 'Strength' },
-  { pct: 85, reps: 6, label: 'Strength' },
-  { pct: 90, reps: 4, label: 'Power' },
-  { pct: 95, reps: 2, label: 'Power' },
-  { pct: 100, reps: 1, label: 'Max' },
+const ROWS = [
+  { pct: 50, reps: '×15+', hot: false },
+  { pct: 55, reps: '×12', hot: false },
+  { pct: 60, reps: '×10', hot: false },
+  { pct: 65, reps: '×9', hot: false },
+  { pct: 70, reps: '×8', hot: false },
+  { pct: 75, reps: '×7', hot: false },
+  { pct: 80, reps: '×6', hot: false },
+  { pct: 85, reps: '×4', hot: true },
+  { pct: 90, reps: '×3', hot: true },
+  { pct: 95, reps: '×2', hot: true },
 ]
+
+// Round working weights to the nearest 2.5 (plate math)
+function roundPlate(v: number): number {
+  return Math.round(v / 2.5) * 2.5
+}
+
+function fmt(v: number): string {
+  return v % 1 === 0 ? String(v) : v.toFixed(1)
+}
 
 export function OneRMCalculator() {
   const t = useTranslations('tools.oneRM')
@@ -32,195 +41,100 @@ export function OneRMCalculator() {
     if (!Number.isInteger(r) || r <= 0 || r > 30) return null
     try {
       const e1rm = calculate1RM(w, r)
-      return { e1rm, formula: selectFormula(r) }
+      return { w, r, e1rm, formula: selectFormula(r) }
     } catch {
       return null
     }
   }, [weight, reps])
 
-  return (
-    <div className="space-y-3">
-      {/* Input + hero result card — uses the same tar-pl-ai aesthetic
-          (rotating-ish gradient stroke + radial glow) for visual interest */}
-      <section className="tar-rec-hero">
-        <div className="flex items-center gap-3" style={{ marginBottom: 14 }}>
-          <span
-            className="tar-s-mglyph chest"
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'var(--tar-brand-grad-soft)',
-              border: '1px solid rgba(255,182,39,0.35)',
-              color: 'var(--tar-brand-2)',
-            }}
-          >
-            <Sigma />
-          </span>
-          <div>
-            <div className="tar-d-eyebrow">{t('label')}</div>
-            <div
-              style={{
-                font: '700 14px/1.2 var(--tar-text)',
-                color: 'var(--tar-ink)',
-                marginTop: 2,
-              }}
-            >
-              {t('formTitle')}
-            </div>
-          </div>
-        </div>
+  const fxLine = !result
+    ? t('fxEmpty')
+    : result.r === 1
+      ? t('fxSingle')
+      : result.formula === 'brzycki'
+        ? `Brzycki · ${fmt(result.w)} / (1.0278 − 0.0278 × ${result.r}) = ${fmt(Math.round(result.e1rm * 10) / 10)} ${kg}`
+        : `Epley · ${fmt(result.w)} × (1 + ${result.r}/30) = ${fmt(Math.round(result.e1rm * 10) / 10)} ${kg}`
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="tar-c-field" style={{ padding: '12px 14px' }}>
+  return (
+    <>
+      <div className="tar-rm-hero tar-d-rise tar-d-rise-2">
+        <div className="tar-d-eyebrow accent">{t('formTitle')}</div>
+        <div className="tar-rm-fields">
+          <label className="tar-rm-field">
             <span className="lbl">
-              {t('weight')} <span style={{ opacity: 0.6 }}>({kg})</span>
+              {t('weight')}
+              <span>{kg}</span>
             </span>
             <input
               type="number"
               inputMode="decimal"
+              step="2.5"
+              min="1"
+              placeholder="0"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              step="0.5"
-              min="0.5"
-              style={{
-                font: '800 22px/1 var(--tar-tight)',
-                letterSpacing: '-0.02em',
-              }}
             />
           </label>
-          <label className="tar-c-field" style={{ padding: '12px 14px' }}>
-            <span className="lbl">{t('reps')}</span>
+          <span className="tar-rm-x">×</span>
+          <label className="tar-rm-field">
+            <span className="lbl">
+              {t('reps')}
+              <span>1–30</span>
+            </span>
             <input
               type="number"
               inputMode="numeric"
-              value={reps}
-              onChange={(e) => setReps(e.target.value)}
               step="1"
               min="1"
               max="30"
-              style={{
-                font: '800 22px/1 var(--tar-tight)',
-                letterSpacing: '-0.02em',
-              }}
+              placeholder="0"
+              value={reps}
+              onChange={(e) => setReps(e.target.value)}
             />
           </label>
         </div>
-
-        <div
-          className="flex items-baseline justify-between"
-          style={{ marginTop: 18, position: 'relative', zIndex: 1 }}
-        >
+        <div className="tar-rm-res">
           <div>
             <div className="tar-d-eyebrow">{t('estimated1rm')}</div>
-            <div
-              style={{
-                font: '800 52px/1 var(--tar-tight)',
-                letterSpacing: '-0.04em',
-                fontVariantNumeric: 'tabular-nums',
-                background: 'var(--tar-brand-grad)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
-                marginTop: 6,
-              }}
-            >
-              {result ? result.e1rm.toFixed(1) : '—'}
-              <span
-                style={{
-                  font: '500 18px/1 var(--tar-mono)',
-                  marginLeft: 8,
-                  color: 'var(--tar-ink-mute)',
-                  letterSpacing: '0.1em',
-                  WebkitTextFillColor: 'var(--tar-ink-mute)',
-                }}
-              >
-                {kg}
-              </span>
-            </div>
+            {result ? (
+              <div className="tar-rm-out tar-grad-text tabular-nums">
+                {result.e1rm.toFixed(1)}
+                <em>{kg}</em>
+              </div>
+            ) : (
+              <div className="tar-rm-out" style={{ color: 'var(--tar-ink-soft)' }}>
+                —
+              </div>
+            )}
           </div>
           {result && (
-            <span className="tar-lib-feat-badge" style={{ alignSelf: 'flex-end', marginBottom: 6 }}>
+            <span className="tar-rm-badge">
               {result.formula === 'brzycki' ? 'Brzycki' : 'Epley'}
             </span>
           )}
         </div>
-      </section>
+        <div className="tar-rm-fx">{fxLine}</div>
+      </div>
 
-      {/* % chart */}
-      {result && (
-        <section className="tar-pg-card">
-          <div className="tar-d-eyebrow" style={{ marginBottom: 10 }}>
-            {t('percentChart')}
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">{t('percentChart')}</div>
+      <div
+        className="tar-rm-tbl tar-d-rise tar-d-rise-3"
+        style={!result ? { opacity: 0.55 } : undefined}
+      >
+        {ROWS.map((row) => (
+          <div key={row.pct} className={`tar-rm-trow${row.hot ? ' hot' : ''}`}>
+            <span className="pct tabular-nums">{row.pct}%</span>
+            <span className="tar-rm-bar">
+              <i style={{ transform: `scaleX(${result ? row.pct / 100 : 0})` }} />
+            </span>
+            <span className="kg tabular-nums">
+              <span>{result ? fmt(roundPlate((result.e1rm * row.pct) / 100)) : '—'}</span>
+              {result && <em>{kg}</em>}
+            </span>
+            <span className="reps">{row.reps}</span>
           </div>
-          <div>
-            {PERCENTAGES.map((row) => {
-              const load = (result.e1rm * row.pct) / 100
-              const tierColor =
-                row.pct >= 90
-                  ? '#FF6E76'
-                  : row.pct >= 80
-                    ? '#FFC044'
-                    : row.pct >= 70
-                      ? '#5EEAD4'
-                      : 'var(--tar-ink-mute)'
-              return (
-                <div
-                  key={row.pct}
-                  className="flex items-center gap-3"
-                  style={{
-                    padding: '8px 0',
-                    borderTop: '1px solid var(--tar-line)',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 44,
-                      font: '700 12px/1 var(--tar-mono)',
-                      fontVariantNumeric: 'tabular-nums',
-                      color: tierColor,
-                    }}
-                  >
-                    {row.pct}%
-                  </span>
-                  <span
-                    style={{
-                      flex: 1,
-                      font: '700 14px/1 var(--tar-mono)',
-                      fontVariantNumeric: 'tabular-nums',
-                      color: 'var(--tar-ink)',
-                    }}
-                  >
-                    {load.toFixed(1)} {kg}
-                  </span>
-                  <span
-                    style={{
-                      font: '500 10px/1 var(--tar-mono)',
-                      color: 'var(--tar-ink-mute)',
-                      width: 44,
-                      textAlign: 'right',
-                    }}
-                  >
-                    × {row.reps}
-                  </span>
-                  <span
-                    style={{
-                      font: '700 9px/1 var(--tar-mono)',
-                      letterSpacing: '0.16em',
-                      textTransform: 'uppercase',
-                      color: tierColor,
-                      width: 92,
-                      textAlign: 'right',
-                    }}
-                  >
-                    {t(`zones.${row.label.toLowerCase()}`)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
-    </div>
+        ))}
+      </div>
+    </>
   )
 }

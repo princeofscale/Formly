@@ -13,6 +13,12 @@ export interface WrappedTopPR {
   achievedAt: string
 }
 
+export interface WrappedTopExercise {
+  exerciseName: string
+  exerciseNameRu: string | null
+  sets: number
+}
+
 export interface WrappedReport {
   year: number
   /** True when `year` is the current calendar year and hasn't ended yet. */
@@ -34,6 +40,7 @@ export interface WrappedReport {
     sets: number
   } | null
   topPRs: WrappedTopPR[] // top 5 by e1rm
+  topExercises: WrappedTopExercise[] // top 3 by set count
   monthly: MonthBucket[] // length 12
   cardioKm: number
   cardioSessions: number
@@ -148,6 +155,7 @@ export async function getWrappedReport(
   let totalSets = 0
   let totalReps = 0
   const setsByMuscle = new Map<string, number>()
+  const setsByExercise = new Map<string, { sets: number; name: string; nameRu: string | null }>()
   const e1rmByExercise = new Map<
     string,
     { e1rm: number; achievedAt: string; name: string; nameRu: string | null }
@@ -181,6 +189,11 @@ export async function getWrappedReport(
       const ex = Array.isArray(r.exercises) ? r.exercises[0] : r.exercises
       const muscle = ex?.primary_muscle ?? MUSCLE_PRIMARY_FALLBACK
       setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + 1)
+      if (ex) {
+        const cur = setsByExercise.get(r.exercise_id)
+        if (cur) cur.sets += 1
+        else setsByExercise.set(r.exercise_id, { sets: 1, name: ex.name, nameRu: ex.name_ru })
+      }
       if (r.calculated_1rm != null && ex) {
         const prev = e1rmByExercise.get(r.exercise_id)
         if (!prev || r.calculated_1rm > prev.e1rm) {
@@ -213,6 +226,12 @@ export async function getWrappedReport(
       achievedAt: p.achievedAt,
     }))
 
+  // Top exercises: 3 most-performed by set count
+  const topExercises: WrappedTopExercise[] = Array.from(setsByExercise.values())
+    .sort((a, b) => b.sets - a.sets)
+    .slice(0, 3)
+    .map((e) => ({ exerciseName: e.name, exerciseNameRu: e.nameRu, sets: e.sets }))
+
   return {
     year,
     isInProgress,
@@ -227,6 +246,7 @@ export async function getWrappedReport(
     bestDay,
     topMuscle,
     topPRs,
+    topExercises,
     monthly,
     cardioKm: Math.round(cardioKm * 10) / 10,
     cardioSessions: cardioSessions.length,
@@ -248,6 +268,7 @@ function emptyReport(year: number, isInProgress: boolean): WrappedReport {
     bestDay: null,
     topMuscle: null,
     topPRs: [],
+    topExercises: [],
     monthly: Array.from({ length: 12 }, (_, m) => ({ month: m, sessions: 0, tonnageKg: 0 })),
     cardioKm: 0,
     cardioSessions: 0,

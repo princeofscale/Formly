@@ -43,16 +43,32 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
   const goalRaw = formData.get('goal')?.toString()
   const locationRaw = formData.get('location')?.toString()
   const daysRaw = formData.get('days')?.toString()
+  const scheduleRaw = formData.get('schedule')?.toString()
 
   const goal: OnboardingGoal =
     goalRaw === 'strength' || goalRaw === 'hypertrophy' ? goalRaw : 'general'
   const location: OnboardingLocation =
     locationRaw === 'home_dumbbells' || locationRaw === 'home_bodyweight' ? locationRaw : 'gym'
-  const days = Math.max(1, Math.min(7, parseInt(daysRaw ?? '3', 10) || 3))
+
+  // Explicit weekday selection (ISO 1=Mon..7=Sun, comma-separated) wins over
+  // the legacy days-per-week count, which we keep as fallback.
+  const explicitSchedule = Array.from(
+    new Set(
+      (scheduleRaw ?? '')
+        .split(',')
+        .map((s) => parseInt(s, 10))
+        .filter((n) => Number.isInteger(n) && n >= 1 && n <= 7),
+    ),
+  ).sort((a, b) => a - b)
+
+  const days =
+    explicitSchedule.length > 0
+      ? explicitSchedule.length
+      : Math.max(1, Math.min(7, parseInt(daysRaw ?? '3', 10) || 3))
 
   // 1. Update profile with the schedule. Location enum in DB is gym/home/both,
   //    so collapse our finer-grained UI options into that.
-  const schedule = distributeDays(days)
+  const schedule = explicitSchedule.length > 0 ? explicitSchedule : distributeDays(days)
   const dbLocation: 'gym' | 'home' = location === 'gym' ? 'gym' : 'home'
   // onboarded_at column was added via 20260526150000 migration but isn't
   // in the generated Database typings yet. Cast through any to bypass.
@@ -111,7 +127,7 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
 
   revalidatePath('/dashboard')
   revalidatePath('/workout/new')
-  redirect('/workout/new')
+  redirect(formData.get('dest')?.toString() === 'profile' ? '/profile' : '/workout/new')
 }
 
 export async function skipOnboardingAction(): Promise<void> {

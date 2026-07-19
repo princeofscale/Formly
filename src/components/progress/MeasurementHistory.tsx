@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
-import { Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react'
 import { deleteMeasurementAction } from '@/app/(app)/progress/measurements/actions'
 import {
   MEASUREMENT_METRICS,
@@ -14,52 +14,34 @@ interface Props {
   entries: BodyMeasurement[]
 }
 
-function metricUnit(metric: MeasurementMetric, locale: string): string {
-  const units: Record<MeasurementMetric, string> = {
-    weight_kg: weightUnit(locale),
-    body_fat_pct: '%',
-    waist_cm: lengthUnit(locale),
-    chest_cm: lengthUnit(locale),
-    hips_cm: lengthUnit(locale),
-    biceps_cm: lengthUnit(locale),
-    thigh_cm: lengthUnit(locale),
-    calf_cm: lengthUnit(locale),
-    neck_cm: lengthUnit(locale),
-  }
-  return units[metric]
-}
-
-function formatDelta(delta: number, unit: string): { text: string; color: string } {
-  const abs = Math.abs(delta)
-  if (abs < 0.05) return { text: '·', color: 'rgba(255,255,255,0.25)' }
-  const sign = delta > 0 ? '+' : '−'
-  // For weight & circumferences, decreasing is usually goal — but we don't assume.
-  // Just show direction in neutral colors; let user interpret.
-  const color = delta > 0 ? '#5EEAD4' : '#FFC044'
-  return { text: `${sign}${abs.toFixed(1)} ${unit}`, color }
-}
+// Metrics where a decrease is the win (waist/weight down = green)
+const DOWN_IS_GOOD: MeasurementMetric[] = ['weight_kg', 'body_fat_pct', 'waist_cm', 'hips_cm']
 
 export function MeasurementHistory({ entries }: Props) {
   const t = useTranslations('progress.measurements')
   const locale = useLocale()
+  const loc = locale === 'ru' ? 'ru-RU' : 'en-US'
+
+  const fmt = (v: number) =>
+    v.toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+
+  const unitOf = (f: MeasurementMetric) =>
+    f === 'weight_kg' ? weightUnit(locale) : f === 'body_fat_pct' ? '%' : lengthUnit(locale)
 
   if (entries.length === 0) {
     return (
-      <div
-        className="rounded-[20px] p-5 text-center"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <p className="text-sm text-white/45">{t('empty')}</p>
+      <div className="tar-ms-empty">
+        <div className="t">{t('emptyTitle')}</div>
+        <div className="s">{t('emptySub')}</div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
+    <div className="tar-ms-list tar-d-rise tar-d-rise-4">
       {entries.map((entry, i) => {
         const prev = entries[i + 1]
-        const date = new Date(entry.date + 'T00:00:00')
-        const dateLabel = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+        const dateLabel = new Date(entry.date + 'T00:00:00').toLocaleDateString(loc, {
           day: 'numeric',
           month: 'short',
           year: 'numeric',
@@ -69,42 +51,44 @@ export function MeasurementHistory({ entries }: Props) {
         if (filled.length === 0 && !entry.notes) return null
 
         return (
-          <div
-            key={entry.id}
-            className="rounded-[16px] p-4"
-            style={{ background: '#15151C', border: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-mono text-xs font-bold text-white">{dateLabel}</p>
+          <div key={entry.id} className="tar-ms-entry">
+            <div className="dt">
+              <b>{dateLabel}</b>
               <form action={deleteMeasurementAction}>
                 <input type="hidden" name="date" value={entry.date} />
-                <button
-                  type="submit"
-                  aria-label={t('delete')}
-                  className="text-white/30 hover:text-red-300 transition"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
+                <button type="submit" aria-label={t('delete')}>
+                  <Trash2 className="i" />
                 </button>
               </form>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="tar-ms-vals">
               {filled.map((metric) => {
                 const value = entry[metric] as number
                 const prevValue = prev?.[metric] as number | null | undefined
-                const unit = metricUnit(metric, locale)
-                const delta = prevValue != null ? formatDelta(value - prevValue, unit) : null
+                const delta = prevValue != null ? value - prevValue : null
+                const goodDown = DOWN_IS_GOOD.includes(metric)
                 return (
-                  <div key={metric} className="flex flex-col">
-                    <span className="text-[9px] uppercase tracking-widest text-white/35">
-                      {t(`fields.${metric}`)}
-                    </span>
-                    <span className="text-sm font-bold tabular-nums text-white">
-                      {value.toFixed(1)} <span className="text-white/35">{unit}</span>
-                    </span>
-                    {delta && (
-                      <span className="text-[10px] tabular-nums" style={{ color: delta.color }}>
-                        {delta.text}
+                  <div key={metric} className="tar-ms-val">
+                    <div className="k">{t(`fields.${metric}`)}</div>
+                    <div className="n tabular-nums">
+                      {fmt(value)}
+                      <em>{unitOf(metric)}</em>
+                    </div>
+                    {delta == null ? (
+                      <span className="tar-ms-delta flat">{t('deltaFirst')}</span>
+                    ) : Math.abs(delta) < 0.05 ? (
+                      <span className="tar-ms-delta flat">{t('deltaFlat')}</span>
+                    ) : (
+                      <span
+                        className={`tar-ms-delta ${delta < 0 === goodDown ? 'good' : 'bad'} tabular-nums`}
+                      >
+                        {delta < 0 ? (
+                          <ArrowDown className="i" strokeWidth={2.5} />
+                        ) : (
+                          <ArrowUp className="i" strokeWidth={2.5} />
+                        )}
+                        {fmt(Math.abs(delta))}
                       </span>
                     )}
                   </div>
@@ -113,7 +97,12 @@ export function MeasurementHistory({ entries }: Props) {
             </div>
 
             {entry.notes && (
-              <p className="mt-3 text-xs text-white/55 leading-relaxed">{entry.notes}</p>
+              <p
+                className="mt-3"
+                style={{ font: '500 12px/1.5 var(--tar-text)', color: 'var(--tar-ink-mute)' }}
+              >
+                {entry.notes}
+              </p>
             )}
           </div>
         )

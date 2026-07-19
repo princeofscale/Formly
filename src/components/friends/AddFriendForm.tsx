@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { UserPlus, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { addFriendAction, type AddFriendResult } from '@/app/(app)/friends/actions'
 
 export function AddFriendForm() {
@@ -23,59 +23,28 @@ export function AddFriendForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="tar-pg-card space-y-3">
-      <div className="tar-d-eyebrow">{t('addLabel')}</div>
-      <div className="flex items-center gap-2">
+    <form onSubmit={onSubmit}>
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">{t('addLabel')}</div>
+      <div className="tar-fr-add tar-d-rise tar-d-rise-3">
         <input
           name="code"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 6))}
-          placeholder="ABCD12"
+          placeholder="XXXXXX"
           maxLength={6}
-          className="flex-1 outline-none uppercase"
-          style={{
-            background: 'var(--tar-card)',
-            border: '1px solid var(--tar-line)',
-            borderRadius: 14,
-            padding: '10px 14px',
-            font: '800 18px/1 var(--tar-tight)',
-            letterSpacing: '0.18em',
-            color: 'var(--tar-ink)',
-            fontVariantNumeric: 'tabular-nums',
-          }}
+          aria-label={t('addLabel')}
         />
-        <button
-          type="submit"
-          disabled={pending || code.length !== 6}
-          className="tar-c-start"
-          style={{
-            height: 44,
-            width: 'auto',
-            padding: '0 18px',
-            font: '800 13px/1 var(--tar-text)',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-          }}
-        >
-          {pending ? (
-            '...'
-          ) : result?.ok ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <>
-              <UserPlus className="h-4 w-4" />
-              {t('add')}
-            </>
-          )}
+        <button type="submit" disabled={pending || code.length !== 6} className="tar-cta">
+          {pending ? '...' : result?.ok ? <Check className="i" /> : t('add')}
         </button>
       </div>
       {result && !result.ok && result.errorKey && (
-        <p className="text-xs" style={{ color: 'var(--tar-danger)' }}>
+        <p className="mt-2 text-xs" style={{ color: 'var(--tar-danger)' }}>
           {t(`addError.${result.errorKey}`)}
         </p>
       )}
       {result?.ok && (
-        <p className="text-xs" style={{ color: 'var(--tar-success)' }}>
+        <p className="mt-2 text-xs" style={{ color: 'var(--tar-success)' }}>
           {t('addSuccess')}
         </p>
       )}

@@ -24,29 +24,48 @@ export default async function FriendsPage() {
   ])
 
   return (
-    <div className="space-y-5">
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-      >
-        <ChevronLeft className="h-4 w-4" />
+    <div className="tar-fr">
+      <Link href="/dashboard" className="tar-fr-back tar-d-rise tar-d-rise-1">
+        <ChevronLeft className="i" strokeWidth={2.5} />
         {t('back')}
       </Link>
 
-      <h1 className="text-[28px] font-bold tracking-tight">{t('title')}</h1>
+      <h1 className="tar-fr-h tar-d-rise tar-d-rise-1">{t('title')}</h1>
 
       <MyCodeCard code={myCode ?? '······'} />
 
       <AddFriendForm />
 
-      <FriendRequestList requests={pending} />
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-4">
+        {t('requestsTitle')}
+        {pending.length > 0 && ` · ${pending.length}`}
+      </div>
+      {pending.length > 0 ? (
+        <FriendRequestList requests={pending} />
+      ) : (
+        <div className="tar-fr-empty tar-d-rise tar-d-rise-4">
+          <div className="t">{t('requestsEmpty')}</div>
+          <div className="s">{t('requestsEmptySub')}</div>
+        </div>
+      )}
 
-      <FriendsPrFeed prs={friendPRs} />
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-5">
+        {t('prFeedTitle')}
+        {friendPRs.length > 0 && ` · ${friendPRs.length}`}
+      </div>
+      {friendPRs.length > 0 ? (
+        <FriendsPrFeed prs={friendPRs} />
+      ) : (
+        <div className="tar-fr-empty tar-d-rise tar-d-rise-5">
+          <div className="t">{t('prsEmpty')}</div>
+          <div className="s">{t('prsEmptySub')}</div>
+        </div>
+      )}
 
-      <h2 className="pt-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
-        {t('listTitle', { n: friends.length })}
-      </h2>
-
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-6">
+        {t('listTitle')}
+        {friends.length > 0 && ` · ${friends.length}`}
+      </div>
       <FriendList friends={friends} myUserId={user.id} />
     </div>
   )

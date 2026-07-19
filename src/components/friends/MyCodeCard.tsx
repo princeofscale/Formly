@@ -16,7 +16,7 @@ export function MyCodeCard({ code }: Props) {
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
+      setTimeout(() => setCopied(false), 1400)
     } catch {
       // ignore
     }
@@ -36,87 +36,18 @@ export function MyCodeCard({ code }: Props) {
   }
 
   return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        padding: 20,
-        borderRadius: 'var(--tar-r-xl)',
-        background:
-          'radial-gradient(120% 80% at 0% 0%, rgba(255, 182, 39, 0.12), transparent 60%), var(--tar-bg-elevated)',
-        border: '1px solid rgba(255, 182, 39, 0.28)',
-      }}
-    >
+    <div className="tar-fr-code tar-d-rise tar-d-rise-2">
       <div className="tar-d-eyebrow accent">{t('label')}</div>
-      <div
-        style={{
-          font: '500 13px/1.4 var(--tar-text)',
-          color: 'var(--tar-ink-mute)',
-          marginTop: 4,
-        }}
-      >
-        {t('subtitle')}
-      </div>
-
-      <div className="mt-4 flex items-center justify-center">
-        <p
-          className="tabular-nums"
-          style={{
-            font: '900 48px/1 var(--tar-tight)',
-            letterSpacing: '0.16em',
-            background: 'var(--tar-brand-grad)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-            filter: 'drop-shadow(0 6px 20px rgba(255, 182, 39, 0.32))',
-          }}
-        >
-          {code}
-        </p>
-      </div>
-
-      <div className="mt-5 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={copy}
-          className="flex-1 flex items-center justify-center gap-2 transition"
-          style={{
-            height: 42,
-            borderRadius: 12,
-            background: 'var(--tar-brand-grad-soft)',
-            color: 'var(--tar-brand-2)',
-            border: '1px solid rgba(255, 182, 39, 0.36)',
-            font: '700 13px/1 var(--tar-text)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          {copied ? (
-            <>
-              <Check className="h-4 w-4" />
-              {t('copied')}
-            </>
-          ) : (
-            <>
-              <Copy className="h-4 w-4" />
-              {t('copy')}
-            </>
-          )}
+      <div className="tar-fr-code-sub">{t('subtitle')}</div>
+      <strong className="tar-fr-code-val tar-grad-text tabular-nums">{code}</strong>
+      <div className="tar-fr-code-btns">
+        <button type="button" onClick={copy} className={`tar-fr-cbtn${copied ? ' ok' : ''}`}>
+          {copied ? <Check className="i" /> : <Copy className="i" />}
+          <span className="lbl">{copied ? t('copied') : t('copy')}</span>
         </button>
-        <button
-          type="button"
-          onClick={share}
-          className="flex-1 flex items-center justify-center gap-2 transition active:scale-[0.98]"
-          style={{
-            height: 42,
-            borderRadius: 12,
-            background: 'var(--tar-card)',
-            color: 'var(--tar-ink-dim)',
-            border: '1px solid var(--tar-line)',
-            font: '700 13px/1 var(--tar-text)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          <Share2 className="h-4 w-4" />
-          {t('share')}
+        <button type="button" onClick={share} className="tar-fr-cbtn ghost">
+          <Share2 className="i" />
+          <span className="lbl">{t('share')}</span>
         </button>
       </div>
     </div>
