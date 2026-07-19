@@ -1,10 +1,14 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { Search, Plus } from 'lucide-react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import { Search, Plus, Sparkles } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useTranslations, useLocale } from 'next-intl'
-import { searchExercisesAction } from '@/app/(app)/workout/[id]/actions'
+import {
+  searchExercisesAction,
+  suggestExercisesAction,
+  type ExerciseSuggestion,
+} from '@/app/(app)/workout/[id]/actions'
 import { ExerciseForm } from '@/components/exercise/ExerciseForm'
 import type { Exercise } from '@/lib/types/models'
 
@@ -22,10 +26,14 @@ export function ExerciseSearch({ onSelect }: Props) {
   const [searched, setSearched] = useState(false)
   const [, startTransition] = useTransition()
   const [formOpenFor, setFormOpenFor] = useState<string | null>(null)
+  const [aiItems, setAiItems] = useState<ExerciseSuggestion[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
+  const aiAskedFor = useRef<string>('')
 
   function handleChange(value: string) {
     setQuery(value)
     setSearched(false)
+    setAiItems([])
     if (value.length < 2) {
       setResults([])
       return
@@ -37,10 +45,28 @@ export function ExerciseSearch({ onSelect }: Props) {
     })
   }
 
+  // Auto AI fallback: fires once per query, 800 ms after typing stops, only
+  // when the normal (+fuzzy) search came back empty and we're online.
+  useEffect(() => {
+    if (!searched || results.length > 0 || query.length < 2) return
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
+    if (aiAskedFor.current === query) return
+    const timer = setTimeout(() => {
+      aiAskedFor.current = query
+      setAiLoading(true)
+      void suggestExercisesAction(query)
+        .then((items) => setAiItems(items))
+        .catch(() => setAiItems([]))
+        .finally(() => setAiLoading(false))
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [query, searched, results.length])
+
   function select(ex: Exercise) {
     onSelect(ex)
     setQuery('')
     setResults([])
+    setAiItems([])
     setSearched(false)
   }
 
@@ -99,6 +125,46 @@ export function ExerciseSearch({ onSelect }: Props) {
               </li>
             )
           })}
+          {showCreateHint && aiLoading && (
+            <li className="px-3 py-3 flex items-center gap-2 text-xs text-zinc-400">
+              <Sparkles className="h-4 w-4 animate-pulse" style={{ color: '#FF6E76' }} />
+              {t('aiSearching')}
+            </li>
+          )}
+          {showCreateHint && !aiLoading && aiItems.length > 0 && (
+            <>
+              <li className="px-3 pt-3 pb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <Sparkles className="h-3 w-3" style={{ color: '#FF6E76' }} />
+                {t('aiDidYouMean')}
+              </li>
+              {aiItems.map(({ exercise, reason }) => {
+                const aiThumb = exercise.image_urls?.[0]
+                return (
+                  <li key={exercise.id}>
+                    <button
+                      className="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-3"
+                      onClick={() => select(exercise)}
+                    >
+                      {aiThumb ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={aiThumb}
+                          alt=""
+                          className="w-10 h-10 rounded object-cover flex-shrink-0 bg-white/5"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded bg-white/5 flex-shrink-0" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">{displayName(exercise)}</p>
+                        <p className="text-xs text-zinc-500 truncate">{reason}</p>
+                      </div>
+                    </button>
+                  </li>
+                )
+              })}
+            </>
+          )}
           {showCreateHint && (
             <li className="border-t border-white/10">
               <button
