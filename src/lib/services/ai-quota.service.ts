@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type AiKind =
   | 'exercise_swap'
+  | 'exercise_suggest'
   | 'program_generation'
   | 'session_debrief'
   | 'push_hook'
@@ -9,6 +10,7 @@ export type AiKind =
 
 const DAILY_LIMITS: Record<AiKind, number> = {
   exercise_swap: 30,
+  exercise_suggest: 30,
   program_generation: 8,
   session_debrief: 10,
   push_hook: 5,
