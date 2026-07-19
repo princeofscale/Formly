@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mergeQueuedSets } from './offline-merge'
-import type { QueuedSetRecord } from './offline-queue'
+import { hasQueuedFinish, type QueuedFinishRecord, type QueuedSetRecord } from './offline-queue'
 import type { Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 
 const SESSION = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
@@ -106,5 +106,22 @@ describe('mergeQueuedSets', () => {
       SESSION,
     )
     expect(out[0].sets[0].calculated_1rm).toBeNull()
+  })
+})
+
+describe('hasQueuedFinish', () => {
+  const rec = (sessionId: string): QueuedFinishRecord => ({
+    id: 'f1',
+    sessionId,
+    queuedAt: 1789000000000,
+  })
+
+  it('true, когда finish этой сессии в очереди', () => {
+    expect(hasQueuedFinish([rec(SESSION)], SESSION)).toBe(true)
+  })
+
+  it('false для пустой очереди и чужих сессий', () => {
+    expect(hasQueuedFinish([], SESSION)).toBe(false)
+    expect(hasQueuedFinish([rec('dddddddd-dddd-dddd-dddd-dddddddddddd')], SESSION)).toBe(false)
   })
 })
