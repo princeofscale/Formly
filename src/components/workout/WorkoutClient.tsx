@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { BookmarkPlus, Check, ChevronLeft } from 'lucide-react'
+import { BookmarkPlus, Check, CheckCircle, ChevronLeft } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 import { ExerciseSearch } from './ExerciseSearch'
 import { ExerciseBlock } from './ExerciseBlock'
@@ -42,11 +42,13 @@ export function WorkoutClient({
 }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
+  const tOffline = useTranslations('offline')
   const locale = useLocale()
 
   const [exercises, setExercises] = useState<ExerciseWithSets[]>(initialExercises)
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
   const [prCelebration, setPrCelebration] = useState<PRCelebrationData | null>(null)
+  const [finishQueued, setFinishQueued] = useState(false)
 
   // Template saving state
   const [showTplInput, setShowTplInput] = useState(false)
@@ -176,9 +178,24 @@ export function WorkoutClient({
               <BookmarkPlus className="h-[18px] w-[18px]" />
             </button>
           )}
-          <FinishWorkoutButton sessionId={session.id} />
+          <FinishWorkoutButton sessionId={session.id} onQueued={() => setFinishQueued(true)} />
         </div>
       </header>
+
+      {finishQueued && (
+        <div
+          className="mx-auto mt-3 flex max-w-md items-center gap-2 rounded-xl px-4 py-3"
+          style={{
+            background: 'rgba(43, 216, 132, 0.10)',
+            border: '1px solid rgba(43, 216, 132, 0.32)',
+            color: 'var(--tar-success)',
+            font: '600 13px/1.4 var(--tar-text)',
+          }}
+        >
+          <CheckCircle className="h-4 w-4 shrink-0" />
+          {tOffline('finishQueued')}
+        </div>
+      )}
 
       <WorkoutLiveStats
         totalSets={totalSets}
