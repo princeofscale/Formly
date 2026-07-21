@@ -20,6 +20,7 @@ jobs:
           # clone lacks those commits, so its internal git log writes to stderr
           # and the action fails with "stderr is not empty" even with no leaks.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2

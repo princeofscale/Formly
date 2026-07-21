@@ -67,7 +67,8 @@ export async function searchExercises(
   if (rows.length === 0) {
     // Typo fallback: trigram similarity via RPC. RLS still applies (security
     // invoker), the extra filter is defense in depth.
-    const { data: fuzzy } = await supabase.rpc('search_exercises_fuzzy', { q })
+    const { data: fuzzy, error } = await supabase.rpc('search_exercises_fuzzy', { q })
+    if (error) throw new Error(error.message)
     rows = ((fuzzy as Exercise[]) ?? []).filter((e) => !e.is_custom || e.created_by === userId)
   }
   return rows

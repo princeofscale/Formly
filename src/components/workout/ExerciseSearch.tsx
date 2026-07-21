@@ -51,15 +51,25 @@ export function ExerciseSearch({ onSelect }: Props) {
     if (!searched || results.length > 0 || query.length < 2) return
     if (typeof navigator !== 'undefined' && !navigator.onLine) return
     if (aiAskedFor.current === query) return
+    let cancelled = false
     const timer = setTimeout(() => {
       aiAskedFor.current = query
       setAiLoading(true)
       void suggestExercisesAction(query)
-        .then((items) => setAiItems(items))
-        .catch(() => setAiItems([]))
-        .finally(() => setAiLoading(false))
+        .then((items) => {
+          if (!cancelled) setAiItems(items)
+        })
+        .catch(() => {
+          if (!cancelled) setAiItems([])
+        })
+        .finally(() => {
+          if (!cancelled) setAiLoading(false)
+        })
     }, 800)
-    return () => clearTimeout(timer)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [query, searched, results.length])
 
   function select(ex: Exercise) {
