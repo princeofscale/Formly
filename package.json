@@ -71,7 +71,12 @@
     "shadcn": "^4.8.0",
     "tailwindcss": "^4",
     "ts-prune": "^0.10.3",
+    "tsx": "^4.23.1",
     "typescript": "^6",
     "vitest": "^4.1.7"
+  },
+  "overrides": {
+    "brace-expansion@1": "^1.1.16",
+    "brace-expansion@5": "^5.0.7"
   }
 }
