@@ -81,6 +81,7 @@
     "errors": {
       "emailNotConfirmed": "Email not confirmed. Check your inbox.",
       "invalidCredentials": "Invalid email or password.",
+      "legalRequired": "Accept the Terms and Privacy Policy to continue.",
       "default": "An error occurred. Please try again."
     }
   },
@@ -311,7 +312,7 @@
     }
   },
   "install": {
-    "title": "Install TrainingAR",
+    "title": "Install Formly",
     "subtitle": "Add to your home screen for quick access",
     "cta": "Install",
     "later": "Later",
@@ -942,7 +943,7 @@
     }
   },
   "onboarding": {
-    "hero": "Welcome to TrainingAR",
+    "hero": "Welcome to Formly",
     "subtitle": "Three quick questions and you're set up.",
     "step": "Step {n} of {total}",
     "step1Title": "What's your goal?",
@@ -1048,8 +1049,8 @@
       "copy": "Copy",
       "copied": "Copied",
       "share": "Share",
-      "shareTitle": "Add me on TrainingAR",
-      "shareMessage": "Add me on TrainingAR — my code is {code}"
+      "shareTitle": "Add me on Formly",
+      "shareMessage": "Add me on Formly — my code is {code}"
     },
     "teaserLabel": "Crew",
     "teaserTitle": "Active friends ({n})",
@@ -1064,7 +1065,7 @@
     "noData": "No finished workouts logged in this year — come back after a few sessions.",
     "footer": "Train. Track. Repeat.",
     "slides": {
-      "eyebrow": "TrainingAR Wrapped",
+      "eyebrow": "Formly Wrapped",
       "hint": "scroll",
       "tonnageEyebrow": "This year you lifted",
       "tonnageUnit": "kilograms",
@@ -1083,8 +1084,8 @@
       "fin2": "Track.",
       "fin3": "Repeat.",
       "share": "Share your year",
-      "shareText": "My {year} on TrainingAR: {sessions} workouts, {tonnage} kg of tonnage 💪",
-      "foot": "TrainingAR Wrapped ’{yy}",
+      "shareText": "My {year} on Formly: {sessions} workouts, {tonnage} kg of tonnage 💪",
+      "foot": "Formly Wrapped ’{yy}",
       "emptyEyebrow": "Still being written",
       "emptyCta": "Go train",
       "close": "Close"

@@ -202,7 +202,7 @@ export function SetRow({
         }
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem(draftKey)
-          window.dispatchEvent(new CustomEvent('trainingar:set-queued'))
+          window.dispatchEvent(new CustomEvent('formly:set-queued'))
         }
         onSaved(syntheticSet, {
           is_pr: false,

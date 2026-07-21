@@ -1,6 +1,7 @@
 // IndexedDB queue for sets logged while offline. Flushed by OfflineSyncWatcher
 // once the device comes back online.
 
+// Keep the legacy name so queued workouts survive the Formly rebrand.
 const DB_NAME = 'trainingar-offline'
 const DB_VERSION = 2
 const STORE = 'set_queue'

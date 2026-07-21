@@ -119,11 +119,11 @@ export function OfflineSyncWatcher() {
 
     window.addEventListener('online', onOnline)
     window.addEventListener('offline', onOffline)
-    window.addEventListener('trainingar:set-queued', onQueued)
+    window.addEventListener('formly:set-queued', onQueued)
     return () => {
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
-      window.removeEventListener('trainingar:set-queued', onQueued)
+      window.removeEventListener('formly:set-queued', onQueued)
     }
   }, [router])
 

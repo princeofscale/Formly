@@ -1,7 +1,7 @@
 {
-  "name": "training-site",
+  "name": "formly",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "audit": "npm audit --audit-level=high",

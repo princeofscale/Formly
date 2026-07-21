@@ -10,7 +10,7 @@
 import { useEffect } from 'react'
 
 const MAX_REPORTS_PER_SESSION = 10
-const COUNTER_KEY = 'trainingar:err-count'
+const COUNTER_KEY = 'formly:err-count'
 
 function readCount(): number {
   try {

@@ -81,6 +81,7 @@
     "errors": {
       "emailNotConfirmed": "Email не подтверждён. Проверьте почту.",
       "invalidCredentials": "Неверный email или пароль.",
+      "legalRequired": "Примите Условия и Политику конфиденциальности, чтобы продолжить.",
       "default": "Произошла ошибка. Попробуйте ещё раз."
     }
   },
@@ -311,7 +312,7 @@
     }
   },
   "install": {
-    "title": "Установи TrainingAR",
+    "title": "Установи Formly",
     "subtitle": "Добавь на главный экран для быстрого доступа",
     "cta": "Установить",
     "later": "Позже",
@@ -942,7 +943,7 @@
     }
   },
   "onboarding": {
-    "hero": "Добро пожаловать в TrainingAR",
+    "hero": "Добро пожаловать в Formly",
     "subtitle": "Три быстрых вопроса и ты в деле.",
     "step": "Шаг {n} из {total}",
     "step1Title": "Какая цель?",
@@ -1048,8 +1049,8 @@
       "copy": "Скопировать",
       "copied": "Готово",
       "share": "Поделиться",
-      "shareTitle": "Добавь меня в TrainingAR",
-      "shareMessage": "Добавь меня в TrainingAR — мой код {code}"
+      "shareTitle": "Добавь меня в Formly",
+      "shareMessage": "Добавь меня в Formly — мой код {code}"
     },
     "teaserLabel": "Кенты",
     "teaserTitle": "Активные друзья ({n})",
@@ -1064,7 +1065,7 @@
     "noData": "В этом году ещё нет завершённых тренировок — вернись после нескольких сессий.",
     "footer": "Тренируйся. Записывай. Повторяй.",
     "slides": {
-      "eyebrow": "TrainingAR Wrapped",
+      "eyebrow": "Formly Wrapped",
       "hint": "листай",
       "tonnageEyebrow": "За год ты поднял",
       "tonnageUnit": "килограммов",
@@ -1083,8 +1084,8 @@
       "fin2": "Записывай.",
       "fin3": "Повторяй.",
       "share": "Поделиться итогами",
-      "shareText": "Мой {year} в TrainingAR: {sessions} тренировок, {tonnage} кг тоннажа 💪",
-      "foot": "TrainingAR Wrapped ’{yy}",
+      "shareText": "Мой {year} в Formly: {sessions} тренировок, {tonnage} кг тоннажа 💪",
+      "foot": "Formly Wrapped ’{yy}",
       "emptyEyebrow": "Итоги пока пишутся",
       "emptyCta": "К тренировкам",
       "close": "Закрыть"

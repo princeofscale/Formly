@@ -20,6 +20,10 @@ function mapAuthError(message: string): string {
 }
 
 export async function registerAction(_: unknown, formData: FormData) {
+  if (formData.get('agree') !== 'on') {
+    return { errorKey: 'auth.errors.legalRequired' }
+  }
+
   const parsed = schema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),

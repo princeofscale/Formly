@@ -27,11 +27,11 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'TrainingAR',
+  title: 'Formly',
   description: 'Track your training progress',
   appleWebApp: {
     capable: true,
-    title: 'TrainingAR',
+    title: 'Formly',
     statusBarStyle: 'black-translucent',
   },
 }

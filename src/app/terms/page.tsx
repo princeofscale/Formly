@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getLocale } from 'next-intl/server'
 import { ChevronLeft } from 'lucide-react'
+import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
 //   Starter Terms of Service template. NOT legal advice. Adjust contact info,
@@ -9,13 +10,10 @@ import { ChevronLeft } from 'lucide-react'
 //   Standard EULA acceptance — link from your store listing.
 
 export const metadata = {
-  title: 'Terms of Service — TrainingAR',
-  description: 'Rules of using TrainingAR.',
+  title: 'Terms of Service — Formly',
+  description: 'Rules of using Formly.',
 }
 
-const LAST_UPDATED = '2026-05-21'
-const CONTACT = 'test3huioblya@gmail.com'
-const OPERATOR = 'TrainingAR (independent developer)'
 const JURISDICTION_EN = 'Russian Federation' // ← поменяй на свою юрисдикцию если нужно
 const JURISDICTION_RU = 'Российской Федерации'
 
@@ -39,13 +37,21 @@ export default async function TermsPage() {
             {ru ? 'Правила использования' : 'Terms of Service'}
           </h1>
           <p className="text-xs uppercase tracking-widest text-white/40">
-            {ru ? 'Обновлено' : 'Last updated'}: {LAST_UPDATED}
+            {ru ? 'Обновлено' : 'Last updated'}: {LEGAL_LAST_UPDATED}
           </p>
 
           {ru ? (
-            <TermsRu contact={CONTACT} operator={OPERATOR} jurisdiction={JURISDICTION_RU} />
+            <TermsRu
+              contact={LEGAL_CONTACT}
+              operator={LEGAL_OPERATOR}
+              jurisdiction={JURISDICTION_RU}
+            />
           ) : (
-            <TermsEn contact={CONTACT} operator={OPERATOR} jurisdiction={JURISDICTION_EN} />
+            <TermsEn
+              contact={LEGAL_CONTACT}
+              operator={LEGAL_OPERATOR}
+              jurisdiction={JURISDICTION_EN}
+            />
           )}
 
           <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/40">
@@ -71,7 +77,7 @@ function TermsEn({
   return (
     <>
       <p className="text-white/70">
-        By using <strong>TrainingAR</strong> (the &quot;Service&quot;) you agree to these terms. The
+        By using <strong>Formly</strong> (the &quot;Service&quot;) you agree to these terms. The
         Service is provided by {operator} (the &quot;Operator&quot;). If you don&apos;t agree,
         please don&apos;t use it.
       </p>
@@ -197,7 +203,7 @@ function TermsRu({
   return (
     <>
       <p className="text-white/70">
-        Используя <strong>TrainingAR</strong> («Сервис»), ты соглашаешься с этими правилами. Сервис
+        Используя <strong>Formly</strong> («Сервис»), ты соглашаешься с этими правилами. Сервис
         предоставляется {operator} («Оператор»). Не согласен — не пользуйся.
       </p>
 

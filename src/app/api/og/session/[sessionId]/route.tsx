@@ -65,7 +65,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ session
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontSize: 22, letterSpacing: 6, fontWeight: 700, color: '#FFC044' }}>
-            TRAINING AR
+            FORMLY
           </span>
           <span style={{ fontSize: 30, marginTop: 6, opacity: 0.55 }}>{dateLabel}</span>
         </div>

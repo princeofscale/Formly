@@ -12,8 +12,8 @@ export function UpdateBanner() {
     function onUpdate() {
       setShow(true)
     }
-    window.addEventListener('trainingar:sw-update', onUpdate)
-    return () => window.removeEventListener('trainingar:sw-update', onUpdate)
+    window.addEventListener('formly:sw-update', onUpdate)
+    return () => window.removeEventListener('formly:sw-update', onUpdate)
   }, [])
 
   if (!show) return null

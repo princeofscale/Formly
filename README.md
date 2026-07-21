@@ -1,4 +1,4 @@
-# TrainingAR
+# Formly
 
 Современный AI-фитнес трекер для отслеживания тренировок, анализа прогресса и получения персональных рекомендаций на основе тренировочных данных.
 
@@ -89,8 +89,8 @@
 ## 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/princeofscale/TrainingAR.git
-cd TrainingAR
+git clone https://github.com/princeofscale/Formly.git
+cd Formly
 ```
 
 ## 2. Установка зависимостей

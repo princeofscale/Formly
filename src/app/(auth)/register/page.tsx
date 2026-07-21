@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const te = useTranslations()
 
   const errorMsg = state?.errorKey ? te(state.errorKey) : null
+  const legalError = state?.errorKey === 'auth.errors.legalRequired' ? errorMsg : null
 
   return (
     <form
@@ -43,7 +44,7 @@ export default function RegisterPage() {
           icon={MailIcon}
           type="email"
           required
-          error={errorMsg}
+          error={legalError ? null : errorMsg}
         />
         <FloatingInput
           name="password"
@@ -78,6 +79,8 @@ export default function RegisterPage() {
           required
           checked={agree}
           onChange={(e) => setAgree(e.target.checked)}
+          aria-invalid={Boolean(legalError)}
+          aria-describedby={legalError ? 'legal-error' : undefined}
           style={{
             position: 'absolute',
             width: 1,
@@ -116,6 +119,11 @@ export default function RegisterPage() {
           </Link>
         </span>
       </label>
+      {legalError && (
+        <p id="legal-error" className="tar-fielderr" role="alert">
+          {legalError}
+        </p>
+      )}
 
       <SubmitButton pending={pending}>{t('submit')}</SubmitButton>
 

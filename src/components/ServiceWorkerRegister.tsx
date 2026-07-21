@@ -19,7 +19,7 @@ export function ServiceWorkerRegister() {
           if (!incoming) return
           incoming.addEventListener('statechange', () => {
             if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
-              window.dispatchEvent(new CustomEvent('trainingar:sw-update'))
+              window.dispatchEvent(new CustomEvent('formly:sw-update'))
             }
           })
         })
