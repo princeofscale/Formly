@@ -53,6 +53,9 @@ CLAUDE.md
 *.sqlite
 *.sqlite3
 data/
+# ...but scripts/data holds committed source data (exercise RU names)
+!scripts/data/
+!scripts/data/**
 
 #codegraph
 .codegraph/

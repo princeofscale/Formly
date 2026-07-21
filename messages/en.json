@@ -696,6 +696,8 @@
     "createTemplateHint": "Save a session as a template — fire it off in one tap next time.",
     "elapsed": "{minutes}m elapsed",
     "searchPlaceholder": "Search exercises...",
+    "aiSearching": "AI is thinking…",
+    "aiDidYouMean": "Did you mean…",
     "emptyHint": "Search for an exercise above to start logging",
     "quickAdd": "Quick add",
     "finish": "Finish",
