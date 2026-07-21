@@ -12,7 +12,7 @@ import {
   deleteSet,
 } from '@/lib/db/sets'
 import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
-import { searchExercises, getExercises } from '@/lib/db/exercises'
+import { getExercises } from '@/lib/db/exercises'
 import { pickAlternatives } from '@/lib/services/exercise-alternatives.service'
 import { suggestFromCatalog } from '@/lib/services/exercise-suggest.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
@@ -248,15 +248,6 @@ export async function suggestExerciseAlternativesAction(
       return ex ? { exercise: ex, reason: p.reason } : null
     })
     .filter((x): x is AlternativeWithExercise => x !== null)
-}
-
-export async function searchExercisesAction(
-  query: string,
-  locale: string = 'en',
-): Promise<Exercise[]> {
-  const { user } = await verifySession()
-  const supabase = await createClient()
-  return searchExercises(supabase, user.id, query, locale)
 }
 
 export interface ExerciseSuggestion {
