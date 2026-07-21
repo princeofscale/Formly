@@ -1319,6 +1319,26 @@
   }
 }
 
+/* ─── Touch devices: freeze continuous bg animations ────────────
+   The blurred orbs/mesh re-rasterize their blur every frame — the
+   main source of jank on phones, where users actually open the app.
+   On touch we keep the static gradient scene but drop the per-frame
+   cost: no infinite animations, no full-screen mix-blend noise.
+   One-shot entrance animations stay. Matches the battery-aware
+   TAR-W system below. Desktop (hover: hover) is unaffected. */
+@media (hover: none) {
+  .tar-orb,
+  .tar-plate,
+  .tar-bg-mesh,
+  .tar-bg-grid {
+    animation: none !important;
+  }
+  /* full-screen mix-blend-mode: overlay is costly on mobile GPUs */
+  .tar-bg-noise {
+    display: none;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────
    TAR-W-* Active Workout design system (ported from Claude Design)
    Battery-aware: no infinite bg animations. Motion on user action.
