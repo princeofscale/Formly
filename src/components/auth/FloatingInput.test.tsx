@@ -11,8 +11,8 @@ describe('FloatingInput', () => {
     render(<FloatingInput name="email" label="Email" icon={Icon} error="Invalid email" />)
 
     const input = screen.getByLabelText('Email')
-    expect(input).toHaveAttribute('aria-describedby', 'email-error')
-    expect(screen.getByRole('alert')).toHaveAttribute('id', 'email-error')
+    const alert = screen.getByRole('alert')
+    expect(input).toHaveAttribute('aria-describedby', alert.id)
   })
 
   it('omits error attributes when the field is valid', () => {

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getLocale } from 'next-intl/server'
 import { ChevronLeft } from 'lucide-react'
+import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
 //   Starter Terms of Service template. NOT legal advice. Adjust contact info,
@@ -13,9 +14,6 @@ export const metadata = {
   description: 'Rules of using Formly.',
 }
 
-const LAST_UPDATED = '2026-05-21'
-const CONTACT = 'test3huioblya@gmail.com'
-const OPERATOR = 'Formly (independent developer)'
 const JURISDICTION_EN = 'Russian Federation' // ← поменяй на свою юрисдикцию если нужно
 const JURISDICTION_RU = 'Российской Федерации'
 
@@ -39,13 +37,21 @@ export default async function TermsPage() {
             {ru ? 'Правила использования' : 'Terms of Service'}
           </h1>
           <p className="text-xs uppercase tracking-widest text-white/40">
-            {ru ? 'Обновлено' : 'Last updated'}: {LAST_UPDATED}
+            {ru ? 'Обновлено' : 'Last updated'}: {LEGAL_LAST_UPDATED}
           </p>
 
           {ru ? (
-            <TermsRu contact={CONTACT} operator={OPERATOR} jurisdiction={JURISDICTION_RU} />
+            <TermsRu
+              contact={LEGAL_CONTACT}
+              operator={LEGAL_OPERATOR}
+              jurisdiction={JURISDICTION_RU}
+            />
           ) : (
-            <TermsEn contact={CONTACT} operator={OPERATOR} jurisdiction={JURISDICTION_EN} />
+            <TermsEn
+              contact={LEGAL_CONTACT}
+              operator={LEGAL_OPERATOR}
+              jurisdiction={JURISDICTION_EN}
+            />
           )}
 
           <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/40">

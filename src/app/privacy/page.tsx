@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getLocale } from 'next-intl/server'
 import { ChevronLeft } from 'lucide-react'
+import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
 //   This is a STARTER privacy policy template tailored to Formly's actual
@@ -13,10 +14,6 @@ export const metadata = {
   title: 'Privacy Policy — Formly',
   description: 'How Formly handles your personal and health data.',
 }
-
-const LAST_UPDATED = '2026-05-21'
-const CONTACT = 'test3huioblya@gmail.com'
-const OPERATOR = 'Formly (independent developer)' // ← или ФИО
 
 export default async function PrivacyPage() {
   const locale = await getLocale()
@@ -38,13 +35,13 @@ export default async function PrivacyPage() {
             {ru ? 'Политика конфиденциальности' : 'Privacy Policy'}
           </h1>
           <p className="text-xs uppercase tracking-widest text-white/40">
-            {ru ? 'Обновлено' : 'Last updated'}: {LAST_UPDATED}
+            {ru ? 'Обновлено' : 'Last updated'}: {LEGAL_LAST_UPDATED}
           </p>
 
           {ru ? (
-            <PrivacyRu contact={CONTACT} operator={OPERATOR} />
+            <PrivacyRu contact={LEGAL_CONTACT} operator={LEGAL_OPERATOR} />
           ) : (
-            <PrivacyEn contact={CONTACT} operator={OPERATOR} />
+            <PrivacyEn contact={LEGAL_CONTACT} operator={LEGAL_OPERATOR} />
           )}
 
           <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/40">

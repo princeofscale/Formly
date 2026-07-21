@@ -63,7 +63,7 @@ cross-origin), Serwist/precache-манифест.
   `finishWorkoutAction`) → `finishSession` → `revalidatePath('/dashboard', '/history')`.
 - `FinishWorkoutButton`: try `finishWorkoutAction` → catch по паттерну `offlineSignal` из
   `SetRow` (проверка `navigator.onLine` / `TypeError fetch|network`) → `enqueueFinish` →
-  событие `formly:set-queued` → колбэк `onQueuedFinish` наверх в `WorkoutClient`, который
+  событие `formly:set-queued` → колбэк `onQueued` наверх в `WorkoutClient`, который
   показывает состояние «Тренировка завершена · синхронизируется» (экран остаётся, редиректа нет).
   Примечание: `redirect()` внутри server action бросает управляемый `NEXT_REDIRECT` — его
   нельзя принимать за сетевую ошибку; ловим только реальные сетевые сбои.

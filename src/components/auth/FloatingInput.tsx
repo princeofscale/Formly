@@ -4,6 +4,7 @@ import {
   forwardRef,
   useState,
   useImperativeHandle,
+  useId,
   useRef,
   type KeyboardEvent,
   type ReactNode,
@@ -52,7 +53,9 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     },
     forwardedRef,
   ) {
-    const errorId = `${name}-error`
+    const uniqueId = useId()
+    const inputId = `${uniqueId}-${name}`
+    const errorId = `${uniqueId}-error`
     const [focused, setFocused] = useState(false)
     const [filled, setFilled] = useState(Boolean(defaultValue))
     const [caps, setCaps] = useState(false)
@@ -82,7 +85,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
           <Icon className="tar-field-icon" />
           <input
             ref={localRef}
-            id={name}
+            id={inputId}
             name={name}
             autoComplete={autoComplete}
             required={required}
@@ -104,7 +107,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
           />
-          <label htmlFor={name} className="tar-label">
+          <label htmlFor={inputId} className="tar-label">
             {label}
           </label>
           {(isPassword || type === 'password') && <span className="tar-caps">{capsLockLabel}</span>}
