@@ -9,13 +9,13 @@ import { ChevronLeft } from 'lucide-react'
 //   Standard EULA acceptance — link from your store listing.
 
 export const metadata = {
-  title: 'Terms of Service — TrainingAR',
-  description: 'Rules of using TrainingAR.',
+  title: 'Terms of Service — Formly',
+  description: 'Rules of using Formly.',
 }
 
 const LAST_UPDATED = '2026-05-21'
 const CONTACT = 'test3huioblya@gmail.com'
-const OPERATOR = 'TrainingAR (independent developer)'
+const OPERATOR = 'Formly (independent developer)'
 const JURISDICTION_EN = 'Russian Federation' // ← поменяй на свою юрисдикцию если нужно
 const JURISDICTION_RU = 'Российской Федерации'
 
@@ -71,7 +71,7 @@ function TermsEn({
   return (
     <>
       <p className="text-white/70">
-        By using <strong>TrainingAR</strong> (the &quot;Service&quot;) you agree to these terms. The
+        By using <strong>Formly</strong> (the &quot;Service&quot;) you agree to these terms. The
         Service is provided by {operator} (the &quot;Operator&quot;). If you don&apos;t agree,
         please don&apos;t use it.
       </p>
@@ -197,7 +197,7 @@ function TermsRu({
   return (
     <>
       <p className="text-white/70">
-        Используя <strong>TrainingAR</strong> («Сервис»), ты соглашаешься с этими правилами. Сервис
+        Используя <strong>Formly</strong> («Сервис»), ты соглашаешься с этими правилами. Сервис
         предоставляется {operator} («Оператор»). Не согласен — не пользуйся.
       </p>
 

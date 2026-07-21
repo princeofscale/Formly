@@ -520,7 +520,7 @@ export function FinishWorkoutButton({ sessionId, onQueued }: Props) {
         if (!isOfflineError(err)) throw err
         await enqueueFinish(sessionId)
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('trainingar:set-queued'))
+          window.dispatchEvent(new CustomEvent('formly:set-queued'))
         }
         onQueued?.()
       }

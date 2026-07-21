@@ -283,7 +283,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="row1">
-                <span className="an">TrainingAR</span>
+                <span className="an">Formly</span>
                 <span className="tm">{t('pushNow')}</span>
               </div>
               <div className="bt">{t('pushTitle')}</div>

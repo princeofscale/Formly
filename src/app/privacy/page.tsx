@@ -3,20 +3,20 @@ import { getLocale } from 'next-intl/server'
 import { ChevronLeft } from 'lucide-react'
 
 // NOTE for the developer:
-//   This is a STARTER privacy policy template tailored to TrainingAR's actual
+//   This is a STARTER privacy policy template tailored to Formly's actual
 //   data flow (Supabase auth + DB, Vercel hosting, Mistral AI, Web Push).
 //   It is NOT legal advice. Before shipping to app stores or to users in
 //   regulated regions (EU, UK, California, Russia), have a lawyer review.
 //   You MUST fill in: contact email, your legal name/handle, jurisdiction.
 
 export const metadata = {
-  title: 'Privacy Policy — TrainingAR',
-  description: 'How TrainingAR handles your personal and health data.',
+  title: 'Privacy Policy — Formly',
+  description: 'How Formly handles your personal and health data.',
 }
 
 const LAST_UPDATED = '2026-05-21'
 const CONTACT = 'test3huioblya@gmail.com'
-const OPERATOR = 'TrainingAR (independent developer)' // ← или ФИО
+const OPERATOR = 'Formly (independent developer)' // ← или ФИО
 
 export default async function PrivacyPage() {
   const locale = await getLocale()
@@ -62,8 +62,8 @@ function PrivacyEn({ contact, operator }: { contact: string; operator: string })
   return (
     <>
       <p className="text-white/70">
-        This policy explains what data <strong>TrainingAR</strong> collects, why, where it lives,
-        and what you can do about it. We try to keep it short and honest. The service is operated by{' '}
+        This policy explains what data <strong>Formly</strong> collects, why, where it lives, and
+        what you can do about it. We try to keep it short and honest. The service is operated by{' '}
         {operator} (the &quot;Operator&quot;).
       </p>
 
@@ -141,7 +141,7 @@ function PrivacyEn({ contact, operator }: { contact: string; operator: string })
 
       <h2>5. Health & medical disclaimer</h2>
       <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-        TrainingAR is a <strong>logging tool</strong>, not a doctor. The 1RM estimates, RPE-based
+        Formly is a <strong>logging tool</strong>, not a doctor. The 1RM estimates, RPE-based
         progression suggestions, &quot;strength tier&quot; labels, and AI insights are calculated
         from formulas and your inputs — they are educational, not medical advice. Consult a
         qualified professional before starting any training program, especially if you have
@@ -201,7 +201,7 @@ function PrivacyRu({ contact, operator }: { contact: string; operator: string })
   return (
     <>
       <p className="text-white/70">
-        Эта политика описывает какие данные собирает <strong>TrainingAR</strong>, зачем, где они
+        Эта политика описывает какие данные собирает <strong>Formly</strong>, зачем, где они
         хранятся и что ты можешь с ними сделать. Мы стараемся писать коротко и честно. Сервис
         эксплуатируется {operator} (далее «Оператор»).
       </p>
@@ -280,7 +280,7 @@ function PrivacyRu({ contact, operator }: { contact: string; operator: string })
 
       <h2>5. Медицинский дисклеймер</h2>
       <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-        TrainingAR — это <strong>инструмент учёта</strong>, не врач. Расчётный 1ПМ, RPE-подсказки
+        Formly — это <strong>инструмент учёта</strong>, не врач. Расчётный 1ПМ, RPE-подсказки
         прогрессии, «тиры силы» и AI-инсайты считаются по формулам и твоим данным — это обучающая
         информация, не медицинский совет. Перед началом любой тренировочной программы посоветуйся со
         специалистом, особенно если есть травмы, беременность или проблемы с сердцем. Тренируешься

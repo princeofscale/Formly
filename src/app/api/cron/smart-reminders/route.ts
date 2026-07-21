@@ -233,7 +233,7 @@ export async function GET(request: Request) {
   let expired = 0
   for (const [userId, userSubs] of subsByUser) {
     const payload = {
-      title: 'TrainingAR ⏰',
+      title: 'Formly ⏰',
       body: bodyByUser.get(userId) ?? FALLBACK_BODY,
       url: '/workout/new',
     }

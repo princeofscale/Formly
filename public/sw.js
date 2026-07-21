@@ -119,7 +119,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   if (!event.data) return
 
-  let payload = { title: 'TrainingAR', body: '', url: '/dashboard' }
+  let payload = { title: 'Formly', body: '', url: '/dashboard' }
   try {
     payload = { ...payload, ...event.data.json() }
   } catch {

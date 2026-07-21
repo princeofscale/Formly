@@ -28,7 +28,6 @@ interface FloatingInputProps {
   defaultValue?: string
   error?: string | null
   rightAction?: RightAction
-  capsLock?: boolean
   capsLockLabel?: string
   onValueChange?: (v: string) => void
   /** Treat field as a password (enables caps-lock indicator + right-action slot). Use when `type` toggles between text/password */
@@ -53,6 +52,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     },
     forwardedRef,
   ) {
+    const errorId = `${name}-error`
     const [focused, setFocused] = useState(false)
     const [filled, setFilled] = useState(Boolean(defaultValue))
     const [caps, setCaps] = useState(false)
@@ -82,6 +82,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
           <Icon className="tar-field-icon" />
           <input
             ref={localRef}
+            id={name}
             name={name}
             autoComplete={autoComplete}
             required={required}
@@ -101,8 +102,11 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             onKeyUp={handleKey}
             placeholder=" "
             aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
           />
-          <label className="tar-label">{label}</label>
+          <label htmlFor={name} className="tar-label">
+            {label}
+          </label>
           {(isPassword || type === 'password') && <span className="tar-caps">{capsLockLabel}</span>}
           {rightAction && (
             <button
@@ -116,7 +120,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
           )}
         </div>
         {error && (
-          <div className="tar-fielderr" role="alert">
+          <div id={errorId} className="tar-fielderr" role="alert">
             <AlertIcon style={{ width: 12, height: 12, flexShrink: 0 }} />
             <span>{error}</span>
           </div>

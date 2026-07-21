@@ -22,18 +22,18 @@ interface SessionRow {
 function pickMessage(streak: number): { title: string; body: string } {
   if (streak >= 7) {
     return {
-      title: `TrainingAR 🔥 ${streak}`,
+      title: `Formly 🔥 ${streak}`,
       body: `Серия ${streak} тренировок. Не разрывай — сегодня день тренировки!`,
     }
   }
   if (streak >= 3) {
     return {
-      title: 'TrainingAR 💪',
+      title: 'Formly 💪',
       body: `Стрик ${streak}. Сегодня день тренировки — продолжай серию!`,
     }
   }
   return {
-    title: 'TrainingAR 💪',
+    title: 'Formly 💪',
     body: 'Сегодня день тренировки. Не пропусти!',
   }
 }

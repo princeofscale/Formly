@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { FloatingInput } from '@/components/auth/FloatingInput'
 import { SubmitButton } from '@/components/auth/SubmitButton'
-import { MailIcon, LockIcon, EyeIcon, EyeOffIcon, CheckIcon } from '@/components/auth/icons'
+import { MailIcon, LockIcon, EyeIcon, EyeOffIcon } from '@/components/auth/icons'
 import { loginAction } from './actions'
 
 export default function LoginPage() {
@@ -21,7 +21,6 @@ export default function LoginPage() {
     }
   }, [])
   const [showPw, setShowPw] = useState(false)
-  const [remember, setRemember] = useState(true)
 
   const t = useTranslations('auth.login')
   const tf = useTranslations('auth.fields')
@@ -75,16 +74,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="tar-row">
-        <label
-          className={'tar-check-row ' + (remember ? 'on' : '')}
-          onClick={() => setRemember((r) => !r)}
-        >
-          <span className="tar-check-box">
-            <CheckIcon style={{ width: 11, height: 11, color: '#0A0A0F' }} />
-          </span>
-          <span className="tar-check-text">{t('remember')}</span>
-        </label>
+      <div className="flex justify-end">
         <Link href="/forgot-password" className="tar-link">
           {t('forgotLink')}
         </Link>

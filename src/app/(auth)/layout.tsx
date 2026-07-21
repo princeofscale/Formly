@@ -22,7 +22,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         >
           <div className="tar-wordmark">
             <span className="dot" />
-            TrainingAR
+            Formly
           </div>
 
           <div className="space-y-10">
@@ -53,7 +53,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </div>
 
           <p className="text-xs" style={{ color: 'var(--tar-ink-mute)' }}>
-            © 2026 TrainingAR
+            © 2026 Formly
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <div className="md:hidden flex items-center justify-center pt-2 pb-6">
             <div className="tar-wordmark">
               <span className="dot" />
-              TrainingAR
+              Formly
             </div>
           </div>
 

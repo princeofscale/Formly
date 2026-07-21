@@ -1,14 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@latest/schema.json",
   "ignore": ["src/lib/types/database.types.ts", "src/components/ui/form.tsx"],
-  "ignoreDependencies": [
-    "@hookform/resolvers",
-    "react-hook-form",
-    "@anthropic-ai/sdk",
-    "@testing-library/react",
-    "lint-staged"
-  ],
-  "ignoreBinaries": ["lint-staged"],
+  "ignoreDependencies": ["@hookform/resolvers", "react-hook-form", "@anthropic-ai/sdk"],
   "rules": {
     "binaries": "off",
     "files": "off",

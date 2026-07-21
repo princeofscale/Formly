@@ -72,7 +72,7 @@ export async function GET() {
   })
 
   const csv = '﻿' + [header, ...lines].join('\n') + '\n'
-  const filename = `trainingar-export-${new Date().toISOString().slice(0, 10)}.csv`
+  const filename = `formly-export-${new Date().toISOString().slice(0, 10)}.csv`
 
   return new Response(csv, {
     headers: {
