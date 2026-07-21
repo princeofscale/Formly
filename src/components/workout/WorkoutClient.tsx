@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { BookmarkPlus, Check, ChevronLeft } from 'lucide-react'
+import { BookmarkPlus, Check, CheckCircle, ChevronLeft } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 import { ExercisePicker } from './ExercisePicker'
 import { ExerciseBlock } from './ExerciseBlock'
 import { PRCelebration, type PRCelebrationData } from './PRCelebration'
 import { OfflineSyncWatcher } from './OfflineSyncWatcher'
+import { getQueuedSets, getQueuedFinishes, hasQueuedFinish } from '@/lib/utils/offline-queue'
+import { mergeQueuedSets } from '@/lib/utils/offline-merge'
 import { FinishWorkoutButton } from './FinishWorkoutButton'
 import { WorkoutNotes } from './WorkoutNotes'
 import { MoodSelector } from './MoodSelector'
@@ -43,11 +45,40 @@ export function WorkoutClient({
 }: Props) {
   const t = useTranslations('workout')
   const tTpl = useTranslations('templates')
+  const tOffline = useTranslations('offline')
   const locale = useLocale()
 
   const [exercises, setExercises] = useState<ExerciseWithSets[]>(initialExercises)
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
   const [prCelebration, setPrCelebration] = useState<PRCelebrationData | null>(null)
+  const [finishQueued, setFinishQueued] = useState(false)
+
+  // After an offline reload the cached HTML doesn't include sets still in
+  // IndexedDB — merge them in so the screen tells the truth. Runs once.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const [queuedSets, queuedFinishes] = await Promise.all([
+          getQueuedSets(),
+          getQueuedFinishes(),
+        ])
+        if (cancelled) return
+        if (queuedSets.length > 0) {
+          setExercises((prev) => mergeQueuedSets(prev, allExercises, queuedSets, session.id))
+        }
+        if (hasQueuedFinish(queuedFinishes, session.id)) {
+          setFinishQueued(true)
+        }
+      } catch {
+        // IDB unavailable — offline features silently off
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only sync with IDB
+  }, [])
 
   // Template saving state
   const [showTplInput, setShowTplInput] = useState(false)
@@ -177,9 +208,24 @@ export function WorkoutClient({
               <BookmarkPlus className="h-[18px] w-[18px]" />
             </button>
           )}
-          <FinishWorkoutButton sessionId={session.id} />
+          <FinishWorkoutButton sessionId={session.id} onQueued={() => setFinishQueued(true)} />
         </div>
       </header>
+
+      {finishQueued && (
+        <div
+          className="mx-auto mt-3 flex max-w-md items-center gap-2 rounded-xl px-4 py-3"
+          style={{
+            background: 'rgba(43, 216, 132, 0.10)',
+            border: '1px solid rgba(43, 216, 132, 0.32)',
+            color: 'var(--tar-success)',
+            font: '600 13px/1.4 var(--tar-text)',
+          }}
+        >
+          <CheckCircle className="h-4 w-4 shrink-0" />
+          {tOffline('finishQueued')}
+        </div>
+      )}
 
       <WorkoutLiveStats
         totalSets={totalSets}

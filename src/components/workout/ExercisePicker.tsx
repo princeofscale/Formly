@@ -5,6 +5,7 @@
 // fallback (server action) kicks in only when local search finds nothing.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, CloudOff, Plus, Search, Sparkles, X } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,7 @@ import {
   filterExercises,
   matchesChip,
   MUSCLE_CHIPS,
+  normalizeQuery,
   type MuscleChip,
 } from '@/lib/utils/exercise-filter'
 import type { Exercise } from '@/lib/types/models'
@@ -49,6 +51,7 @@ export function ExercisePicker({
   const locale = useLocale()
 
   const [open, setOpen] = useState(false)
+  const [catalog, setCatalog] = useState(allExercises)
   const [query, setQuery] = useState('')
   const [chip, setChip] = useState<MuscleChip>('all')
   const [aiItems, setAiItems] = useState<ExerciseSuggestion[]>([])
@@ -64,19 +67,19 @@ export function ExercisePicker({
 
   const sortedAll = useMemo(
     () =>
-      [...allExercises].sort((a, b) =>
+      [...catalog].sort((a, b) =>
         (locale === 'ru' ? (a.name_ru ?? a.name) : a.name).localeCompare(
           locale === 'ru' ? (b.name_ru ?? b.name) : b.name,
           locale,
         ),
       ),
-    [allExercises, locale],
+    [catalog, locale],
   )
 
   const searching = query.trim().length >= 2
   const results = useMemo(
-    () => (searching ? filterExercises(allExercises, query, chip) : []),
-    [allExercises, query, chip, searching],
+    () => (searching ? filterExercises(catalog, query, chip) : []),
+    [catalog, query, chip, searching],
   )
   const browseAll = useMemo(
     () => (searching ? [] : sortedAll.filter((ex) => matchesChip(ex, chip))),
@@ -110,17 +113,42 @@ export function ExercisePicker({
   useEffect(() => {
     if (!open || !searching || results.length > 0) return
     if (typeof navigator !== 'undefined' && !navigator.onLine) return
-    if (aiAskedFor.current === query) return
+    const requestKey = `${chip}:${normalizeQuery(query)}`
+    if (aiAskedFor.current === requestKey) return
+    let cancelled = false
     const timer = setTimeout(() => {
-      aiAskedFor.current = query
+      aiAskedFor.current = requestKey
       setAiLoading(true)
       void suggestExercisesAction(query)
-        .then((items) => setAiItems(items))
-        .catch(() => setAiItems([]))
-        .finally(() => setAiLoading(false))
+        .then((items) => {
+          if (!cancelled) {
+            setAiItems(items.filter(({ exercise }) => matchesChip(exercise, chip)))
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setAiItems([])
+        })
+        .finally(() => {
+          if (!cancelled) setAiLoading(false)
+        })
     }, 800)
-    return () => clearTimeout(timer)
-  }, [open, searching, results.length, query])
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [open, searching, results.length, query, chip])
+
+  function changeQuery(value: string) {
+    setQuery(value)
+    setAiItems([])
+    setAiLoading(false)
+  }
+
+  function changeChip(value: MuscleChip) {
+    setChip(value)
+    setAiItems([])
+    setAiLoading(false)
+  }
 
   function close() {
     setOpen(false)
@@ -187,14 +215,14 @@ export function ExercisePicker({
     return (
       <button type="button" className="tar-cta w-full" onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" />
-        {t('addExercise')}
+        {t('pickerExercise')}
       </button>
     )
   }
 
   const offline = typeof navigator !== 'undefined' && !navigator.onLine
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex flex-col"
       style={{ background: 'var(--tar-bg, #0a0a0f)' }}
@@ -215,7 +243,7 @@ export function ExercisePicker({
             placeholder={t('searchPlaceholder')}
             className="pl-9 bg-white/5 border-zinc-700"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => changeQuery(e.target.value)}
           />
         </div>
       </div>
@@ -225,7 +253,7 @@ export function ExercisePicker({
           <button
             key={c}
             type="button"
-            onClick={() => setChip(c)}
+            onClick={() => changeChip(c)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 border ${
               chip === c
                 ? 'border-transparent text-black'
@@ -309,9 +337,15 @@ export function ExercisePicker({
           prefilledName={formOpenFor}
           defaultOpen
           onDismiss={() => setFormOpenFor(null)}
-          onCreated={(exercise) => select(exercise)}
+          onCreated={(exercise) => {
+            setCatalog((current) =>
+              current.some((item) => item.id === exercise.id) ? current : [...current, exercise],
+            )
+            select(exercise)
+          }}
         />
       )}
-    </div>
+    </div>,
+    document.body,
   )
 }

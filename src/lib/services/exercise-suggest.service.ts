@@ -11,6 +11,8 @@ export interface SuggestPick {
 
 export type CatalogEntry = Pick<Exercise, 'name' | 'name_ru' | 'primary_muscle' | 'equipment'>
 
+const REQUEST_TIMEOUT_MS = 10_000
+
 function contentToText(content: unknown): string {
   if (typeof content === 'string') return content
   if (Array.isArray(content)) {
@@ -66,9 +68,10 @@ export async function suggestFromCatalog(ctx: {
   query: string
   catalog: CatalogEntry[]
 }): Promise<SuggestPick[]> {
+  if (ctx.catalog.length === 0) return []
+
   const apiKey = process.env.MISTRAL_API_KEY
   if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-  if (ctx.catalog.length === 0) return []
 
   const client = new Mistral({ apiKey })
 
@@ -80,20 +83,30 @@ Pick up to 3 entries the user most likely meant. If nothing plausibly matches,
 return an empty list. Reasons: ${ctx.locale === 'ru' ? 'Russian' : 'English'}, max 10 words.
 Return ONLY valid JSON: {"items":[{"index":<number>,"reason":"<why this matches>"}]}`
 
-  const response = await client.chat.complete({
-    model: 'mistral-large-latest',
-    temperature: 0.2,
-    maxTokens: 300,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      {
-        role: 'user',
-        content: `query: ${ctx.query}\n\ncatalog:\n${serializeCatalog(ctx.catalog)}`,
-      },
-    ],
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
-  const raw = contentToText(response.choices[0]?.message?.content) || '{}'
-  return parseSuggestions(raw, ctx.catalog.length)
+  try {
+    const response = await client.chat.complete(
+      {
+        model: 'mistral-large-latest',
+        temperature: 0.2,
+        maxTokens: 300,
+        responseFormat: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: `query: ${ctx.query}\n\ncatalog:\n${serializeCatalog(ctx.catalog)}`,
+          },
+        ],
+      },
+      { fetchOptions: { signal: controller.signal } },
+    )
+
+    const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+    return parseSuggestions(raw, ctx.catalog.length)
+  } finally {
+    clearTimeout(timeout)
+  }
 }

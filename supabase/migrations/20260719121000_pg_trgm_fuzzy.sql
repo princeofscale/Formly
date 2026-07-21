@@ -15,7 +15,7 @@ stable
 as $$
   select *
   from exercises
-  where greatest(similarity(name, q), similarity(coalesce(name_ru, ''), q)) > 0.3
-  order by greatest(similarity(name, q), similarity(coalesce(name_ru, ''), q)) desc
+  where name % q or name_ru % q
+  order by greatest(similarity(name, q), similarity(name_ru, q)) desc
   limit 5;
 $$;

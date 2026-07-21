@@ -53,6 +53,23 @@ describe('matchesChip', () => {
     expect(matchesChip(hack, 'legs')).toBe(true)
     expect(matchesChip(bench, 'back')).toBe(false)
   })
+
+  it.each([
+    ['back', 'lats'],
+    ['back', 'traps'],
+    ['shoulders', 'rear_delts'],
+    ['shoulders', 'side_delts'],
+    ['legs', 'hamstrings'],
+    ['legs', 'glutes'],
+    ['legs', 'calves'],
+    ['other', 'forearms'],
+    ['other', 'cardio'],
+    ['biceps', 'biceps'],
+    ['triceps', 'triceps'],
+    ['core', 'core'],
+  ] as const)('maps the %s chip to %s', (chip, muscle) => {
+    expect(matchesChip(ex({ primary_muscle: muscle }), chip)).toBe(true)
+  })
 })
 
 describe('filterExercises', () => {
