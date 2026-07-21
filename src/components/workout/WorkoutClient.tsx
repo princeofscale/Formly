@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { BookmarkPlus, Check, CheckCircle, ChevronLeft } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
-import { ExerciseSearch } from './ExerciseSearch'
+import { ExercisePicker } from './ExercisePicker'
 import { ExerciseBlock } from './ExerciseBlock'
 import { PRCelebration, type PRCelebrationData } from './PRCelebration'
 import { OfflineSyncWatcher } from './OfflineSyncWatcher'
@@ -277,9 +277,14 @@ export function WorkoutClient({
         </div>
       )}
 
-      {/* sticky search */}
+      {/* sticky add-exercise entry point (opens the full-screen picker) */}
       <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-background/95 backdrop-blur border-b border-white/10">
-        <ExerciseSearch onSelect={addExercise} />
+        <ExercisePicker
+          allExercises={allExercises}
+          recentExercises={suggestedExercises}
+          sessionExerciseIds={exercises.map((e) => e.id)}
+          onSelect={addExercise}
+        />
       </div>
 
       {exercises.length === 0 && (

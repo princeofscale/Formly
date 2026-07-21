@@ -1,6 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Exercise, MuscleGroup, Equipment } from '@/lib/types/models'
 
+// List/search payload columns. instructions_* are long free text on the
+// imported base (~800 rows) and never shown in lists — keeping them out of
+// hot paths saves ~1 MB on the workout page payload.
+export const EXERCISE_LIST_COLUMNS =
+  'id, name, slug, primary_muscle, secondary_muscles, mechanic, equipment, is_custom, created_by, name_ru, aliases, image_urls'
+
 export async function getExercises(
   supabase: SupabaseClient,
   userId: string,
@@ -8,7 +14,7 @@ export async function getExercises(
 ): Promise<Exercise[]> {
   let query = supabase
     .from('exercises')
-    .select('*')
+    .select(EXERCISE_LIST_COLUMNS)
     .or(`is_custom.eq.false,created_by.eq.${userId}`)
     .order('name')
 
@@ -16,47 +22,6 @@ export async function getExercises(
   if (filters?.equipment) query = query.eq('equipment', filters.equipment)
 
   const { data } = await query
-  return (data as Exercise[]) ?? []
-}
-
-function normalizeYo(s: string): string {
-  return s.replace(/[ёЁ]/g, (m) => (m === 'ё' ? 'е' : 'Е'))
-}
-
-// PostgREST .or() parses commas as OR separators and parentheses as grouping;
-// % and \ are special inside ilike; curly braces delimit array literals used
-// by the aliases containment filter. Strip these so a malicious search term
-// can't escape its filter and inject extra conditions.
-export function sanitizeFilterTerm(s: string): string {
-  return s
-    .replace(/[,()*\\%{}]/g, ' ')
-    .slice(0, 64)
-    .trim()
-}
-
-export async function searchExercises(
-  supabase: SupabaseClient,
-  userId: string,
-  query: string,
-  // `locale` is accepted for back-compat but no longer gates search scope.
-  // We always search both name and name_ru — a user in EN locale typing a
-  // Russian gym term ("молотки") still gets the matching exercise.
-  _locale: string = 'en',
-): Promise<Exercise[]> {
-  void _locale
-  const q = sanitizeFilterTerm(normalizeYo(query))
-  if (!q) return []
-  const filter = `is_custom.eq.false,created_by.eq.${userId}`
-  // Search name + name_ru via ILIKE substring, plus aliases via exact array
-  // containment (so "бенч" hits an exercise with aliases=['бенч','bench press']).
-  // Curly braces inside .or() value need to be inline-escaped for PostgREST.
-  const { data } = await supabase
-    .from('exercises')
-    .select('*')
-    .or(`name.ilike.%${q}%,name_ru.ilike.%${q}%,aliases.cs.{${q.toLowerCase()}}`)
-    .or(filter)
-    .order('name')
-    .limit(20)
   return (data as Exercise[]) ?? []
 }
 
