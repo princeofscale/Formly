@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - PWA installation, Vercel Web Analytics, Vercel Speed Insights, and client-side error reporting.
 - Formly banner, application logo, favicon, Apple touch icon, project guide for AI agents, and release documentation.
 - GitHub CI, CodeQL, gitleaks, Renovate, pre-commit hooks, linting, formatting, type checks, dead-code checks, tests, and production builds.
-- Tag-driven production deployments for semantic-version tags.
+- Tag-driven remote Vercel production deployments for semantic-version tags.
 - A stable Formly-branded Vercel production alias.
 
 ### Changed
