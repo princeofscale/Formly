@@ -17,7 +17,6 @@ import {
   X,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import type { ProgressPhotoWithUrl } from '@/lib/db/progress-photos'
 import {
   deleteProgressPhotoAction,
@@ -121,6 +120,7 @@ export function PhotoGallery({ photos }: Props) {
     setUploadError(null)
     setProgress('uploading')
     try {
+      const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       const {
         data: { user },
