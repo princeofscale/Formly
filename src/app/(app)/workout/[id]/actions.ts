@@ -7,7 +7,7 @@ import { verifySession } from '@/lib/dal'
 import {
   addSet,
   getSetsForSession,
-  getBestE1RMForExercise,
+  getBestWeightForExercise,
   updateSet,
   deleteSet,
 } from '@/lib/db/sets'
@@ -25,7 +25,6 @@ import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { calculateWarmupSets } from '@/lib/services/warmup.service'
-import { checkGoalAchievement } from '@/lib/db/goals'
 import {
   validateReps,
   validateRpe,
@@ -67,20 +66,17 @@ export async function saveSetAction(data: {
     calculated1rm,
   })
 
+  // Records are tracked by the heaviest weight actually lifted, not by
+  // an estimated 1RM — estimates mislead, real kilograms don't.
   const prResult =
-    calculated1rm != null
+    weightKg > 0
       ? detectPRFromHistory(
-          calculated1rm,
-          await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id),
+          weightKg,
+          await getBestWeightForExercise(supabase, user.id, exerciseId, set.id),
         )
-      : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
+      : { is_pr: false, previous_best: null, current_best: 0, improvement_pct: null }
 
-  if (calculated1rm != null) {
-    // Fire-and-forget goal-achievement update — never block the set save on it.
-    void checkGoalAchievement(supabase, user.id, exerciseId, calculated1rm)
-  }
-
-  if (prResult.is_pr && calculated1rm != null) {
+  if (prResult.is_pr) {
     const { data: ex } = await supabase
       .from('exercises')
       .select('name, name_ru')
@@ -92,7 +88,6 @@ export async function saveSetAction(data: {
       exerciseName,
       weightKg,
       reps,
-      e1rm: calculated1rm,
       improvementPct: prResult.improvement_pct,
     })
   }

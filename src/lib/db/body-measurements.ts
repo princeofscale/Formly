@@ -19,6 +19,7 @@ export interface BodyMeasurement {
   user_id: string
   date: string
   weight_kg: number | null
+  height_cm: number | null
   body_fat_pct: number | null
   waist_cm: number | null
   chest_cm: number | null
@@ -54,6 +55,27 @@ export async function upsertMeasurement(
     .single()
   if (error) throw new Error(error.message)
   return data as BodyMeasurement
+}
+
+/**
+ * Merge-upsert of weight/height only for one day. Unlike upsertMeasurement
+ * (which replaces the whole row), this leaves tape measurements untouched, so
+ * quick weight edits on /progress don't wipe that day's measurement log.
+ */
+export async function upsertBodyMetrics(
+  supabase: SupabaseClient,
+  userId: string,
+  date: string,
+  weightKg: number,
+  heightCm: number,
+): Promise<void> {
+  const { error } = await supabase
+    .from('body_measurements')
+    .upsert(
+      { user_id: userId, date, weight_kg: weightKg, height_cm: heightCm },
+      { onConflict: 'user_id,date' },
+    )
+  if (error) throw new Error(error.message)
 }
 
 export async function getMeasurementForDate(

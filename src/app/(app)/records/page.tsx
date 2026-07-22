@@ -10,7 +10,8 @@ type Tab = 'all' | 'recent' | 'muscle'
 
 interface RecordRow {
   exercise_id: string
-  calculated_1rm: number
+  weight_kg: number
+  reps: number
   created_at: string
   exercises: {
     id: string
@@ -55,13 +56,16 @@ export default async function RecordsPage({
 
   const { data: rows } = await supabase
     .from('set_entries')
-    .select('exercise_id, calculated_1rm, created_at, exercises(id, name, name_ru, primary_muscle)')
+    .select(
+      'exercise_id, weight_kg, reps, created_at, exercises(id, name, name_ru, primary_muscle)',
+    )
     .eq('user_id', user.id)
-    .not('calculated_1rm', 'is', null)
+    .eq('is_warmup', false)
+    .gt('weight_kg', 0)
     .order('exercise_id')
-    .order('calculated_1rm', { ascending: false })
+    .order('weight_kg', { ascending: false })
 
-  // First row per exercise is the best (data is sorted desc by 1RM)
+  // First row per exercise is the best (data is sorted desc by weight)
   const seen = new Set<string>()
   const allRecords: RecordRow[] = []
   for (const row of (rows ?? []) as unknown as RecordRow[]) {
@@ -85,7 +89,7 @@ export default async function RecordsPage({
   const thisWeekCount = recentRecords.filter((r) => new Date(r.created_at) >= sevenDaysAgo).length
 
   // For "All lifts" 2-col card grid — sorted by 1RM desc, take top 12
-  const topLifts = [...allRecords].sort((a, b) => b.calculated_1rm - a.calculated_1rm).slice(0, 12)
+  const topLifts = [...allRecords].sort((a, b) => b.weight_kg - a.weight_kg).slice(0, 12)
 
   // For "By muscle" grouping
   const byBucket: Record<string, RecordRow[]> = {}
@@ -97,7 +101,7 @@ export default async function RecordsPage({
     byBucket[b].push(r)
   }
   for (const k of Object.keys(byBucket)) {
-    byBucket[k].sort((a, b) => b.calculated_1rm - a.calculated_1rm)
+    byBucket[k].sort((a, b) => b.weight_kg - a.weight_kg)
   }
 
   const displayName = (r: RecordRow) =>
@@ -145,8 +149,8 @@ export default async function RecordsPage({
               <>
                 <span className="last-name">{displayName(latestPr)}</span>
                 <span className="last-date">
-                  {formatDateFull(latestPr.created_at)} · {Math.round(latestPr.calculated_1rm)}{' '}
-                  {locale === 'ru' ? 'кг' : 'kg'}
+                  {formatDateFull(latestPr.created_at)} · {Math.round(latestPr.weight_kg)}{' '}
+                  {locale === 'ru' ? 'кг' : 'kg'} × {latestPr.reps}
                 </span>
               </>
             ) : (
@@ -215,8 +219,10 @@ export default async function RecordsPage({
                   <span className="tar-rec-card-name">{displayName(r)}</span>
                 </div>
                 <div>
-                  <span className="tar-rec-num">{Math.round(r.calculated_1rm)}</span>
-                  <span className="tar-rec-unit">{locale === 'ru' ? 'кг' : 'kg'}</span>
+                  <span className="tar-rec-num">{Math.round(r.weight_kg)}</span>
+                  <span className="tar-rec-unit">
+                    {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                  </span>
                 </div>
                 <div className="tar-rec-meta">{formatDateShort(r.created_at)}</div>
               </Link>
@@ -248,8 +254,10 @@ export default async function RecordsPage({
                   <div className="d">{formatDateFull(r.created_at)}</div>
                 </div>
                 <div className="end">
-                  <span className="tar-rec-row-wt">{Math.round(r.calculated_1rm)}</span>
-                  <span className="tar-rec-row-unit">{locale === 'ru' ? 'кг' : 'kg'}</span>
+                  <span className="tar-rec-row-wt">{Math.round(r.weight_kg)}</span>
+                  <span className="tar-rec-row-unit">
+                    {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                  </span>
                 </div>
               </Link>
             )
@@ -295,8 +303,10 @@ export default async function RecordsPage({
                       <div className="d">{formatDateShort(r.created_at)}</div>
                     </div>
                     <div className="end">
-                      <span className="tar-rec-row-wt">{Math.round(r.calculated_1rm)}</span>
-                      <span className="tar-rec-row-unit">{locale === 'ru' ? 'кг' : 'kg'}</span>
+                      <span className="tar-rec-row-wt">{Math.round(r.weight_kg)}</span>
+                      <span className="tar-rec-row-unit">
+                        {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                      </span>
                     </div>
                   </Link>
                 ))}

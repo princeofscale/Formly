@@ -2700,17 +2700,20 @@
   height: 10px;
 }
 
-/* Quick links grid — 3 glass cards */
+/* Quick links grid — 4 glass cards (2×2 on phones).
+   Content-driven height + explicit gap: a fixed aspect-ratio used to squeeze
+   the icon onto the label on narrow screens. */
 .tar-d-quick {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 .tar-d-quick .glass {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  aspect-ratio: 1.05;
+  gap: 12px;
+  min-height: 96px;
   padding: 14px 12px;
   background: var(--tar-card);
   border: 1px solid var(--tar-line);
@@ -2724,10 +2727,8 @@
   color: var(--tar-ink);
 }
 @media (min-width: 600px) {
-  .tar-d-quick .glass {
-    aspect-ratio: auto;
-    min-height: 100px;
-    max-height: 130px;
+  .tar-d-quick {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 .tar-d-quick .glass:hover {
@@ -7109,5 +7110,29 @@
   .tar-rm-bar i {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* ─── Touch devices: cheap chrome ────────────────────────────
+   backdrop-filter on fixed/sticky strips re-blurs the pixels under
+   them on every scrolled frame — the main scroll cost on phones,
+   where the app actually lives. Touch gets a near-opaque surface
+   instead; desktop (hover: hover) keeps the glass look. */
+@media (hover: none) {
+  .tar-nav,
+  .tar-lib-group-hd {
+    background: rgba(10, 10, 15, 0.97);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .tar-w-header {
+    background: rgba(10, 10, 15, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .tar-w-sheet-backdrop {
+    background: rgba(10, 10, 15, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

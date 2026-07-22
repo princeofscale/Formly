@@ -6,7 +6,8 @@ import { weightUnit } from '@/lib/units'
 
 export interface PRCelebrationData {
   exerciseName: string
-  newE1rm: number
+  /** The record weight actually lifted. */
+  weightKg: number
   improvementPct: number | null
   /** Refresh key — bump on every new PR to retrigger the overlay. */
   nonce: number
@@ -60,8 +61,7 @@ export function PRCelebration({ pr, onDone }: Props) {
 
   if (!pr) return null
 
-  const isFirst = pr.improvementPct == null
-  const deltaText = isFirst ? t('firstTime') : `+${pr.improvementPct!.toFixed(1)}%`
+  const deltaText = pr.improvementPct == null ? '' : `+${pr.improvementPct.toFixed(1)}%`
 
   return (
     <div
@@ -88,10 +88,10 @@ export function PRCelebration({ pr, onDone }: Props) {
         </div>
         <div className="tar-w-pr-tag">{t('label')}</div>
         <div className="tar-w-pr-weight">
-          {pr.newE1rm.toFixed(1)}
+          {Number.isInteger(pr.weightKg) ? pr.weightKg : pr.weightKg.toFixed(1)}
           <span style={{ fontSize: 28, marginLeft: 6, opacity: 0.85 }}>{kg}</span>
         </div>
-        <div className="tar-w-pr-delta">{deltaText}</div>
+        {deltaText && <div className="tar-w-pr-delta">{deltaText}</div>}
         <div className="tar-w-pr-ex">{pr.exerciseName}</div>
       </div>
     </div>

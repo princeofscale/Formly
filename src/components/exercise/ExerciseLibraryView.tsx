@@ -27,7 +27,7 @@ interface Item {
   mechanicLabel: string
   count: number
   lastAt: string | null
-  bestE1rm: number
+  bestWeight: number
   bestSet: { weight: number; reps: number } | null
 }
 
@@ -265,7 +265,9 @@ export function ExerciseLibraryView({ items, bucketLabels }: Props) {
                       </div>
                     </div>
                     <span className="exwhen">
-                      {it.bestE1rm > 0 ? `${Math.round(it.bestE1rm)} ${kg} ${t('prShort')}` : ''}
+                      {it.bestWeight > 0
+                        ? `${Math.round(it.bestWeight)} ${kg} ${t('prShort')}`
+                        : ''}
                     </span>
                   </Link>
                 )

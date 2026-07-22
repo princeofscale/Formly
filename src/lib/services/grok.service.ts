@@ -17,9 +17,8 @@ export interface GrokContext {
   weekly_volumes: MuscleVolume[]
   volume_landmarks: VolumeLandmark[]
   recent_sessions: { date: string; volume_kg: number }[]
-  top_prs: { exercise: string; e1rm: number }[]
+  top_prs: { exercise: string; best_weight_kg: number }[]
   progression_opportunities: ProgressionSuggestion[]
-  sleep?: { last7_avg_hours: number | null; nights_logged: number }
 }
 
 function contentToText(content: unknown): string {
@@ -100,7 +99,6 @@ Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanati
     recent_sessions: ctx.recent_sessions,
     top_prs: ctx.top_prs,
     progression_opportunities: ctx.progression_opportunities,
-    sleep: ctx.sleep ?? null,
   })
 
   const response = await client.chat.complete({

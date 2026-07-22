@@ -108,9 +108,9 @@ function TermsEn({
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
         <p>
           <strong>The Service is informational, not medical.</strong> The 1RM estimates, RPE-based
-          progression suggestions, strength tiers, achievement badges, plate calculator output,
-          rest-timer durations, and AI insights are <strong>guidance, not prescriptions</strong>.
-          They are based on common formulas and your own inputs.
+          progression suggestions, strength tiers, plate calculator output, rest-timer durations,
+          and AI insights are <strong>guidance, not prescriptions</strong>. They are based on common
+          formulas and your own inputs.
         </p>
         <p>
           Lifting weights carries inherent risk of injury. <strong>You assume that risk.</strong>{' '}
@@ -232,7 +232,7 @@ function TermsRu({
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
         <p>
           <strong>Сервис — информационный, не медицинский.</strong> Расчётный 1ПМ, RPE-подсказки
-          прогрессии, тиры силы, ачивки, калькулятор блинов, таймер отдыха и AI-инсайты — это{' '}
+          прогрессии, тиры силы, калькулятор блинов, таймер отдыха и AI-инсайты — это{' '}
           <strong>ориентир, не рецепт</strong>. Они основаны на общих формулах и твоих данных.
         </p>
         <p>

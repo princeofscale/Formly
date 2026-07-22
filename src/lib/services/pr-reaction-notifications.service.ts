@@ -23,7 +23,7 @@ export async function notifyReactionRecipient(
     const subs = (subsData ?? []) as PushSubscriptionRow[]
     if (subs.length === 0) return
 
-    const who = input.reactorCode ?? 'Кент'
+    const who = input.reactorCode ?? 'Друг'
     const what = input.exerciseName ? ` на ${input.exerciseName}` : ''
     const payload = {
       title: '🔥 Тебя поздравили',

@@ -140,7 +140,7 @@ export function StrengthRatiosCard({ ratios, bodyweightKg }: Props) {
                   </div>
                 </div>
                 <span className="text-[11px] font-mono tabular-nums text-white/60 shrink-0">
-                  {r.bestE1rm.toFixed(0)} {kg} ·{' '}
+                  {r.bestWeightKg.toFixed(0)} {kg} ·{' '}
                   <span style={{ color: tier.color }}>{r.ratio.toFixed(2)}×</span>
                 </span>
               </div>

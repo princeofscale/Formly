@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
+import { upsertBodyMetrics } from '@/lib/db/body-measurements'
 
 export async function saveBodyMetricsAction(weightKg: number, heightCm: number): Promise<void> {
   const { user } = await verifySession()
@@ -19,6 +20,10 @@ export async function saveBodyMetricsAction(weightKg: number, heightCm: number):
     .eq('id', user.id)
 
   if (error) throw new Error(error.message)
+
+  // Also log today's values so /progress can chart weight/height history.
+  const today = new Date().toISOString().slice(0, 10)
+  await upsertBodyMetrics(supabase, user.id, today, weightKg, heightCm)
 
   revalidatePath('/progress')
   revalidatePath('/profile')

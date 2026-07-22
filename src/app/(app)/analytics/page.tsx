@@ -3,13 +3,13 @@ import { verifySession } from '@/lib/dal'
 import { ProgressChart } from '@/components/analytics/ProgressChart'
 import { TonnageChart } from '@/components/analytics/TonnageChart'
 import { VolumeLandmarks } from '@/components/analytics/VolumeLandmarks'
-import { ExerciseSelector } from '@/components/analytics/ExerciseSelector'
+import { ExerciseSearchSelect } from '@/components/exercise/ExerciseSearchSelect'
 import {
   getMonthlyTonnage,
   getWeeklyMuscleVolume,
   getVolumeLandmarks,
 } from '@/lib/services/analytics.service'
-import { getE1RMHistory } from '@/lib/db/sets'
+import { getBestWeightHistory, getPerformedExerciseIds } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
 import { weightUnit } from '@/lib/units'
 import { getTranslations, getLocale } from 'next-intl/server'
@@ -23,31 +23,46 @@ export default async function AnalyticsPage({
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('analytics')
+  const tMuscles = await getTranslations('history.muscleLabel')
   const locale = await getLocale()
 
-  const [exercises, tonnage, muscleVolumes] = await Promise.all([
+  const [exercises, performedIds, tonnage, muscleVolumes] = await Promise.all([
     getExercises(supabase, user.id),
+    getPerformedExerciseIds(supabase, user.id),
     getMonthlyTonnage(supabase, user.id),
     getWeeklyMuscleVolume(supabase, user.id, 4),
   ])
 
   const landmarks = getVolumeLandmarks(muscleVolumes)
 
-  const selectedExercise = exerciseId ? exercises.find((e) => e.id === exerciseId) : exercises[0]
-  const e1rmHistory = selectedExercise
-    ? await getE1RMHistory(supabase, user.id, selectedExercise.id)
+  const displayName = (ex: { name: string; name_ru?: string | null } | undefined | null) =>
+    ex ? (locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name) : ''
+
+  // Only exercises the user has actually done, most recent first.
+  const byId = new Map(exercises.map((e) => [e.id, e]))
+  const performedExercises = performedIds
+    .map((id) => byId.get(id))
+    .filter((e): e is NonNullable<typeof e> => Boolean(e))
+
+  const selectedExercise = exerciseId ? byId.get(exerciseId) : performedExercises[0]
+  const weightHistory = selectedExercise
+    ? await getBestWeightHistory(supabase, user.id, selectedExercise.id)
     : []
 
-  const displayName = (ex: typeof selectedExercise) =>
-    locale === 'ru' ? (ex?.name_ru ?? ex?.name ?? '') : (ex?.name ?? '')
   const unit = weightUnit(locale)
   const numberLocale = locale === 'ru' ? 'ru-RU' : 'en-US'
-  const firstE1rm = e1rmHistory[0]?.e1rm
-  const lastE1rm = e1rmHistory.at(-1)?.e1rm
+  const firstBest = weightHistory[0]?.best
+  const lastBest = weightHistory.at(-1)?.best
   const strengthDelta =
-    firstE1rm && lastE1rm ? Math.round(((lastE1rm - firstE1rm) / firstE1rm) * 100) : null
+    firstBest && lastBest ? Math.round(((lastBest - firstBest) / firstBest) * 100) : null
   const totalTonnage = tonnage.reduce((sum, month) => sum + month.total_kg, 0)
   const balancedMuscles = landmarks.filter((landmark) => landmark.status === 'optimal').length
+
+  // Translated muscle names for the landmarks list (quads → Квадрицепс etc.)
+  const muscleLabels: Record<string, string> = {}
+  for (const landmark of landmarks) {
+    muscleLabels[landmark.muscle] = tMuscles(landmark.muscle)
+  }
 
   const pulse = [
     {
@@ -90,11 +105,17 @@ export default async function AnalyticsPage({
 
       <section className="tar-pg-card tar-d-rise tar-d-rise-3">
         <div className="flex items-center justify-between gap-3" style={{ marginBottom: 12 }}>
-          <div className="tar-d-eyebrow">{t('e1rmProgress')}</div>
-          <ExerciseSelector exercises={exercises} selected={selectedExercise?.id} locale={locale} />
+          <div className="tar-d-eyebrow">{t('weightProgress')}</div>
+          <ExerciseSearchSelect
+            options={performedExercises.map((e) => ({ id: e.id, label: displayName(e) }))}
+            selectedId={selectedExercise?.id}
+            basePath="/analytics"
+            variant="pill"
+            labels={{ placeholder: t('searchExercise'), empty: t('searchEmpty') }}
+          />
         </div>
         <ProgressChart
-          data={e1rmHistory}
+          data={weightHistory}
           exerciseName={displayName(selectedExercise)}
           unit={unit}
           emptyLabel={t('emptyProgress')}
@@ -117,6 +138,7 @@ export default async function AnalyticsPage({
           labels={{
             empty: t('emptyLandmarks'),
             setsPerWeek: t('setsPerWeek'),
+            muscles: muscleLabels,
             status: {
               mv: t('status.low'),
               optimal: t('status.optimal'),

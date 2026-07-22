@@ -1,16 +1,15 @@
 // POST endpoint used by OfflineSyncWatcher to flush a queued set after the
 // device comes back online. Mirrors saveSetAction's logic (auth, addSet, PR
-// detection, goal check, friend-PR push) so offline-logged sets land in the
-// DB identically to online ones.
+// detection, friend-PR push) so offline-logged sets land in the DB
+// identically to online ones.
 
 import { NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
-import { addSet, getBestE1RMForExercise } from '@/lib/db/sets'
+import { addSet, getBestWeightForExercise } from '@/lib/db/sets'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
-import { checkGoalAchievement } from '@/lib/db/goals'
 import {
   ValidationError,
   validateReps,
@@ -75,19 +74,16 @@ export async function POST(request: Request) {
     calculated1rm,
   })
 
+  // Records go by the heaviest weight actually lifted (same rule as saveSetAction).
   const prResult =
-    calculated1rm != null
+    weightKg > 0
       ? detectPRFromHistory(
-          calculated1rm,
-          await getBestE1RMForExercise(supabase, user.id, exerciseId, set.id),
+          weightKg,
+          await getBestWeightForExercise(supabase, user.id, exerciseId, set.id),
         )
-      : { is_pr: false, previous_1rm: null, current_1rm: 0, improvement_pct: null }
+      : { is_pr: false, previous_best: null, current_best: 0, improvement_pct: null }
 
-  if (calculated1rm != null) {
-    void checkGoalAchievement(supabase, user.id, exerciseId, calculated1rm)
-  }
-
-  if (prResult.is_pr && calculated1rm != null) {
+  if (prResult.is_pr) {
     const { data: ex } = await supabase
       .from('exercises')
       .select('name, name_ru')
@@ -99,7 +95,6 @@ export async function POST(request: Request) {
       exerciseName,
       weightKg,
       reps,
-      e1rm: calculated1rm,
       improvementPct: prResult.improvement_pct,
     })
   }

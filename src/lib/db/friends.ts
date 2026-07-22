@@ -8,7 +8,7 @@ export interface FriendWithStats {
   week_sessions: number
   week_tonnage_kg: number
   last_workout_at: string | null
-  best_e1rm: number | null
+  best_weight_kg: number | null
   is_in_gym: boolean
 }
 

@@ -11,17 +11,15 @@ export interface PRPushInput {
   exerciseName: string
   weightKg: number
   reps: number
-  e1rm: number
   improvementPct: number | null
 }
 
 export function buildPRPushBody(input: PRPushInput): string {
   const weight = formatNumber(input.weightKg)
-  const e1rm = formatNumber(input.e1rm)
   if (input.improvementPct === null) {
-    return `${input.exerciseName} — первый рекорд: ${weight}кг × ${input.reps}, e1ПМ ${e1rm}кг`
+    return `${input.exerciseName} — новый рекорд: ${weight}кг × ${input.reps}`
   }
-  return `${input.exerciseName} — ${weight}кг × ${input.reps}, e1ПМ ${e1rm}кг (+${input.improvementPct.toFixed(1)}%)`
+  return `${input.exerciseName} — ${weight}кг × ${input.reps} (+${input.improvementPct.toFixed(1)}%)`
 }
 
 function formatNumber(n: number): string {
@@ -44,7 +42,7 @@ export async function notifyFriendsOfPR(
     if (subs.length === 0) return
 
     const payload = {
-      title: '🏆 Кент побил рекорд!',
+      title: '🏆 Новый рекорд у друга!',
       body: buildPRPushBody(input),
       url: '/friends',
     }

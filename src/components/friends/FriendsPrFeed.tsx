@@ -39,7 +39,6 @@ export function FriendsPrFeed({ prs }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
   const kg = weightUnit(locale)
-  const e1rmLabel = locale === 'ru' ? 'e1ПМ' : 'e1RM'
 
   const timeAgoMap = useMemo(() => buildTimeAgoLabels(prs, locale), [prs, locale])
 
@@ -50,7 +49,6 @@ export function FriendsPrFeed({ prs }: Props) {
       {prs.map((pr) => {
         const athleteName = pr.display_name?.trim() || pr.friend_code || t('anonymous')
         const name = locale === 'ru' ? (pr.exercise_name_ru ?? pr.exercise_name) : pr.exercise_name
-        const e1rm = Math.round(pr.current_best)
         const delta =
           pr.improvement_pct != null ? `+${pr.improvement_pct.toFixed(1)}%` : t('firstRecord')
         return (
@@ -64,7 +62,7 @@ export function FriendsPrFeed({ prs }: Props) {
               <div className="ex">{name}</div>
               <div className="set tabular-nums">
                 {pr.weight_kg}
-                {kg} × {pr.reps} · {e1rmLabel} {e1rm} <b>{delta}</b>
+                {kg} × {pr.reps} <b>{delta}</b>
               </div>
             </div>
             <ReactionButton

@@ -114,8 +114,8 @@ export interface MuscleVolume {
 
 export interface PRResult {
   is_pr: boolean
-  previous_1rm: number | null
-  current_1rm: number
+  previous_best: number | null
+  current_best: number
   improvement_pct: number | null
 }
 

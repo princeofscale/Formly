@@ -58,8 +58,8 @@ Return ONLY valid JSON: {"items":["bullet 1","bullet 2","bullet 3"]}`
       duration_minutes: ctx.summary.durationMinutes,
       prs: ctx.summary.prs.map((p) => ({
         exercise: ctx.locale === 'ru' ? (p.exerciseNameRu ?? p.exerciseName) : p.exerciseName,
-        new_best_e1rm: p.newBest,
-        previous_best_e1rm: p.previousBest,
+        new_best_weight_kg: p.newBest,
+        previous_best_weight_kg: p.previousBest,
         improvement_pct: p.improvementPct,
       })),
       top_exercises: ctx.summary.topExercises.map((e) => ({

@@ -5,31 +5,31 @@ import { useTranslations } from 'next-intl'
 import { ProgressLineChart } from './ProgressLineChart'
 
 interface Props {
-  e1rmHistory: { date: string; e1rm: number }[]
+  weightHistory: { date: string; best: number }[]
   volumeHistory: { date: string; volume_kg: number; sets: number }[]
   exerciseName: string
 }
 
-type Metric = 'e1rm' | 'volume'
+type Metric = 'weight' | 'volume'
 
-export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }: Props) {
+export function ExerciseMetricChart({ weightHistory, volumeHistory, exerciseName }: Props) {
   const t = useTranslations('progress')
-  const [metric, setMetric] = useState<Metric>('e1rm')
+  const [metric, setMetric] = useState<Metric>('weight')
 
   const data = useMemo(() => {
-    if (metric === 'e1rm') {
-      return e1rmHistory.map((p) => ({ date: p.date, value: Math.round(p.e1rm) }))
+    if (metric === 'weight') {
+      return weightHistory.map((p) => ({ date: p.date, value: Math.round(p.best * 10) / 10 }))
     }
     return volumeHistory.map((p) => ({ date: p.date, value: p.volume_kg }))
-  }, [metric, e1rmHistory, volumeHistory])
+  }, [metric, weightHistory, volumeHistory])
 
-  const unit = metric === 'e1rm' ? t('unit1rm') : t('unitVolume')
+  const unit = metric === 'weight' ? t('unitWeight') : t('unitVolume')
 
   // Summary numbers
   const summary = useMemo(() => {
-    if (metric === 'e1rm' && e1rmHistory.length > 0) {
-      const last = e1rmHistory[e1rmHistory.length - 1].e1rm
-      const first = e1rmHistory[0].e1rm
+    if (metric === 'weight' && weightHistory.length > 0) {
+      const last = weightHistory[weightHistory.length - 1].best
+      const first = weightHistory[0].best
       const delta = last - first
       return { current: Math.round(last), deltaSigned: delta }
     }
@@ -39,7 +39,7 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
       return { current: Math.round(total), totalSets }
     }
     return null
-  }, [metric, e1rmHistory, volumeHistory])
+  }, [metric, weightHistory, volumeHistory])
 
   return (
     <div className="space-y-3">
@@ -49,9 +49,9 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
         style={{ background: 'rgba(255, 255, 255, 0.04)' }}
       >
         <MetricTab
-          active={metric === 'e1rm'}
-          onClick={() => setMetric('e1rm')}
-          label={t('metricE1rm')}
+          active={metric === 'weight'}
+          onClick={() => setMetric('weight')}
+          label={t('metricWeight')}
         />
         <MetricTab
           active={metric === 'volume'}
@@ -75,14 +75,14 @@ export function ExerciseMetricChart({ e1rmHistory, volumeHistory, exerciseName }
           {(() => {
             const rawDelta = 'deltaSigned' in summary ? summary.deltaSigned : undefined
             const delta: number = rawDelta ?? 0
-            if (metric !== 'e1rm' || delta === 0) return null
+            if (metric !== 'weight' || delta === 0) return null
             return (
               <span
                 className="text-[11px] font-bold tabular-nums ml-auto"
                 style={{ color: delta > 0 ? '#22D3A8' : '#FF6E76' }}
               >
                 {delta > 0 ? '+' : ''}
-                {delta.toFixed(1)} {t('unit1rm')}
+                {delta.toFixed(1)} {t('unitWeight')}
               </span>
             )
           })()}
@@ -117,8 +117,8 @@ function MetricTab({
       onClick={onClick}
       className="flex-1 h-8 text-[11px] font-bold uppercase tracking-widest rounded-[8px] transition-colors"
       style={{
-        background: active ? '#FF3B47' : 'transparent',
-        color: active ? '#FFFFFF' : 'rgba(255, 255, 255, 0.55)',
+        background: active ? 'var(--tar-brand-2, #FFB627)' : 'transparent',
+        color: active ? '#151515' : 'rgba(255, 255, 255, 0.55)',
       }}
     >
       {label}

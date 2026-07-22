@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import {
   Activity,
+  BarChart3,
   Calendar,
   ChevronDown,
   ChevronRight,
@@ -22,12 +23,8 @@ import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { DeloadBanner } from '@/components/dashboard/DeloadBanner'
-import { SleepCard } from '@/components/dashboard/SleepCard'
-import { getRecentSleep, getSleepForDate } from '@/lib/db/sleep'
 import { PRsCard } from '@/components/dashboard/PRsCard'
 import { getRecentPRs } from '@/lib/db/prs'
-import { GoalsTeaser } from '@/components/dashboard/GoalsTeaser'
-import { getGoalsWithProgress } from '@/lib/db/goals'
 import { FriendsTeaser } from '@/components/dashboard/FriendsTeaser'
 import { getFriendsWithStats } from '@/lib/db/friends'
 import { ActiveSessionBanner } from '@/components/dashboard/ActiveSessionBanner'
@@ -37,6 +34,7 @@ import { RotateCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { EmptyDashboardHero } from '@/components/dashboard/EmptyDashboardHero'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
+import { isWrappedSeason, wrappedYear } from '@/lib/services/wrapped.service'
 
 const DELOAD_CYCLE_WEEKS = 5
 const PR_WINDOW_DAYS = 30
@@ -61,8 +59,6 @@ export default async function DashboardPage() {
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
 
-  const todayDate = new Date().toISOString().slice(0, 10)
-
   // Single round-trip for the whole page. Both halves used to await separately,
   // costing one full RTT (~100-200ms on 4G) just for the page to render.
   // For brand-new users some of these queries return empty fast; the saved
@@ -74,10 +70,7 @@ export default async function DashboardPage() {
     prResult,
     initialInsights,
     workoutDates,
-    todaySleep,
-    weekSleep,
     recentPRs,
-    goals,
     friends,
     activeSession,
   ] = await Promise.all([
@@ -99,18 +92,16 @@ export default async function DashboardPage() {
       .gte('started_at', since14days.toISOString()),
     supabase
       .from('set_entries')
-      .select('calculated_1rm')
+      .select('weight_kg')
       .eq('user_id', user.id)
-      .not('calculated_1rm', 'is', null)
-      .order('calculated_1rm', { ascending: false })
+      .eq('is_warmup', false)
+      .gt('weight_kg', 0)
+      .order('weight_kg', { ascending: false })
       .limit(1)
       .maybeSingle(),
     getTodayInsights(supabase, user.id),
     getFinishedSessionDates(supabase, user.id),
-    getSleepForDate(supabase, user.id, todayDate),
-    getRecentSleep(supabase, user.id, 7),
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
-    getGoalsWithProgress(supabase, user.id),
     getFriendsWithStats(supabase, 7),
     getActiveSession(supabase, user.id),
   ])
@@ -153,7 +144,7 @@ export default async function DashboardPage() {
   const weekSessions = currentWeek.length
   const prevWeekTonnage = previousWeek.reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
   const prevWeekSessions = previousWeek.length
-  const bestE1rm = prResult.data?.calculated_1rm ?? null
+  const bestWeight = prResult.data?.weight_kg ?? null
 
   // Count sets logged in the active session for the banner
   let activeSessionSetCount = 0
@@ -164,17 +155,6 @@ export default async function DashboardPage() {
       .eq('session_id', activeSession.id)
     activeSessionSetCount = count ?? 0
   }
-  const sleepWeekAvg =
-    weekSleep.length > 0 ? weekSleep.reduce((s, r) => s + r.hours, 0) / weekSleep.length : null
-  const sleepWeekBars: { date: string; hours: number }[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setUTCDate(d.getUTCDate() - i)
-    const iso = d.toISOString().slice(0, 10)
-    const log = weekSleep.find((r) => r.date === iso)
-    sleepWeekBars.push({ date: iso, hours: log?.hours ?? 0 })
-  }
-
   // Deload-week detection: full N-week cycles since first finished session
   const firstSessionDate = workoutDates.at(-1) ? new Date(workoutDates.at(-1)!) : null
   let deloadWeekIndex: number | null = null
@@ -387,13 +367,13 @@ export default async function DashboardPage() {
         <WeeklyStats
           tonnage={weekTonnage}
           sessions={weekSessions}
-          bestE1rm={bestE1rm}
+          bestWeight={bestWeight}
           prevTonnage={prevWeekTonnage}
           prevSessions={prevWeekSessions}
           labels={{
             tonnage: t('week.tonnage'),
             sessions: t('week.sessions'),
-            bestE1rm: t('week.bestE1rm'),
+            bestWeight: t('week.bestWeight'),
           }}
         />
       </div>
@@ -518,7 +498,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <div className="sub">{t('progress')}</div>
-              <div className="v small">{bestE1rm ? `${Math.round(bestE1rm)} kg` : '—'}</div>
+              <div className="v small">{bestWeight ? `${Math.round(bestWeight)} kg` : '—'}</div>
             </div>
           </Link>
           <Link href="/records" className="glass">
@@ -528,6 +508,15 @@ export default async function DashboardPage() {
             <div>
               <div className="sub">{t('records')}</div>
               <div className="v">{recentPRCount}</div>
+            </div>
+          </Link>
+          <Link href="/analytics" className="glass">
+            <div className="ico">
+              <BarChart3 />
+            </div>
+            <div>
+              <div className="sub">{t('analyticsShortcut')}</div>
+              <div className="v small">{t('analyticsShortcutSub')}</div>
             </div>
           </Link>
         </div>
@@ -548,17 +537,7 @@ export default async function DashboardPage() {
         </summary>
         <div className="space-y-4 border-t border-white/[0.06] p-5">
           <section>
-            <SleepCard
-              todayDate={todayDate}
-              todayHours={todaySleep?.hours ?? null}
-              weekAvg={sleepWeekAvg}
-              weekDays={sleepWeekBars}
-            />
-          </section>
-
-          <section className="grid gap-4 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[210ms]">
             <PRsCard prs={recentPRs} windowDays={PR_WINDOW_DAYS} />
-            <GoalsTeaser goals={goals} />
           </section>
 
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[218ms]">
@@ -580,33 +559,36 @@ export default async function DashboardPage() {
         </div>
       </details>
 
-      <Link
-        href="/wrapped"
-        className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-white/[0.04]"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(255, 196, 68, 0.05), rgba(167, 139, 250, 0.04))',
-          border: '1px solid rgba(255, 196, 68, 0.18)',
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🎉</span>
-          <div>
-            <p
-              className="text-[10px] font-bold uppercase tracking-[0.22em]"
-              style={{ color: '#FFC044' }}
-            >
-              {t('wrapped.label')}
-            </p>
-            <p className="text-sm font-bold text-white">
-              {t('wrapped.title', { year: new Date().getUTCFullYear() })}
-            </p>
+      {/* Year-in-review teaser only makes sense around New Year (Dec 15 – Jan 15). */}
+      {isWrappedSeason(now) && (
+        <Link
+          href="/wrapped"
+          className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-white/[0.04]"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(255, 196, 68, 0.05), rgba(167, 139, 250, 0.04))',
+            border: '1px solid rgba(255, 196, 68, 0.18)',
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p
+                className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                style={{ color: '#FFC044' }}
+              >
+                {t('wrapped.label')}
+              </p>
+              <p className="text-sm font-bold text-white">
+                {t('wrapped.title', { year: wrappedYear(now) })}
+              </p>
+            </div>
           </div>
-        </div>
-        <span className="text-[10px] uppercase tracking-widest text-white/40">
-          {t('wrapped.cta')}
-        </span>
-      </Link>
+          <span className="text-[10px] uppercase tracking-widest text-white/40">
+            {t('wrapped.cta')}
+          </span>
+        </Link>
+      )}
 
       <div className="flex flex-col items-center gap-2 pb-1">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/25">

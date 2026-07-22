@@ -102,7 +102,6 @@
     "subtitle": "All time",
     "noRecords": "No records yet. Start lifting!",
     "noRecordsHint": "Finish a heavy set and it'll land here.",
-    "e1rm": "e1RM",
     "date": "Date",
     "totalPrs": "Total PRs",
     "lifts": "Lifts",
@@ -173,15 +172,18 @@
   "progress": {
     "title": "Progress",
     "eyebrow": "Progress",
-    "bestE1rmLabel": "Best 1RM",
-    "achievementsLabel": "Achievements",
+    "bestWeightLabel": "Top weight",
+    "exercisesLabel": "Exercises",
+    "topWeightTag": "top weight",
+    "searchExercise": "Search exercise…",
+    "searchEmpty": "Nothing found",
     "unlocked": "unlocked",
     "bodyweightLabel": "Bodyweight",
     "exerciseLabel": "Exercise",
     "majorLifts": "Major lifts",
     "shortcuts": "Tools",
     "periodLabel": "Period",
-    "unit1rm": "kg",
+    "unitWeight": "kg",
     "weightLabel": "Body weight",
     "heightLabel": "Height",
     "saveMetrics": "Save",
@@ -189,7 +191,7 @@
     "weightHistoryTitle": "Weight history",
     "entries": "entries",
     "noEntries": "no data",
-    "metricE1rm": "e1RM",
+    "metricWeight": "Weight",
     "metricVolume": "Volume",
     "unitVolume": "kg",
     "setsCount": "sets",
@@ -230,38 +232,16 @@
       "after": "After",
       "compareHint": "Drag the slider to compare shots."
     },
-    "goalsLink": {
-      "title": "Goals",
-      "sub": "Set target 1RMs and watch the progress bar fill"
-    },
     "oneRMLink": {
       "title": "1RM calculator",
       "sub": "Estimate one-rep max + working-set percentages"
-    },
-    "achievements": {
-      "label": "Achievements",
-      "title": "Badges earned",
-      "items": {
-        "sessions": { "title": "Workouts" },
-        "streak": { "title": "Streak" },
-        "bench_bw": { "title": "Bench BW" },
-        "squat_1_5bw": { "title": "Squat 1.5×" },
-        "deadlift_2bw": { "title": "Deadlift 2×" },
-        "peak_tonnage": { "title": "Peak day kg" },
-        "early_bird": { "title": "Early bird" },
-        "night_owl": { "title": "Night owl" },
-        "cardio_starter": { "title": "First cardio" },
-        "measurements": { "title": "Measure up" },
-        "sleep_week": { "title": "Sleep tracker" },
-        "photo_first": { "title": "Snapshot" }
-      }
     },
     "strength": {
       "label": "Strength",
       "title": "Big lifts vs bodyweight",
       "noBodyweight": "Set your body weight to see strength tiers.",
       "noData": "Log a barbell lift to see your strength ratio.",
-      "hint": "Tiers compare your estimated 1RM to body weight. Standards approximate adult male ranges.",
+      "hint": "Tiers compare your best working weight to bodyweight. Standards are based on adult males.",
       "tiers": {
         "beginner": "Beginner",
         "novice": "Novice",
@@ -309,6 +289,14 @@
       "30d": "30 days",
       "90d": "90 days",
       "1y": "1 year"
+    },
+    "bodyHistory": {
+      "title": "Weight & height",
+      "empty": "Save your weight and height below — history will appear here."
+    },
+    "libraryLink": {
+      "title": "Exercise library",
+      "sub": "Your full per-exercise history"
     }
   },
   "install": {
@@ -358,7 +346,7 @@
     "week": {
       "tonnage": "Tonnage (kg)",
       "sessions": "sessions",
-      "bestE1rm": "Best e1RM"
+      "bestWeight": "Top weight"
     },
     "today": {
       "trainingDay": "Training Day",
@@ -391,7 +379,7 @@
     "bestStreakShort": "Best: {n}",
     "freezesShort": "{left}/{total} freezes",
     "moreInsights": "More insights",
-    "moreInsightsSub": "Sleep · PRs · Friends · Muscles",
+    "moreInsightsSub": "PRs · Friends · Muscles",
     "streakAtRiskTitle": "Streak {n} at risk!",
     "streakAtRiskSub": "Today is a training day — don't break the chain",
     "deload": {
@@ -412,16 +400,7 @@
       "title": "PRs in last {days} days",
       "empty": "No new records yet — beat your last set!",
       "firstRecord": "first record",
-      "hint": "Estimated 1RM. Beating any previous best counts as a new PR."
-    },
-    "sleep": {
-      "label": "Sleep",
-      "title": "How much did you sleep?",
-      "today": "today",
-      "edit": "edit",
-      "log": "log",
-      "hoursShort": "h",
-      "weekAvg": "7d average"
+      "hint": "Best working weight. Beating any previous best counts as a new PR."
     },
     "wrapped": {
       "label": "Year so far",
@@ -450,6 +429,8 @@
     "history": "History",
     "progress": "Progress",
     "records": "Records",
+    "analyticsShortcut": "Analytics",
+    "analyticsShortcutSub": "Charts",
     "activeSession": {
       "label": "Workout in progress",
       "continue": "Tap to continue →",
@@ -476,10 +457,6 @@
         "preset": {
           "title": "Pick a preset program",
           "sub": "Full body, PPL, Upper/Lower, 5-day split"
-        },
-        "goal": {
-          "title": "Set a strength goal",
-          "sub": "Define a target 1RM and watch the bar fill"
         },
         "calc": {
           "title": "Estimate your 1RM",
@@ -622,7 +599,6 @@
       "set": "Set",
       "weight": "Weight",
       "reps": "Reps",
-      "e1rm": "e1RM",
       "rpe": "RPE"
     },
     "muscleLabel": {
@@ -644,7 +620,15 @@
       "cardio": "Cardio"
     },
     "muscleClickHint": "Tap a muscle",
-    "sets": "sets"
+    "sets": "sets",
+    "detail": {
+      "tonnage": "Tonnage",
+      "duration": "Time",
+      "sets": "Sets",
+      "exercises": "Exercises",
+      "best": "best",
+      "exVolume": "volume"
+    }
   },
   "analytics": {
     "title": "Analytics",
@@ -655,7 +639,9 @@
     "allTime": "All completed workouts",
     "lastFourWeeks": "Last 4 weeks",
     "noExercise": "No exercise selected",
-    "e1rmProgress": "e1RM Progress",
+    "weightProgress": "Weight progress",
+    "searchExercise": "Search exercise…",
+    "searchEmpty": "Nothing found",
     "monthlyVolume": "Monthly Volume",
     "volumeLandmarks": "Volume Landmarks (4 weeks)",
     "emptyProgress": "Log at least 2 sessions to see your trend.",
@@ -776,7 +762,6 @@
       "quotaExhausted": "Daily AI generation limit reached. Try again tomorrow."
     },
     "lastTime": "Last",
-    "firstSet": "🏆 First set!",
     "prImproved": "PR +{pct}%",
     "restSkip": "Skip",
     "resting": "Rest",
@@ -801,8 +786,7 @@
     },
     "prCelebration": {
       "label": "Personal record",
-      "title": "NEW PR!",
-      "firstTime": "first time"
+      "title": "NEW PR!"
     },
     "back": "Back",
     "liveStats": {
@@ -884,7 +868,7 @@
     "types": {
       "today": "TODAY",
       "progression": "PROGRESSION",
-      "prediction": "1RM FORECAST",
+      "prediction": "FORECAST",
       "warning": "WARNING"
     }
   },
@@ -1034,19 +1018,19 @@
   },
   "friends": {
     "back": "Back",
-    "title": "Crew",
+    "title": "Friends",
     "anonymous": "Formly athlete",
     "squad": {
-      "eyebrow": "Team pulse",
-      "title": "This week's crew",
-      "people": "in crew",
+      "eyebrow": "Team",
+      "title": "This week's team",
+      "people": "in the team",
       "sessions": "workouts",
       "inGym": "in gym now",
       "leader": "Tonnage leader"
     },
-    "listTitle": "Your crew",
+    "listTitle": "My friends",
     "empty": "No friends yet",
-    "emptySub": "Share your code with a gym buddy and accountability begins",
+    "emptySub": "Share your code with a gym buddy — training together is easier",
     "neverTrained": "no workouts",
     "today": "trained today",
     "yesterday": "trained yesterday",
@@ -1054,14 +1038,14 @@
     "addLabel": "Add a friend by code",
     "add": "Add",
     "remove": "Remove",
-    "addSuccess": "Request sent — waiting for them to accept.",
+    "addSuccess": "Request sent — waiting for confirmation.",
     "requestsTitle": "Requests",
     "requestsEmpty": "No requests",
     "requestsEmptySub": "Share your code — they'll knock",
-    "wantsToAdd": "wants to add you",
+    "wantsToAdd": "wants to add you as a friend",
     "accept": "Accept",
     "decline": "Decline",
-    "prFeedTitle": "Crew PRs",
+    "prFeedTitle": "Friends' PRs",
     "prsEmpty": "Quiet for now",
     "prsEmptySub": "New friend PRs will show up here",
     "reactCongrats": "Congrats",
@@ -1078,21 +1062,24 @@
     "stats": {
       "week": "This week",
       "tonnage": "Tonnage",
-      "bestE1rm": "Best 1RM"
+      "bestWeight": "Top weight"
     },
     "inGym": "In gym now",
     "myCode": {
       "label": "Your code",
-      "subtitle": "Share this 6-char code so a friend can add you.",
+      "subtitle": "Send a friend your 6-char code so they can add you.",
       "copy": "Copy",
       "copied": "Copied",
       "share": "Share",
       "shareTitle": "Add me on Formly",
       "shareMessage": "Add me on Formly — my code is {code}"
     },
-    "teaserLabel": "Crew",
+    "teaserLabel": "Friends",
     "teaserTitle": "Active friends ({n})",
-    "teaserEmptyTitle": "Add a gym buddy →"
+    "teaserEmptyTitle": "Add a gym buddy →",
+    "leaderboardTitle": "Weekly leaderboard",
+    "you": "You",
+    "leaderboardEmpty": "No one has trained this week yet."
   },
   "wrapped": {
     "back": "Back",
@@ -1115,7 +1102,7 @@
       "streakUnit": "{n, plural, one {day in a row} other {days in a row}}",
       "streakSub": "Not a single day missed.",
       "prEyebrow": "Personal records",
-      "prUnit": "best e1RM of the year",
+      "prUnit": "best weight of the year",
       "monthEyebrow": "Strongest month",
       "monthSub": "<b>{sessions, plural, one {# workout} other {# workouts}}</b> · {tonnage} kg of tonnage.",
       "fin1": "Train.",
@@ -1172,38 +1159,5 @@
         "title": "Tonnage by month"
       }
     }
-  },
-  "goals": {
-    "label": "Goals",
-    "title": "Strength goals",
-    "newGoal": "New goal",
-    "newGoalTitle": "Pick a lift and a target",
-    "teaserTitle": "Active goals",
-    "setFirst": "Set your first strength goal →",
-    "exercise": "Exercise",
-    "targetE1rm": "Target 1RM",
-    "targetDate": "By (optional)",
-    "targetBy": "Target by {date}",
-    "save": "Save goal",
-    "delete": "Delete",
-    "listTitle": "All goals",
-    "empty": "No goals yet. Pick a lift, set a target, and start chasing it.",
-    "allAchieved": "All goals achieved — set a new one 🏆",
-    "noneDone": "Nothing closed yet — go finish your first goal 💪",
-    "sub": "Your commitments",
-    "newGoalSub": "Strength target · Body weight · Streak",
-    "remainingDays": "<days>{n, plural, one {# day} other {# days}}</days> remaining",
-    "noDeadline": "No deadline",
-    "completedOn": "Completed {date}",
-    "markDone": "Mark done",
-    "edit": "Edit",
-    "strengthTarget": "Strength target",
-    "tabs": {
-      "active": "Active",
-      "done": "Done",
-      "all": "All"
-    },
-    "badge": "{active} active · {done} done",
-    "ringDone": "DONE"
   }
 }
