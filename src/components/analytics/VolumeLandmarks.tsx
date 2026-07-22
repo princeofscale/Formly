@@ -2,26 +2,33 @@ import type { VolumeLandmark } from '@/lib/types/models'
 
 const STATUS_CONFIG = {
   mv: {
-    label: 'Low (MV)',
     color: '#FFD64A',
     bg: 'rgba(255, 214, 74, 0.12)',
     border: 'rgba(255, 214, 74, 0.32)',
   },
   optimal: {
-    label: 'Optimal',
     color: 'var(--tar-success)',
     bg: 'rgba(43, 216, 132, 0.12)',
     border: 'rgba(43, 216, 132, 0.32)',
   },
   mrv: {
-    label: 'Very High',
     color: 'var(--tar-danger)',
     bg: 'rgba(255, 77, 94, 0.12)',
     border: 'rgba(255, 77, 94, 0.32)',
   },
 }
 
-export function VolumeLandmarks({ landmarks }: { landmarks: VolumeLandmark[] }) {
+export function VolumeLandmarks({
+  landmarks,
+  labels,
+}: {
+  landmarks: VolumeLandmark[]
+  labels: {
+    empty: string
+    setsPerWeek: string
+    status: Record<VolumeLandmark['status'], string>
+  }
+}) {
   if (landmarks.length === 0) {
     return (
       <p
@@ -31,7 +38,7 @@ export function VolumeLandmarks({ landmarks }: { landmarks: VolumeLandmark[] }) 
           color: 'var(--tar-ink-mute)',
         }}
       >
-        Log workouts to see volume status.
+        {labels.empty}
       </p>
     )
   }
@@ -67,7 +74,7 @@ export function VolumeLandmarks({ landmarks }: { landmarks: VolumeLandmark[] }) 
                   color: 'var(--tar-ink-mute)',
                 }}
               >
-                {l.weekly_sets} sets/wk
+                {l.weekly_sets} {labels.setsPerWeek}
               </span>
               <span
                 style={{
@@ -81,7 +88,7 @@ export function VolumeLandmarks({ landmarks }: { landmarks: VolumeLandmark[] }) 
                   border: `1px solid ${config.border}`,
                 }}
               >
-                {config.label}
+                {labels.status[l.status]}
               </span>
             </div>
           </div>

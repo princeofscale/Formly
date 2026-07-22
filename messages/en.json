@@ -648,9 +648,25 @@
   },
   "analytics": {
     "title": "Analytics",
+    "subtitle": "Your strength, workload, and recovery balance at a glance.",
+    "strengthTrend": "Strength trend",
+    "totalVolume": "Total volume",
+    "balancedMuscles": "In target range",
+    "allTime": "All completed workouts",
+    "lastFourWeeks": "Last 4 weeks",
+    "noExercise": "No exercise selected",
     "e1rmProgress": "e1RM Progress",
     "monthlyVolume": "Monthly Volume",
-    "volumeLandmarks": "Volume Landmarks (4 weeks)"
+    "volumeLandmarks": "Volume Landmarks (4 weeks)",
+    "emptyProgress": "Log at least 2 sessions to see your trend.",
+    "emptyVolume": "Complete a workout to see monthly volume.",
+    "emptyLandmarks": "Log workouts to see volume status.",
+    "setsPerWeek": "sets/wk",
+    "status": {
+      "low": "Low (MV)",
+      "optimal": "Optimal",
+      "high": "Very high"
+    }
   },
   "exerciseLibrary": {
     "title": "Exercise Library",

@@ -1,15 +1,18 @@
-'use client'
-
-import { useLocale } from 'next-intl'
 import type { TonnageByMonth } from '@/lib/services/analytics.service'
-import { weightUnit } from '@/lib/units'
 
-export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
-  const locale = useLocale()
-  const kg = weightUnit(locale)
-
+export function TonnageChart({
+  data,
+  unit,
+  locale,
+  emptyLabel,
+}: {
+  data: TonnageByMonth[]
+  unit: string
+  locale: string
+  emptyLabel: string
+}) {
   if (data.length === 0) {
-    return <p className="font-mono text-xs tracking-wide text-white/40">No data yet.</p>
+    return <p className="font-mono text-xs tracking-wide text-white/40">{emptyLabel}</p>
   }
 
   const max = Math.max(...data.map((point) => point.total_kg), 1)
@@ -22,7 +25,7 @@ export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
         viewBox="0 0 600 180"
         className="h-full w-full overflow-visible"
         role="img"
-        aria-label={`${Math.round(data.reduce((sum, point) => sum + point.total_kg, 0))} ${kg}`}
+        aria-label={`${Math.round(data.reduce((sum, point) => sum + point.total_kg, 0))} ${unit}`}
       >
         <defs>
           <linearGradient id="analytics-bars" x1="0" y1="0" x2="0" y2="1">
@@ -46,7 +49,7 @@ export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
                 rx="6"
                 fill="url(#analytics-bars)"
               >
-                <title>{`${point.month}: ${Math.round(point.total_kg)} ${kg}`}</title>
+                <title>{`${point.month}: ${Math.round(point.total_kg)} ${unit}`}</title>
               </rect>
               <text
                 x={x + width / 2}
@@ -68,7 +71,7 @@ export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
           fontSize="10"
           fontFamily="ui-monospace, monospace"
         >
-          {Math.round(max).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} {kg}
+          {Math.round(max).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} {unit}
         </text>
       </svg>
     </div>

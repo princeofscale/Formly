@@ -10,11 +10,13 @@ const env = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'build-check',
 }
 
-const build = spawnSync('npm', ['run', 'build'], { env, encoding: 'utf8' })
-if (build.status !== 0) {
-  process.stderr.write(build.stderr || build.stdout)
-  console.log(JSON.stringify({ build_ok: 0 }))
-  process.exit(0)
+if (!process.argv.includes('--skip-build')) {
+  const build = spawnSync('npm', ['run', 'build'], { env, encoding: 'utf8' })
+  if (build.status !== 0) {
+    process.stderr.write(build.stderr || build.stdout)
+    console.log(JSON.stringify({ build_ok: 0 }))
+    process.exit(0)
+  }
 }
 
 const nextDir = join(process.cwd(), '.next')

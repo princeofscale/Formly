@@ -1,23 +1,21 @@
-'use client'
-
-import { useLocale } from 'next-intl'
-import { weightUnit } from '@/lib/units'
-
 interface DataPoint {
   date: string
   e1rm: number
 }
 
-export function ProgressChart({ data, exerciseName }: { data: DataPoint[]; exerciseName: string }) {
-  const locale = useLocale()
-  const kg = weightUnit(locale)
-
+export function ProgressChart({
+  data,
+  exerciseName,
+  unit,
+  emptyLabel,
+}: {
+  data: DataPoint[]
+  exerciseName: string
+  unit: string
+  emptyLabel: string
+}) {
   if (data.length < 2) {
-    return (
-      <p className="font-mono text-xs tracking-wide text-white/40">
-        Log at least 2 sessions to see trend.
-      </p>
-    )
+    return <p className="font-mono text-xs tracking-wide text-white/40">{emptyLabel}</p>
   }
 
   const values = data.map((point) => point.e1rm)
@@ -37,7 +35,7 @@ export function ProgressChart({ data, exerciseName }: { data: DataPoint[]; exerc
         viewBox="0 0 600 180"
         className="h-full w-full overflow-visible"
         role="img"
-        aria-label={`${exerciseName}: ${Math.round(min)}–${Math.round(max)} ${kg}`}
+        aria-label={`${exerciseName}: ${Math.round(min)}–${Math.round(max)} ${unit}`}
       >
         <defs>
           <linearGradient id="analytics-line" x1="0" y1="0" x2="1" y2="0">
@@ -64,7 +62,7 @@ export function ProgressChart({ data, exerciseName }: { data: DataPoint[]; exerc
         {points.map((point, index) => (
           <g key={`${point.date}-${index}`}>
             <circle cx={point.x} cy={point.y} r="5" fill="#11111A" stroke="#FFB627" strokeWidth="2">
-              <title>{`${point.date}: ${point.e1rm.toFixed(1)} ${kg}`}</title>
+              <title>{`${point.date}: ${point.e1rm.toFixed(1)} ${unit}`}</title>
             </circle>
             {(index === 0 || index === points.length - 1) && (
               <text
@@ -87,7 +85,7 @@ export function ProgressChart({ data, exerciseName }: { data: DataPoint[]; exerc
           fontSize="10"
           fontFamily="ui-monospace, monospace"
         >
-          {Math.round(max)} {kg}
+          {Math.round(max)} {unit}
         </text>
       </svg>
     </div>

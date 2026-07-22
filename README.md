@@ -41,7 +41,7 @@ Formly — мобильный фитнес-трекер для ведения т
 | Web           | Next.js 16, React 19, TypeScript, Tailwind CSS 4           |
 | Backend       | Supabase, PostgreSQL, Row Level Security                   |
 | AI            | Mistral AI                                                 |
-| UX            | PWA, next-intl, Recharts, shadcn/ui                        |
+| UX            | PWA, next-intl, native SVG charts, shadcn/ui               |
 | Наблюдаемость | Vercel Analytics, Speed Insights, client error reports     |
 | Качество      | Vitest, ESLint, Prettier, Knip, ts-prune, CodeQL, gitleaks |
 

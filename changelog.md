@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added an Analytics pulse with strength trend, lifetime training volume, and four-week muscle-balance coverage.
+- Added localized English and Russian chart empty states, workload labels, and volume-status labels.
+
+### Changed
+
+- Replaced Recharts with accessible native SVG charts and rendered them entirely on the server.
+- Deferred the Supabase browser SDK until a progress-photo upload begins.
+- Deferred the full exercise catalog picker until the athlete taps “Add exercise”.
+- Added a production client-bundle measurement script for repeatable route budget checks.
+
+### Fixed
+
+- Reduced the largest authenticated route’s initial client JavaScript from 506,953 to 244,994 bytes (51.7%) and total compiled client JavaScript by 21.8%.
+
+### Removed
+
+- Removed the unused Recharts dependency and 34 transitive packages.
+
 ## [1.0.1] - 2026-07-22
 
 ### Added
