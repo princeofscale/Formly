@@ -1,7 +1,7 @@
 import { Dumbbell, TrendingUp, Brain } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { LocaleSwitcher } from '@/components/auth/LocaleSwitcher'
-import { AnimatedAuthBackground } from '@/components/auth/AnimatedAuthBackground'
+import { AuthBackground } from '@/components/auth/AuthBackground'
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
@@ -9,7 +9,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <AnimatedAuthBackground />
+      <AuthBackground />
       <div className="min-h-screen grid md:grid-cols-2 relative">
         {/* Left panel — desktop only */}
         <div
@@ -17,7 +17,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           style={{
             borderRight: '1px solid rgba(245,241,232,0.08)',
             background: 'rgba(5,5,16,0.45)',
-            backdropFilter: 'blur(14px)',
+            backgroundColor: 'rgba(5,5,16,0.82)',
           }}
         >
           <div className="tar-wordmark">

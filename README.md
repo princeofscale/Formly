@@ -1,134 +1,102 @@
-# Formly
+<p align="center">
+  <img src="public/branding/formly-banner.png" alt="Formly — фитнес-трекер" width="100%" />
+</p>
 
-Современный AI-фитнес трекер для отслеживания тренировок, анализа прогресса и получения персональных рекомендаций на основе тренировочных данных.
+<p align="center">
+  <a href="https://formly.vercel.app"><strong>Открыть Formly</strong></a>
+  ·
+  <a href="changelog.md">История изменений</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/princeofscale/Formly/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/princeofscale/Formly/actions/workflows/ci.yml/badge.svg" /></a>
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-ff6b35" />
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black" />
+  <img alt="Supabase" src="https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e" />
+  <img alt="Vercel" src="https://img.shields.io/badge/deploy-Vercel-black" />
+</p>
+
+## О проекте
+
+Formly — мобильный фитнес-трекер для ведения тренировок, анализа прогресса и персональных AI-рекомендаций. Приложение работает как PWA, сохраняет активную тренировку офлайн и синхронизирует данные через Supabase.
+
+<p align="center">
+  <img src="public/branding/formly-logo.png" alt="Логотип Formly" width="220" />
+</p>
 
 ## Возможности
 
-### Тренировки
+- Ведение силовых и кардио-тренировок: подходы, вес, повторы, RPE и таймер отдыха.
+- История, объём, 1RM, рекорды, серии тренировок и прогресс по упражнениям.
+- Шаблоны, готовые программы, разминка и подсказки по прогрессии.
+- AI-разбор тренировок и рекомендации на базе Mistral AI.
+- Каталог упражнений с русскими названиями, алиасами и fuzzy-поиском.
+- Офлайн-режим, PWA-установка и push-уведомления.
+- Русский и английский интерфейс, адаптированный под телефон.
 
-- Создание и ведение тренировок
-- Упражнения, подходы, вес, повторения, RPE, отдых
-- Таймер отдыха
-- Подсказки с прошлых тренировок
-- Автоматическое определение новых рекордов
-- Повторение прошлых тренировок
-- Шаблоны тренировок
+## Стек
 
-### Аналитика и прогресс
+| Область       | Технологии                                                 |
+| ------------- | ---------------------------------------------------------- |
+| Web           | Next.js 16, React 19, TypeScript, Tailwind CSS 4           |
+| Backend       | Supabase, PostgreSQL, Row Level Security                   |
+| AI            | Mistral AI                                                 |
+| UX            | PWA, next-intl, Recharts, shadcn/ui                        |
+| Наблюдаемость | Vercel Analytics, Speed Insights, client error reports     |
+| Качество      | Vitest, ESLint, Prettier, Knip, ts-prune, CodeQL, gitleaks |
 
-- Отслеживание тренировочного объёма
-- Графики прогресса
-- Статистика 1RM
-- Серии тренировок (streaks)
-- Анализ активности мышечных групп
-- История тренировок
-- Экспорт тренировок в CSV
+## Локальный запуск
 
-### AI-функции
-
-- AI-анализ последних тренировок
-- Персональные рекомендации
-- Советы по нагрузке и восстановлению
-- Генерация coaching insights через Mistral AI
-
-### Профиль
-
-- Вес, рост, возраст
-- Дата начала тренировок
-- Язык интерфейса
-- Push-уведомления
-- Настройки расписания
-
-### Интерфейс
-
-- Поддержка русского и английского языков
-- Адаптивный UI
-- Bottom navigation
-- Современный интерфейс на shadcn/ui
-
----
-
-# Технологии
-
-## Frontend
-
-- Next.js 16 (App Router)
-- React 19
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- next-intl
-
-## Backend / Database
-
-- Supabase
-- PostgreSQL
-- Row Level Security (RLS)
-
-## AI
-
-- Mistral AI
-
-## Quality & Tooling
-
-- ESLint
-- Prettier
-- Husky
-- Vitest
-- Knip
-- ts-prune
-- CodeQL
-- gitleaks
-- RenovateBot
-- pre-commit.ci
-
----
-
-# Установка и запуск
-
-## 1. Клонирование репозитория
+Требуется Node.js 24 и npm.
 
 ```bash
 git clone https://github.com/princeofscale/Formly.git
 cd Formly
-```
-
-## 2. Установка зависимостей
-
-```bash
 npm install
+cp .env.local.example .env.local
+npm run dev
 ```
 
-## 3. Создание env-файла
+Приложение откроется на `http://localhost:3000`.
+
+Минимальные переменные окружения:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+MISTRAL_API_KEY=
+```
+
+Push-уведомления дополнительно используют `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` и `VAPID_CONTACT_EMAIL`. Полный шаблон находится в `.env.local.example`.
+
+## Команды
 
 ```bash
-cp .env.local.example .env.local
+npm run dev          # локальная разработка
+npm run test         # тесты
+npm run lint         # ESLint
+npm run typecheck    # TypeScript
+npm run format:check # проверка форматирования
+npm run build        # production-сборка
 ```
 
-Заполни `.env.local` своими ключами:
-
-Supabase URL
-Supabase Anon Key
-Supabase Service Role Key
-Mistral API Key
-VAPID keys (опционально)
+Перед отправкой изменений рекомендуется выполнить `npm run lint && npm run typecheck && npm run test && npm run build`.
 
 ## База данных
 
-Применение миграций:
+SQL-миграции находятся в `supabase/migrations`. Применение через Supabase CLI:
 
 ```bash
 supabase db push
 ```
 
-## Запуск проекта
+Никогда не добавляйте секретные ключи в Git. Все env-файлы игнорируются.
 
-Режим разработки:
+## Релизы и деплой
 
-```bash
-npm run dev
-```
+- Каждый push в `main` проверяется CI и деплоится интеграцией Vercel с GitHub.
+- Тег вида `v1.2.3` запускает отдельный production-деплой через `.github/workflows/release.yml`.
+- Все изменения сначала добавляются в раздел `Unreleased` файла [changelog.md](changelog.md), а при релизе переносятся в версию.
 
-Открыть:
-
-`http://localhost:3000`
+Production: [formly.vercel.app](https://formly.vercel.app)
