@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { BookmarkPlus, Check, CheckCircle, ChevronLeft } from 'lucide-react'
 import type { WorkoutSession, Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
-import { ExercisePicker } from './ExercisePicker'
 import { ExerciseBlock } from './ExerciseBlock'
 import { PRCelebration, type PRCelebrationData } from './PRCelebration'
 import { OfflineSyncWatcher } from './OfflineSyncWatcher'
@@ -33,6 +32,8 @@ interface Props {
   exerciseVideos?: Record<string, string>
 }
 
+type ExercisePickerComponent = typeof import('./ExercisePicker').ExercisePicker
+
 export function WorkoutClient({
   session,
   initialExercises,
@@ -52,6 +53,8 @@ export function WorkoutClient({
   const [lastSetsMap, setLastSetsMap] = useState<Record<string, SetEntry[]>>(initialLastSets ?? {})
   const [prCelebration, setPrCelebration] = useState<PRCelebrationData | null>(null)
   const [finishQueued, setFinishQueued] = useState(false)
+  const [ExercisePicker, setExercisePicker] = useState<ExercisePickerComponent | null>(null)
+  const [pickerLoading, setPickerLoading] = useState(false)
 
   // After an offline reload the cached HTML doesn't include sets still in
   // IndexedDB — merge them in so the screen tells the truth. Runs once.
@@ -95,6 +98,17 @@ export function WorkoutClient({
       const lastSets = await getLastSetsForExerciseAction(exercise.id, session.id)
       setLastSetsMap((prev) => ({ ...prev, [exercise.id]: lastSets }))
     })
+  }
+
+  async function openExercisePicker() {
+    if (pickerLoading) return
+    setPickerLoading(true)
+    try {
+      const picker = await import('./ExercisePicker')
+      setExercisePicker(() => picker.ExercisePicker)
+    } finally {
+      setPickerLoading(false)
+    }
   }
 
   function appendSet(exerciseId: string, set: SetEntry) {
@@ -279,12 +293,25 @@ export function WorkoutClient({
 
       {/* sticky add-exercise entry point (opens the full-screen picker) */}
       <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-background/95 backdrop-blur border-b border-white/10">
-        <ExercisePicker
-          allExercises={allExercises}
-          recentExercises={suggestedExercises}
-          sessionExerciseIds={exercises.map((e) => e.id)}
-          onSelect={addExercise}
-        />
+        {ExercisePicker ? (
+          <ExercisePicker
+            allExercises={allExercises}
+            recentExercises={suggestedExercises}
+            sessionExerciseIds={exercises.map((e) => e.id)}
+            onSelect={addExercise}
+            defaultOpen
+          />
+        ) : (
+          <button
+            type="button"
+            className="tar-cta w-full"
+            disabled={pickerLoading}
+            aria-busy={pickerLoading}
+            onClick={openExercisePicker}
+          >
+            + {t('pickerExercise')}
+          </button>
+        )}
       </div>
 
       {exercises.length === 0 && (

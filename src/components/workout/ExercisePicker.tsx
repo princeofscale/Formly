@@ -25,6 +25,7 @@ interface Props {
   recentExercises: Exercise[]
   sessionExerciseIds: string[]
   onSelect: (exercise: Exercise) => void
+  defaultOpen?: boolean
 }
 
 const CHIP_LABEL_KEY: Record<MuscleChip, string> = {
@@ -44,13 +45,14 @@ export function ExercisePicker({
   recentExercises,
   sessionExerciseIds,
   onSelect,
+  defaultOpen = false,
 }: Props) {
   const t = useTranslations('workout')
   const tForm = useTranslations('exerciseForm')
   const tHistory = useTranslations('history')
   const locale = useLocale()
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const [catalog, setCatalog] = useState(allExercises)
   const [query, setQuery] = useState('')
   const [chip, setChip] = useState<MuscleChip>('all')
