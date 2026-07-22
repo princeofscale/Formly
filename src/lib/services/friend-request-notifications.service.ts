@@ -23,7 +23,7 @@ export async function notifyFriendRequest(
     if (subs.length === 0) return
 
     const payload = {
-      title: '🤝 Заявка в кенты',
+      title: '🤝 Заявка в друзья',
       body: input.requesterCode
         ? `Код ${input.requesterCode} хочет тебя добавить. Прими или отклони в /friends.`
         : 'Кто-то хочет тебя добавить. Открой /friends чтобы принять.',

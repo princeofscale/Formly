@@ -1,6 +1,6 @@
 interface DataPoint {
   date: string
-  e1rm: number
+  best: number
 }
 
 export function ProgressChart({
@@ -18,14 +18,14 @@ export function ProgressChart({
     return <p className="font-mono text-xs tracking-wide text-white/40">{emptyLabel}</p>
   }
 
-  const values = data.map((point) => point.e1rm)
+  const values = data.map((point) => point.best)
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
   const points = data.map((point, index) => ({
     ...point,
     x: 18 + (index / (data.length - 1)) * 564,
-    y: 142 - ((point.e1rm - min) / range) * 116,
+    y: 142 - ((point.best - min) / range) * 116,
   }))
   const line = points.map((point) => `${point.x},${point.y}`).join(' ')
 
@@ -62,7 +62,7 @@ export function ProgressChart({
         {points.map((point, index) => (
           <g key={`${point.date}-${index}`}>
             <circle cx={point.x} cy={point.y} r="5" fill="#11111A" stroke="#FFB627" strokeWidth="2">
-              <title>{`${point.date}: ${point.e1rm.toFixed(1)} ${unit}`}</title>
+              <title>{`${point.date}: ${point.best.toFixed(1)} ${unit}`}</title>
             </circle>
             {(index === 0 || index === points.length - 1) && (
               <text

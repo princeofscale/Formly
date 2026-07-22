@@ -15,36 +15,36 @@ export default async function ExerciseLibraryPage() {
   // Load all (no server-side filter — let the client filter for snappy interaction)
   const exercises = await getExercises(supabase, user.id)
 
-  // Per-exercise aggregates: last-used date, max e1rm, log count
+  // Per-exercise aggregates: last-used date, best working weight, log count
   const { data: setRows } = await supabase
     .from('set_entries')
-    .select('exercise_id, created_at, calculated_1rm, weight_kg, reps')
+    .select('exercise_id, created_at, weight_kg, reps, is_warmup')
     .eq('user_id', user.id)
 
   type Agg = {
     count: number
     lastAt: string | null
-    bestE1rm: number
+    bestWeight: number
     bestSet: { weight: number; reps: number } | null
   }
   const aggByExercise = new Map<string, Agg>()
   for (const row of (setRows ?? []) as Array<{
     exercise_id: string
     created_at: string
-    calculated_1rm: number | null
     weight_kg: number
     reps: number
+    is_warmup: boolean | null
   }>) {
     const cur = aggByExercise.get(row.exercise_id) ?? {
       count: 0,
       lastAt: null,
-      bestE1rm: 0,
+      bestWeight: 0,
       bestSet: null,
     }
     cur.count += 1
     if (!cur.lastAt || row.created_at > cur.lastAt) cur.lastAt = row.created_at
-    if (row.calculated_1rm && row.calculated_1rm > cur.bestE1rm) {
-      cur.bestE1rm = row.calculated_1rm
+    if (!row.is_warmup && row.weight_kg > cur.bestWeight) {
+      cur.bestWeight = row.weight_kg
       cur.bestSet = { weight: row.weight_kg, reps: row.reps }
     }
     aggByExercise.set(row.exercise_id, cur)
@@ -78,7 +78,7 @@ export default async function ExerciseLibraryPage() {
       mechanicLabel: t(ex.mechanic === 'compound' ? 'compound' : 'isolation'),
       count: agg?.count ?? 0,
       lastAt: agg?.lastAt ?? null,
-      bestE1rm: agg?.bestE1rm ?? 0,
+      bestWeight: agg?.bestWeight ?? 0,
       bestSet: agg?.bestSet ?? null,
     }
   })

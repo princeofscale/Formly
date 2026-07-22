@@ -1,5 +1,17 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+/** Wrapped is seasonal: visible from Dec 15 through Jan 15 (inclusive). */
+export function isWrappedSeason(now: Date = new Date()): boolean {
+  const month = now.getUTCMonth()
+  const day = now.getUTCDate()
+  return (month === 11 && day >= 15) || (month === 0 && day <= 15)
+}
+
+/** The year a seasonal Wrapped covers: during January it's the year that just ended. */
+export function wrappedYear(now: Date = new Date()): number {
+  return now.getUTCMonth() === 0 ? now.getUTCFullYear() - 1 : now.getUTCFullYear()
+}
+
 export interface MonthBucket {
   month: number // 0..11
   sessions: number
@@ -9,7 +21,7 @@ export interface MonthBucket {
 export interface WrappedTopPR {
   exerciseName: string
   exerciseNameRu: string | null
-  e1rm: number
+  bestWeightKg: number
   achievedAt: string
 }
 
@@ -39,7 +51,7 @@ export interface WrappedReport {
     muscle: string
     sets: number
   } | null
-  topPRs: WrappedTopPR[] // top 5 by e1rm
+  topPRs: WrappedTopPR[] // top 5 by heaviest set
   topExercises: WrappedTopExercise[] // top 3 by set count
   monthly: MonthBucket[] // length 12
   cardioKm: number
@@ -156,9 +168,9 @@ export async function getWrappedReport(
   let totalReps = 0
   const setsByMuscle = new Map<string, number>()
   const setsByExercise = new Map<string, { sets: number; name: string; nameRu: string | null }>()
-  const e1rmByExercise = new Map<
+  const bestWeightByExercise = new Map<
     string,
-    { e1rm: number; achievedAt: string; name: string; nameRu: string | null }
+    { weightKg: number; achievedAt: string; name: string; nameRu: string | null }
   >()
 
   if (sessionIds.length > 0) {
@@ -166,7 +178,7 @@ export async function getWrappedReport(
     const { data: setRows } = await supabase
       .from('set_entries')
       .select(
-        'exercise_id, reps, calculated_1rm, created_at, exercises(name, name_ru, primary_muscle)',
+        'exercise_id, reps, weight_kg, is_warmup, created_at, exercises(name, name_ru, primary_muscle)',
       )
       .eq('user_id', userId)
       .in('session_id', sessionIds)
@@ -175,7 +187,8 @@ export async function getWrappedReport(
     const rows = (setRows ?? []) as unknown as Array<{
       exercise_id: string
       reps: number
-      calculated_1rm: number | null
+      weight_kg: number
+      is_warmup: boolean | null
       created_at: string
       exercises:
         | { name: string; name_ru: string | null; primary_muscle: string | null }
@@ -194,11 +207,11 @@ export async function getWrappedReport(
         if (cur) cur.sets += 1
         else setsByExercise.set(r.exercise_id, { sets: 1, name: ex.name, nameRu: ex.name_ru })
       }
-      if (r.calculated_1rm != null && ex) {
-        const prev = e1rmByExercise.get(r.exercise_id)
-        if (!prev || r.calculated_1rm > prev.e1rm) {
-          e1rmByExercise.set(r.exercise_id, {
-            e1rm: r.calculated_1rm,
+      if (r.weight_kg > 0 && !r.is_warmup && ex) {
+        const prev = bestWeightByExercise.get(r.exercise_id)
+        if (!prev || r.weight_kg > prev.weightKg) {
+          bestWeightByExercise.set(r.exercise_id, {
+            weightKg: r.weight_kg,
             achievedAt: r.created_at,
             name: ex.name,
             nameRu: ex.name_ru,
@@ -215,14 +228,14 @@ export async function getWrappedReport(
     if (!topMuscle || sets > topMuscle.sets) topMuscle = { muscle, sets }
   }
 
-  // Top PRs: 5 best e1rms across distinct exercises this year
-  const topPRs: WrappedTopPR[] = Array.from(e1rmByExercise.values())
-    .sort((a, b) => b.e1rm - a.e1rm)
+  // Top PRs: 5 heaviest working sets across distinct exercises this year
+  const topPRs: WrappedTopPR[] = Array.from(bestWeightByExercise.values())
+    .sort((a, b) => b.weightKg - a.weightKg)
     .slice(0, 5)
     .map((p) => ({
       exerciseName: p.name,
       exerciseNameRu: p.nameRu,
-      e1rm: Math.round(p.e1rm * 10) / 10,
+      bestWeightKg: Math.round(p.weightKg * 10) / 10,
       achievedAt: p.achievedAt,
     }))
 

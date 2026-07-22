@@ -23,7 +23,7 @@ interface Props {
   exercise: ExerciseWithSets
   sessionId: string
   onSetSaved: (set: SetEntry) => void
-  onPR?: (info: { exerciseName: string; newE1rm: number; improvementPct: number | null }) => void
+  onPR?: (info: { exerciseName: string; weightKg: number; improvementPct: number | null }) => void
   onDelete: (opts: { hadSets: boolean }) => void
   onReplace?: (replacement: Exercise) => void
   lastSets?: SetEntry[]
@@ -80,7 +80,7 @@ export function ExerciseBlock({
     if (prResult.is_pr && onPR) {
       onPR({
         exerciseName: displayName,
-        newE1rm: prResult.current_1rm ?? set.calculated_1rm ?? 0,
+        weightKg: prResult.current_best || set.weight_kg,
         improvementPct: prResult.improvement_pct ?? null,
       })
     }

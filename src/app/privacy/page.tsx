@@ -75,7 +75,7 @@ function PrivacyEn({ contact, operator }: { contact: string; operator: string })
           notes you write.
         </li>
         <li>
-          <strong>Body data you choose to log</strong>: sleep hours, body measurements (waist,
+          <strong>Body data you choose to log</strong>: weight and height, body measurements (waist,
           biceps, etc.), progress photos you upload, mood ratings.
         </li>
         <li>
@@ -214,7 +214,7 @@ function PrivacyRu({ contact, operator }: { contact: string; operator: string })
           заметки.
         </li>
         <li>
-          <strong>Тело</strong> (по твоему выбору): часы сна, замеры (талия, бицепс и т.п.), фото
+          <strong>Тело</strong> (по твоему выбору): вес и рост, замеры (талия, бицепс и т.п.), фото
           прогресса, настроение.
         </li>
         <li>

@@ -52,7 +52,7 @@ export async function getSessionSummary(
   // All sets of this session, joined with exercise names
   const { data: setRows } = await supabase
     .from('set_entries')
-    .select('exercise_id, weight_kg, reps, calculated_1rm, exercises(name, name_ru)')
+    .select('exercise_id, weight_kg, reps, is_warmup, exercises(name, name_ru)')
     .eq('user_id', userId)
     .eq('session_id', sessionId)
 
@@ -60,7 +60,7 @@ export async function getSessionSummary(
     exercise_id: string
     weight_kg: number
     reps: number
-    calculated_1rm: number | null
+    is_warmup: boolean | null
     exercises:
       | { name: string; name_ru: string | null }
       | { name: string; name_ru: string | null }[]
@@ -72,7 +72,7 @@ export async function getSessionSummary(
   let totalVolumeKg = 0
   const perExercise = new Map<
     string,
-    { name: string; nameRu: string | null; volume: number; sets: number; bestE1rm: number }
+    { name: string; nameRu: string | null; volume: number; sets: number; bestWeight: number }
   >()
 
   for (const s of sets) {
@@ -85,11 +85,11 @@ export async function getSessionSummary(
       nameRu: ex?.name_ru ?? null,
       volume: 0,
       sets: 0,
-      bestE1rm: 0,
+      bestWeight: 0,
     }
     entry.volume += s.weight_kg * s.reps
     entry.sets += 1
-    if (s.calculated_1rm && s.calculated_1rm > entry.bestE1rm) entry.bestE1rm = s.calculated_1rm
+    if (!s.is_warmup && s.weight_kg > entry.bestWeight) entry.bestWeight = s.weight_kg
     perExercise.set(s.exercise_id, entry)
   }
 
@@ -104,41 +104,42 @@ export async function getSessionSummary(
     .sort((a, b) => b.volume - a.volume)
     .slice(0, 3)
 
-  // PR detection: for each exercise touched, compare in-session best e1rm
-  // vs. all-time best from sets *outside* this session.
+  // PR detection: for each exercise touched, compare the in-session heaviest
+  // working set vs. the all-time best from sets *outside* this session.
   const exerciseIds = Array.from(perExercise.keys())
   const prs: SessionPR[] = []
   if (exerciseIds.length > 0) {
     const { data: histRows } = await supabase
       .from('set_entries')
-      .select('exercise_id, calculated_1rm, session_id')
+      .select('exercise_id, weight_kg, session_id')
       .eq('user_id', userId)
       .in('exercise_id', exerciseIds)
-      .not('calculated_1rm', 'is', null)
+      .eq('is_warmup', false)
+      .gt('weight_kg', 0)
       .neq('session_id', sessionId)
 
     const bestByExercise = new Map<string, number>()
     for (const row of (histRows ?? []) as Array<{
       exercise_id: string
-      calculated_1rm: number | null
+      weight_kg: number | null
     }>) {
-      if (row.calculated_1rm == null) continue
+      if (row.weight_kg == null) continue
       const cur = bestByExercise.get(row.exercise_id) ?? 0
-      if (row.calculated_1rm > cur) bestByExercise.set(row.exercise_id, row.calculated_1rm)
+      if (row.weight_kg > cur) bestByExercise.set(row.exercise_id, row.weight_kg)
     }
 
     for (const [exId, entry] of perExercise.entries()) {
-      if (entry.bestE1rm <= 0) continue
+      if (entry.bestWeight <= 0) continue
       const prev = bestByExercise.get(exId) ?? 0
-      if (entry.bestE1rm > prev) {
+      // First-ever result only sets the baseline — not celebrated as a PR.
+      if (prev > 0 && entry.bestWeight > prev) {
         prs.push({
           exerciseId: exId,
           exerciseName: entry.name,
           exerciseNameRu: entry.nameRu,
-          newBest: Math.round(entry.bestE1rm * 10) / 10,
+          newBest: Math.round(entry.bestWeight * 10) / 10,
           previousBest: Math.round(prev * 10) / 10,
-          improvementPct:
-            prev > 0 ? Math.round(((entry.bestE1rm - prev) / prev) * 1000) / 10 : null,
+          improvementPct: Math.round(((entry.bestWeight - prev) / prev) * 1000) / 10,
         })
       }
     }

@@ -102,7 +102,6 @@
     "subtitle": "За всё время",
     "noRecords": "Рекордов пока нет. Начни тренироваться!",
     "noRecordsHint": "Закрой тяжёлый подход — и он появится здесь.",
-    "e1rm": "1ПМ",
     "date": "Дата",
     "totalPrs": "Всего PR",
     "lifts": "Упражнений",
@@ -173,15 +172,18 @@
   "progress": {
     "title": "Прогресс",
     "eyebrow": "Прогресс",
-    "bestE1rmLabel": "Лучший 1ПМ",
-    "achievementsLabel": "Достижения",
+    "bestWeightLabel": "Лучший вес",
+    "exercisesLabel": "Упражнений",
+    "topWeightTag": "лучший вес",
+    "searchExercise": "Найти упражнение…",
+    "searchEmpty": "Ничего не найдено",
     "unlocked": "открыто",
     "bodyweightLabel": "Вес тела",
     "exerciseLabel": "Упражнение",
     "periodLabel": "Период",
     "majorLifts": "Базовые упражнения",
     "shortcuts": "Инструменты",
-    "unit1rm": "кг",
+    "unitWeight": "кг",
     "weightLabel": "Вес тела",
     "heightLabel": "Рост",
     "saveMetrics": "Сохранить",
@@ -189,7 +191,7 @@
     "weightHistoryTitle": "История веса",
     "entries": "записей",
     "noEntries": "нет данных",
-    "metricE1rm": "1ПМ",
+    "metricWeight": "Вес",
     "metricVolume": "Тоннаж",
     "unitVolume": "кг",
     "setsCount": "подходов",
@@ -230,38 +232,16 @@
       "after": "После",
       "compareHint": "Потяни слайдер, чтобы сравнить кадры."
     },
-    "goalsLink": {
-      "title": "Цели",
-      "sub": "Ставь целевой 1ПМ и смотри как заполняется полоса"
-    },
     "oneRMLink": {
       "title": "Калькулятор 1ПМ",
       "sub": "Прикидка макс-веса + проценты для рабочих подходов"
-    },
-    "achievements": {
-      "label": "Достижения",
-      "title": "Полученные значки",
-      "items": {
-        "sessions": { "title": "Тренировки" },
-        "streak": { "title": "Серия" },
-        "bench_bw": { "title": "Жим = вес" },
-        "squat_1_5bw": { "title": "Присед 1.5×" },
-        "deadlift_2bw": { "title": "Тяга 2×" },
-        "peak_tonnage": { "title": "Пик за день" },
-        "early_bird": { "title": "Ранний" },
-        "night_owl": { "title": "Сова" },
-        "cardio_starter": { "title": "Первое кардио" },
-        "measurements": { "title": "Замеры" },
-        "sleep_week": { "title": "Сон-неделя" },
-        "photo_first": { "title": "Первое фото" }
-      }
     },
     "strength": {
       "label": "Сила",
       "title": "Базовые лифты к весу тела",
       "noBodyweight": "Укажи свой вес, чтобы увидеть тиры силы.",
       "noData": "Сделай хотя бы один сет в базовом упражнении.",
-      "hint": "Тиры сравнивают расчётный 1ПМ с весом тела. Стандарты ориентированы на взрослых мужчин.",
+      "hint": "Тиры сравнивают лучший рабочий вес с весом тела. Стандарты ориентированы на взрослых мужчин.",
       "tiers": {
         "beginner": "Новичок",
         "novice": "Любитель",
@@ -309,6 +289,14 @@
       "30d": "30 дней",
       "90d": "90 дней",
       "1y": "1 год"
+    },
+    "bodyHistory": {
+      "title": "Вес и рост",
+      "empty": "Сохрани вес и рост ниже — история появится здесь."
+    },
+    "libraryLink": {
+      "title": "База упражнений",
+      "sub": "Вся история по упражнениям"
     }
   },
   "install": {
@@ -358,7 +346,7 @@
     "week": {
       "tonnage": "Тоннаж (кг)",
       "sessions": "тренировок",
-      "bestE1rm": "Лучший 1ПМ"
+      "bestWeight": "Лучший вес"
     },
     "today": {
       "trainingDay": "День тренировки",
@@ -391,7 +379,7 @@
     "bestStreakShort": "Рекорд: {n}",
     "freezesShort": "{left}/{total} заморозок",
     "moreInsights": "Подробная аналитика",
-    "moreInsightsSub": "Сон · Рекорды · Друзья · Мышцы",
+    "moreInsightsSub": "Рекорды · Друзья · Мышцы",
     "streakAtRiskTitle": "Стрик {n} под угрозой!",
     "streakAtRiskSub": "Сегодня тренировочный день — не разрывай серию",
     "deload": {
@@ -412,16 +400,7 @@
       "title": "Рекорды за {days} дней",
       "empty": "Пока новых рекордов нет — побей прошлый подход!",
       "firstRecord": "первый рекорд",
-      "hint": "Расчётный 1ПМ. Любое превышение прошлого лучшего — новый рекорд."
-    },
-    "sleep": {
-      "label": "Сон",
-      "title": "Сколько ты спал?",
-      "today": "сегодня",
-      "edit": "изменить",
-      "log": "записать",
-      "hoursShort": "ч",
-      "weekAvg": "Среднее за 7д"
+      "hint": "Лучший вес в подходе. Любое превышение прошлого лучшего — новый рекорд."
     },
     "wrapped": {
       "label": "Год пока что",
@@ -450,6 +429,8 @@
     "history": "История",
     "progress": "Прогресс",
     "records": "Рекорды",
+    "analyticsShortcut": "Аналитика",
+    "analyticsShortcutSub": "Графики",
     "activeSession": {
       "label": "Идёт тренировка",
       "continue": "Тапни чтобы продолжить →",
@@ -476,10 +457,6 @@
         "preset": {
           "title": "Готовая программа",
           "sub": "Full body, PPL, Upper/Lower, 5-дневка"
-        },
-        "goal": {
-          "title": "Поставить цель",
-          "sub": "Целевой 1ПМ и прогресс-бар к нему"
         },
         "calc": {
           "title": "Прикинуть 1ПМ",
@@ -622,7 +599,6 @@
       "set": "Подход",
       "weight": "Вес",
       "reps": "Повторения",
-      "e1rm": "1ПМ",
       "rpe": "Усилие"
     },
     "muscleLabel": {
@@ -644,7 +620,15 @@
       "cardio": "Кардио"
     },
     "muscleClickHint": "Нажми на мышцу",
-    "sets": "подх."
+    "sets": "подх.",
+    "detail": {
+      "tonnage": "Тоннаж",
+      "duration": "Время",
+      "sets": "Подходы",
+      "exercises": "Упражнения",
+      "best": "лучший",
+      "exVolume": "объём"
+    }
   },
   "analytics": {
     "title": "Аналитика",
@@ -655,7 +639,9 @@
     "allTime": "Все завершённые тренировки",
     "lastFourWeeks": "Последние 4 недели",
     "noExercise": "Упражнение не выбрано",
-    "e1rmProgress": "Прогресс 1ПМ",
+    "weightProgress": "Прогресс веса",
+    "searchExercise": "Найти упражнение…",
+    "searchEmpty": "Ничего не найдено",
     "monthlyVolume": "Объём по месяцам",
     "volumeLandmarks": "Ориентиры объёма (4 недели)",
     "emptyProgress": "Запиши хотя бы 2 тренировки, чтобы увидеть динамику.",
@@ -776,7 +762,6 @@
       "quotaExhausted": "Дневной лимит AI-генераций исчерпан. Попробуй завтра."
     },
     "lastTime": "Прошлый раз",
-    "firstSet": "🏆 Первый подход!",
     "prImproved": "Рекорд +{pct}%",
     "restSkip": "Пропустить",
     "resting": "Отдых",
@@ -801,8 +786,7 @@
     },
     "prCelebration": {
       "label": "Личный рекорд",
-      "title": "НОВЫЙ PR!",
-      "firstTime": "впервые"
+      "title": "НОВЫЙ PR!"
     },
     "back": "Назад",
     "liveStats": {
@@ -825,7 +809,7 @@
         "pushUp": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — крепко, +{step} кг",
         "holdReps": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — добей повторы",
         "nearMax": "Прошлый @ RPE {rpe} — держи вес, форму",
-        "deload": "Прошлый RPE 10 — скинь {step} кг",
+        "deload": "Прошлый RPE 10 — убери {step} кг",
         "noRpeAddWeight": "Прошлый {lastWeight}×{lastReps} — попробуй +{step} кг",
         "noRpeHold": "Прошлый {lastWeight}×{lastReps} — сначала добей повторы",
         "hold": "Держи вес"
@@ -884,7 +868,7 @@
     "types": {
       "today": "СЕГОДНЯ",
       "progression": "ПРОГРЕССИЯ",
-      "prediction": "ПРОГНОЗ 1ПМ",
+      "prediction": "ПРОГНОЗ",
       "warning": "ВНИМАНИЕ"
     }
   },
@@ -1034,19 +1018,19 @@
   },
   "friends": {
     "back": "Назад",
-    "title": "Кент-сквад",
+    "title": "Друзья",
     "anonymous": "Атлет Formly",
     "squad": {
-      "eyebrow": "Командный пульс",
-      "title": "Сквад этой недели",
-      "people": "в скваде",
+      "eyebrow": "Команда",
+      "title": "Команда этой недели",
+      "people": "в команде",
       "sessions": "тренировок",
       "inGym": "сейчас в зале",
       "leader": "Лидер по тоннажу"
     },
-    "listTitle": "Твой кент-сквад",
+    "listTitle": "Мои друзья",
     "empty": "Пока друзей нет",
-    "emptySub": "Поделись кодом с кентом из качалки — начнётся accountability",
+    "emptySub": "Поделись кодом с напарником по залу — тренироваться вместе проще",
     "neverTrained": "не тренил",
     "today": "сегодня",
     "yesterday": "вчера",
@@ -1054,14 +1038,14 @@
     "addLabel": "Добавить друга по коду",
     "add": "Добавить",
     "remove": "Удалить",
-    "addSuccess": "Заявка отправлена — ждём пока кент примет.",
+    "addSuccess": "Заявка отправлена — ждём подтверждения.",
     "requestsTitle": "Заявки",
     "requestsEmpty": "Заявок нет",
     "requestsEmptySub": "Код увидят — постучатся",
-    "wantsToAdd": "хочет в кенты",
+    "wantsToAdd": "хочет добавить тебя в друзья",
     "accept": "Принять",
     "decline": "Отклонить",
-    "prFeedTitle": "Рекорды кентов",
+    "prFeedTitle": "Рекорды друзей",
     "prsEmpty": "Пока тихо",
     "prsEmptySub": "Новые PR друзей появятся тут",
     "reactCongrats": "Поздравить",
@@ -1078,21 +1062,24 @@
     "stats": {
       "week": "Неделя",
       "tonnage": "Тоннаж",
-      "bestE1rm": "Лучший 1ПМ"
+      "bestWeight": "Лучший вес"
     },
     "inGym": "В зале сейчас",
     "myCode": {
       "label": "Твой код",
-      "subtitle": "Скинь 6-значный код кенту чтобы он добавил тебя.",
+      "subtitle": "Отправь другу свой 6-значный код, чтобы он добавил тебя.",
       "copy": "Скопировать",
       "copied": "Готово",
       "share": "Поделиться",
       "shareTitle": "Добавь меня в Formly",
       "shareMessage": "Добавь меня в Formly — мой код {code}"
     },
-    "teaserLabel": "Кенты",
+    "teaserLabel": "Друзья",
     "teaserTitle": "Активные друзья ({n})",
-    "teaserEmptyTitle": "Добавь кента из качалки →"
+    "teaserEmptyTitle": "Добавь друга из зала →",
+    "leaderboardTitle": "Рейтинг недели",
+    "you": "Ты",
+    "leaderboardEmpty": "На этой неделе пока никто не тренировался."
   },
   "wrapped": {
     "back": "Назад",
@@ -1115,7 +1102,7 @@
       "streakUnit": "{n, plural, one {день подряд} few {дня подряд} many {дней подряд} other {дня подряд}}",
       "streakSub": "Без единого пропуска.",
       "prEyebrow": "Личные рекорды",
-      "prUnit": "лучший e1ПМ года",
+      "prUnit": "лучший вес года",
       "monthEyebrow": "Самый мощный месяц",
       "monthSub": "<b>{sessions, plural, one {# тренировка} few {# тренировки} many {# тренировок} other {# тренировки}}</b> · {tonnage} кг тоннажа.",
       "fin1": "Тренируйся.",
@@ -1172,38 +1159,5 @@
         "title": "Тоннаж по месяцам"
       }
     }
-  },
-  "goals": {
-    "label": "Цели",
-    "title": "Силовые цели",
-    "newGoal": "Новая цель",
-    "newGoalTitle": "Выбери упражнение и цель",
-    "teaserTitle": "Активные цели",
-    "setFirst": "Поставь первую силовую цель →",
-    "exercise": "Упражнение",
-    "targetE1rm": "Целевой 1ПМ",
-    "targetDate": "К дате (необязательно)",
-    "targetBy": "Цель к {date}",
-    "save": "Сохранить",
-    "delete": "Удалить",
-    "listTitle": "Все цели",
-    "empty": "Пока нет целей. Выбери упражнение, поставь цель и иди к ней.",
-    "allAchieved": "Все цели достигнуты — поставь новую 🏆",
-    "noneDone": "Пока ничего не закрыто — добей первую цель 💪",
-    "sub": "Твои обязательства",
-    "newGoalSub": "Сила · Тоннаж · Серия",
-    "remainingDays": "<days>{n, plural, one {# день} few {# дня} other {# дней}}</days> осталось",
-    "noDeadline": "Без дедлайна",
-    "completedOn": "Готово {date}",
-    "markDone": "Готово",
-    "edit": "Изм.",
-    "strengthTarget": "Цель силы",
-    "tabs": {
-      "active": "Активные",
-      "done": "Готовые",
-      "all": "Все"
-    },
-    "badge": "{active} активных · {done} готово",
-    "ringDone": "ВЫПОЛНЕНО"
   }
 }

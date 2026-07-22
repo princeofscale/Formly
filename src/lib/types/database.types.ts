@@ -152,6 +152,7 @@ export type Database = {
           created_at: string
           exercise_id: string
           id: string
+          is_warmup: boolean
           reps: number
           rest_seconds: number | null
           rpe: number | null
@@ -165,6 +166,7 @@ export type Database = {
           created_at?: string
           exercise_id: string
           id?: string
+          is_warmup?: boolean
           reps: number
           rest_seconds?: number | null
           rpe?: number | null
@@ -178,6 +180,7 @@ export type Database = {
           created_at?: string
           exercise_id?: string
           id?: string
+          is_warmup?: boolean
           reps?: number
           rest_seconds?: number | null
           rpe?: number | null

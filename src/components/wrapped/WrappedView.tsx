@@ -182,7 +182,9 @@ export function WrappedView({ report }: Props) {
           <span className="tar-wr-eyebrow" style={{ color: 'var(--tar-warning)' }}>
             {t('slides.prEyebrow')}
           </span>
-          <p className="tar-wr-huge gold tabular-nums">{Math.round(report.topPRs[0].e1rm)}</p>
+          <p className="tar-wr-huge gold tabular-nums">
+            {Math.round(report.topPRs[0].bestWeightKg)}
+          </p>
           <div className="tar-wr-unit">
             {kg} · {t('slides.prUnit')}
           </div>
@@ -192,7 +194,7 @@ export function WrappedView({ report }: Props) {
                 <span className="rank tabular-nums">{i + 1}</span>
                 <span className="nm">{exName(pr)}</span>
                 <span className="val tabular-nums" style={{ color: 'var(--tar-warning)' }}>
-                  {Math.round(pr.e1rm)} {kg}
+                  {Math.round(pr.bestWeightKg)} {kg}
                 </span>
               </div>
             ))}

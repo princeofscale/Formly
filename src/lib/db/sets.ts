@@ -133,7 +133,38 @@ export async function getLastSetsForExercise(
   return prevSets.filter((s) => s.session_id === lastSessionId) as SetEntry[]
 }
 
-export async function getBestE1RMForExercise(
+/**
+ * Distinct exercises the user has actually logged sets for, most recent
+ * first. Pickers use this so users aren't offered a catalog of hundreds of
+ * exercises they never did.
+ */
+export async function getPerformedExerciseIds(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from('set_entries')
+    .select('exercise_id, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20000)
+
+  const seen = new Set<string>()
+  const ids: string[] = []
+  for (const row of data ?? []) {
+    if (!seen.has(row.exercise_id)) {
+      seen.add(row.exercise_id)
+      ids.push(row.exercise_id)
+    }
+  }
+  return ids
+}
+
+/**
+ * Heaviest working-set weight the user has actually lifted for an exercise.
+ * The app tracks progress by real top weight, not by estimated 1RM.
+ */
+export async function getBestWeightForExercise(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
@@ -141,42 +172,43 @@ export async function getBestE1RMForExercise(
 ): Promise<number | null> {
   let query = supabase
     .from('set_entries')
-    .select('calculated_1rm')
+    .select('weight_kg')
     .eq('user_id', userId)
     .eq('exercise_id', exerciseId)
     .eq('is_warmup', false)
-    .not('calculated_1rm', 'is', null)
-    .order('calculated_1rm', { ascending: false })
+    .gt('weight_kg', 0)
+    .order('weight_kg', { ascending: false })
     .limit(1)
 
   if (excludeSetId) query = query.neq('id', excludeSetId)
 
   const { data } = await query.maybeSingle()
-  return data?.calculated_1rm ?? null
+  return data?.weight_kg ?? null
 }
 
-export async function getE1RMHistory(
+export async function getBestWeightHistory(
   supabase: SupabaseClient,
   userId: string,
   exerciseId: string,
-): Promise<{ date: string; e1rm: number }[]> {
-  const histories = await getE1RMHistories(supabase, userId, [exerciseId])
+): Promise<{ date: string; best: number }[]> {
+  const histories = await getBestWeightHistories(supabase, userId, [exerciseId])
   return histories[exerciseId] ?? []
 }
 
-export async function getE1RMHistories(
+/** Per-day best working-set weight per exercise, oldest day first. */
+export async function getBestWeightHistories(
   supabase: SupabaseClient,
   userId: string,
   exerciseIds: string[],
-): Promise<Record<string, { date: string; e1rm: number }[]>> {
+): Promise<Record<string, { date: string; best: number }[]>> {
   if (exerciseIds.length === 0) return {}
   const { data } = await supabase
     .from('set_entries')
-    .select('exercise_id, created_at, calculated_1rm')
+    .select('exercise_id, created_at, weight_kg')
     .eq('user_id', userId)
     .in('exercise_id', exerciseIds)
     .eq('is_warmup', false)
-    .not('calculated_1rm', 'is', null)
+    .gt('weight_kg', 0)
     .order('created_at')
 
   if (!data) return {}
@@ -186,14 +218,14 @@ export async function getE1RMHistories(
     const byDay = byExercise.get(row.exercise_id) ?? new Map<string, number>()
     const day = row.created_at.slice(0, 10)
     const current = byDay.get(day) ?? 0
-    if (row.calculated_1rm > current) byDay.set(day, row.calculated_1rm)
+    if (row.weight_kg > current) byDay.set(day, row.weight_kg)
     byExercise.set(row.exercise_id, byDay)
   }
 
   return Object.fromEntries(
     [...byExercise].map(([exerciseId, byDay]) => [
       exerciseId,
-      Array.from(byDay.entries()).map(([date, e1rm]) => ({ date, e1rm })),
+      Array.from(byDay.entries()).map(([date, best]) => ({ date, best })),
     ]),
   )
 }

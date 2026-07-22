@@ -2,10 +2,10 @@
 interface Props {
   tonnage: number
   sessions: number
-  bestE1rm: number | null
+  bestWeight: number | null
   prevTonnage?: number
   prevSessions?: number
-  labels: { tonnage: string; sessions: string; bestE1rm: string }
+  labels: { tonnage: string; sessions: string; bestWeight: string }
 }
 
 function deltaLabel(
@@ -28,7 +28,7 @@ function deltaLabel(
 export function WeeklyStats({
   tonnage,
   sessions,
-  bestE1rm,
+  bestWeight,
   prevTonnage,
   prevSessions,
   labels,
@@ -66,12 +66,12 @@ export function WeeklyStats({
         )}
       </div>
       <div className="tar-d-stat">
-        <div className="k">{labels.bestE1rm}</div>
+        <div className="k">{labels.bestWeight}</div>
         <div className="v gold">
-          <span>{bestE1rm ? Math.round(bestE1rm) : '—'}</span>
-          {bestE1rm ? <span className="u">кг</span> : null}
+          <span>{bestWeight ? Math.round(bestWeight) : '—'}</span>
+          {bestWeight ? <span className="u">кг</span> : null}
         </div>
-        <div className="d muted">1ПМ</div>
+        <div className="d muted">max</div>
       </div>
     </div>
   )

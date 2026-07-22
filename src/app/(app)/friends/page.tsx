@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ChevronLeft, Dumbbell, Trophy, Users } from 'lucide-react'
+import { ChevronLeft, Crown, Dumbbell, Trophy, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
@@ -16,11 +16,21 @@ export default async function FriendsPage() {
   const supabase = await createClient()
   const t = await getTranslations('friends')
 
-  const [myCode, friends, pending, friendPRs] = await Promise.all([
+  const since7days = new Date()
+  since7days.setDate(since7days.getDate() - 7)
+
+  const [myCode, friends, pending, friendPRs, mySessionsResult] = await Promise.all([
     ensureFriendCode(supabase),
     getFriendsWithStats(supabase, 7),
     getPendingFriendRequests(supabase),
     getFriendsRecentPRs(supabase, 14),
+    supabase
+      .from('workout_sessions')
+      .select('total_volume_kg')
+      .eq('user_id', user.id)
+      .not('finished_at', 'is', null)
+      .neq('session_type', 'cardio')
+      .gte('started_at', since7days.toISOString()),
   ])
   const names = new Map(friends.map((friend) => [friend.friend_id, friend.display_name]))
   const namedFriendPRs = friendPRs.map((pr) => ({
@@ -29,7 +39,24 @@ export default async function FriendsPage() {
   }))
   const inGym = friends.filter((friend) => friend.is_in_gym).length
   const teamSessions = friends.reduce((sum, friend) => sum + friend.week_sessions, 0)
-  const weekLeader = [...friends].sort((a, b) => b.week_tonnage_kg - a.week_tonnage_kg)[0]
+
+  // Weekly leaderboard — friends and me, ranked by tonnage.
+  const mySessions = mySessionsResult.data ?? []
+  const myTonnage = mySessions.reduce((sum, s) => sum + (s.total_volume_kg ?? 0), 0)
+  const board = [
+    ...friends.map((f) => ({
+      id: f.friend_id,
+      name: f.display_name?.trim() || f.friend_code || t('anonymous'),
+      tonnage: f.week_tonnage_kg,
+      sessions: f.week_sessions,
+      isMe: false,
+    })),
+    { id: user.id, name: t('you'), tonnage: myTonnage, sessions: mySessions.length, isMe: true },
+  ].sort((a, b) => b.tonnage - a.tonnage)
+  const hasActivity = board.some((row) => row.tonnage > 0)
+  const weekLeader = friends.length > 0 && hasActivity ? board[0] : null
+
+  const rankColors = ['#FFC044', 'rgba(255,255,255,0.65)', '#C08A5A']
 
   return (
     <div className="tar-fr">
@@ -66,7 +93,7 @@ export default async function FriendsPage() {
             </div>
           </div>
           <div className="rounded-2xl bg-black/20 p-3">
-            <span className="mb-2 block h-4 text-sm">●</span>
+            <span className="mb-2 block h-4 text-sm text-emerald-300">●</span>
             <div className="font-mono text-xl font-black tabular-nums">{inGym}</div>
             <div className="text-[9px] uppercase tracking-wider text-white/40">
               {t('squad.inGym')}
@@ -80,16 +107,64 @@ export default async function FriendsPage() {
               <div className="text-[9px] font-bold uppercase tracking-wider text-amber-200/60">
                 {t('squad.leader')}
               </div>
-              <div className="truncate text-sm font-bold">
-                {weekLeader.display_name || weekLeader.friend_code || t('anonymous')}
-              </div>
+              <div className="truncate text-sm font-bold">{weekLeader.name}</div>
             </div>
             <div className="ml-auto font-mono text-xs font-bold text-amber-200">
-              {(weekLeader.week_tonnage_kg / 1000).toFixed(1)} t
+              {(weekLeader.tonnage / 1000).toFixed(1)} t
             </div>
           </div>
         )}
       </section>
+
+      {/* Weekly leaderboard */}
+      {friends.length > 0 && (
+        <>
+          <div className="tar-d-sectionhead tar-d-rise tar-d-rise-3">{t('leaderboardTitle')}</div>
+          {hasActivity ? (
+            <div className="tar-fr-list tar-d-rise tar-d-rise-3">
+              {board.map((row, i) => (
+                <div
+                  key={row.id}
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                  style={{
+                    background: row.isMe ? 'rgba(255, 182, 39, 0.06)' : 'var(--tar-card)',
+                    border: row.isMe
+                      ? '1px solid rgba(255, 182, 39, 0.22)'
+                      : '1px solid var(--tar-line)',
+                  }}
+                >
+                  <span
+                    className="w-6 shrink-0 text-center font-mono text-sm font-black tabular-nums"
+                    style={{ color: rankColors[i] ?? 'rgba(255,255,255,0.35)' }}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold">
+                    {row.name}
+                    {i === 0 && row.tonnage > 0 && (
+                      <Crown
+                        className="mb-0.5 ml-1.5 inline h-3.5 w-3.5"
+                        style={{ color: '#FFC044' }}
+                      />
+                    )}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] tabular-nums text-white/40">
+                    {row.sessions} {t('unitSessions')}
+                  </span>
+                  <span className="w-16 shrink-0 text-right font-mono text-sm font-bold tabular-nums">
+                    {(row.tonnage / 1000).toFixed(1)}
+                    <em className="ml-0.5 text-[10px] not-italic text-white/40">{t('unitTons')}</em>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="tar-fr-empty tar-d-rise tar-d-rise-3">
+              <div className="t">{t('leaderboardEmpty')}</div>
+            </div>
+          )}
+        </>
+      )}
 
       <MyCodeCard code={myCode ?? '······'} />
 

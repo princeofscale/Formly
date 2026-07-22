@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 interface Point {
   date: string
-  e1rm: number
+  best: number
 }
 
 export interface MajorLift {
@@ -22,7 +22,7 @@ interface Props {
 
 function buildPath(history: Point[], w: number, h: number, pad = 2): string | null {
   if (history.length < 2) return null
-  const values = history.map((p) => p.e1rm)
+  const values = history.map((p) => p.best)
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
@@ -30,7 +30,7 @@ function buildPath(history: Point[], w: number, h: number, pad = 2): string | nu
   return history
     .map((p, i) => {
       const x = pad + i * step
-      const y = pad + (h - pad * 2) * (1 - (p.e1rm - min) / range)
+      const y = pad + (h - pad * 2) * (1 - (p.best - min) / range)
       return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
     })
     .join(' ')
@@ -54,18 +54,18 @@ export function MajorLiftsGrid({ lifts }: Props) {
       {lifts.map((lift) => {
         const linePath = buildPath(lift.history, W, H)
         const areaPath = linePath ? buildArea(linePath, H) : null
-        const latest = lift.history[lift.history.length - 1]?.e1rm ?? null
+        const latest = lift.history[lift.history.length - 1]?.best ?? null
         // 30-day delta: find point closest to 30 days ago
         const cutoff = new Date()
         cutoff.setDate(cutoff.getDate() - 30)
         const cutoffIso = cutoff.toISOString().slice(0, 10)
-        const baseline = [...lift.history].reverse().find((p) => p.date <= cutoffIso)?.e1rm ?? null
+        const baseline = [...lift.history].reverse().find((p) => p.date <= cutoffIso)?.best ?? null
         const delta = latest != null && baseline != null ? latest - baseline : null
         const deltaDir: 'up' | 'down' | 'flat' =
           delta == null ? 'flat' : delta > 1 ? 'up' : delta < -1 ? 'down' : 'flat'
         const hasNewPR =
           latest != null && lift.history.length > 1
-            ? latest === Math.max(...lift.history.map((p) => p.e1rm))
+            ? latest === Math.max(...lift.history.map((p) => p.best))
             : false
         const gradId = `tar-spark-${lift.slug}`
 
@@ -83,7 +83,6 @@ export function MajorLiftsGrid({ lifts }: Props) {
             <div className="v">
               <span className="num">{latest != null ? Math.round(latest) : '—'}</span>
               <span className="u">kg</span>
-              <span className="e">e1RM</span>
             </div>
             {delta != null && deltaDir !== 'flat' ? (
               <span className={`d ${deltaDir}`}>

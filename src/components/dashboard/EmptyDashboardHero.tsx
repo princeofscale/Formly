@@ -2,16 +2,7 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import {
-  Dumbbell,
-  Bookmark,
-  Sparkles,
-  Target,
-  ChevronRight,
-  Trophy,
-  Zap,
-  Timer,
-} from 'lucide-react'
+import { Dumbbell, Bookmark, Sparkles, ChevronRight, Trophy, Zap, Timer } from 'lucide-react'
 
 interface Props {
   hasSchedule: boolean
@@ -105,13 +96,6 @@ export function EmptyDashboardHero({ hasSchedule }: Props) {
           title={t('quick.preset.title')}
           sub={t('quick.preset.sub')}
           color="#A78BFA"
-        />
-        <QuickLink
-          href="/goals"
-          icon={<Target className="h-5 w-5" style={{ color: '#FFC044' }} />}
-          title={t('quick.goal.title')}
-          sub={t('quick.goal.sub')}
-          color="#FFC044"
         />
         <QuickLink
           href="/tools/1rm"

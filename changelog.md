@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added an Analytics shortcut card to the dashboard quick-access grid so the analytics page is reachable again.
+- Added a weight and height history card to the progress page, backed by a new `body_measurements.height_cm` column; saving body metrics now also logs the day's values.
+- Added a searchable exercise picker on the progress and analytics pages that only offers exercises the athlete has actually performed.
+- Added a weekly friends leaderboard (friends and you, ranked by tonnage) to the friends page.
+- Added seasonal gating for the year-in-review: the dashboard teaser now appears only from December 15 through January 15, and in January it covers the year that just ended.
+
+### Changed
+
+- Progress, records, PRs, friend feeds, strength tiers, session summaries, AI-coach context, and the year-in-review now track the heaviest weight actually lifted instead of the estimated 1RM; new `get_recent_prs`, `get_friends_recent_prs`, and `get_friends_with_stats` migrations rank by working-set weight.
+- Renamed the friends experience to official wording (“Друзья”/“Команда”) and removed slang from all UI copy and push notifications.
+- Translated muscle names in the volume-landmarks list on the analytics page.
+- Redesigned the workout-detail history page: session stat chips, per-exercise cards with muscle glyphs, best-set highlighting, and per-exercise volume.
+- The quick-access grid now lays out as 2×2 cards with content-driven height, fixing icons overlapping the History and Records labels.
+- Dropped `backdrop-filter` blur on fixed and sticky bars for touch devices and retired the legacy red chart palette in favor of the brand accent, reducing scroll jank on phones.
+
+### Removed
+
+- Removed the sleep tracker, goals, and achievements features, including their dashboard cards, routes, services, and translations (database tables are retained).
+- Removed the “First set!” celebration and per-set estimated-1RM readouts from the active workout; a first-ever result now only sets the PR baseline.
+
 ## [1.0.2] - 2026-07-22
 
 ### Added

@@ -206,8 +206,8 @@ export function SetRow({
         }
         onSaved(syntheticSet, {
           is_pr: false,
-          previous_1rm: null,
-          current_1rm: 0,
+          previous_best: null,
+          current_best: 0,
           improvement_pct: null,
         })
       }

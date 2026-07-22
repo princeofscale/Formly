@@ -11,13 +11,23 @@ interface Props {
   data: DataPoint[]
   exerciseName: string
   unit: string
+  /** Accent for line/area/markers. Defaults to the brand amber. */
+  color?: string
+  emptyLabel?: string
 }
 
 const WIDTH = 600
 const HEIGHT = 220
 const PADDING = { top: 24, right: 16, bottom: 28, left: 36 }
 
-export function ProgressLineChart({ data, exerciseName, unit }: Props) {
+export function ProgressLineChart({
+  data,
+  exerciseName,
+  unit,
+  color = '#FFB627',
+  emptyLabel,
+}: Props) {
+  const gradientId = `progress-line-fill-${color.replace('#', '')}`
   const [hover, setHover] = useState<{ idx: number; x: number; y: number } | null>(null)
 
   if (data.length === 0) {
@@ -25,7 +35,7 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
       <div className="flex flex-col items-center justify-center" style={{ height: HEIGHT }}>
         <div className="text-3xl mb-2 opacity-30">📊</div>
         <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          {exerciseName ? `Нет данных по «${exerciseName}»` : 'Выбери упражнение'}
+          {emptyLabel ?? exerciseName}
         </p>
       </div>
     )
@@ -97,9 +107,9 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
         onMouseLeave={() => setHover(null)}
       >
         <defs>
-          <linearGradient id="progress-line-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF3B47" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#FF3B47" stopOpacity="0" />
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -130,15 +140,14 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
         })}
 
         {/* Area + line */}
-        <path d={areaPath} fill="url(#progress-line-fill)" />
+        <path d={areaPath} fill={`url(#${gradientId})`} />
         <path
           d={linePath}
           fill="none"
-          stroke="#FF3B47"
-          strokeWidth="2.5"
+          stroke={color}
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ filter: 'drop-shadow(0 0 6px rgba(255, 59, 71, 0.5))' }}
         />
 
         {/* Points */}
@@ -148,12 +157,9 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
             cx={p.x}
             cy={p.y}
             r={hover?.idx === i ? 5 : 3}
-            fill="#FF3B47"
+            fill={color}
             stroke="#15151C"
             strokeWidth="2"
-            style={
-              hover?.idx === i ? { filter: 'drop-shadow(0 0 6px rgba(255,59,71,0.8))' } : undefined
-            }
           />
         ))}
 
@@ -165,7 +171,7 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
               y1={PADDING.top}
               x2={hover.x}
               y2={HEIGHT - PADDING.bottom}
-              stroke="rgba(255,59,71,0.3)"
+              stroke="rgba(255,255,255,0.25)"
               strokeDasharray="2 3"
               strokeWidth="1"
             />
@@ -176,7 +182,7 @@ export function ProgressLineChart({ data, exerciseName, unit }: Props) {
               height="22"
               rx="6"
               fill="#15151C"
-              stroke="rgba(255,59,71,0.4)"
+              stroke="rgba(255,255,255,0.18)"
             />
             <text
               x={Math.min(WIDTH - 50, Math.max(PADDING.left + 40, hover.x))}

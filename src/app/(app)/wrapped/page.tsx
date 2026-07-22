@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { getWrappedReport } from '@/lib/services/wrapped.service'
+import { getWrappedReport, wrappedYear } from '@/lib/services/wrapped.service'
 import { WrappedView } from '@/components/wrapped/WrappedView'
 
 export default async function WrappedPage({
@@ -12,12 +12,13 @@ export default async function WrappedPage({
   const { user } = await verifySession()
   const supabase = await createClient()
 
+  // Default to the season's year: in January that's the year that just ended.
   const now = new Date()
-  const requested = yearStr ? parseInt(yearStr, 10) : now.getUTCFullYear()
+  const requested = yearStr ? parseInt(yearStr, 10) : wrappedYear(now)
   const year =
     Number.isFinite(requested) && requested >= 2000 && requested <= 2100
       ? requested
-      : now.getUTCFullYear()
+      : wrappedYear(now)
 
   const report = await getWrappedReport(supabase, user.id, year)
 

@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Bodyweight-relative strength tiers (kg-agnostic). Sourced from the
 // commonly-cited Lon Kilgore / Symmetric Strength tables for adult males.
+// Ratios use the heaviest working set actually lifted (not an estimated 1RM),
+// so tiers are slightly conservative for high-rep training.
 // Female users get scaled-down thresholds via the female multiplier.
 // These are approximate and intended as a friendly benchmark, not gospel.
 type LiftSlug =
@@ -17,7 +19,7 @@ export interface StrengthRatio {
   exerciseSlug: LiftSlug
   exerciseName: string
   exerciseNameRu: string | null
-  bestE1rm: number
+  bestWeightKg: number
   ratio: number
   tier: StrengthTier
   /** Ratio threshold (inclusive lower bound) to reach the next tier; null if elite. */
@@ -87,19 +89,20 @@ export async function getStrengthRatios(
   const ids = exercises.map((e) => e.id)
   const { data: setData } = await supabase
     .from('set_entries')
-    .select('exercise_id, calculated_1rm')
+    .select('exercise_id, weight_kg')
     .eq('user_id', userId)
     .in('exercise_id', ids)
-    .not('calculated_1rm', 'is', null)
+    .eq('is_warmup', false)
+    .gt('weight_kg', 0)
 
   const bestByExercise = new Map<string, number>()
   for (const row of (setData ?? []) as Array<{
     exercise_id: string
-    calculated_1rm: number | null
+    weight_kg: number | null
   }>) {
-    if (row.calculated_1rm == null) continue
+    if (row.weight_kg == null) continue
     const cur = bestByExercise.get(row.exercise_id) ?? 0
-    if (row.calculated_1rm > cur) bestByExercise.set(row.exercise_id, row.calculated_1rm)
+    if (row.weight_kg > cur) bestByExercise.set(row.exercise_id, row.weight_kg)
   }
 
   const out: StrengthRatio[] = []
@@ -112,7 +115,7 @@ export async function getStrengthRatios(
       exerciseSlug: ex.slug,
       exerciseName: ex.name,
       exerciseNameRu: ex.name_ru,
-      bestE1rm: Math.round(best * 10) / 10,
+      bestWeightKg: Math.round(best * 10) / 10,
       ratio: Math.round(ratio * 100) / 100,
       tier,
       nextTierAt,

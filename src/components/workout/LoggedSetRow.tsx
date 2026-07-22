@@ -297,7 +297,6 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
   }
 
   // ─── Display mode (with swipe-to-delete) ─────────────────────────────────
-  const isPr = set.calculated_1rm != null && isLast && !set.is_warmup
   const weightDisplay =
     isBodyweight && set.weight_kg === 0
       ? 'BW'
@@ -331,7 +330,7 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
           if (swipeX === 0) setEditing(true)
           else setSwipeX(0)
         }}
-        className={`tar-w-set ${isPr ? 'pr' : ''} ${set.is_warmup ? 'opacity-60' : ''} cursor-pointer`}
+        className={`tar-w-set ${set.is_warmup ? 'opacity-60' : ''} cursor-pointer`}
         style={{
           transform: `translateX(${swipeX}px)`,
           transition: isTouching ? 'none' : 'transform 180ms ease',
@@ -355,14 +354,8 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
           <span className="tar-w-set-cell-val">{set.reps}</span>
         </div>
         <div className="tar-w-set-cell">
-          <span className="tar-w-set-cell-label">
-            {set.calculated_1rm != null && isLast && !set.is_warmup ? '1ПМ' : t('rpeLabel')}
-          </span>
-          <span className="tar-w-set-cell-val">
-            {set.calculated_1rm != null && isLast && !set.is_warmup
-              ? set.calculated_1rm.toFixed(0)
-              : (set.rpe ?? '—')}
-          </span>
+          <span className="tar-w-set-cell-label">{t('rpeLabel')}</span>
+          <span className="tar-w-set-cell-val">{set.rpe ?? '—'}</span>
         </div>
         <Pencil className="h-4 w-4" style={{ color: 'var(--tar-w-ink-mute)', opacity: 0.6 }} />
       </div>

@@ -26,6 +26,8 @@ export function VolumeLandmarks({
   labels: {
     empty: string
     setsPerWeek: string
+    /** Localized muscle names keyed by the raw muscle id (quads, triceps, …). */
+    muscles: Record<string, string>
     status: Record<VolumeLandmark['status'], string>
   }
 }) {
@@ -57,13 +59,12 @@ export function VolumeLandmarks({
             }}
           >
             <span
-              className="capitalize"
               style={{
                 font: '600 13px/1 var(--tar-text)',
                 color: 'var(--tar-ink)',
               }}
             >
-              {l.muscle.replace('_', ' ')}
+              {labels.muscles[l.muscle] ?? l.muscle.replace('_', ' ')}
             </span>
             <div className="flex items-center gap-3">
               <span
