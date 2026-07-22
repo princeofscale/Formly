@@ -68,3 +68,4 @@ data/
 # claude design handoff bundles
 .design-cache/
 .env*.local
+.context/
