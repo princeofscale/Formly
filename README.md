@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://formly-sasharazer0-2495s-projects.vercel.app"><strong>Открыть Formly</strong></a>
+  <a href="https://training-ar.vercel.app"><strong>Открыть Formly</strong></a>
   ·
   <a href="changelog.md">История изменений</a>
 </p>
@@ -99,4 +99,4 @@ supabase db push
 - Тег вида `v1.2.3` запускает отдельный production-деплой через `.github/workflows/release.yml`.
 - Все изменения сначала добавляются в раздел `Unreleased` файла [changelog.md](changelog.md), а при релизе переносятся в версию.
 
-Production: [formly-sasharazer0-2495s-projects.vercel.app](https://formly-sasharazer0-2495s-projects.vercel.app)
+Production: [training-ar.vercel.app](https://training-ar.vercel.app)
