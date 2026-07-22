@@ -1,7 +1,6 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { TonnageByMonth } from '@/lib/services/analytics.service'
 import { weightUnit } from '@/lib/units'
 
@@ -10,64 +9,68 @@ export function TonnageChart({ data }: { data: TonnageByMonth[] }) {
   const kg = weightUnit(locale)
 
   if (data.length === 0) {
-    return (
-      <p
-        style={{
-          font: '500 12px/1.4 var(--tar-mono)',
-          letterSpacing: '0.06em',
-          color: 'var(--tar-ink-mute)',
-        }}
-      >
-        No data yet.
-      </p>
-    )
+    return <p className="font-mono text-xs tracking-wide text-white/40">No data yet.</p>
   }
+
+  const max = Math.max(...data.map((point) => point.total_kg), 1)
+  const slot = 564 / data.length
+  const width = Math.max(8, slot - 8)
 
   return (
     <div className="h-48">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-          <defs>
-            <linearGradient id="tar-bar-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FFB627" />
-              <stop offset="100%" stopColor="rgba(255, 107, 53, 0.35)" />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(245, 241, 232, 0.08)" />
-          <XAxis
-            dataKey="month"
-            tick={{
-              fill: 'rgba(245, 241, 232, 0.42)',
-              fontSize: 10,
-              fontFamily: 'ui-monospace, "JetBrains Mono", monospace',
-            }}
-            axisLine={{ stroke: 'rgba(245, 241, 232, 0.08)' }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{
-              fill: 'rgba(245, 241, 232, 0.42)',
-              fontSize: 10,
-              fontFamily: 'ui-monospace, "JetBrains Mono", monospace',
-            }}
-            unit={kg}
-            width={55}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#11111a',
-              border: '1px solid rgba(245, 241, 232, 0.16)',
-              borderRadius: 10,
-              fontSize: 12,
-            }}
-            cursor={{ fill: 'rgba(255, 182, 39, 0.08)' }}
-            formatter={(v) => [`${Number(v ?? 0).toFixed(0)} ${kg}`, 'Volume']}
-          />
-          <Bar dataKey="total_kg" fill="url(#tar-bar-grad)" radius={[6, 6, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+      <svg
+        viewBox="0 0 600 180"
+        className="h-full w-full overflow-visible"
+        role="img"
+        aria-label={`${Math.round(data.reduce((sum, point) => sum + point.total_kg, 0))} ${kg}`}
+      >
+        <defs>
+          <linearGradient id="analytics-bars" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#FFB627" />
+            <stop offset="1" stopColor="#FF6B35" stopOpacity=".38" />
+          </linearGradient>
+        </defs>
+        {[26, 64, 103, 142].map((y) => (
+          <line key={y} x1="18" x2="582" y1={y} y2={y} stroke="rgba(245,241,232,.08)" />
+        ))}
+        {data.map((point, index) => {
+          const height = Math.max(2, (point.total_kg / max) * 116)
+          const x = 18 + index * slot + (slot - width) / 2
+          return (
+            <g key={point.month}>
+              <rect
+                x={x}
+                y={142 - height}
+                width={width}
+                height={height}
+                rx="6"
+                fill="url(#analytics-bars)"
+              >
+                <title>{`${point.month}: ${Math.round(point.total_kg)} ${kg}`}</title>
+              </rect>
+              <text
+                x={x + width / 2}
+                y="169"
+                textAnchor="middle"
+                fill="rgba(245,241,232,.42)"
+                fontSize="9"
+                fontFamily="ui-monospace, monospace"
+              >
+                {point.month.slice(5)}
+              </text>
+            </g>
+          )
+        })}
+        <text
+          x="18"
+          y="19"
+          fill="rgba(245,241,232,.48)"
+          fontSize="10"
+          fontFamily="ui-monospace, monospace"
+        >
+          {Math.round(max).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US')} {kg}
+        </text>
+      </svg>
     </div>
   )
 }

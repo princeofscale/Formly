@@ -1,15 +1,6 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
 import { weightUnit } from '@/lib/units'
 
 interface DataPoint {
@@ -23,73 +14,82 @@ export function ProgressChart({ data, exerciseName }: { data: DataPoint[]; exerc
 
   if (data.length < 2) {
     return (
-      <p
-        style={{
-          font: '500 12px/1.4 var(--tar-mono)',
-          letterSpacing: '0.06em',
-          color: 'var(--tar-ink-mute)',
-        }}
-      >
+      <p className="font-mono text-xs tracking-wide text-white/40">
         Log at least 2 sessions to see trend.
       </p>
     )
   }
 
+  const values = data.map((point) => point.e1rm)
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min || 1
+  const points = data.map((point, index) => ({
+    ...point,
+    x: 18 + (index / (data.length - 1)) * 564,
+    y: 142 - ((point.e1rm - min) / range) * 116,
+  }))
+  const line = points.map((point) => `${point.x},${point.y}`).join(' ')
+
   return (
     <div className="h-48">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-          <defs>
-            <linearGradient id="tar-line-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#FF6B35" />
-              <stop offset="100%" stopColor="#FFB627" />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(245, 241, 232, 0.08)" />
-          <XAxis
-            dataKey="date"
-            tick={{
-              fill: 'rgba(245, 241, 232, 0.42)',
-              fontSize: 10,
-              fontFamily: 'ui-monospace, "JetBrains Mono", monospace',
-            }}
-            tickFormatter={(d) => d.slice(5)}
-            axisLine={{ stroke: 'rgba(245, 241, 232, 0.08)' }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{
-              fill: 'rgba(245, 241, 232, 0.42)',
-              fontSize: 10,
-              fontFamily: 'ui-monospace, "JetBrains Mono", monospace',
-            }}
-            unit={kg}
-            width={45}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#11111a',
-              border: '1px solid rgba(245, 241, 232, 0.16)',
-              borderRadius: 10,
-              fontSize: 12,
-            }}
-            labelStyle={{ color: 'rgba(245, 241, 232, 0.62)' }}
-            itemStyle={{ color: '#FFB627' }}
-            cursor={{ stroke: 'rgba(255, 182, 39, 0.25)', strokeWidth: 1 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="e1rm"
-            stroke="url(#tar-line-grad)"
-            strokeWidth={2.5}
-            dot={false}
-            activeDot={{ r: 4, fill: '#FFB627', stroke: '#FF6B35', strokeWidth: 2 }}
-            name={exerciseName}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <svg
+        viewBox="0 0 600 180"
+        className="h-full w-full overflow-visible"
+        role="img"
+        aria-label={`${exerciseName}: ${Math.round(min)}–${Math.round(max)} ${kg}`}
+      >
+        <defs>
+          <linearGradient id="analytics-line" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#FF6B35" />
+            <stop offset="1" stopColor="#FFB627" />
+          </linearGradient>
+          <linearGradient id="analytics-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#FFB627" stopOpacity=".22" />
+            <stop offset="1" stopColor="#FF6B35" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[26, 64, 103, 142].map((y) => (
+          <line key={y} x1="18" x2="582" y1={y} y2={y} stroke="rgba(245,241,232,.08)" />
+        ))}
+        <polygon points={`18,142 ${line} 582,142`} fill="url(#analytics-area)" />
+        <polyline
+          points={line}
+          fill="none"
+          stroke="url(#analytics-line)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {points.map((point, index) => (
+          <g key={`${point.date}-${index}`}>
+            <circle cx={point.x} cy={point.y} r="5" fill="#11111A" stroke="#FFB627" strokeWidth="2">
+              <title>{`${point.date}: ${point.e1rm.toFixed(1)} ${kg}`}</title>
+            </circle>
+            {(index === 0 || index === points.length - 1) && (
+              <text
+                x={point.x}
+                y="169"
+                textAnchor={index === 0 ? 'start' : 'end'}
+                fill="rgba(245,241,232,.42)"
+                fontSize="10"
+                fontFamily="ui-monospace, monospace"
+              >
+                {point.date.slice(5)}
+              </text>
+            )}
+          </g>
+        ))}
+        <text
+          x="18"
+          y="19"
+          fill="rgba(245,241,232,.48)"
+          fontSize="10"
+          fontFamily="ui-monospace, monospace"
+        >
+          {Math.round(max)} {kg}
+        </text>
+      </svg>
     </div>
   )
 }
