@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-22
+
 ### Added
 
 - Added an Analytics pulse with strength trend, lifetime training volume, and four-week muscle-balance coverage.
@@ -95,6 +97,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated vulnerable transitive packages without applying npm audit's incompatible Next.js downgrade.
 - Validated redirect destinations and prevented environment-specific database errors from leaking to users.
 
-[Unreleased]: https://github.com/princeofscale/Formly/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/princeofscale/Formly/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/princeofscale/Formly/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/princeofscale/Formly/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/princeofscale/Formly/releases/tag/v1.0.0
