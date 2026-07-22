@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Dumbbell, Home, TrendingUp, ClipboardList, User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -31,61 +31,28 @@ function matchesTab(pathname: string, tab: TabDef): boolean {
 }
 
 export function BottomTabBar() {
-  const router = useRouter()
   const pathname = usePathname()
   const t = useTranslations('nav')
-  const [isPending, startTransition] = useTransition()
-  const [pendingHref, setPendingHref] = useState<string | null>(null)
-
-  // Prefetch all tabs on mount so navigation is instant after first paint
-  useEffect(() => {
-    for (const tab of TABS) {
-      router.prefetch(tab.href)
-    }
-  }, [router])
-
-  // Clear pending target once pathname catches up to it
-  useEffect(() => {
-    if (pendingHref && (pathname === pendingHref || pathname.startsWith(pendingHref + '/'))) {
-      const id = window.setTimeout(() => setPendingHref(null), 0)
-      return () => window.clearTimeout(id)
-    }
-  }, [pathname, pendingHref])
-
-  // Effective "active tab" = pending click target (if any) or actual route match
-  const pendingTab = pendingHref ? TABS.find((t) => t.href === pendingHref) : null
-  const routeTab = TABS.find((tab) => matchesTab(pathname, tab))
-  const activeTab = pendingTab ?? routeTab
-
-  function handleClick(href: string) {
-    if (href === activeTab?.href) return
-    setPendingHref(href)
-    startTransition(() => {
-      router.push(href)
-    })
-  }
 
   return (
     <nav className="tar-nav">
       <div className="tar-nav-list">
         {TABS.map((tab) => {
-          const active = activeTab?.href === tab.href
-          const isLoading = isPending && pendingHref === tab.href
+          const active = matchesTab(pathname, tab)
           const Icon = tab.icon
           return (
-            <button
+            <Link
               key={tab.href}
-              type="button"
-              onClick={() => handleClick(tab.href)}
-              onMouseEnter={() => router.prefetch(tab.href)}
+              href={tab.href}
+              prefetch={false}
               className={`tar-nav-item${active ? ' on' : ''}`}
               aria-label={t(tab.labelKey)}
               aria-current={active ? 'page' : undefined}
             >
               <span className="tar-nav-pill" aria-hidden />
-              <Icon className={`tar-nav-ico${isLoading ? ' animate-pulse' : ''}`} />
+              <Icon className="tar-nav-ico" />
               <span className="tar-nav-lab">{t(tab.labelKey)}</span>
-            </button>
+            </Link>
           )
         })}
       </div>

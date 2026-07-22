@@ -39,6 +39,40 @@ function contentToText(content: unknown): string {
   return ''
 }
 
+const INSIGHT_TYPES = new Set<AIInsightItem['type']>([
+  'today',
+  'progression',
+  'prediction',
+  'warning',
+])
+
+export function parseInsightsResponse(raw: string): AIInsightItem[] {
+  const parsed: unknown = JSON.parse(raw)
+  const candidates = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === 'object' && 'items' in parsed
+      ? (parsed as { items: unknown }).items
+      : null
+
+  if (!Array.isArray(candidates)) throw new Error('AI response has no items array')
+
+  const items = candidates.filter((item): item is AIInsightItem => {
+    if (!item || typeof item !== 'object') return false
+    const value = item as Partial<AIInsightItem>
+    return (
+      typeof value.type === 'string' &&
+      INSIGHT_TYPES.has(value.type as AIInsightItem['type']) &&
+      typeof value.title === 'string' &&
+      typeof value.body === 'string' &&
+      (value.detail === undefined || typeof value.detail === 'string') &&
+      (value.action === undefined || typeof value.action === 'string')
+    )
+  })
+
+  if (items.length === 0) throw new Error('AI response has no valid insights')
+  return items.slice(0, 5)
+}
+
 export async function generateInsights(ctx: GrokContext): Promise<AIInsights> {
   const apiKey = process.env.MISTRAL_API_KEY
   if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
@@ -46,17 +80,18 @@ export async function generateInsights(ctx: GrokContext): Promise<AIInsights> {
   const client = new Mistral({ apiKey })
 
   const systemPrompt = `You are a personal fitness coach AI for a workout tracking app.
-Analyze the user's training data and return a JSON array of insight objects.
+Analyze the user's training data and return a JSON object with an "items" array.
 
 Each object must have:
 - type: "today" | "progression" | "prediction" | "warning"
 - title: short headline (max 6 words)
-- body: 1-2 sentences of advice or information
-- detail: optional short string with numbers/specifics
+- body: 1-2 concise sentences explaining what the data means and why it matters
+- detail: a short evidence string with the exact metric used, when data is available
+- action: one concrete action for the user's next workout (max 12 words)
 
-Return 4-6 items: exactly one "today", one or two "progression", one "prediction", optionally one "warning" (only if overtraining signs are present).
+Return 4-5 useful items: exactly one "today", one or two "progression", one "prediction", optionally one "warning" only when the data supports it. Never invent measurements and never give generic motivational filler.
 Respond entirely in ${ctx.locale === 'ru' ? 'Russian' : 'English'}.
-Return ONLY a valid JSON array. No markdown. No explanation outside the JSON.`
+Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanation.`
 
   const userPrompt = JSON.stringify({
     profile: ctx.profile,
@@ -83,9 +118,7 @@ Return ONLY a valid JSON array. No markdown. No explanation outside the JSON.`
 
   let items: AIInsightItem[]
   try {
-    const parsed = JSON.parse(raw)
-    items = Array.isArray(parsed) ? parsed : parsed.items
-    if (!Array.isArray(items)) throw new Error('not an array')
+    items = parseInsightsResponse(raw)
   } catch {
     throw new Error(`AI returned invalid JSON: ${raw.slice(0, 200)}`)
   }

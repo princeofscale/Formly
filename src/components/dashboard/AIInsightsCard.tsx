@@ -1,8 +1,15 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { RefreshCw, Sparkles, AlertTriangle } from 'lucide-react'
+import {
+  RefreshCw,
+  Sparkles,
+  AlertTriangle,
+  ArrowRight,
+  BrainCircuit,
+  Database,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { refreshAIInsightsAction } from '@/app/(app)/dashboard/actions'
 import type { AIInsights, AIInsightItem } from '@/lib/types/models'
@@ -41,14 +48,6 @@ export function AIInsightsCard({ initialInsights }: Props) {
     })
   }
 
-  useEffect(() => {
-    if (!initialInsights) {
-      const id = window.setTimeout(runGeneration, 0)
-      return () => window.clearTimeout(id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const updatedTime = insights?.generated_at
     ? new Date(insights.generated_at).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', {
         hour: '2-digit',
@@ -58,14 +57,17 @@ export function AIInsightsCard({ initialInsights }: Props) {
     : null
 
   return (
-    <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[300ms]">
-      <CardHeader className="pb-2">
+    <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/[0.10] via-card to-card animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[300ms]">
+      <CardHeader className="border-b border-white/[0.06] pb-3">
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary/15">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/15 ring-1 ring-primary/20">
+              <BrainCircuit className="h-4 w-4 text-primary" />
             </div>
-            <span className="uppercase tracking-wider font-bold text-xs">{t('title')}</span>
+            <div>
+              <span className="block uppercase tracking-wider font-bold text-xs">{t('title')}</span>
+              <span className="block text-[9px] font-normal text-white/40">{t('subtitle')}</span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {updatedTime && !isPending && (
@@ -90,6 +92,21 @@ export function AIInsightsCard({ initialInsights }: Props) {
       </CardHeader>
 
       <CardContent className="space-y-3">
+        {!insights && !isPending && !error && (
+          <div className="py-3 text-center">
+            <Sparkles className="mx-auto mb-2 h-6 w-6 text-primary" />
+            <p className="mx-auto max-w-xs text-xs leading-relaxed text-white/50">{t('empty')}</p>
+            <button
+              type="button"
+              onClick={runGeneration}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground transition hover:brightness-110"
+            >
+              {t('analyze')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Loading state */}
         {isPending && !insights && (
           <div className="space-y-2">
@@ -134,7 +151,22 @@ export function AIInsightsCard({ initialInsights }: Props) {
                   <p className="text-sm font-semibold text-white leading-tight">{item.title}</p>
                   <p className="text-xs text-zinc-400 leading-relaxed">{item.body}</p>
                   {item.detail && (
-                    <p className="text-[10px] font-mono text-zinc-500">{item.detail}</p>
+                    <p className="mt-1 flex items-center gap-1 text-[10px] font-mono text-zinc-500">
+                      <Database className="h-3 w-3" />
+                      {item.detail}
+                    </p>
+                  )}
+                  {item.action && (
+                    <div className="mt-2 flex items-start gap-1.5 rounded-xl bg-white/[0.045] px-2.5 py-2 text-[11px] font-semibold text-white/75">
+                      <ArrowRight
+                        className="mt-0.5 h-3 w-3 shrink-0"
+                        style={{ color: style.color }}
+                      />
+                      <span>
+                        <b className="mr-1 text-white/40">{t('action')}:</b>
+                        {item.action}
+                      </span>
+                    </div>
                   )}
                 </div>
               )

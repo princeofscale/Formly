@@ -160,23 +160,40 @@ export async function getE1RMHistory(
   userId: string,
   exerciseId: string,
 ): Promise<{ date: string; e1rm: number }[]> {
+  const histories = await getE1RMHistories(supabase, userId, [exerciseId])
+  return histories[exerciseId] ?? []
+}
+
+export async function getE1RMHistories(
+  supabase: SupabaseClient,
+  userId: string,
+  exerciseIds: string[],
+): Promise<Record<string, { date: string; e1rm: number }[]>> {
+  if (exerciseIds.length === 0) return {}
   const { data } = await supabase
     .from('set_entries')
-    .select('created_at, calculated_1rm')
+    .select('exercise_id, created_at, calculated_1rm')
     .eq('user_id', userId)
-    .eq('exercise_id', exerciseId)
+    .in('exercise_id', exerciseIds)
     .eq('is_warmup', false)
     .not('calculated_1rm', 'is', null)
     .order('created_at')
 
-  if (!data) return []
+  if (!data) return {}
 
-  const byDay = new Map<string, number>()
+  const byExercise = new Map<string, Map<string, number>>()
   for (const row of data) {
+    const byDay = byExercise.get(row.exercise_id) ?? new Map<string, number>()
     const day = row.created_at.slice(0, 10)
     const current = byDay.get(day) ?? 0
     if (row.calculated_1rm > current) byDay.set(day, row.calculated_1rm)
+    byExercise.set(row.exercise_id, byDay)
   }
 
-  return Array.from(byDay.entries()).map(([date, e1rm]) => ({ date, e1rm }))
+  return Object.fromEntries(
+    [...byExercise].map(([exerciseId, byDay]) => [
+      exerciseId,
+      Array.from(byDay.entries()).map(([date, e1rm]) => ({ date, e1rm })),
+    ]),
+  )
 }

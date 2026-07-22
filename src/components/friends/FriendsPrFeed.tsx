@@ -48,16 +48,17 @@ export function FriendsPrFeed({ prs }: Props) {
   return (
     <div className="tar-fr-list tar-d-rise tar-d-rise-5">
       {prs.map((pr) => {
+        const athleteName = pr.display_name?.trim() || pr.friend_code || t('anonymous')
         const name = locale === 'ru' ? (pr.exercise_name_ru ?? pr.exercise_name) : pr.exercise_name
         const e1rm = Math.round(pr.current_best)
         const delta =
           pr.improvement_pct != null ? `+${pr.improvement_pct.toFixed(1)}%` : t('firstRecord')
         return (
           <div key={pr.pr_set_id} className="tar-fr-pr">
-            <span className="tar-fr-av tabular-nums">{(pr.friend_code ?? '??').slice(0, 2)}</span>
+            <span className="tar-fr-av">{athleteName.slice(0, 2).toUpperCase()}</span>
             <div className="bx">
               <div className="row1">
-                <span className="code tabular-nums">{pr.friend_code ?? '······'}</span>
+                <span className="code">{athleteName}</span>
                 <span className="ago">{timeAgoMap.get(pr.pr_set_id)}</span>
               </div>
               <div className="ex">{name}</div>

@@ -103,6 +103,7 @@ export type Database = {
           age: number | null
           body_fat_pct: number | null
           created_at: string
+          display_name: string | null
           height_cm: number | null
           id: string
           training_location:
@@ -117,6 +118,7 @@ export type Database = {
           age?: number | null
           body_fat_pct?: number | null
           created_at?: string
+          display_name?: string | null
           height_cm?: number | null
           id: string
           training_location?:
@@ -131,6 +133,7 @@ export type Database = {
           age?: number | null
           body_fat_pct?: number | null
           created_at?: string
+          display_name?: string | null
           height_cm?: number | null
           id?: string
           training_location?:

@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-22
+
+### Added
+
+- Added public athlete display names across profiles, dashboard greetings, friend requests, friend lists, and friend PR activity.
+- Added a weekly crew pulse with active gym members, team sessions, and a tonnage leader.
+- Added evidence and a concrete next-workout action to AI Coach recommendations.
+
+### Changed
+
+- Redesigned the Dashboard coaching hierarchy so the daily briefing appears before deeper weekly analytics.
+- Made AI analysis user-triggered instead of running automatically during the initial Dashboard render.
+- Paginated workout history at 30 sessions per page and combined four major-lift progress reads into one database query.
+- Moved the full muscle heatmap to Analytics and replaced the hidden Dashboard copy with a lightweight link.
+- Replaced lifetime workout downloads on History and Profile with a server-side aggregate and optimized friend statistics into grouped database reads.
+
+### Fixed
+
+- Stopped the bottom navigation from prefetching every heavy application route at once.
+- Deduplicated repeated session verification during a server render and removed an unnecessary client-only page transition wrapper.
+
+### Removed
+
+- Removed the unused legacy navigation component and its expensive backdrop blur implementation.
+
 ## [1.0.0] - 2026-07-22
 
 ### Added
@@ -50,5 +75,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated vulnerable transitive packages without applying npm audit's incompatible Next.js downgrade.
 - Validated redirect destinations and prevented environment-specific database errors from leaking to users.
 
-[Unreleased]: https://github.com/princeofscale/Formly/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/princeofscale/Formly/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/princeofscale/Formly/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/princeofscale/Formly/releases/tag/v1.0.0

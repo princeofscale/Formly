@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { getRecentSessions } from '@/lib/db/workouts'
+import { getRecentSessions, getWorkoutLifetimeStats } from '@/lib/db/workouts'
 import Link from 'next/link'
-import { ChevronRight, Dumbbell, Activity, Trophy } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Dumbbell, Trophy } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { weightUnit } from '@/lib/units'
@@ -12,11 +12,15 @@ interface SetRow {
   exercises: { name: string; name_ru: string | null } | null
 }
 
-interface AggregateRow {
-  total_volume_kg: number | null
-}
+const PAGE_SIZE = 30
 
-export default async function HistoryPage() {
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const requestedPage = Number((await searchParams).page ?? '1')
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('history')
@@ -24,20 +28,13 @@ export default async function HistoryPage() {
   const kg = weightUnit(locale)
 
   // Two independent reads — one Promise.all round-trip.
-  const [sessions, allSessionsAgg] = await Promise.all([
-    getRecentSessions(supabase, user.id, 100),
-    supabase
-      .from('workout_sessions')
-      .select('total_volume_kg', { count: 'exact' })
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null),
+  const [sessions, lifetimeStats] = await Promise.all([
+    getRecentSessions(supabase, user.id, PAGE_SIZE, (page - 1) * PAGE_SIZE),
+    getWorkoutLifetimeStats(supabase),
   ])
 
-  const totalSessions = allSessionsAgg.count ?? 0
-  const totalVolumeKg = ((allSessionsAgg.data ?? []) as AggregateRow[]).reduce(
-    (s, r) => s + (r.total_volume_kg ?? 0),
-    0,
-  )
+  const totalSessions = lifetimeStats.total_sessions
+  const totalVolumeKg = lifetimeStats.total_tonnage_kg
   const avgPerSession = totalSessions > 0 ? Math.round(totalVolumeKg / totalSessions) : 0
 
   // Batch-fetch exercise tags for all sessions in one query
@@ -246,9 +243,33 @@ export default async function HistoryPage() {
         </section>
       ))}
 
-      <div className="hidden">
-        <Activity aria-hidden />
-      </div>
+      {totalSessions > PAGE_SIZE && (
+        <nav className="flex items-center justify-between gap-3 pt-3" aria-label={t('pagination')}>
+          {page > 1 ? (
+            <Link
+              href={`/history?page=${page - 1}`}
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/65 hover:bg-white/[0.05]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              {t('previous')}
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="font-mono text-[10px] text-white/35">{t('page', { n: page })}</span>
+          {page * PAGE_SIZE < totalSessions ? (
+            <Link
+              href={`/history?page=${page + 1}`}
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/65 hover:bg-white/[0.05]"
+            >
+              {t('next')}
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
     </div>
   )
 }

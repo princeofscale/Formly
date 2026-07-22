@@ -1,7 +1,6 @@
 // src/app/(app)/dashboard/page.tsx
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Activity,
   Calendar,
@@ -16,17 +15,13 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
-import { MuscleHeatmap } from '@/components/dashboard/MuscleHeatmap'
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats'
 import { WeekdayStrip } from '@/components/dashboard/WeekdayStrip'
-import { getMuscleVolumeForDays } from '@/lib/services/analytics.service'
 import { getTodayInsights } from '@/lib/db/ai-insights'
 import { AIInsightsCard } from '@/components/dashboard/AIInsightsCard'
 import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { DeloadBanner } from '@/components/dashboard/DeloadBanner'
-import { WeakPointsCard } from '@/components/dashboard/WeakPointsCard'
-import { detectWeakPoints } from '@/lib/services/weak-points.service'
 import { SleepCard } from '@/components/dashboard/SleepCard'
 import { getRecentSleep, getSleepForDate } from '@/lib/db/sleep'
 import { PRsCard } from '@/components/dashboard/PRsCard'
@@ -44,27 +39,13 @@ import { EmptyDashboardHero } from '@/components/dashboard/EmptyDashboardHero'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 
 const DELOAD_CYCLE_WEEKS = 5
-const WEAK_POINTS_DAYS = 28
 const PR_WINDOW_DAYS = 30
 const STREAK_FREEZES_PER_MONTH = 2
 
-const MUSCLE_PERIOD_DAYS: Record<string, number> = {
-  '7d': 7,
-  '30d': 30,
-  '90d': 90,
-}
-
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ musclePeriod?: string }>
-}) {
-  const { musclePeriod = '7d' } = await searchParams
-  const safeMusclePeriod = MUSCLE_PERIOD_DAYS[musclePeriod] ? musclePeriod : '7d'
+export default async function DashboardPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('dashboard')
-  const tHistory = await getTranslations('history')
   const locale = await getLocale()
 
   // Close any abandoned session before we read it back — otherwise the
@@ -89,14 +70,10 @@ export default async function DashboardPage({
   const [
     sessionsResult,
     profileResult,
-    weekResult,
-    prevWeekResult,
+    fortnightResult,
     prResult,
     initialInsights,
     workoutDates,
-    firstSessionResult,
-    muscleVolumes,
-    weakWindowVolumes,
     todaySleep,
     weekSleep,
     recentPRs,
@@ -113,20 +90,13 @@ export default async function DashboardPage({
       .not('finished_at', 'is', null)
       .order('started_at', { ascending: false })
       .limit(3),
-    supabase.from('profiles').select('training_schedule').eq('id', user.id).single(),
+    supabase.from('profiles').select('training_schedule, display_name').eq('id', user.id).single(),
     supabase
       .from('workout_sessions')
-      .select('total_volume_kg')
+      .select('started_at, total_volume_kg')
       .eq('user_id', user.id)
       .not('finished_at', 'is', null)
-      .gte('started_at', since7days.toISOString()),
-    supabase
-      .from('workout_sessions')
-      .select('total_volume_kg')
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null)
-      .gte('started_at', since14days.toISOString())
-      .lt('started_at', since7days.toISOString()),
+      .gte('started_at', since14days.toISOString()),
     supabase
       .from('set_entries')
       .select('calculated_1rm')
@@ -137,16 +107,6 @@ export default async function DashboardPage({
       .maybeSingle(),
     getTodayInsights(supabase, user.id),
     getFinishedSessionDates(supabase, user.id),
-    supabase
-      .from('workout_sessions')
-      .select('started_at')
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null)
-      .order('started_at', { ascending: true })
-      .limit(1)
-      .maybeSingle(),
-    getMuscleVolumeForDays(supabase, user.id, MUSCLE_PERIOD_DAYS[safeMusclePeriod]),
-    getMuscleVolumeForDays(supabase, user.id, WEAK_POINTS_DAYS),
     getSleepForDate(supabase, user.id, todayDate),
     getRecentSleep(supabase, user.id, 7),
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
@@ -166,7 +126,7 @@ export default async function DashboardPage({
   if (profileSchedule === null) {
     redirect('/onboarding')
   }
-  if (!firstSessionResult.data) {
+  if (workoutDates.length === 0) {
     const hasSchedule = Array.isArray(profileSchedule) && profileSchedule.length > 0
     return <EmptyDashboardHero hasSchedule={hasSchedule} />
   }
@@ -186,13 +146,13 @@ export default async function DashboardPage({
   const scheduledToday = schedule.includes(todayIsoDay)
   const workedOutToday = workoutDates.includes(todayIso)
   const streakAtRisk = scheduledToday && !workedOutToday && streakInfo.current >= 3
-  const weekTonnage = (weekResult.data ?? []).reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
-  const weekSessions = (weekResult.data ?? []).length
-  const prevWeekTonnage = (prevWeekResult.data ?? []).reduce(
-    (s, r) => s + (r.total_volume_kg ?? 0),
-    0,
-  )
-  const prevWeekSessions = (prevWeekResult.data ?? []).length
+  const fortnightSessions = fortnightResult.data ?? []
+  const currentWeek = fortnightSessions.filter((r) => r.started_at >= since7days.toISOString())
+  const previousWeek = fortnightSessions.filter((r) => r.started_at < since7days.toISOString())
+  const weekTonnage = currentWeek.reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
+  const weekSessions = currentWeek.length
+  const prevWeekTonnage = previousWeek.reduce((s, r) => s + (r.total_volume_kg ?? 0), 0)
+  const prevWeekSessions = previousWeek.length
   const bestE1rm = prResult.data?.calculated_1rm ?? null
 
   // Count sets logged in the active session for the banner
@@ -204,8 +164,6 @@ export default async function DashboardPage({
       .eq('session_id', activeSession.id)
     activeSessionSetCount = count ?? 0
   }
-  const weakPoints = detectWeakPoints(weakWindowVolumes, WEAK_POINTS_DAYS / 7, 3)
-
   const sleepWeekAvg =
     weekSleep.length > 0 ? weekSleep.reduce((s, r) => s + r.hours, 0) / weekSleep.length : null
   const sleepWeekBars: { date: string; hours: number }[] = []
@@ -218,9 +176,7 @@ export default async function DashboardPage({
   }
 
   // Deload-week detection: full N-week cycles since first finished session
-  const firstSessionDate = firstSessionResult.data?.started_at
-    ? new Date(firstSessionResult.data.started_at)
-    : null
+  const firstSessionDate = workoutDates.at(-1) ? new Date(workoutDates.at(-1)!) : null
   let deloadWeekIndex: number | null = null
   if (firstSessionDate) {
     const msPerWeek = 7 * 24 * 60 * 60 * 1000
@@ -263,13 +219,15 @@ export default async function DashboardPage({
     '7': t('today.days.7'),
   }
 
-  // Greeting + name. Profile has no display_name; fall back to email prefix.
+  // Prefer the chosen profile name and keep a friendly fallback for existing users.
   const hour = now.getHours()
   const greetingKey =
     hour < 5 ? 'night' : hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'
   const emailPrefix = (user.email ?? '').split('@')[0] ?? ''
   const cleanName = emailPrefix.replace(/[._-]/g, ' ').trim()
-  const displayName = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : ''
+  const displayName =
+    profileResult.data?.display_name?.trim() ||
+    (cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : '')
 
   // ISO week number
   function isoWeek(d: Date) {
@@ -410,6 +368,15 @@ export default async function DashboardPage({
           <DeloadBanner weekIndex={deloadWeekIndex} cycleWeeks={DELOAD_CYCLE_WEEKS} />
         </div>
       )}
+
+      {/* Daily briefing stays high on the page: useful now, details below. */}
+      <div className="tar-d-rise tar-d-rise-3">
+        <div className="tar-d-sectionhead">
+          {t('aiCoach')}
+          <span className="counter">{t('todayLabel')}</span>
+        </div>
+        <AIInsightsCard initialInsights={initialInsights} />
+      </div>
 
       {/* This week */}
       <div className="tar-d-rise tar-d-rise-3">
@@ -566,10 +533,6 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-1">
-        <AIInsightsCard initialInsights={initialInsights} />
-      </div>
-
       <details className="group rounded-[28px] bg-card ring-1 ring-white/[0.06] animate-in fade-in slide-in-from-bottom-4 duration-300 delay-200 open:bg-card/95">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 marker:hidden [&::-webkit-details-marker]:hidden">
           <div className="flex min-w-0 items-center gap-3">
@@ -584,32 +547,12 @@ export default async function DashboardPage({
           <ChevronDown className="h-5 w-5 shrink-0 text-white/40 transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-4 border-t border-white/[0.06] p-5">
-          <section className="grid gap-4 lg:grid-cols-2">
+          <section>
             <SleepCard
               todayDate={todayDate}
               todayHours={todaySleep?.hours ?? null}
               weekAvg={sleepWeekAvg}
               weekDays={sleepWeekBars}
-            />
-            <WeakPointsCard
-              weakPoints={weakPoints}
-              muscleLabels={{
-                chest: tHistory('muscleLabel.chest'),
-                back: tHistory('muscleLabel.back'),
-                biceps: tHistory('muscleLabel.biceps'),
-                triceps: tHistory('muscleLabel.triceps'),
-                forearms: tHistory('muscleLabel.forearms'),
-                core: tHistory('muscleLabel.core'),
-                quads: tHistory('muscleLabel.quads'),
-                hamstrings: tHistory('muscleLabel.hamstrings'),
-                glutes: tHistory('muscleLabel.glutes'),
-                calves: tHistory('muscleLabel.calves'),
-                traps: tHistory('muscleLabel.traps'),
-                lats: tHistory('muscleLabel.lats'),
-                rear_delts: tHistory('muscleLabel.rear_delts'),
-                front_delts: tHistory('muscleLabel.front_delts'),
-                side_delts: tHistory('muscleLabel.side_delts'),
-              }}
             />
           </section>
 
@@ -622,44 +565,18 @@ export default async function DashboardPage({
             <FriendsTeaser friends={friends} />
           </section>
 
-          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-300 delay-[275ms]">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-                <Activity className="h-4 w-4 text-primary" />
-                {t('muscleActivity')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MuscleHeatmap
-                muscleVolumes={muscleVolumes}
-                currentPeriod={safeMusclePeriod}
-                periodLabels={{
-                  '7d': t('musclePeriods.7d'),
-                  '30d': t('musclePeriods.30d'),
-                  '90d': t('musclePeriods.90d'),
-                }}
-                muscleLabels={{
-                  chest: tHistory('muscleLabel.chest'),
-                  back: tHistory('muscleLabel.back'),
-                  biceps: tHistory('muscleLabel.biceps'),
-                  triceps: tHistory('muscleLabel.triceps'),
-                  forearms: tHistory('muscleLabel.forearms'),
-                  core: tHistory('muscleLabel.core'),
-                  quads: tHistory('muscleLabel.quads'),
-                  hamstrings: tHistory('muscleLabel.hamstrings'),
-                  glutes: tHistory('muscleLabel.glutes'),
-                  calves: tHistory('muscleLabel.calves'),
-                  traps: tHistory('muscleLabel.traps'),
-                  lats: tHistory('muscleLabel.lats'),
-                  rear_delts: tHistory('muscleLabel.rear_delts'),
-                  front_delts: tHistory('muscleLabel.front_delts'),
-                  side_delts: tHistory('muscleLabel.side_delts'),
-                }}
-                clickHint={tHistory('muscleClickHint')}
-                setsLabel={tHistory('sets')}
-              />
-            </CardContent>
-          </Card>
+          <Link
+            href="/analytics"
+            className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition hover:border-primary/30 hover:bg-white/[0.05]"
+          >
+            <span className="flex items-center gap-3 text-sm font-bold">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Activity className="h-4 w-4" />
+              </span>
+              {t('muscleActivity')}
+            </span>
+            <ChevronRight className="h-4 w-4 text-white/40" />
+          </Link>
         </div>
       </details>
 

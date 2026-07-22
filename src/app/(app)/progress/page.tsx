@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { getExercises } from '@/lib/db/exercises'
-import { getE1RMHistory, getVolumeHistoryForExercise } from '@/lib/db/sets'
+import { getE1RMHistories, getE1RMHistory, getVolumeHistoryForExercise } from '@/lib/db/sets'
 import { ExerciseMetricChart } from '@/components/progress/ExerciseMetricChart'
 import { ExerciseDropdown } from '@/components/progress/ExerciseDropdown'
 import { PeriodDropdown } from '@/components/progress/PeriodDropdown'
@@ -87,10 +87,14 @@ export default async function ProgressPage({
     (e): e is NonNullable<typeof e> => Boolean(e),
   )
 
-  const [strengthRatios, achievements, majorHistories] = await Promise.all([
+  const [strengthRatios, achievements, majorHistoriesByExercise] = await Promise.all([
     currentWeight ? getStrengthRatios(supabase, user.id, currentWeight) : Promise.resolve([]),
     getAchievements(supabase, user.id),
-    Promise.all(majorExercises.map((ex) => getE1RMHistory(supabase, user.id, ex.id))),
+    getE1RMHistories(
+      supabase,
+      user.id,
+      majorExercises.map((exercise) => exercise.id),
+    ),
   ])
 
   // Build MajorLift list — exclude exercises with no history.
@@ -167,8 +171,8 @@ export default async function ProgressPage({
   }
 
   const majorLifts: MajorLift[] = majorExercises
-    .map((ex, i) => {
-      const history = majorHistories[i] ?? []
+    .map((ex) => {
+      const history = majorHistoriesByExercise[ex.id] ?? []
       if (history.length === 0) return null
       const meta = majorMeta[ex.slug as (typeof MAJOR_SLUGS)[number]]
       return {

@@ -18,10 +18,15 @@ export function FriendRequestList({ requests }: Props) {
     <div className="tar-fr-list tar-d-rise tar-d-rise-4">
       {requests.map((req) => (
         <div key={req.friendship_id} className="tar-fr-req">
-          <span className="tar-fr-av tabular-nums">{(req.requester_code ?? '??').slice(0, 2)}</span>
+          <span className="tar-fr-av">
+            {(req.requester_name || req.requester_code || '??').slice(0, 2).toUpperCase()}
+          </span>
           <div className="who">
-            <div className="code tabular-nums">{req.requester_code ?? '······'}</div>
-            <div className="sub">{t('wantsToAdd')}</div>
+            <div className="code">{req.requester_name || req.requester_code || t('anonymous')}</div>
+            <div className="sub">
+              <span className="tabular-nums">{req.requester_code ?? '······'}</span> ·{' '}
+              {t('wantsToAdd')}
+            </div>
           </div>
           <form action={acceptFriendRequestAction}>
             <input type="hidden" name="friendshipId" value={req.friendship_id} />

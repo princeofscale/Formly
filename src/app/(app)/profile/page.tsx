@@ -14,6 +14,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
 import { calculateBMI, bmiCategory } from '@/lib/utils/bmi'
 import { getFinishedSessionDates } from '@/lib/db/streak'
+import { getWorkoutLifetimeStats } from '@/lib/db/workouts'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { updateProfileAction } from './actions'
 
@@ -47,20 +48,13 @@ export default async function ProfilePage() {
 
   const [profileRes, lifetimeStats, workoutDates] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase
-      .from('workout_sessions')
-      .select('total_volume_kg', { count: 'exact' })
-      .eq('user_id', user.id)
-      .not('finished_at', 'is', null),
+    getWorkoutLifetimeStats(supabase),
     getFinishedSessionDates(supabase, user.id),
   ])
 
   const p = profileRes.data as Profile | null
-  const totalWorkouts = lifetimeStats.count ?? 0
-  const totalTonnage = (lifetimeStats.data ?? []).reduce(
-    (s, r: { total_volume_kg: number | null }) => s + (r.total_volume_kg ?? 0),
-    0,
-  )
+  const totalWorkouts = lifetimeStats.total_sessions
+  const totalTonnage = lifetimeStats.total_tonnage_kg
   const schedule = (p?.training_schedule as number[] | null) ?? []
   const streakInfo = calculateStreak(workoutDates, schedule, new Date(), 2)
   const longestStreak = streakInfo.longest
@@ -72,12 +66,13 @@ export default async function ProfilePage() {
     yearShort: t('stats.yearShort'),
   })
   const dayKeys = ['1', '2', '3', '4', '5', '6', '7'] as const
-  const initials = (user.email ?? 'GL').slice(0, 2).toUpperCase()
-
-  // Derive a friendly name from email prefix
+  // Existing accounts get a friendly fallback until they choose a public name.
   const emailPrefix = (user.email ?? '').split('@')[0] ?? ''
   const cleanName = emailPrefix.replace(/[._-]/g, ' ').trim()
-  const displayName = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'Athlete'
+  const displayName =
+    p?.display_name?.trim() ||
+    (cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'Athlete')
+  const initials = displayName.slice(0, 2).toUpperCase()
 
   const tonnageDisplay = Math.round(totalTonnage).toLocaleString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -144,6 +139,22 @@ export default async function ProfilePage() {
 
       {/* Edit form — wrapped in tar-pr-field style cards */}
       <form action={updateProfileAction} className="flex flex-col gap-1.5 tar-d-rise tar-d-rise-3">
+        <div className="tar-pr-field">
+          <Label className="l flex items-center gap-1.5">
+            <UserRound />
+            {t('form.displayName')}
+          </Label>
+          <Input
+            name="display_name"
+            type="text"
+            minLength={2}
+            maxLength={40}
+            defaultValue={p?.display_name ?? ''}
+            placeholder={t('form.displayNamePlaceholder')}
+            className="bg-transparent border-0 px-0 h-auto text-base font-semibold focus-visible:ring-0"
+          />
+          <p className="mt-1 text-[10px] text-white/35">{t('form.displayNameHint')}</p>
+        </div>
         <div className="grid grid-cols-2 gap-1.5">
           <div className="tar-pr-field">
             <Label className="l flex items-center gap-1.5">

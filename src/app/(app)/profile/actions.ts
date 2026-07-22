@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 
 const profileSchema = z.object({
+  display_name: z.string().trim().min(2).max(40).optional(),
   weight_kg: z.coerce.number().positive().optional(),
   height_cm: z.coerce.number().positive().optional(),
   age: z.coerce.number().int().min(1).max(120).optional(),
@@ -22,6 +23,7 @@ export async function updateProfileAction(formData: FormData): Promise<void> {
   const supabase = await createClient()
 
   const raw = {
+    display_name: formData.get('display_name') || undefined,
     weight_kg: formData.get('weight_kg') || undefined,
     height_cm: formData.get('height_cm') || undefined,
     age: formData.get('age') || undefined,

@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 export interface FriendWithStats {
   friend_id: string
   friend_code: string | null
+  display_name: string | null
   total_sessions: number
   week_sessions: number
   week_tonnage_kg: number
@@ -48,6 +49,7 @@ export interface PendingFriendRequest {
   friendship_id: string
   requester_id: string
   requester_code: string | null
+  requester_name: string | null
   created_at: string
 }
 

@@ -55,6 +55,8 @@ export function FriendList({ friends }: Props) {
   return (
     <div className="tar-fr-list tar-d-rise tar-d-rise-6">
       {prepared.map(({ f, lastDays }) => {
+        const name = f.display_name?.trim() || f.friend_code || t('anonymous')
+        const initials = name.slice(0, 2).toUpperCase()
         const lastLabel =
           lastDays == null
             ? t('neverTrained')
@@ -70,10 +72,11 @@ export function FriendList({ friends }: Props) {
 
         return (
           <div key={f.friend_id} className="tar-fr-friend" style={{ cursor: 'default' }}>
-            <span className="tar-fr-av tabular-nums">{(f.friend_code ?? '??').slice(0, 2)}</span>
+            <span className="tar-fr-av">{initials}</span>
             <div className="who">
-              <div className="code tabular-nums">{f.friend_code ?? '······'}</div>
+              <div className="code">{name}</div>
               <div className={`last${f.is_in_gym ? ' live' : ''}`}>
+                <span className="tabular-nums">{f.friend_code ?? '······'}</span> ·{' '}
                 {f.is_in_gym ? t('inGym') : lastLabel}
               </div>
             </div>

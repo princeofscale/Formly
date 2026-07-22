@@ -1,6 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { WorkoutSession } from '@/lib/types/models'
 
+export interface WorkoutLifetimeStats {
+  total_sessions: number
+  total_tonnage_kg: number
+}
+
+export async function getWorkoutLifetimeStats(
+  supabase: SupabaseClient,
+): Promise<WorkoutLifetimeStats> {
+  const { data, error } = await supabase.rpc('get_workout_lifetime_stats')
+  if (error) throw new Error(error.message)
+  const row = (data as WorkoutLifetimeStats[] | null)?.[0]
+  return row ?? { total_sessions: 0, total_tonnage_kg: 0 }
+}
+
 export async function createSession(
   supabase: SupabaseClient,
   userId: string,
@@ -26,6 +40,7 @@ export async function getRecentSessions(
   supabase: SupabaseClient,
   userId: string,
   limit = 10,
+  offset = 0,
 ): Promise<WorkoutSession[]> {
   const { data } = await supabase
     .from('workout_sessions')
@@ -33,7 +48,7 @@ export async function getRecentSessions(
     .eq('user_id', userId)
     .not('finished_at', 'is', null)
     .order('started_at', { ascending: false })
-    .limit(limit)
+    .range(offset, offset + limit - 1)
   return (data as WorkoutSession[]) ?? []
 }
 

@@ -31,6 +31,7 @@ export async function getRecentPRs(
 export interface FriendRecentPR {
   friend_id: string
   friend_code: string | null
+  display_name?: string | null
   pr_set_id: string
   exercise_id: string
   exercise_name: string

@@ -352,6 +352,8 @@
   "dashboard": {
     "title": "Dashboard",
     "overview": "Training overview",
+    "aiCoach": "Coach briefing",
+    "todayLabel": "Today",
     "startWorkout": "WORKOUT",
     "week": {
       "tonnage": "Tonnage (kg)",
@@ -505,6 +507,9 @@
     },
     "form": {
       "editProfile": "Edit Profile",
+      "displayName": "Name in Formly",
+      "displayNamePlaceholder": "What should we call you?",
+      "displayNameHint": "Friends and your AI coach will see this name.",
       "weight": "Weight (kg)",
       "height": "Height (cm)",
       "age": "Age",
@@ -570,6 +575,10 @@
     }
   },
   "history": {
+    "pagination": "History pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {n}",
     "eyebrow": "Workouts",
     "totalSessions": "sessions",
     "totalTonnage": "Tonnage",
@@ -847,6 +856,10 @@
   },
   "aiInsights": {
     "title": "AI Coach",
+    "subtitle": "Your sets and recovery, explained",
+    "empty": "Run an analysis when you're ready. It won't slow down the page and only uses your training data.",
+    "analyze": "Analyze progress",
+    "action": "Next step",
     "updating": "AI is analyzing your training data...",
     "updated": "updated",
     "refresh": "Refresh",
@@ -1006,6 +1019,15 @@
   "friends": {
     "back": "Back",
     "title": "Crew",
+    "anonymous": "Formly athlete",
+    "squad": {
+      "eyebrow": "Team pulse",
+      "title": "This week's crew",
+      "people": "in crew",
+      "sessions": "workouts",
+      "inGym": "in gym now",
+      "leader": "Tonnage leader"
+    },
     "listTitle": "Your crew",
     "empty": "No friends yet",
     "emptySub": "Share your code with a gym buddy and accountability begins",

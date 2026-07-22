@@ -34,6 +34,7 @@ export type UnitSystem = 'metric' | 'imperial'
 
 export interface Profile {
   id: string
+  display_name: string | null
   unit_system: UnitSystem
   weight_kg: number | null
   height_cm: number | null
@@ -157,6 +158,7 @@ export interface AIInsightItem {
   title: string
   body: string
   detail?: string
+  action?: string
 }
 
 export interface AIInsights {
