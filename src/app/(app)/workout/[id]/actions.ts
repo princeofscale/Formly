@@ -26,6 +26,14 @@ import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { calculateWarmupSets } from '@/lib/services/warmup.service'
 import {
+  emitWeightPr,
+  emitWorkoutFinished,
+  emitVolumePr,
+  maybeEmitStreakMilestone,
+} from '@/lib/services/activity.service'
+import { getFinishedSessionDates } from '@/lib/db/streak'
+import { calculateStreak } from '@/lib/services/streak.service'
+import {
   validateReps,
   validateRpe,
   validateSetNumber,
@@ -86,6 +94,15 @@ export async function saveSetAction(data: {
     void notifyFriendsOfPR(supabase, {
       userId: user.id,
       exerciseName,
+      weightKg,
+      reps,
+      improvementPct: prResult.improvement_pct,
+    })
+    void emitWeightPr(supabase, {
+      sessionId,
+      exerciseId,
+      exerciseName: ex?.name ?? 'Exercise',
+      exerciseNameRu: ex?.name_ru ?? null,
       weightKg,
       reps,
       improvementPct: prResult.improvement_pct,
@@ -329,6 +346,11 @@ export async function updateTemplateAction(
   await updateTemplate(supabase, user.id, templateId, exercises)
 }
 
+// Mirrors the dashboard's local freeze allowance (src/app/(app)/dashboard/page.tsx,
+// STREAK_FREEZES_PER_MONTH) so the streak computed here matches what the user sees
+// there. There's no shared export for this value — keep the two in sync manually.
+const STREAK_FREEZES_PER_MONTH = 2
+
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
   await verifySession()
   const supabase = await createClient()
@@ -339,6 +361,62 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
     .reduce((sum, s) => sum + s.weight_kg * s.reps, 0)
 
   await finishSession(supabase, sessionId, totalVolume)
+
+  const workingSets = allSets.filter((s) => !s.is_warmup)
+  const setCount = workingSets.length
+  const exerciseCount = new Set(workingSets.map((s) => s.exercise_id)).size
+  const { data: sess } = await supabase
+    .from('workout_sessions')
+    .select('started_at, finished_at, user_id')
+    .eq('id', sessionId)
+    .maybeSingle()
+  const durationMin =
+    sess?.started_at && sess?.finished_at
+      ? Math.max(
+          0,
+          Math.round(
+            (new Date(sess.finished_at).getTime() - new Date(sess.started_at).getTime()) / 60000,
+          ),
+        )
+      : 0
+
+  // Best-effort activity emits. This action ends in redirect(), which aborts
+  // the function (throws) right after — await (not void) so these complete
+  // and flush before that happens, rather than being cut off mid-flight.
+  await emitWorkoutFinished(supabase, sessionId, {
+    tonnageKg: totalVolume,
+    durationMin,
+    setCount,
+    exerciseCount,
+  })
+
+  if (sess?.user_id) {
+    // Volume PR: this session's tonnage beats every prior finished strength session.
+    const { data: prior } = await supabase
+      .from('workout_sessions')
+      .select('total_volume_kg')
+      .eq('user_id', sess.user_id)
+      .not('finished_at', 'is', null)
+      .neq('session_type', 'cardio')
+      .neq('id', sessionId)
+      .order('total_volume_kg', { ascending: false })
+      .limit(1)
+    const priorBest = prior?.[0]?.total_volume_kg ?? 0
+    if (totalVolume > 0 && totalVolume > priorBest) {
+      await emitVolumePr(supabase, sessionId, totalVolume)
+    }
+
+    // Streak milestone — same calculateStreak call the dashboard makes.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('training_schedule')
+      .eq('id', sess.user_id)
+      .maybeSingle()
+    const schedule: number[] = profile?.training_schedule ?? []
+    const dates = await getFinishedSessionDates(supabase, sess.user_id)
+    const streak = calculateStreak(dates, schedule, new Date(), STREAK_FREEZES_PER_MONTH)
+    await maybeEmitStreakMilestone(supabase, sess.user_id, streak.current)
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/history')
