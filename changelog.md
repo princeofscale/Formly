@@ -4,13 +4,18 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...HEAD)
 
 ### Changed
 
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
+- Standardized release headings, comparison links, and contributor release instructions.
 
-## [1.1.0] - 2026-07-23
+## 1.1.0 - 2026-07-23
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.0.2...v1.1.0)
 
 ### Added
 
@@ -38,7 +43,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Upgraded Next.js from 16.2.6 to 16.2.11, resolving nine published advisories including middleware bypass, SSRF in Server Actions, and response-cache confusion.
 
-## [1.0.2] - 2026-07-22
+## 1.0.2 - 2026-07-22
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.0.1...v1.0.2)
 
 ### Added
 
@@ -60,7 +67,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Removed the unused Recharts dependency and 34 transitive packages.
 
-## [1.0.1] - 2026-07-22
+## 1.0.1 - 2026-07-22
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.0.0...v1.0.1)
 
 ### Added
 
@@ -85,7 +94,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Removed the unused legacy navigation component and its expensive backdrop blur implementation.
 
-## [1.0.0] - 2026-07-22
+## 1.0.0 - 2026-07-22
+
+[View release](https://github.com/princeofscale/Formly/releases/tag/v1.0.0)
 
 ### Added
 
@@ -128,8 +139,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added CodeQL and gitleaks scanning and patched high-severity dependency advisories.
 - Updated vulnerable transitive packages without applying npm audit's incompatible Next.js downgrade.
 - Validated redirect destinations and prevented environment-specific database errors from leaking to users.
-
-[Unreleased]: https://github.com/princeofscale/Formly/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/princeofscale/Formly/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/princeofscale/Formly/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/princeofscale/Formly/releases/tag/v1.0.0
