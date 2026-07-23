@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Trash2, UserPlus } from 'lucide-react'
 import { removeFriendAction } from '@/app/(app)/friends/actions'
+import { BlockFriendButton } from '@/components/friends/BlockFriendButton'
 import type { FriendWithStats } from '@/lib/db/friends'
 
 interface Props {
@@ -94,17 +95,24 @@ export function FriendList({ friends }: Props) {
               </div>
               <div className="k">{t('stats.tonnage')}</div>
             </div>
-            <form action={removeFriendAction} className="go">
-              <input type="hidden" name="friendId" value={f.friend_id} />
-              <button
-                type="submit"
-                aria-label={t('remove')}
-                className="transition-colors hover:text-red-400"
-                style={{ color: 'var(--tar-ink-soft)', display: 'grid', placeItems: 'center' }}
-              >
-                <Trash2 className="i" style={{ width: 14, height: 14 }} />
-              </button>
-            </form>
+            <div className="actions">
+              <form action={removeFriendAction} className="go">
+                <input type="hidden" name="friendId" value={f.friend_id} />
+                <button
+                  type="submit"
+                  aria-label={t('remove')}
+                  className="transition-colors hover:text-red-400"
+                  style={{ color: 'var(--tar-ink-soft)', display: 'grid', placeItems: 'center' }}
+                >
+                  <Trash2 className="i" style={{ width: 14, height: 14 }} />
+                </button>
+              </form>
+              <BlockFriendButton
+                targetId={f.friend_id}
+                label={t('block.action')}
+                confirmLabel={t('block.confirm')}
+              />
+            </div>
           </div>
         )
       })}

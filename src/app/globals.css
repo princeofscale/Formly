@@ -6104,6 +6104,38 @@
   width: 15px;
   height: 15px;
 }
+.tar-fr-friend .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.tar-fr-friend .actions .block {
+  display: grid;
+  place-items: center;
+  color: var(--tar-ink-soft);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tar-fr-friend .actions .block[data-confirming] {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 100px;
+  background: rgba(255, 77, 94, 0.12);
+  border: 1px solid rgba(255, 77, 94, 0.35);
+  color: var(--tar-danger);
+  font: 700 9px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tar-fr-friend .actions .block:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
 .tar-fr-empty {
   padding: 22px 16px;
   border-radius: 16px;
