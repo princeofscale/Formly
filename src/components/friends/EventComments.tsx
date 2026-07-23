@@ -18,7 +18,8 @@ interface Props {
 }
 
 // Top-level helper so Date.now() stays out of the render path
-// (React Compiler purity rule) — see FriendsPrFeed.buildTimeAgoLabels.
+// (React Compiler purity rule) — same pattern used across the friends
+// components for relative-time labels (build a Map once, outside JSX).
 function buildCommentTimeLabels(comments: FeedComment[], locale: string): Map<string, string> {
   const now = Date.now()
   const m = new Map<string, string>()

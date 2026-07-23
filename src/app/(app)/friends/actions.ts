@@ -11,9 +11,7 @@ import {
   findUserByFriendCode,
   removeFriend,
 } from '@/lib/db/friends'
-import { getPrSetOwnerAndExercise, toggleReaction } from '@/lib/db/prs'
 import { notifyFriendRequest } from '@/lib/services/friend-request-notifications.service'
-import { notifyReactionRecipient } from '@/lib/services/pr-reaction-notifications.service'
 
 export interface AddFriendResult {
   ok: boolean
@@ -73,31 +71,6 @@ export async function declineFriendRequestAction(formData: FormData): Promise<vo
   const friendshipId = formData.get('friendshipId')?.toString()
   if (!friendshipId) return
   await declineFriendRequest(supabase, friendshipId)
-  revalidatePath('/friends')
-}
-
-export async function toggleReactionAction(formData: FormData): Promise<void> {
-  const { user } = await verifySession()
-  const supabase = await createClient()
-  const prSetId = formData.get('prSetId')?.toString()
-  if (!prSetId) return
-
-  const result = await toggleReaction(supabase, user.id, prSetId)
-
-  // Only push on the positive transition (clicked, didn't already react).
-  // Avoids spamming on accidental double-taps / un-reacts.
-  if (result.reacted) {
-    const meta = await getPrSetOwnerAndExercise(supabase, prSetId)
-    if (meta && meta.ownerId !== user.id) {
-      const myCode = await ensureFriendCode(supabase)
-      void notifyReactionRecipient(supabase, {
-        recipientUserId: meta.ownerId,
-        reactorCode: myCode,
-        exerciseName: meta.exerciseNameRu ?? meta.exerciseName,
-      })
-    }
-  }
-
   revalidatePath('/friends')
 }
 

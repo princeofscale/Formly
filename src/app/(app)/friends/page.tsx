@@ -4,12 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
 import { ensureFriendCode, getFriendsWithStats, getPendingFriendRequests } from '@/lib/db/friends'
-import { getFriendsRecentPRs } from '@/lib/db/prs'
+import { getActivityFeed } from '@/lib/db/activity'
 import { MyCodeCard } from '@/components/friends/MyCodeCard'
 import { AddFriendForm } from '@/components/friends/AddFriendForm'
 import { FriendList } from '@/components/friends/FriendList'
 import { FriendRequestList } from '@/components/friends/FriendRequestList'
-import { FriendsPrFeed } from '@/components/friends/FriendsPrFeed'
+import { ActivityFeed } from '@/components/friends/ActivityFeed'
 
 export default async function FriendsPage() {
   const { user } = await verifySession()
@@ -19,11 +19,11 @@ export default async function FriendsPage() {
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
 
-  const [myCode, friends, pending, friendPRs, mySessionsResult] = await Promise.all([
+  const [myCode, friends, pending, feed, mySessionsResult] = await Promise.all([
     ensureFriendCode(supabase),
     getFriendsWithStats(supabase, 7),
     getPendingFriendRequests(supabase),
-    getFriendsRecentPRs(supabase, 14),
+    getActivityFeed(supabase, { days: 21, limit: 30 }),
     supabase
       .from('workout_sessions')
       .select('total_volume_kg')
@@ -32,11 +32,6 @@ export default async function FriendsPage() {
       .neq('session_type', 'cardio')
       .gte('started_at', since7days.toISOString()),
   ])
-  const names = new Map(friends.map((friend) => [friend.friend_id, friend.display_name]))
-  const namedFriendPRs = friendPRs.map((pr) => ({
-    ...pr,
-    display_name: names.get(pr.friend_id) ?? null,
-  }))
   const inGym = friends.filter((friend) => friend.is_in_gym).length
   const teamSessions = friends.reduce((sum, friend) => sum + friend.week_sessions, 0)
 
@@ -183,18 +178,8 @@ export default async function FriendsPage() {
         </div>
       )}
 
-      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-5">
-        {t('prFeedTitle')}
-        {friendPRs.length > 0 && ` · ${friendPRs.length}`}
-      </div>
-      {friendPRs.length > 0 ? (
-        <FriendsPrFeed prs={namedFriendPRs} />
-      ) : (
-        <div className="tar-fr-empty tar-d-rise tar-d-rise-5">
-          <div className="t">{t('prsEmpty')}</div>
-          <div className="s">{t('prsEmptySub')}</div>
-        </div>
-      )}
+      <div className="tar-d-sectionhead tar-d-rise tar-d-rise-5">{t('feed.title')}</div>
+      <ActivityFeed events={feed} myUserId={user.id} />
 
       <div className="tar-d-sectionhead tar-d-rise tar-d-rise-6">
         {t('listTitle')}

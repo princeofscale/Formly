@@ -6284,6 +6284,65 @@
   transform: scale(0.95);
 }
 
+/* ─── Друзья · лента активности · tar-fr-ac-* ─────────────── */
+.tar-fr-ac {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+}
+.tar-fr-ac .hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tar-fr-ac .who {
+  flex: 1;
+  min-width: 0;
+}
+.tar-fr-ac .name {
+  font: 700 13px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink);
+}
+.tar-fr-ac .ago {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  color: var(--tar-ink-soft);
+  margin-top: 5px;
+}
+.tar-fr-ac .line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 13px/1.35 var(--tar-text);
+  color: var(--tar-ink-dim);
+}
+.tar-fr-ac .line .i {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--tar-brand-2);
+}
+.tar-fr-ac .line .i.finished {
+  color: var(--tar-success);
+}
+.tar-fr-ac .line .i.streak {
+  color: var(--tar-warning);
+}
+.tar-fr-ac-live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--tar-success);
+  box-shadow: 0 0 8px var(--tar-success);
+  animation: tar-d-live-pulse 1.8s ease-in-out infinite;
+}
+
 /* ─── Wrapped · tar-wr-* (fullscreen takeover) ─────────────── */
 .tar-wr {
   position: fixed;
