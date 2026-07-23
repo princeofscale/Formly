@@ -5992,6 +5992,41 @@
   border-color: rgba(255, 150, 60, 0.45);
   color: var(--tar-brand-2);
 }
+.tar-fr-reactions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tar-fr-emoji {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 100px;
+  background: var(--tar-card);
+  border: 1px solid transparent;
+  color: var(--tar-ink-mute);
+  font: 700 11px/1 var(--tar-mono);
+  cursor: pointer;
+  transition:
+    transform 0.16s,
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.tar-fr-emoji:active {
+  transform: scale(0.92);
+}
+.tar-fr-emoji b {
+  font-variant-numeric: tabular-nums;
+}
+.tar-fr-emoji.on {
+  background: var(--tar-brand-grad-soft);
+  border-color: var(--tar-brand-2);
+  color: var(--tar-brand-2);
+}
 .tar-fr-friend {
   display: flex;
   align-items: center;
