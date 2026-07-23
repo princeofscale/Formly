@@ -48,6 +48,9 @@ export function EventComments({ eventId, commentCount, myUserId, eventAuthorId }
   // null = not fetched yet; [] = fetched and empty.
   const [comments, setComments] = useState<FeedComment[] | null>(null)
   const [isPending, startTransition] = useTransition()
+  // Separate transition for create/delete mutations so it doesn't interfere
+  // with the initial list-load pending state above.
+  const [isMutating, startMutation] = useTransition()
 
   const timeLabels = useMemo(
     () => buildCommentTimeLabels(comments ?? [], locale),
@@ -65,10 +68,22 @@ export function EventComments({ eventId, commentCount, myUserId, eventAuthorId }
     }
   }
 
-  async function handleSubmit(formData: FormData) {
-    await commentAction(formData)
-    const res = await loadCommentsAction(eventId)
-    setComments(res)
+  function handleSubmit(formData: FormData) {
+    startMutation(async () => {
+      await commentAction(formData)
+      const res = await loadCommentsAction(eventId)
+      setComments(res)
+    })
+  }
+
+  function handleDelete(commentId: string) {
+    startMutation(async () => {
+      const fd = new FormData()
+      fd.set('commentId', commentId)
+      await deleteCommentAction(fd)
+      const res = await loadCommentsAction(eventId)
+      setComments(res)
+    })
   }
 
   return (
@@ -100,9 +115,19 @@ export function EventComments({ eventId, commentCount, myUserId, eventAuthorId }
                       <p className="txt">{c.body}</p>
                     </div>
                     {canDelete && (
-                      <form action={deleteCommentAction} className="del-form">
-                        <input type="hidden" name="commentId" value={c.id} />
-                        <button type="submit" aria-label={t('comments.delete')} className="del">
+                      <form
+                        className="del-form"
+                        onSubmit={(e) => {
+                          e.preventDefault()
+                          handleDelete(c.id)
+                        }}
+                      >
+                        <button
+                          type="submit"
+                          aria-label={t('comments.delete')}
+                          className="del"
+                          disabled={isMutating}
+                        >
                           <Trash2 className="i" />
                         </button>
                       </form>
@@ -121,7 +146,9 @@ export function EventComments({ eventId, commentCount, myUserId, eventAuthorId }
               rows={2}
               placeholder={t('comments.placeholder')}
             />
-            <button type="submit">{t('comments.send')}</button>
+            <button type="submit" disabled={isMutating}>
+              {t('comments.send')}
+            </button>
           </form>
         </div>
       )}
