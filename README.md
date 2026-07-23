@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/princeofscale/Formly/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/princeofscale/Formly/actions/workflows/ci.yml/badge.svg" /></a>
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-ff6b35" />
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-ff6b35" />
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black" />
   <img alt="Supabase" src="https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e" />
   <img alt="Vercel" src="https://img.shields.io/badge/deploy-Vercel-black" />

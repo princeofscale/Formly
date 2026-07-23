@@ -4,7 +4,7 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-07-23
 
 ### Added
 
@@ -27,6 +27,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Removed the sleep tracker, goals, and achievements features, including their dashboard cards, routes, services, and translations (database tables are retained).
 - Removed the “First set!” celebration and per-set estimated-1RM readouts from the active workout; a first-ever result now only sets the PR baseline.
+
+### Security
+
+- Upgraded Next.js from 16.2.6 to 16.2.11, resolving nine published advisories including middleware bypass, SSRF in Server Actions, and response-cache confusion.
 
 ## [1.0.2] - 2026-07-22
 
