@@ -81,7 +81,12 @@ $$;
 create or replace function emit_activity_event(p_type text, p_session_id uuid, p_payload jsonb)
 returns void language sql security definer set search_path = public as $$
   insert into activity_events (user_id, type, session_id, payload)
-  values (auth.uid(), p_type, p_session_id, coalesce(p_payload, '{}'::jsonb))
+  select auth.uid(), p_type, p_session_id, coalesce(p_payload, '{}'::jsonb)
+  where p_session_id is null
+     or exists (
+       select 1 from workout_sessions ws
+       where ws.id = p_session_id and ws.user_id = auth.uid()
+     )
   on conflict do nothing;
 $$;
 grant execute on function emit_activity_event(text, uuid, jsonb) to authenticated;
@@ -161,12 +166,17 @@ grant execute on function get_activity_feed(int, int, timestamptz) to authentica
 create or replace function get_event_comments(p_event_id uuid)
 returns table (id uuid, user_id uuid, display_name text, friend_code text, body text, created_at timestamptz)
 language sql stable security definer set search_path = public as $$
-  with ev as (select user_id from activity_events where id = p_event_id)
+  with ev as (
+    select ae.user_id, pr.share_activity
+    from activity_events ae join profiles pr on pr.id = ae.user_id
+    where ae.id = p_event_id
+  )
   select c.id, c.user_id, pr.display_name, pr.friend_code, c.body, c.created_at
   from event_comments c
   join profiles pr on pr.id = c.user_id, ev
   where c.event_id = p_event_id
-    and (ev.user_id = auth.uid() or are_connected(auth.uid(), ev.user_id))
+    and (ev.user_id = auth.uid()
+         or (are_connected(auth.uid(), ev.user_id) and ev.share_activity = true))
   order by c.created_at asc;
 $$;
 grant execute on function get_event_comments(uuid) to authenticated;
@@ -180,8 +190,10 @@ begin
   if p_emoji not in ('🔥','💪','👏','🐐','🤯') then raise exception 'bad emoji'; end if;
   select user_id into v_author from activity_events where id = p_event_id;
   if v_author is null then return; end if;
-  if not (v_author = auth.uid() or are_connected(auth.uid(), v_author)) then
-    raise exception 'not allowed';
+  if v_author <> auth.uid() then
+    if not are_connected(auth.uid(), v_author) then raise exception 'not allowed'; end if;
+    if not exists (select 1 from profiles p2 where p2.id = v_author and p2.share_activity = true)
+      then raise exception 'not allowed'; end if;
   end if;
   select exists(select 1 from event_reactions
     where event_id = p_event_id and user_id = auth.uid() and emoji = p_emoji) into v_exists;
@@ -209,8 +221,10 @@ begin
   if char_length(v_body) < 1 or char_length(v_body) > 280 then raise exception 'bad length'; end if;
   select user_id into v_author from activity_events where id = p_event_id;
   if v_author is null then return; end if;
-  if not (v_author = auth.uid() or are_connected(auth.uid(), v_author)) then
-    raise exception 'not allowed';
+  if v_author <> auth.uid() then
+    if not are_connected(auth.uid(), v_author) then raise exception 'not allowed'; end if;
+    if not exists (select 1 from profiles p2 where p2.id = v_author and p2.share_activity = true)
+      then raise exception 'not allowed'; end if;
   end if;
   insert into event_comments (event_id, user_id, body) values (p_event_id, auth.uid(), v_body)
     returning id into v_id;
