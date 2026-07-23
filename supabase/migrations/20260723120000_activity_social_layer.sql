@@ -153,10 +153,13 @@ language sql stable security definer set search_path = public as $$
   left join workout_sessions ws on ws.id = ae.session_id
   where ae.created_at >= now() - make_interval(days => p_days)
     and (p_before is null or ae.created_at < p_before)
-    -- hide a live "started" row once its "finished" row exists
-    and not (ae.type = 'workout_started' and exists (
-      select 1 from activity_events f2
-      where f2.session_id = ae.session_id and f2.type = 'workout_finished'))
+    -- hide a "started" row once its session is closed (explicit finish OR auto-finish),
+    -- so only genuinely-live sessions surface as live
+    and not (ae.type = 'workout_started' and (
+      ws.finished_at is not null
+      or exists (
+        select 1 from activity_events f2
+        where f2.session_id = ae.session_id and f2.type = 'workout_finished')))
   order by ae.created_at desc
   limit greatest(1, least(p_limit, 100));
 $$;

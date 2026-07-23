@@ -36,7 +36,7 @@ export async function ActivityCard({ event, myUserId }: Props) {
   const initials = name.slice(0, 2).toUpperCase()
 
   let icon: ReactNode
-  let text: string
+  let text: string | undefined
 
   switch (event.type) {
     case 'weight_pr': {
@@ -74,13 +74,19 @@ export async function ActivityCard({ event, myUserId }: Props) {
       text = t('feed.streak', { days })
       break
     }
-    case 'workout_started':
+    case 'workout_started': {
+      if (event.is_live === true) {
+        icon = <span className="tar-fr-ac-live" aria-hidden />
+        text = t('feed.live')
+      }
+      break
+    }
     default: {
-      icon = <span className="tar-fr-ac-live" aria-hidden />
-      text = t('feed.live')
       break
     }
   }
+
+  if (!text) return null
 
   return (
     <div className="tar-fr-ac">
