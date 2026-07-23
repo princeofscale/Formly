@@ -23,7 +23,7 @@ export async function startWorkoutAction(): Promise<void> {
   const active = await getActiveSession(supabase, user.id)
   if (active) redirect(`/workout/${active.id}`)
   const session = await createSession(supabase, user.id)
-  void emitActivityEvent(supabase, 'workout_started', session.id, {})
+  await emitActivityEvent(supabase, 'workout_started', session.id, {})
   redirect(`/workout/${session.id}`)
 }
 
@@ -34,7 +34,7 @@ export async function startFromTemplateAction(formData: FormData): Promise<void>
   const active = await getActiveSession(supabase, user.id)
   if (active) redirect(`/workout/${active.id}${templateId ? `?template=${templateId}` : ''}`)
   const session = await createSession(supabase, user.id)
-  void emitActivityEvent(supabase, 'workout_started', session.id, {})
+  await emitActivityEvent(supabase, 'workout_started', session.id, {})
   redirect(`/workout/${session.id}${templateId ? `?template=${templateId}` : ''}`)
 }
 
@@ -80,7 +80,7 @@ export async function repeatSessionAction(formData: FormData): Promise<void> {
     redirect(`/workout/${active.id}?template=${templateId}`)
   }
   const session = await createSession(supabase, user.id)
-  void emitActivityEvent(supabase, 'workout_started', session.id, {})
+  await emitActivityEvent(supabase, 'workout_started', session.id, {})
   redirect(`/workout/${session.id}?template=${templateId}`)
 }
 
@@ -141,6 +141,6 @@ export async function startFromPresetAction(formData: FormData): Promise<void> {
     redirect(`/workout/${active.id}?template=${templateId}`)
   }
   const session = await createSession(supabase, user.id)
-  void emitActivityEvent(supabase, 'workout_started', session.id, {})
+  await emitActivityEvent(supabase, 'workout_started', session.id, {})
   redirect(`/workout/${session.id}?template=${templateId}`)
 }
