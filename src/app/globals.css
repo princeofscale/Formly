@@ -6139,6 +6139,151 @@
   text-wrap: pretty;
 }
 
+/* ─── Друзья · комментарии · tar-fr-cm-* ──────────────────── */
+.tar-fr-cm {
+  margin-top: 8px;
+}
+.tar-fr-cm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  cursor: pointer;
+  font: 700 11px/1 var(--tar-mono);
+  letter-spacing: 0.04em;
+  color: var(--tar-ink-mute);
+  transition: color 0.2s;
+}
+.tar-fr-cm-toggle:hover {
+  color: var(--tar-ink);
+}
+.tar-fr-cm-toggle .i {
+  width: 14px;
+  height: 14px;
+}
+.tar-fr-cm-body {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--tar-line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tar-fr-cm-loading,
+.tar-fr-cm-empty {
+  font: 500 10px/1.4 var(--tar-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tar-ink-soft);
+  padding: 2px 0;
+}
+.tar-fr-cm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tar-fr-cm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.tar-fr-cm-item .bx {
+  flex: 1;
+  min-width: 0;
+}
+.tar-fr-cm-item .row1 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.tar-fr-cm-item .name {
+  font: 700 11px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink);
+}
+.tar-fr-cm-item .ago {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink-soft);
+}
+.tar-fr-cm-item .txt {
+  font: 500 13px/1.4 var(--tar-text);
+  color: var(--tar-ink-dim);
+  margin-top: 4px;
+  overflow-wrap: break-word;
+}
+.tar-fr-cm-item .del-form {
+  flex: none;
+}
+.tar-fr-cm-item .del {
+  background: none;
+  border: 0;
+  color: var(--tar-ink-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.tar-fr-cm-item .del:hover {
+  color: var(--tar-danger);
+}
+.tar-fr-cm-item .del .i {
+  width: 13px;
+  height: 13px;
+}
+.tar-fr-av.sm {
+  width: 28px;
+  height: 28px;
+  font-size: 9px;
+}
+.tar-fr-cm-form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.tar-fr-cm-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  border-radius: 12px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink);
+  font: 500 12px/1.4 var(--tar-text);
+  padding: 8px 10px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.tar-fr-cm-form textarea::placeholder {
+  color: var(--tar-ink-soft);
+}
+.tar-fr-cm-form textarea:focus {
+  border-color: rgba(255, 150, 60, 0.55);
+  background: var(--tar-card-hot);
+}
+.tar-fr-cm-form button {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 0;
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  font: 800 11px/1 var(--tar-text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.16s;
+}
+.tar-fr-cm-form button:active {
+  transform: scale(0.95);
+}
+
 /* ─── Wrapped · tar-wr-* (fullscreen takeover) ─────────────── */
 .tar-wr {
   position: fixed;

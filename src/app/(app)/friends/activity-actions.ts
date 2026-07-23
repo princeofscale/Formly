@@ -6,9 +6,11 @@ import {
   toggleEventReaction,
   addEventComment,
   deleteEventComment,
+  getEventComments,
   blockUser,
   unblockUser,
 } from '@/lib/db/activity'
+import type { FeedComment } from '@/lib/db/activity'
 import { ensureFriendCode } from '@/lib/db/friends'
 import {
   notifyEventReaction,
@@ -41,6 +43,12 @@ export async function commentAction(formData: FormData): Promise<void> {
     void notifyEventComment(supabase, { recipientUserId: res.authorId, commenterCode: myCode })
   }
   revalidatePath('/friends')
+}
+
+export async function loadCommentsAction(eventId: string): Promise<FeedComment[]> {
+  await verifySession()
+  const supabase = await createClient()
+  return getEventComments(supabase, eventId)
 }
 
 export async function deleteCommentAction(formData: FormData): Promise<void> {
