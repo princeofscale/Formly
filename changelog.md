@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Disabled automatic Vercel deployments for branch pushes; production deploys now run only for semantic-version tags.
+- Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 
 ## [1.1.0] - 2026-07-23
 
