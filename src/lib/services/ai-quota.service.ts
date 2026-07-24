@@ -7,6 +7,7 @@ export type AiKind =
   | 'session_debrief'
   | 'push_hook'
   | 'insights_refresh'
+  | 'coach_chat'
 
 const DAILY_LIMITS: Record<AiKind, number> = {
   exercise_swap: 30,
@@ -15,6 +16,7 @@ const DAILY_LIMITS: Record<AiKind, number> = {
   session_debrief: 10,
   push_hook: 5,
   insights_refresh: 6,
+  coach_chat: 20,
 }
 
 export class AiQuotaExceededError extends Error {
