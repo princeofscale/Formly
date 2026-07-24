@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles, Loader2, Database } from 'lucide-react'
 import { getOrGenerateSessionDebriefAction } from '@/app/(app)/history/actions'
+import { normalizeDebriefItems } from '@/lib/services/session-debrief.service'
 import type { SessionDebrief } from '@/lib/services/session-debrief.service'
 
 interface Props {
@@ -53,12 +54,18 @@ export function SessionAIDebrief({ sessionId }: Props) {
 
       {state.kind === 'ready' && (
         <ul className="space-y-1.5">
-          {state.data.items.map((item, i) => (
+          {normalizeDebriefItems(state.data.items).map((point, i) => (
             <li
               key={i}
               className="text-sm text-white/85 leading-snug pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-amber-400/60"
             >
-              {item}
+              {point.text}
+              {point.evidence && (
+                <span className="mt-0.5 flex items-center gap-1 text-[10px] font-mono text-white/45">
+                  <Database className="h-3 w-3" />
+                  {point.evidence}
+                </span>
+              )}
             </li>
           ))}
         </ul>

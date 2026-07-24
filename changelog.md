@@ -20,7 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Replaced the friends' PRs feed with the unified activity feed, backed by a new `activity_events` table and `SECURITY DEFINER` feed RPCs; every cross-athlete read now excludes blocked pairs.
 - The next-set hint during a workout now reports the weight change (“+2.5 kg”, “Same weight”, “−5 kg”) and states what the previous set showed, instead of issuing commands such as “Push it” or “Hold”.
-- Every AI prompt now shares one tone contract: no slang, no imperative commands, gender-neutral phrasing, and each statement grounded in a figure from the athlete's own data. Post-workout debriefs cite the number behind each point, and exercise alternatives explain what they share with the original.
+- Every AI prompt now shares one tone contract: no slang, no imperative commands, gender-neutral phrasing, and each statement grounded in a figure from the athlete's own data. Exercise alternatives now explain what they share with the original.
+- Post-workout debriefs now show the figure behind each point on its own line, matching how the dashboard coach already displays its evidence. Debriefs generated before this change keep rendering unchanged.
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 - Standardized release headings, comparison links, and contributor release instructions.
 

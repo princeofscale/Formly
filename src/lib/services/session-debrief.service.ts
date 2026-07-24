@@ -2,9 +2,49 @@ import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
 import type { SessionSummary } from './session-summary.service'
 
+/** One debrief bullet: the observation plus the figure it rests on. */
+export interface DebriefPoint {
+  text: string
+  evidence?: string
+}
+
+/**
+ * Debriefs are cached in `workout_sessions.ai_debrief`, and rows written
+ * before evidence existed hold plain strings. Both shapes stay readable
+ * forever, so no cache invalidation and no re-spent AI quota.
+ */
+export type CachedDebriefItem = string | { text?: unknown; evidence?: unknown }
+
 export interface SessionDebrief {
-  items: string[]
+  items: CachedDebriefItem[]
   generated_at: string
+}
+
+/**
+ * Takes `unknown[]` on purpose: the input is either a JSON column written by an
+ * older build or a model reply that ignored the schema. Anything unusable is
+ * dropped rather than rendered.
+ */
+export function normalizeDebriefItems(items: readonly unknown[]): DebriefPoint[] {
+  const out: DebriefPoint[] = []
+
+  for (const item of items) {
+    const record =
+      typeof item === 'object' && item !== null ? (item as Record<string, unknown>) : null
+
+    const rawText = typeof item === 'string' ? item : record?.text
+    if (typeof rawText !== 'string') continue
+
+    const text = rawText.trim()
+    if (!text) continue
+
+    const rawEvidence = record?.evidence
+    const evidence = typeof rawEvidence === 'string' ? rawEvidence.trim() : ''
+
+    out.push(evidence ? { text, evidence } : { text })
+  }
+
+  return out
 }
 
 interface DebriefContext {
@@ -46,13 +86,15 @@ Cover whatever is most informative from the data given:
 - Specific exercise that stood out (highest volume)
 - A SINGLE practical observation for next session
 
-Every bullet must name the number it rests on — the weight, the volume, the RPE, the
-session count. A bullet without a figure from the data is not worth writing.
+Split each bullet in two: "text" is the observation, "evidence" is the bare figure it
+rests on — the weight, the volume, the RPE, the session count. Keep "evidence" to a few
+characters ("82.5 kg × 8", "RPE 7.8", "+12% volume"), with no sentence around it. An
+observation the data cannot support is not worth writing; omit it entirely.
 No preamble like "Great workout!". Use the athlete's name only if the data has it.
 
 ${aiToneBlock(ctx.locale)}
 
-Return ONLY valid JSON: {"items":["bullet 1","bullet 2","bullet 3"]}`
+Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}]}`
 
   const userPrompt = JSON.stringify({
     summary: {
@@ -88,12 +130,12 @@ Return ONLY valid JSON: {"items":["bullet 1","bullet 2","bullet 3"]}`
   })
 
   const raw = contentToText(response.choices[0]?.message?.content) || '{}'
-  let items: string[]
+  let items: DebriefPoint[]
   try {
     const parsed = JSON.parse(raw)
-    items = Array.isArray(parsed.items)
-      ? parsed.items.filter((x: unknown): x is string => typeof x === 'string')
-      : []
+    // normalizeDebriefItems also tolerates a model that ignored the schema and
+    // returned bare strings, so a malformed reply degrades instead of throwing.
+    items = Array.isArray(parsed.items) ? normalizeDebriefItems(parsed.items) : []
   } catch {
     throw new Error(`AI returned invalid JSON: ${raw.slice(0, 200)}`)
   }
