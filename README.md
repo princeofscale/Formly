@@ -95,8 +95,8 @@ supabase db push
 
 ## Релизы и деплой
 
-- Каждый push в `main` проверяется CI и деплоится интеграцией Vercel с GitHub.
-- Тег вида `v1.2.3` запускает отдельный production-деплой через `.github/workflows/release.yml`.
+- Каждый push в `main` проверяется CI, но не деплоится автоматически.
+- Production-деплой запускается только тегом вида `v1.2.3` через `.github/workflows/release.yml`.
 - Все изменения сначала добавляются в раздел `Unreleased` файла [changelog.md](changelog.md), а при релизе переносятся в версию.
 
 Production: [training-ar.vercel.app](https://training-ar.vercel.app)

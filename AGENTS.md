@@ -44,6 +44,18 @@ Run the checks relevant to every changed area. Before release, run the full vali
 ## Change log and releases
 
 - Every code, UI, dependency, infrastructure, documentation, or security change must be recorded under `Unreleased` in `changelog.md` using Keep a Changelog categories.
-- Use semantic versions. Release tags have the form `vX.Y.Z` and trigger the production Vercel workflow.
+- Use headings in the exact form `## X.Y.Z - YYYY-MM-DD`, without brackets. Put an explicit `Compare changes` link directly below every released heading, comparing the previous tag with the current tag; `Unreleased` compares the latest tag with `HEAD`.
+- Land normal work as commits and pull requests without changing the version or creating a tag. When enough changes accumulate, a patch release (`+0.0.1`) is the default; use a minor release (`+0.1.0`) only rarely for a substantial feature set or product milestone.
+- Release tags have the form `vX.Y.Z` and are the only trigger for the production Vercel workflow. Do not create a release or tag unless the user explicitly requests it.
+- For a release, move accumulated entries out of `Unreleased`, recreate an empty `Unreleased` section, update `package.json`, `package-lock.json`, the README version badge, and `changelog.md`, run the full CI validation set, then create the tag and GitHub Release from that version's changelog section.
 - Keep `package.json`, `package-lock.json`, the README version badge, and `changelog.md` aligned for each release.
 - Do not commit `.env*`, `.vercel/`, generated build output, or the ignored `docs/` workspace.
+
+## Agent workflow
+
+- Read the affected flow and its callers before editing, follow existing patterns, and make the smallest root-cause change.
+- Verify the current branch, linked external project, CI result, and deployment state instead of assuming them.
+- Never print, commit, or place secrets in client code. Redact sensitive command output and rotate any exposed credential.
+- Work on a feature branch, use a pull request, and never bypass hooks, force-push, or rewrite applied migrations.
+- Run checks relevant to the changed files and report the exact results; run the full CI set before any release.
+- Preserve unrelated user changes and keep documentation, release metadata, translations, mobile behavior, and offline behavior consistent with the code.
