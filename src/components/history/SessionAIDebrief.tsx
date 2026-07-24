@@ -71,7 +71,9 @@ export function SessionAIDebrief({ sessionId }: Props) {
               )}
               <Link
                 href={`/coach?q=${encodeURIComponent(
-                  buildPrefillQuestion({ body: point.text, evidence: point.evidence }),
+                  buildPrefillQuestion({ body: point.text, evidence: point.evidence }, (quoted) =>
+                    tCoach('whyQuestion', { quoted }),
+                  ),
                 )}`}
                 className="tar-coach-why"
               >

@@ -176,11 +176,10 @@ export function AIInsightsCard({ initialInsights }: Props) {
                   )}
                   <Link
                     href={`/coach?q=${encodeURIComponent(
-                      buildPrefillQuestion({
-                        title: item.title,
-                        body: item.body,
-                        evidence: item.detail,
-                      }),
+                      buildPrefillQuestion(
+                        { title: item.title, body: item.body, evidence: item.detail },
+                        (quoted) => tCoach('whyQuestion', { quoted }),
+                      ),
                     )}`}
                     className="tar-coach-why"
                   >

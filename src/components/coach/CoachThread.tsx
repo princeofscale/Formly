@@ -35,12 +35,14 @@ export function CoachThread({ initial, prefill }: Props) {
     const question = String(formData.get('question') ?? '').trim()
     if (!question || pending) return
 
+    const tempId = `temp-${Date.now()}`
+
     setPending(true)
     setNotice(null)
     setMessages((prev) => [
       ...prev,
       {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         role: 'user',
         body: question,
         evidence: null,
@@ -55,10 +57,12 @@ export function CoachThread({ initial, prefill }: Props) {
       // и его основание лежат в базе. Заодно временное сообщение заменяется
       // настоящей записью с её идентификатором.
       setMessages(await getCoachThreadAction())
-    } else if (result.reason === 'quota') {
-      setNotice('quota')
-    } else if (result.reason === 'failed') {
-      setNotice('failed')
+    } else {
+      // Ничего не сохранилось, поэтому временное сообщение убирается: иначе
+      // вопрос выглядел бы отправленным и молча исчезал при перезагрузке.
+      setMessages((prev) => prev.filter((m) => m.id !== tempId))
+      setNotice(result.reason === 'quota' ? 'quota' : 'failed')
+      if (inputRef.current) inputRef.current.value = question
     }
 
     setPending(false)

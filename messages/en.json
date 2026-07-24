@@ -558,6 +558,7 @@
     "back": "Back",
     "ask": "Ask",
     "why": "Why this?",
+    "whyQuestion": "Why \"{quoted}\"?",
     "placeholder": "A question about training…",
     "send": "Send",
     "empty": "Ask about your own training, or about training in general.",
