@@ -7667,3 +7667,32 @@
   font: 500 11px/1.4 var(--tar-text);
   text-align: center;
 }
+
+/* Entry points into the coach thread: a header link on the AI card and a
+   quiet "why this?" under every piece of advice. Deliberately understated —
+   they sit next to the content, not on top of it. */
+.tar-coach-ask {
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--tar-card-hot);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink);
+  font: 700 10px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tar-coach-ask:active {
+  background: var(--tar-card);
+}
+.tar-coach-why {
+  display: inline-block;
+  margin-top: 6px;
+  font: 600 10px/1.2 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink-soft);
+  text-decoration: none;
+}
+.tar-coach-why:active {
+  color: var(--tar-ink);
+}

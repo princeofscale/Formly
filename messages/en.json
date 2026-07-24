@@ -553,6 +553,21 @@
       "7": "Sunday"
     }
   },
+  "coach": {
+    "title": "Coach",
+    "back": "Back",
+    "ask": "Ask",
+    "why": "Why this?",
+    "placeholder": "A question about training…",
+    "send": "Send",
+    "empty": "Ask about your own training, or about training in general.",
+    "thinking": "The coach is answering…",
+    "quota": "Today's question limit is used up. It resets tomorrow.",
+    "failed": "Could not get an answer. Please try again.",
+    "starterStalled": "Why has the weight stopped going up?",
+    "starterVolume": "Which muscles am I short on volume for?",
+    "starterNext": "What should I change in the next workout?"
+  },
   "history": {
     "pagination": "History pages",
     "previous": "Previous",

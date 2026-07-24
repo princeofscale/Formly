@@ -10,8 +10,10 @@ import {
   BrainCircuit,
   Database,
 } from 'lucide-react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { refreshAIInsightsAction } from '@/app/(app)/dashboard/actions'
+import { buildPrefillQuestion } from '@/lib/utils/coach-prefill'
 import type { AIInsights, AIInsightItem } from '@/lib/types/models'
 
 const SECTION_COLORS: Record<AIInsightItem['type'], { border: string; color: string }> = {
@@ -27,6 +29,7 @@ interface Props {
 
 export function AIInsightsCard({ initialInsights }: Props) {
   const t = useTranslations('aiInsights')
+  const tCoach = useTranslations('coach')
   const locale = useLocale()
   const [insights, setInsights] = useState<AIInsights | null>(initialInsights)
   const [error, setError] = useState<string | null>(null)
@@ -75,6 +78,9 @@ export function AIInsightsCard({ initialInsights }: Props) {
                 {t('updated')} {updatedTime}
               </span>
             )}
+            <Link href="/coach" className="tar-coach-ask">
+              {tCoach('ask')}
+            </Link>
             {insights && (
               <button
                 onClick={runGeneration}
@@ -168,6 +174,18 @@ export function AIInsightsCard({ initialInsights }: Props) {
                       </span>
                     </div>
                   )}
+                  <Link
+                    href={`/coach?q=${encodeURIComponent(
+                      buildPrefillQuestion({
+                        title: item.title,
+                        body: item.body,
+                        evidence: item.detail,
+                      }),
+                    )}`}
+                    className="tar-coach-why"
+                  >
+                    {tCoach('why')}
+                  </Link>
                 </div>
               )
             })}

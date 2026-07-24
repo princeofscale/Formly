@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { Sparkles, Loader2, Database } from 'lucide-react'
 import { getOrGenerateSessionDebriefAction } from '@/app/(app)/history/actions'
+import { buildPrefillQuestion } from '@/lib/utils/coach-prefill'
 import { normalizeDebriefItems } from '@/lib/services/session-debrief.service'
 import type { SessionDebrief } from '@/lib/services/session-debrief.service'
 
@@ -13,6 +15,7 @@ interface Props {
 
 export function SessionAIDebrief({ sessionId }: Props) {
   const t = useTranslations('history.debrief')
+  const tCoach = useTranslations('coach')
   const [state, setState] = useState<
     { kind: 'loading' } | { kind: 'ready'; data: SessionDebrief } | { kind: 'error' }
   >({ kind: 'loading' })
@@ -66,6 +69,14 @@ export function SessionAIDebrief({ sessionId }: Props) {
                   {point.evidence}
                 </span>
               )}
+              <Link
+                href={`/coach?q=${encodeURIComponent(
+                  buildPrefillQuestion({ body: point.text, evidence: point.evidence }),
+                )}`}
+                className="tar-coach-why"
+              >
+                {tCoach('why')}
+              </Link>
             </li>
           ))}
         </ul>
