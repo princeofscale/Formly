@@ -1,4 +1,5 @@
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 import type { SessionSummary } from './session-summary.service'
 
 export interface SessionDebrief {
@@ -40,13 +41,16 @@ Write a SHORT post-workout debrief: 2-4 bullet points, each one sentence (max 20
 
 Cover whatever is most informative from the data given:
 - PRs they hit (call them out by exercise name)
-- Volume vs previous session — congrats or warning
-- RPE patterns (avg high = pushed hard; avg low = sandbagging?)
+- Volume vs previous session
+- RPE patterns (high average = worked close to the limit; low average = effort left in reserve)
 - Specific exercise that stood out (highest volume)
-- A SINGLE practical takeaway for next session
+- A SINGLE practical observation for next session
 
-Be direct, no fluff, no preamble like "Great workout!". Use the user's name only if data has it.
-Respond entirely in ${ctx.locale === 'ru' ? 'Russian' : 'English'} (casual gym-bro register if Russian).
+Every bullet must name the number it rests on — the weight, the volume, the RPE, the
+session count. A bullet without a figure from the data is not worth writing.
+No preamble like "Great workout!". Use the athlete's name only if the data has it.
+
+${aiToneBlock(ctx.locale)}
 
 Return ONLY valid JSON: {"items":["bullet 1","bullet 2","bullet 3"]}`
 

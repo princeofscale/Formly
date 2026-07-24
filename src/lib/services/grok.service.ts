@@ -1,4 +1,5 @@
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 import type {
   MuscleVolume,
   VolumeLandmark,
@@ -88,8 +89,10 @@ Each object must have:
 - detail: a short evidence string with the exact metric used, when data is available
 - action: one concrete action for the user's next workout (max 12 words)
 
-Return 4-5 useful items: exactly one "today", one or two "progression", one "prediction", optionally one "warning" only when the data supports it. Never invent measurements and never give generic motivational filler.
-Respond entirely in ${ctx.locale === 'ru' ? 'Russian' : 'English'}.
+Return 4-5 useful items: exactly one "today", one or two "progression", one "prediction", optionally one "warning" only when the data supports it.
+
+${aiToneBlock(ctx.locale)}
+
 Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanation.`
 
   const userPrompt = JSON.stringify({

@@ -1,4 +1,5 @@
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 
 export interface PushHookContext {
   locale: 'ru' | 'en'
@@ -38,11 +39,11 @@ export async function generatePushHook(ctx: PushHookContext, fallback: string): 
 
     const systemPrompt = `You write SHORT personalized push notification bodies for a workout app.
 Output a SINGLE sentence, max 90 characters, no quotes, no emoji.
-Goal: make the user want to start their workout NOW.
 Reference one specific thing from their data (an exercise, an undertrained muscle, days since last session).
-Sound like a gym buddy, not a corporate app.
+State the fact plainly; the specificity is what makes it worth opening, not urgency or pressure.
 
-Respond entirely in ${ctx.locale === 'ru' ? 'Russian, casual register' : 'English'}.
+${aiToneBlock(ctx.locale)}
+
 Return ONLY valid JSON: {"body":"<the sentence>"}`
 
     const userPrompt = JSON.stringify({

@@ -2,6 +2,7 @@
 // numbered catalog. Index-based responses make hallucinated exercises
 // impossible by construction — invalid indices are simply dropped.
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 import type { Exercise } from '@/lib/types/models'
 
 export interface SuggestPick {
@@ -80,7 +81,10 @@ The user's search query matched nothing. It may be Russian gym slang, a machine
 description, a misspelling, or mixed RU/EN.
 The full exercise catalog follows, one entry per line: index|name|name_ru|muscle|equipment.
 Pick up to 3 entries the user most likely meant. If nothing plausibly matches,
-return an empty list. Reasons: ${ctx.locale === 'ru' ? 'Russian' : 'English'}, max 10 words.
+return an empty list. Each reason states what in the query matched the entry, max 10 words.
+
+${aiToneBlock(ctx.locale)}
+
 Return ONLY valid JSON: {"items":[{"index":<number>,"reason":"<why this matches>"}]}`
 
   const controller = new AbortController()
