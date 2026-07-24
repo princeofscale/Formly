@@ -9,6 +9,7 @@ import {
   getEventComments,
   blockUser,
   unblockUser,
+  setShareActivity,
 } from '@/lib/db/activity'
 import type { FeedComment } from '@/lib/db/activity'
 import { ensureFriendCode } from '@/lib/db/friends'
@@ -76,5 +77,13 @@ export async function unblockUserAction(formData: FormData): Promise<void> {
   const targetId = formData.get('targetId')?.toString()
   if (!targetId) return
   await unblockUser(supabase, targetId)
+  revalidatePath('/friends')
+}
+
+export async function setShareActivityAction(formData: FormData): Promise<void> {
+  await verifySession()
+  const supabase = await createClient()
+  await setShareActivity(supabase, formData.get('on') === 'true')
+  revalidatePath('/profile')
   revalidatePath('/friends')
 }
