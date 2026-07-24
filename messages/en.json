@@ -501,6 +501,8 @@
     },
     "language": "Interface language",
     "languageSub": "App copy & coaching cues",
+    "shareActivity": "Share activity",
+    "shareActivitySub": "Friends see your workouts, PRs and streaks in the feed",
     "signOut": "Sign out",
     "deleteAccount": "Delete account",
     "deleteAccountConfirm": "Really delete?",
@@ -1045,11 +1047,6 @@
     "wantsToAdd": "wants to add you as a friend",
     "accept": "Accept",
     "decline": "Decline",
-    "prFeedTitle": "Friends' PRs",
-    "prsEmpty": "Quiet for now",
-    "prsEmptySub": "New friend PRs will show up here",
-    "reactCongrats": "Congrats",
-    "firstRecord": "first record",
     "unitSessions": "wo",
     "unitTons": "t",
     "addError": {
@@ -1079,7 +1076,27 @@
     "teaserEmptyTitle": "Add a gym buddy →",
     "leaderboardTitle": "Weekly leaderboard",
     "you": "You",
-    "leaderboardEmpty": "No one has trained this week yet."
+    "leaderboardEmpty": "No one has trained this week yet.",
+    "feed": {
+      "title": "Activity feed",
+      "empty": "Nothing yet — your friends' activity will show up here",
+      "live": "At the gym right now",
+      "weightPr": "New PR:",
+      "volumePr": "Volume PR — {tonnage} t this session",
+      "finished": "Workout done · {tonnage} t · {sets} sets · {min} min",
+      "streak": "{days}-day streak 🔥"
+    },
+    "comments": {
+      "count": "{n, plural, =0 {Comment} one {# comment} other {# comments}}",
+      "empty": "No comments yet",
+      "placeholder": "Write a comment…",
+      "send": "Send",
+      "delete": "Delete comment"
+    },
+    "block": {
+      "action": "Block",
+      "confirm": "Block for sure?"
+    }
   },
   "wrapped": {
     "back": "Back",
