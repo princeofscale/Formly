@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added five emoji reactions (🔥 💪 👏 🐐 🤯) and inline comments on every activity event, with push notifications when a friend reacts to or comments on yours.
 - Added blocking: hard-block a friend to end the friendship, hide both athletes from each other everywhere, and prevent re-adding by code.
 - Added a “Share activity” privacy toggle to the profile so athletes can keep their workouts, PRs, and streaks out of friends' feeds.
+- Added 1:1 direct messaging with friends: open a thread from a friend's message icon, send messages (updated by polling + push), delete your own, see "seen" receipts, and track unread counts with a badge on the friend row. Blocking severs the conversation both ways.
 
 ### Changed
 
