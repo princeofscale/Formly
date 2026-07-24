@@ -30,6 +30,12 @@ export type SuggestionAction = 'increase' | 'hold' | 'deload' | 'firstSet'
 export interface NextSetSuggestion {
   weightKg: number
   reps: number
+  /**
+   * Signed difference between the suggested weight and the last one lifted.
+   * The UI shows this instead of an imperative verb: "+2.5 kg" / "same weight"
+   * / "−5 kg" reads as data, not as an order.
+   */
+  deltaKg: number
   action: SuggestionAction
   /** i18n key under workout.progression.reason */
   reasonKey: string
@@ -115,6 +121,8 @@ export function suggestNextSet(sets: SetEntry[]): NextSetSuggestion | null {
   return {
     weightKg,
     reps,
+    // Not `round` above: that one clamps at 0, which would erase a deload delta.
+    deltaKg: Math.round((weightKg - last.weight_kg) * 4) / 4,
     action,
     reasonKey,
     reasonParams: {

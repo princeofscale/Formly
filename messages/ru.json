@@ -798,23 +798,23 @@
       "exercises": "Упражнений"
     },
     "progression": {
-      "tapToApply": "Тап чтобы вставить",
+      "tapToApply": "Нажать, чтобы подставить",
       "action": {
-        "increase": "Толкай",
-        "hold": "Держи",
-        "deload": "Откат",
-        "firstSet": "Подсказка"
+        "increase": "+{delta} кг",
+        "hold": "Тот же вес",
+        "deload": "−{delta} кг",
+        "firstSet": "Первый подход"
       },
       "reason": {
-        "easySet": "Прошлый раз {lastWeight}×{lastReps} @ RPE {rpe} — легко, +{step} кг",
-        "roomToGrow": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — чисто, +{step} кг",
-        "pushUp": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — крепко, +{step} кг",
-        "holdReps": "Прошлый {lastWeight}×{lastReps} @ RPE {rpe} — добей повторы",
-        "nearMax": "Прошлый @ RPE {rpe} — держи вес, форму",
-        "deload": "Прошлый RPE 10 — убери {step} кг",
-        "noRpeAddWeight": "Прошлый {lastWeight}×{lastReps} — попробуй +{step} кг",
-        "noRpeHold": "Прошлый {lastWeight}×{lastReps} — сначала добей повторы",
-        "hold": "Держи вес"
+        "easySet": "Прошлый подход {lastWeight}×{lastReps} при RPE {rpe} — большой запас",
+        "roomToGrow": "Прошлый подход {lastWeight}×{lastReps} при RPE {rpe} — есть запас",
+        "pushUp": "Прошлый подход {lastWeight}×{lastReps} при RPE {rpe} — выполнен чисто",
+        "holdReps": "Прошлый подход {lastWeight}×{lastReps} при RPE {rpe} — повторы ниже цели",
+        "nearMax": "Прошлый подход при RPE {rpe} — близко к пределу",
+        "deload": "Прошлый подход при RPE 10 — предел достигнут",
+        "noRpeAddWeight": "Прошлый подход {lastWeight}×{lastReps} — RPE не указан",
+        "noRpeHold": "Прошлый подход {lastWeight}×{lastReps} — повторы ниже цели",
+        "hold": "Вес без изменений"
       }
     },
     "notes": {
