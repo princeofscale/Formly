@@ -6136,6 +6136,33 @@
   opacity: 0.55;
   cursor: default;
 }
+.tar-fr-friend .actions .tar-fr-msg {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--tar-ink-soft);
+  transition: color 0.2s;
+}
+.tar-fr-friend .actions .tar-fr-msg:hover {
+  color: var(--tar-ink);
+}
+.tar-fr-friend .actions .tar-fr-msg .i {
+  width: 15px;
+  height: 15px;
+}
+.tar-fr-badge {
+  position: absolute;
+  top: -6px;
+  right: -7px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  font: 800 9px/15px var(--tar-mono);
+  text-align: center;
+}
 .tar-fr-empty {
   padding: 22px 16px;
   border-radius: 16px;

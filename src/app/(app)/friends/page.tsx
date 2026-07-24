@@ -5,6 +5,7 @@ import { verifySession } from '@/lib/dal'
 import { getTranslations } from 'next-intl/server'
 import { ensureFriendCode, getFriendsWithStats, getPendingFriendRequests } from '@/lib/db/friends'
 import { getActivityFeed } from '@/lib/db/activity'
+import { getUnreadCounts } from '@/lib/db/messages'
 import { MyCodeCard } from '@/components/friends/MyCodeCard'
 import { AddFriendForm } from '@/components/friends/AddFriendForm'
 import { FriendList } from '@/components/friends/FriendList'
@@ -19,11 +20,12 @@ export default async function FriendsPage() {
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
 
-  const [myCode, friends, pending, feed, mySessionsResult] = await Promise.all([
+  const [myCode, friends, pending, feed, unreadCounts, mySessionsResult] = await Promise.all([
     ensureFriendCode(supabase),
     getFriendsWithStats(supabase, 7),
     getPendingFriendRequests(supabase),
     getActivityFeed(supabase, { days: 21, limit: 30 }),
+    getUnreadCounts(supabase),
     supabase
       .from('workout_sessions')
       .select('total_volume_kg')
@@ -32,6 +34,7 @@ export default async function FriendsPage() {
       .neq('session_type', 'cardio')
       .gte('started_at', since7days.toISOString()),
   ])
+  const unread = Object.fromEntries(unreadCounts.map((u) => [u.friend_id, u.unread]))
   const inGym = friends.filter((friend) => friend.is_in_gym).length
   const teamSessions = friends.reduce((sum, friend) => sum + friend.week_sessions, 0)
 
@@ -185,7 +188,7 @@ export default async function FriendsPage() {
         {t('listTitle')}
         {friends.length > 0 && ` · ${friends.length}`}
       </div>
-      <FriendList friends={friends} myUserId={user.id} />
+      <FriendList friends={friends} myUserId={user.id} unread={unread} />
     </div>
   )
 }

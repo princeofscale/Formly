@@ -1,8 +1,9 @@
 'use client'
 
 import { useMemo } from 'react'
+import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
-import { Trash2, UserPlus } from 'lucide-react'
+import { MessageCircle, Trash2, UserPlus } from 'lucide-react'
 import { removeFriendAction } from '@/app/(app)/friends/actions'
 import { BlockFriendButton } from '@/components/friends/BlockFriendButton'
 import type { FriendWithStats } from '@/lib/db/friends'
@@ -10,6 +11,7 @@ import type { FriendWithStats } from '@/lib/db/friends'
 interface Props {
   friends: FriendWithStats[]
   myUserId: string
+  unread: Record<string, number>
 }
 
 interface PreparedFriend {
@@ -35,7 +37,7 @@ function prepareFriends(friends: FriendWithStats[]): PreparedFriend[] {
   }))
 }
 
-export function FriendList({ friends }: Props) {
+export function FriendList({ friends, unread }: Props) {
   const t = useTranslations('friends')
   const locale = useLocale()
 
@@ -96,6 +98,16 @@ export function FriendList({ friends }: Props) {
               <div className="k">{t('stats.tonnage')}</div>
             </div>
             <div className="actions">
+              <Link
+                href={`/friends/chat/${f.friend_id}`}
+                className="tar-fr-msg"
+                aria-label={t('chat.open')}
+              >
+                <MessageCircle className="i" />
+                {unread[f.friend_id] > 0 && (
+                  <span className="tar-fr-badge">{unread[f.friend_id]}</span>
+                )}
+              </Link>
               <form action={removeFriendAction} className="go">
                 <input type="hidden" name="friendId" value={f.friend_id} />
                 <button
