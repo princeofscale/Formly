@@ -5,15 +5,16 @@ import {
   type PushSubscriptionRow,
 } from '@/lib/db/push-subscriptions'
 
-export interface ReactionPushInput {
+export interface DirectMessagePushInput {
   recipientUserId: string
-  reactorCode: string | null
-  exerciseName: string | null
+  senderId: string
+  senderName: string
+  preview: string
 }
 
-export async function notifyReactionRecipient(
+export async function notifyDirectMessage(
   supabase: SupabaseClient,
-  input: ReactionPushInput,
+  input: DirectMessagePushInput,
 ): Promise<void> {
   try {
     const { data: subsData } = await supabase
@@ -23,12 +24,10 @@ export async function notifyReactionRecipient(
     const subs = (subsData ?? []) as PushSubscriptionRow[]
     if (subs.length === 0) return
 
-    const who = input.reactorCode ?? 'Друг'
-    const what = input.exerciseName ? ` на ${input.exerciseName}` : ''
     const payload = {
-      title: '🔥 Тебя поздравили',
-      body: `${who} оценил твой рекорд${what}!`,
-      url: '/friends',
+      title: '💬 Новое сообщение',
+      body: `${input.senderName}: ${input.preview}`,
+      url: `/friends/chat/${input.senderId}`,
     }
 
     for (const sub of subs) {
@@ -38,6 +37,6 @@ export async function notifyReactionRecipient(
       }
     }
   } catch (err) {
-    console.error('notifyReactionRecipient failed:', err)
+    console.error('notifyDirectMessage failed:', err)
   }
 }

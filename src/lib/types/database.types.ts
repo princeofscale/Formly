@@ -106,6 +106,8 @@ export type Database = {
           display_name: string | null
           height_cm: number | null
           id: string
+          last_streak_milestone: number
+          share_activity: boolean
           training_location:
             | Database["public"]["Enums"]["training_location"]
             | null
@@ -121,6 +123,8 @@ export type Database = {
           display_name?: string | null
           height_cm?: number | null
           id: string
+          last_streak_milestone?: number
+          share_activity?: boolean
           training_location?:
             | Database["public"]["Enums"]["training_location"]
             | null
@@ -136,6 +140,8 @@ export type Database = {
           display_name?: string | null
           height_cm?: number | null
           id?: string
+          last_streak_milestone?: number
+          share_activity?: boolean
           training_location?:
             | Database["public"]["Enums"]["training_location"]
             | null

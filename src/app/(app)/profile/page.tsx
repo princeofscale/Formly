@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LanguageSelector } from '@/components/profile/LanguageSelector'
 import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
+import { ShareActivityToggle } from '@/components/profile/ShareActivityToggle'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { InstallAppButton } from '@/components/profile/InstallAppButton'
 import { verifySession } from '@/lib/dal'
@@ -322,6 +323,7 @@ export default async function ProfilePage() {
       >
         <LanguageSelector current={locale} label={t('language')} />
         <NotificationsToggle vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ''} />
+        <ShareActivityToggle initialOn={p?.share_activity ?? true} />
       </div>
 
       {/* Install app (PWA) — only renders if installable */}

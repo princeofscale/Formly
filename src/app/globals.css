@@ -5992,6 +5992,41 @@
   border-color: rgba(255, 150, 60, 0.45);
   color: var(--tar-brand-2);
 }
+.tar-fr-reactions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tar-fr-emoji {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 100px;
+  background: var(--tar-card);
+  border: 1px solid transparent;
+  color: var(--tar-ink-mute);
+  font: 700 11px/1 var(--tar-mono);
+  cursor: pointer;
+  transition:
+    transform 0.16s,
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.tar-fr-emoji:active {
+  transform: scale(0.92);
+}
+.tar-fr-emoji b {
+  font-variant-numeric: tabular-nums;
+}
+.tar-fr-emoji.on {
+  background: var(--tar-brand-grad-soft);
+  border-color: var(--tar-brand-2);
+  color: var(--tar-brand-2);
+}
 .tar-fr-friend {
   display: flex;
   align-items: center;
@@ -6069,6 +6104,65 @@
   width: 15px;
   height: 15px;
 }
+.tar-fr-friend .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.tar-fr-friend .actions .block {
+  display: grid;
+  place-items: center;
+  color: var(--tar-ink-soft);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tar-fr-friend .actions .block[data-confirming] {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 100px;
+  background: rgba(255, 77, 94, 0.12);
+  border: 1px solid rgba(255, 77, 94, 0.35);
+  color: var(--tar-danger);
+  font: 700 9px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tar-fr-friend .actions .block:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.tar-fr-friend .actions .tar-fr-msg {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--tar-ink-soft);
+  transition: color 0.2s;
+}
+.tar-fr-friend .actions .tar-fr-msg:hover {
+  color: var(--tar-ink);
+}
+.tar-fr-friend .actions .tar-fr-msg .i {
+  width: 15px;
+  height: 15px;
+}
+.tar-fr-badge {
+  position: absolute;
+  top: -6px;
+  right: -7px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  font: 800 9px/15px var(--tar-mono);
+  text-align: center;
+}
 .tar-fr-empty {
   padding: 22px 16px;
   border-radius: 16px;
@@ -6102,6 +6196,210 @@
   color: var(--tar-ink-mute);
   margin-top: 6px;
   text-wrap: pretty;
+}
+
+/* ─── Друзья · комментарии · tar-fr-cm-* ──────────────────── */
+.tar-fr-cm {
+  margin-top: 8px;
+}
+.tar-fr-cm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  cursor: pointer;
+  font: 700 11px/1 var(--tar-mono);
+  letter-spacing: 0.04em;
+  color: var(--tar-ink-mute);
+  transition: color 0.2s;
+}
+.tar-fr-cm-toggle:hover {
+  color: var(--tar-ink);
+}
+.tar-fr-cm-toggle .i {
+  width: 14px;
+  height: 14px;
+}
+.tar-fr-cm-body {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--tar-line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tar-fr-cm-loading,
+.tar-fr-cm-empty {
+  font: 500 10px/1.4 var(--tar-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tar-ink-soft);
+  padding: 2px 0;
+}
+.tar-fr-cm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tar-fr-cm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.tar-fr-cm-item .bx {
+  flex: 1;
+  min-width: 0;
+}
+.tar-fr-cm-item .row1 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.tar-fr-cm-item .name {
+  font: 700 11px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink);
+}
+.tar-fr-cm-item .ago {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink-soft);
+}
+.tar-fr-cm-item .txt {
+  font: 500 13px/1.4 var(--tar-text);
+  color: var(--tar-ink-dim);
+  margin-top: 4px;
+  overflow-wrap: break-word;
+}
+.tar-fr-cm-item .del-form {
+  flex: none;
+}
+.tar-fr-cm-item .del {
+  background: none;
+  border: 0;
+  color: var(--tar-ink-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.tar-fr-cm-item .del:hover {
+  color: var(--tar-danger);
+}
+.tar-fr-cm-item .del .i {
+  width: 13px;
+  height: 13px;
+}
+.tar-fr-av.sm {
+  width: 28px;
+  height: 28px;
+  font-size: 9px;
+}
+.tar-fr-cm-form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.tar-fr-cm-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  border-radius: 12px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink);
+  font: 500 12px/1.4 var(--tar-text);
+  padding: 8px 10px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.tar-fr-cm-form textarea::placeholder {
+  color: var(--tar-ink-soft);
+}
+.tar-fr-cm-form textarea:focus {
+  border-color: rgba(255, 150, 60, 0.55);
+  background: var(--tar-card-hot);
+}
+.tar-fr-cm-form button {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 0;
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  font: 800 11px/1 var(--tar-text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.16s;
+}
+.tar-fr-cm-form button:active {
+  transform: scale(0.95);
+}
+
+/* ─── Друзья · лента активности · tar-fr-ac-* ─────────────── */
+.tar-fr-ac {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+}
+.tar-fr-ac .hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tar-fr-ac .who {
+  flex: 1;
+  min-width: 0;
+}
+.tar-fr-ac .name {
+  font: 700 13px/1 var(--tar-mono);
+  letter-spacing: 0.05em;
+  color: var(--tar-ink);
+}
+.tar-fr-ac .ago {
+  font: 500 9px/1 var(--tar-mono);
+  letter-spacing: 0.06em;
+  color: var(--tar-ink-soft);
+  margin-top: 5px;
+}
+.tar-fr-ac .line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 13px/1.35 var(--tar-text);
+  color: var(--tar-ink-dim);
+}
+.tar-fr-ac .line .i {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--tar-brand-2);
+}
+.tar-fr-ac .line .i.finished {
+  color: var(--tar-success);
+}
+.tar-fr-ac .line .i.streak {
+  color: var(--tar-warning);
+}
+.tar-fr-ac-live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--tar-success);
+  box-shadow: 0 0 8px var(--tar-success);
+  animation: tar-d-live-pulse 1.8s ease-in-out infinite;
 }
 
 /* ─── Wrapped · tar-wr-* (fullscreen takeover) ─────────────── */
@@ -7135,4 +7433,172 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+}
+
+/* ─── Друзья · чат · tar-chat-* ───────────────────────────── */
+.tar-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+.tar-chat-h {
+  font: 700 24px/1.05 var(--tar-tight);
+  letter-spacing: -0.03em;
+  margin: 4px 0 0;
+  color: var(--tar-ink);
+}
+.tar-chat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tar-chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 62vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+  scroll-behavior: smooth;
+}
+.tar-chat-empty {
+  text-align: center;
+  font: 500 12px/1.5 var(--tar-mono);
+  letter-spacing: 0.04em;
+  color: var(--tar-ink-soft);
+  padding: 28px 12px;
+}
+.tar-chat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tar-chat-day {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 6px;
+}
+.tar-chat-day span {
+  font: 700 9px/1 var(--tar-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tar-ink-soft);
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.tar-chat-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 82%;
+}
+.tar-chat-msg.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.tar-chat-msg.their {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.tar-chat-msg .bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  font: 500 14px/1.4 var(--tar-text);
+  overflow-wrap: anywhere;
+}
+.tar-chat-msg.mine .bubble {
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  border-bottom-right-radius: 5px;
+}
+.tar-chat-msg.their .bubble {
+  background: var(--tar-card-hot);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink);
+  border-bottom-left-radius: 5px;
+}
+.tar-chat-msg .txt {
+  white-space: pre-wrap;
+}
+.tar-chat-msg .del-form {
+  flex: none;
+}
+.tar-chat-msg .del {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  color: rgba(27, 13, 3, 0.55);
+  display: grid;
+  place-items: center;
+}
+.tar-chat-msg .del:hover {
+  color: rgba(27, 13, 3, 0.9);
+}
+.tar-chat-msg .del .i {
+  width: 12px;
+  height: 12px;
+}
+.tar-chat-seen {
+  font: 600 8px/1 var(--tar-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tar-ink-soft);
+  margin: 3px 4px 2px;
+}
+.tar-chat-form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  position: sticky;
+  bottom: 0;
+}
+.tar-chat-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  border-radius: 14px;
+  background: var(--tar-card);
+  border: 1px solid var(--tar-line);
+  color: var(--tar-ink);
+  font: 500 13px/1.4 var(--tar-text);
+  padding: 10px 12px;
+  max-height: 120px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.tar-chat-form textarea::placeholder {
+  color: var(--tar-ink-soft);
+}
+.tar-chat-form textarea:focus {
+  border-color: rgba(255, 150, 60, 0.55);
+  background: var(--tar-card-hot);
+}
+.tar-chat-form button {
+  flex: none;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--tar-brand-grad);
+  color: #1b0d03;
+  font: 800 12px/1 var(--tar-text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.16s;
+}
+.tar-chat-form button:active {
+  transform: scale(0.96);
+}
+.tar-chat-form button:disabled {
+  opacity: 0.55;
 }

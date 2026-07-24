@@ -8,8 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...HEAD)
 
+### Added
+
+- Added a unified friends activity feed: see when friends finish a workout, set a weight or volume PR, reach a training-streak milestone, or step into the gym live.
+- Added five emoji reactions (🔥 💪 👏 🐐 🤯) and inline comments on every activity event, with push notifications when a friend reacts to or comments on yours.
+- Added blocking: hard-block a friend to end the friendship, hide both athletes from each other everywhere, and prevent re-adding by code.
+- Added a “Share activity” privacy toggle to the profile so athletes can keep their workouts, PRs, and streaks out of friends' feeds.
+- Added 1:1 direct messaging with friends: open a thread from a friend's message icon, send messages (updated by polling + push), delete your own, see "seen" receipts, and track unread counts with a badge on the friend row. Blocking severs the conversation both ways.
+
 ### Changed
 
+- Replaced the friends' PRs feed with the unified activity feed, backed by a new `activity_events` table and `SECURITY DEFINER` feed RPCs; every cross-athlete read now excludes blocked pairs.
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 - Standardized release headings, comparison links, and contributor release instructions.
 

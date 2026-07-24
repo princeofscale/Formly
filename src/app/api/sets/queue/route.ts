@@ -10,6 +10,7 @@ import { addSet, getBestWeightForExercise } from '@/lib/db/sets'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
+import { emitWeightPr } from '@/lib/services/activity.service'
 import {
   ValidationError,
   validateReps,
@@ -93,6 +94,15 @@ export async function POST(request: Request) {
     void notifyFriendsOfPR(supabase, {
       userId: user.id,
       exerciseName,
+      weightKg,
+      reps,
+      improvementPct: prResult.improvement_pct,
+    })
+    void emitWeightPr(supabase, {
+      sessionId,
+      exerciseId,
+      exerciseName: ex?.name ?? 'Exercise',
+      exerciseNameRu: ex?.name_ru ?? null,
       weightKg,
       reps,
       improvementPct: prResult.improvement_pct,
