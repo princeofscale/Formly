@@ -1096,6 +1096,16 @@
     "block": {
       "action": "Block",
       "confirm": "Block for sure?"
+    },
+    "chat": {
+      "open": "Message",
+      "placeholder": "Message…",
+      "send": "Send",
+      "empty": "No messages yet. Say hi.",
+      "seen": "seen",
+      "delete": "Delete message",
+      "today": "Today",
+      "yesterday": "Yesterday"
     }
   },
   "wrapped": {
