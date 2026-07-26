@@ -4,55 +4,14 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.5.0 - 2026-07-26
 
-[Compare changes](https://github.com/princeofscale/Formly/compare/v1.3.0...HEAD)
-
-### Fixed
-
-- Restored the offline fallback, which had never worked. The service worker caches that page when it installs — before anyone has signed in — but the page required a session, so the fetch was redirected to the sign-in page and the browser refused to store a redirected response. The install handler swallowed the refusal, leaving no fallback to serve and nothing to notice.
-- Made the failure screen reach every page and actually render. It sat inside the signed-in section, so onboarding and the sign-in pages still fell back to the browser's own error page — and it asked for wording its own section never handed to the browser, so the screen would have failed while reporting a failure. It now sits at the root with its wording alongside.
-- Stopped four more reads outside the data layer from reporting a failure as an empty result: monthly volume, the four-week volume landmarks, the history list's set counts, and the streak-milestone check.
-
-## 1.3.0 - 2026-07-26
-
-[Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.1...v1.3.0)
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...v1.5.0)
 
 ### Added
 
 - Added a failure screen for the app. A database read that failed used to be reported as an empty one, so an outage arrived as "you have no workouts" — wrong, and alarming in a training log. Failed reads now say so and offer a retry, and the screen carries the identifier that ties it to the server log.
 - Added a shareable link for a finished workout. The card could previously only be fetched by its owner, so a link pasted into a chat was crawled by a bot with no session and never rendered. A share is now its own record with its own random token, carrying a snapshot of what the card showed rather than a pointer to live data — editing or deleting the workout afterwards cannot change or leak anything through a link already sent. Sharing the same workout twice returns the same link, and it can be revoked.
-
-### Fixed
-
-- Stopped the personalized reminder from calling the AI outside every quota. `push_hook` had been a declared allowance since quotas were hardened and nothing ever spent it, because the quota identifies the athlete from their session and the reminder sweep has none. The sweep now charges the athlete it is writing for, and falls back to a written message once their allowance is gone.
-- Stopped a failed database read from being indistinguishable from an empty one across the data layer. Fifteen reads discarded their error and returned an empty list.
-- Read every recipient's training history in one query instead of one per recipient, so the cost of an hourly reminder run follows the number of people actually due a reminder rather than the size of the account list.
-- Made the pre-commit hook run its checks one at a time. Running them together was enough to have the linter killed for memory, which surfaced as a lint failure that passed on a plain retry — the kind of failure that teaches you to retry instead of to look.
-- Added a continuous-integration check that the committed database types match the schema, and resolved the release the upgrade check starts from instead of pinning it, so it cannot quietly go on testing an upgrade nobody performs.
-- Added a continuous-integration check that upgrades a 1.1.0 database holding real rows, not only an empty one. It seeds the duplicates the older schema permitted and runs the cleanup a live upgrade needs first, which puts on record that two migrations add a unique index without removing the duplicates that preceded it.
-- Added a continuous-integration check that applies every database migration to an empty database. The existing checks run JavaScript only, so a migration that does not parse, or that names a type the schema no longer has, passed them all and failed at deployment time instead.
-- Restored push notifications for Edge on Windows. Tightening the stored endpoints to known browser push services left out Windows Push Notification Services, which hands out per-region hosts, so every Edge registration was rejected by the database. Subdomains of the WNS domain are now accepted, and a lookalike domain still is not.
-- Sent each reminder at most once per athlete per local day. Nothing recorded what had already gone out, so the daily and smart sweeps could both reach the same person in the same hour, and re-running a sweep sent everything a second time. A sweep now claims a delivery permit before it sends and stays quiet if one already exists.
-- Kept the offline page available after signing out. Clearing private data on sign-out deleted the whole page cache, whose only occupant is the public offline screen, so the next time the athlete lost signal the browser showed its own error page instead. The cache is now re-primed straight after it is cleared.
-- Stopped the rest-timer notification from disappearing when the browser shut the service worker down mid-set. The deadline lived only in a pending timeout, which died with the worker; it is now also stored, and any wake-up — the worker starting again, or the tab regaining focus — delivers a deadline that has already passed. Background delivery stays best-effort.
-- Finished the same workout the same way whether or not the phone had signal. A workout completed offline was flushed through an older path that recomputed tonnage in the browser and wrote it directly, so it produced no finished-workout event, no volume record, and no streak milestone. Both entry points now run the one atomic completion, and the streak is evaluated once behind it.
-- Stopped a permanently unsyncable offline record from blocking the queue behind it. A set belonging to a session that was already finished, deleted, or logged under a previous account on a shared device came back as a server error, which the queue reads as "try again later" and retried forever. Such failures are now reported as permanent, move to the dead-letter store, and let the rest of the queue drain.
-
-## 1.2.1 - 2026-07-26
-
-[Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.0...v1.2.1)
-
-### Fixed
-
-- Moved the hourly daily-reminder and smart-reminder sweeps off Vercel cron and onto a GitHub Actions schedule. A Hobby account rejects any cron that runs more than once a day, so the 1.2.0 production deployment failed on the configuration before any code was built. The sweeps have to run hourly to reach each athlete in their own local hour, so shortening them to once a day would have removed the point of the per-profile time zones shipped in the same release. The endpoints authorize on `CRON_SECRET` rather than on the caller, so the schedule can live outside Vercel unchanged. The nightly session auto-finish stays on Vercel cron, which is within the Hobby limit.
-
-## 1.2.0 - 2026-07-26
-
-[Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...v1.2.0)
-
-### Added
-
 - Added a unified friends activity feed: see when friends finish a workout, set a weight or volume PR, reach a training-streak milestone, or step into the gym live.
 - Added five emoji reactions (🔥 💪 👏 🐐 🤯) and inline comments on every activity event, with push notifications when a friend reacts to or comments on yours.
 - Added blocking: hard-block a friend to end the friendship, hide both athletes from each other everywhere, and prevent re-adding by code.
@@ -79,18 +38,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Moved performed-exercise, previous-set, recent-weight, and streak-date reads into grouped database queries; large Wrapped reports now paginate instead of silently stopping at 10,000 sets.
 - Consolidated repeated Mistral content extraction into one tested adapter and completed the generated database typings needed by the new schema and RPCs.
 
-### Security
-
-- Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
-- Stopped caching authenticated workout HTML, isolated offline records by account, and cleared private browser storage on sign-out.
-- Made AI quota consumption atomic and fail-closed behind an RLS-protected RPC, and revoked direct authenticated access to universal activity-event emission.
-- Removed query strings and fragments from browser error reports, redacted token-like values, bounded and rate-limited the endpoint, and rejected external post-auth redirects.
-- Removed anonymous execution from every privileged RPC, restricted global stale-session cleanup to `service_role`, and added database rate limits for messages, comments, reactions, and test pushes.
-- Restricted stored Web Push endpoints to supported browser push services and rejected arbitrary outbound targets.
-- Added runtime schemas and database bounds for profile/body metrics, AI program input, push subscriptions, CSV formula cells, RPC limits, photo MIME/size, captions, notes, and unique photo paths.
-
 ### Fixed
 
+- Restored the offline fallback, which had never worked. The service worker caches that page when it installs — before anyone has signed in — but the page required a session, so the fetch was redirected to the sign-in page and the browser refused to store a redirected response. The install handler swallowed the refusal, leaving no fallback to serve and nothing to notice.
+- Made the failure screen reach every page and actually render. It sat inside the signed-in section, so onboarding and the sign-in pages still fell back to the browser's own error page — and it asked for wording its own section never handed to the browser, so the screen would have failed while reporting a failure. It now sits at the root with its wording alongside.
+- Stopped four more reads outside the data layer from reporting a failure as an empty result: monthly volume, the four-week volume landmarks, the history list's set counts, and the streak-milestone check.
+- Stopped the personalized reminder from calling the AI outside every quota. `push_hook` had been a declared allowance since quotas were hardened and nothing ever spent it, because the quota identifies the athlete from their session and the reminder sweep has none. The sweep now charges the athlete it is writing for, and falls back to a written message once their allowance is gone.
+- Stopped a failed database read from being indistinguishable from an empty one across the data layer. Fifteen reads discarded their error and returned an empty list.
+- Read every recipient's training history in one query instead of one per recipient, so the cost of an hourly reminder run follows the number of people actually due a reminder rather than the size of the account list.
+- Made the pre-commit hook run its checks one at a time. Running them together was enough to have the linter killed for memory, which surfaced as a lint failure that passed on a plain retry — the kind of failure that teaches you to retry instead of to look.
+- Added a continuous-integration check that the committed database types match the schema, and resolved the release the upgrade check starts from instead of pinning it, so it cannot quietly go on testing an upgrade nobody performs.
+- Added a continuous-integration check that upgrades a 1.1.0 database holding real rows, not only an empty one. It seeds the duplicates the older schema permitted and runs the cleanup a live upgrade needs first, which puts on record that two migrations add a unique index without removing the duplicates that preceded it.
+- Added a continuous-integration check that applies every database migration to an empty database. The existing checks run JavaScript only, so a migration that does not parse, or that names a type the schema no longer has, passed them all and failed at deployment time instead.
+- Restored push notifications for Edge on Windows. Tightening the stored endpoints to known browser push services left out Windows Push Notification Services, which hands out per-region hosts, so every Edge registration was rejected by the database. Subdomains of the WNS domain are now accepted, and a lookalike domain still is not.
+- Sent each reminder at most once per athlete per local day. Nothing recorded what had already gone out, so the daily and smart sweeps could both reach the same person in the same hour, and re-running a sweep sent everything a second time. A sweep now claims a delivery permit before it sends and stays quiet if one already exists.
+- Kept the offline page available after signing out. Clearing private data on sign-out deleted the whole page cache, whose only occupant is the public offline screen, so the next time the athlete lost signal the browser showed its own error page instead. The cache is now re-primed straight after it is cleared.
+- Stopped the rest-timer notification from disappearing when the browser shut the service worker down mid-set. The deadline lived only in a pending timeout, which died with the worker; it is now also stored, and any wake-up — the worker starting again, or the tab regaining focus — delivers a deadline that has already passed. Background delivery stays best-effort.
+- Finished the same workout the same way whether or not the phone had signal. A workout completed offline was flushed through an older path that recomputed tonnage in the browser and wrote it directly, so it produced no finished-workout event, no volume record, and no streak milestone. Both entry points now run the one atomic completion, and the streak is evaluated once behind it.
+- Stopped a permanently unsyncable offline record from blocking the queue behind it. A set belonging to a session that was already finished, deleted, or logged under a previous account on a shared device came back as a server error, which the queue reads as "try again later" and retried forever. Such failures are now reported as permanent, move to the dead-letter store, and let the rest of the queue drain.
+- Moved the hourly daily-reminder and smart-reminder sweeps off Vercel cron and onto a GitHub Actions schedule. A Hobby account rejects any cron that runs more than once a day, so the 1.2.0 production deployment failed on the configuration before any code was built. The sweeps have to run hourly to reach each athlete in their own local hour, so shortening them to once a day would have removed the point of the per-profile time zones shipped in the same release. The endpoints authorize on `CRON_SECRET` rather than on the caller, so the schedule can live outside Vercel unchanged. The nightly session auto-finish stays on Vercel cron, which is within the Hobby limit.
 - Validated the locale cookie before loading a dictionary and localized the remaining warm-up, notification, weight-unit, and relative-time UI strings.
 - Made offline set synchronization idempotent with a database mutation key and moved invalid client records to a dead-letter queue so one bad item no longer blocks later sets.
 - Awaited social push and activity side effects before server actions finish instead of leaving work behind in a terminated serverless invocation.
@@ -100,6 +66,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Stopped verifying the session on public pages for visitors who carry no session cookie. Every request, including a first visit to the sign-in page, waited on a network call to Supabase Auth before any HTML was sent. Private routes are unaffected and still verify on every request.
 - Stopped smart reminders from telling every athlete they had skipped shoulders. The reminder built its list from a `shoulders` muscle label that left the database enum in favour of front, side, and rear delts, so the lookup never matched a logged set. Lat work now counts towards back for the same reason.
 - Merged the catalog rows that shared a Russian name but kept an English `name`, which the earlier deduplication pass skipped by design and which showed up as visible twins in the exercise picker. Workout history decides which row survives, saved templates are remapped in the same transaction, and walking lunges are renamed rather than merged because they are a separate movement from stationary dumbbell lunges.
+
+### Security
+
+- Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
+- Stopped caching authenticated workout HTML, isolated offline records by account, and cleared private browser storage on sign-out.
+- Made AI quota consumption atomic and fail-closed behind an RLS-protected RPC, and revoked direct authenticated access to universal activity-event emission.
+- Removed query strings and fragments from browser error reports, redacted token-like values, bounded and rate-limited the endpoint, and rejected external post-auth redirects.
+- Removed anonymous execution from every privileged RPC, restricted global stale-session cleanup to `service_role`, and added database rate limits for messages, comments, reactions, and test pushes.
+- Restricted stored Web Push endpoints to supported browser push services and rejected arbitrary outbound targets.
+- Added runtime schemas and database bounds for profile/body metrics, AI program input, push subscriptions, CSV formula cells, RPC limits, photo MIME/size, captions, notes, and unique photo paths.
 
 ### Removed
 
