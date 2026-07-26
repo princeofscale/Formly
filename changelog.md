@@ -10,10 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Added a failure screen for the app. A database read that failed used to be reported as an empty one, so an outage arrived as "you have no workouts" — wrong, and alarming in a training log. Failed reads now say so and offer a retry, and the screen carries the identifier that ties it to the server log.
 - Added a shareable link for a finished workout. The card could previously only be fetched by its owner, so a link pasted into a chat was crawled by a bot with no session and never rendered. A share is now its own record with its own random token, carrying a snapshot of what the card showed rather than a pointer to live data — editing or deleting the workout afterwards cannot change or leak anything through a link already sent. Sharing the same workout twice returns the same link, and it can be revoked.
 
 ### Fixed
 
+- Stopped the personalized reminder from calling the AI outside every quota. `push_hook` had been a declared allowance since quotas were hardened and nothing ever spent it, because the quota identifies the athlete from their session and the reminder sweep has none. The sweep now charges the athlete it is writing for, and falls back to a written message once their allowance is gone.
+- Stopped a failed database read from being indistinguishable from an empty one across the data layer. Fifteen reads discarded their error and returned an empty list.
+- Read every recipient's training history in one query instead of one per recipient, so the cost of an hourly reminder run follows the number of people actually due a reminder rather than the size of the account list.
+- Made the pre-commit hook run its checks one at a time. Running them together was enough to have the linter killed for memory, which surfaced as a lint failure that passed on a plain retry — the kind of failure that teaches you to retry instead of to look.
+- Added a continuous-integration check that the committed database types match the schema, and resolved the release the upgrade check starts from instead of pinning it, so it cannot quietly go on testing an upgrade nobody performs.
 - Added a continuous-integration check that upgrades a 1.1.0 database holding real rows, not only an empty one. It seeds the duplicates the older schema permitted and runs the cleanup a live upgrade needs first, which puts on record that two migrations add a unique index without removing the duplicates that preceded it.
 - Added a continuous-integration check that applies every database migration to an empty database. The existing checks run JavaScript only, so a migration that does not parse, or that names a type the schema no longer has, passed them all and failed at deployment time instead.
 - Restored push notifications for Edge on Windows. Tightening the stored endpoints to known browser push services left out Windows Push Notification Services, which hands out per-region hosts, so every Edge registration was rejected by the database. Subdomains of the WNS domain are now accepted, and a lookalike domain still is not.
