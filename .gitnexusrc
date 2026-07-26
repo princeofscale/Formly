@@ -1,0 +1,8 @@
+{
+  "defaultBranch": "main",
+  "name": "Formly",
+  "pdg": true,
+  "skipAgentsMd": true,
+  "skipSkills": false,
+  "workerTimeout": 60
+}
