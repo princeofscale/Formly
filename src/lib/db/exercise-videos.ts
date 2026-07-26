@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unwrapRows } from './unwrap'
 
 export interface ExerciseVideo {
   user_id: string
@@ -13,13 +14,16 @@ export async function getExerciseVideosForExercises(
   exerciseIds: string[],
 ): Promise<Record<string, string>> {
   if (exerciseIds.length === 0) return {}
-  const { data } = await supabase
+  const result = await supabase
     .from('user_exercise_videos')
     .select('exercise_id, url')
     .eq('user_id', userId)
     .in('exercise_id', exerciseIds)
   const map: Record<string, string> = {}
-  for (const row of (data ?? []) as { exercise_id: string; url: string }[]) {
+  for (const row of unwrapRows(result, 'exercise videos') as {
+    exercise_id: string
+    url: string
+  }[]) {
     map[row.exercise_id] = row.url
   }
   return map

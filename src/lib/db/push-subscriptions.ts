@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unwrapRows } from './unwrap'
 
 export interface PushSubscriptionRow {
   id: string
@@ -52,6 +53,6 @@ export async function getUserSubscriptions(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<PushSubscriptionRow[]> {
-  const { data } = await supabase.from('push_subscriptions').select('*').eq('user_id', userId)
-  return (data as PushSubscriptionRow[]) ?? []
+  const result = await supabase.from('push_subscriptions').select('*').eq('user_id', userId)
+  return unwrapRows(result, 'push subscriptions') as PushSubscriptionRow[]
 }

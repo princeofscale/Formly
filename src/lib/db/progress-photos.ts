@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unwrapRows } from './unwrap'
 
 export interface ProgressPhoto {
   id: string
@@ -21,12 +22,12 @@ export async function listProgressPhotos(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<ProgressPhoto[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('progress_photos')
     .select('*')
     .eq('user_id', userId)
     .order('taken_at', { ascending: false })
-  return (data as ProgressPhoto[]) ?? []
+  return unwrapRows(result, 'progress photos') as ProgressPhoto[]
 }
 
 export async function listProgressPhotosWithUrls(

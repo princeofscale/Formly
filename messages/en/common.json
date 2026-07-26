@@ -150,5 +150,10 @@
   "updateBanner": {
     "available": "New version",
     "reload": "Reload"
+  },
+  "error": {
+    "title": "Could not load your data",
+    "body": "This is a failure on our side, not a loss of your training. Try again — if it persists, your data is intact and the problem is temporary access to the database.",
+    "retry": "Try again"
   }
 }

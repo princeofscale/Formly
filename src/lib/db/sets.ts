@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { SetEntry } from '@/lib/types/models'
+import { unwrapRows } from './unwrap'
 
 export async function addSet(
   supabase: SupabaseClient,
@@ -38,12 +39,12 @@ export async function getSetsForSession(
   supabase: SupabaseClient,
   sessionId: string,
 ): Promise<SetEntry[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('set_entries')
     .select('*')
     .eq('session_id', sessionId)
     .order('created_at')
-  return (data as SetEntry[]) ?? []
+  return unwrapRows(result, 'sets for session') as SetEntry[]
 }
 
 export async function updateSet(
@@ -86,7 +87,7 @@ export async function getVolumeHistoryForExercise(
   userId: string,
   exerciseId: string,
 ): Promise<{ date: string; volume_kg: number; sets: number }[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('set_entries')
     .select('created_at, weight_kg, reps')
     .eq('user_id', userId)
@@ -94,7 +95,8 @@ export async function getVolumeHistoryForExercise(
     .eq('is_warmup', false)
     .order('created_at')
 
-  if (!data) return []
+  const data = unwrapRows(result, 'exercise volume history')
+  if (data.length === 0) return []
 
   const byDay = new Map<string, { volume_kg: number; sets: number }>()
   for (const row of data) {
@@ -205,7 +207,7 @@ export async function getBestWeightHistories(
   exerciseIds: string[],
 ): Promise<Record<string, { date: string; best: number }[]>> {
   if (exerciseIds.length === 0) return {}
-  const { data } = await supabase
+  const result = await supabase
     .from('set_entries')
     .select('exercise_id, created_at, weight_kg')
     .eq('user_id', userId)
@@ -213,6 +215,7 @@ export async function getBestWeightHistories(
     .eq('is_warmup', false)
     .gt('weight_kg', 0)
     .order('created_at')
+  const data = unwrapRows(result, 'best weights by exercise')
 
   if (!data) return {}
 

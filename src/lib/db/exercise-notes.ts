@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unwrapRows } from './unwrap'
 
 export async function getExerciseNotesForExercises(
   supabase: SupabaseClient,
@@ -6,13 +7,16 @@ export async function getExerciseNotesForExercises(
   exerciseIds: string[],
 ): Promise<Record<string, string>> {
   if (exerciseIds.length === 0) return {}
-  const { data } = await supabase
+  const result = await supabase
     .from('exercise_notes')
     .select('exercise_id, note')
     .eq('user_id', userId)
     .in('exercise_id', exerciseIds)
   const map: Record<string, string> = {}
-  for (const row of (data ?? []) as { exercise_id: string; note: string }[]) {
+  for (const row of unwrapRows(result, 'exercise notes') as {
+    exercise_id: string
+    note: string
+  }[]) {
     map[row.exercise_id] = row.note
   }
   return map

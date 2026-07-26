@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unwrap, unwrapRows } from './unwrap'
 
 export const MEASUREMENT_METRICS = [
   'weight_kg',
@@ -83,13 +84,13 @@ export async function getMeasurementForDate(
   userId: string,
   date: string,
 ): Promise<BodyMeasurement | null> {
-  const { data } = await supabase
+  const result = await supabase
     .from('body_measurements')
     .select('*')
     .eq('user_id', userId)
     .eq('date', date)
     .maybeSingle()
-  return data as BodyMeasurement | null
+  return unwrap(result, 'measurement for date') as BodyMeasurement | null
 }
 
 export async function getRecentMeasurements(
@@ -97,13 +98,13 @@ export async function getRecentMeasurements(
   userId: string,
   limit = 30,
 ): Promise<BodyMeasurement[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('body_measurements')
     .select('*')
     .eq('user_id', userId)
     .order('date', { ascending: false })
     .limit(limit)
-  return (data as BodyMeasurement[]) ?? []
+  return unwrapRows(result, 'recent measurements') as BodyMeasurement[]
 }
 
 export async function deleteMeasurementForDate(

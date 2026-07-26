@@ -1,16 +1,17 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { WorkoutTemplate, TemplateExercise } from '@/lib/types/models'
+import { unwrap, unwrapRows } from './unwrap'
 
 export async function getTemplates(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<WorkoutTemplate[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('workout_templates')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
-  return (data as WorkoutTemplate[]) ?? []
+  return unwrapRows(result, 'templates') as WorkoutTemplate[]
 }
 
 export async function getTemplate(
@@ -18,13 +19,13 @@ export async function getTemplate(
   userId: string,
   id: string,
 ): Promise<WorkoutTemplate | null> {
-  const { data } = await supabase
+  const result = await supabase
     .from('workout_templates')
     .select('*')
     .eq('id', id)
     .eq('user_id', userId)
     .maybeSingle()
-  return data as WorkoutTemplate | null
+  return unwrap(result, 'template') as WorkoutTemplate | null
 }
 
 export async function createTemplate(
@@ -76,7 +77,7 @@ export async function getSessionExerciseList(
   userId: string,
   sessionId: string,
 ): Promise<TemplateExercise[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('set_entries')
     .select('exercise_id, set_number, exercises(name, name_ru)')
     .eq('user_id', userId)
@@ -85,7 +86,7 @@ export async function getSessionExerciseList(
 
   const seen = new Set<string>()
   const out: TemplateExercise[] = []
-  for (const row of (data ?? []) as unknown as Array<{
+  for (const row of unwrapRows(result, 'session exercises') as unknown as Array<{
     exercise_id: string
     exercises:
       | { name: string; name_ru: string | null }
