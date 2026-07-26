@@ -334,6 +334,14 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
+      consume_ai_quota_for: {
+        Args: { p_user_id: string; p_kind: string }
+        Returns: Json
+      }
+      get_finished_session_dates_bulk: {
+        Args: { p_user_ids: string[] }
+        Returns: { user_id: string; date: string }[]
+      }
       claim_reminder_delivery: {
         Args: { p_user_id: string; p_kind: string; p_local_date: string }
         Returns: boolean
