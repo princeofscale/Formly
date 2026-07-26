@@ -269,7 +269,22 @@ export async function GET(request: Request) {
   let sent = 0
   let failed = 0
   let expired = 0
+  let duplicates = 0
   for (const [userId, userSubs] of subsByUser) {
+    // Same permit as the daily sweep, under its own kind: the two must not
+    // both reach one athlete in the same local day, and a re-run of either
+    // must not send twice.
+    const timeZone = profileByUser.get(userId)?.time_zone ?? 'UTC'
+    const { data: claimed } = await supabase.rpc('claim_reminder_delivery', {
+      p_user_id: userId,
+      p_kind: 'smart',
+      p_local_date: dateKeyInTimeZone(new Date(), timeZone),
+    })
+    if (!claimed) {
+      duplicates++
+      continue
+    }
+
     const payload = {
       title: 'Formly ⏰',
       body: bodyByUser.get(userId) ?? fallbackBody(profileByUser.get(userId)?.locale ?? 'ru'),
@@ -292,5 +307,6 @@ export async function GET(request: Request) {
     sent,
     failed,
     expired,
+    alreadyDelivered: duplicates,
   })
 }

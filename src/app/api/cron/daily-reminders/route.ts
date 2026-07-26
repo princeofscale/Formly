@@ -166,9 +166,33 @@ export async function GET(request: Request) {
   let failedCount = 0
   let expiredCount = 0
 
+  let duplicateCount = 0
+
+  // Permits older than two months answer no question anyone will ask again.
+  // Pruned from this sweep because it is the one that runs every hour anyway.
+  const pruneBefore = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+  await supabase
+    .from('reminder_deliveries')
+    .delete()
+    .lt('local_date', dateKeyInTimeZone(pruneBefore, 'UTC'))
+
   for (const [userId, userSubs] of subsByUser) {
     const profile = profileByUser.get(userId)
     if (!profile) continue
+
+    // The permit is taken before anything is sent. A re-run of this sweep, or
+    // an overlap with the smart one, finds the row already there and stays
+    // quiet instead of pushing twice in the same local day.
+    const { data: claimed } = await supabase.rpc('claim_reminder_delivery', {
+      p_user_id: userId,
+      p_kind: 'daily',
+      p_local_date: dateKeyInTimeZone(now, profile.time_zone),
+    })
+    if (!claimed) {
+      duplicateCount++
+      continue
+    }
+
     const workoutDates = await getFinishedSessionDates(supabase, userId)
     const streak = calculateStreak(
       workoutDates,
@@ -198,5 +222,6 @@ export async function GET(request: Request) {
     devicesSent: sentCount,
     failed: failedCount,
     expired: expiredCount,
+    alreadyDelivered: duplicateCount,
   })
 }

@@ -170,6 +170,17 @@ export function RestTimer({ seconds, onDone }: Props) {
     })
   }, [endsAt, tRT])
 
+  // The browser may terminate the service worker mid-rest, taking its pending
+  // timeout with it. Coming back to the tab is the cue to let the worker check
+  // whether the deadline passed while it was gone.
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') sendSwMessage({ type: 'rest-timer-check' })
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [])
+
   // Tick: recompute from wall clock every second. Immune to throttling because
   // it never assumes "1s elapsed" — it asks Date.now() each tick. Also catches
   // up instantly when the user re-foregrounds the tab.
