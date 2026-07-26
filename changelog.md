@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Made the failure screen reach every page and actually render. It sat inside the signed-in section, so onboarding and the sign-in pages still fell back to the browser's own error page — and it asked for wording its own section never handed to the browser, so the screen would have failed while reporting a failure. It now sits at the root with its wording alongside.
+- Stopped four more reads outside the data layer from reporting a failure as an empty result: monthly volume, the four-week volume landmarks, the history list's set counts, and the streak-milestone check.
 - Let link crawlers actually load a shared workout card. The card shipped behind the blanket rule that every API route needs a session, so Telegram, Discord and the rest received the same refusal the shared snapshot was built to remove — the feature could not have worked for anyone. Access is bounded by the token, which is what it was always meant to be.
 
 ## 1.3.0 - 2026-07-26

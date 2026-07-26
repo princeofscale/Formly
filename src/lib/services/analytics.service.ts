@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { MuscleVolume, VolumeLandmark, MuscleGroup } from '@/lib/types/models'
 import { calculateSessionVolume } from '@/lib/utils/muscle-volume'
+import { unwrapRows } from '@/lib/db/unwrap'
 
 export interface TonnageByMonth {
   month: string // 'YYYY-MM'
@@ -19,14 +20,16 @@ export async function getMonthlyTonnage(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<TonnageByMonth[]> {
-  const { data } = await supabase
-    .from('workout_sessions')
-    .select('started_at, total_volume_kg')
-    .eq('user_id', userId)
-    .not('finished_at', 'is', null)
-    .order('started_at')
-
-  if (!data) return []
+  const data = unwrapRows(
+    await supabase
+      .from('workout_sessions')
+      .select('started_at, total_volume_kg')
+      .eq('user_id', userId)
+      .not('finished_at', 'is', null)
+      .order('started_at'),
+    'monthly volume',
+  )
+  if (data.length === 0) return []
 
   const byMonth = new Map<string, number>()
   for (const s of data) {
@@ -55,14 +58,16 @@ export async function getMuscleVolumeForDays(
   since.setUTCDate(now.getUTCDate() - Math.max(1, days))
   since.setUTCHours(0, 0, 0, 0)
 
-  const { data } = await supabase
-    .from('set_entries')
-    .select('exercise_id, exercises(primary_muscle, secondary_muscles)')
-    .eq('user_id', userId)
-    .eq('is_warmup', false)
-    .gte('created_at', since.toISOString())
-
-  if (!data) return []
+  const data = unwrapRows(
+    await supabase
+      .from('set_entries')
+      .select('exercise_id, exercises(primary_muscle, secondary_muscles)')
+      .eq('user_id', userId)
+      .eq('is_warmup', false)
+      .gte('created_at', since.toISOString()),
+    'volume landmarks',
+  )
+  if (data.length === 0) return []
 
   const exerciseMap = new Map<
     string,
