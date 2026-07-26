@@ -19,8 +19,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - Replaced the friends' PRs feed with the unified activity feed, backed by a new `activity_events` table and `SECURITY DEFINER` feed RPCs; every cross-athlete read now excludes blocked pairs.
+- The next-set hint during a workout now reports the weight change (“+2.5 kg”, “Same weight”, “−5 kg”) and states what the previous set showed, instead of issuing commands such as “Push it” or “Hold”.
+- Every AI prompt now shares one tone contract: no slang, no imperative commands, gender-neutral phrasing, and each statement grounded in a figure from the athlete's own data. Exercise alternatives now explain what they share with the original.
+- Post-workout debriefs now show the figure behind each point on its own line, matching how the dashboard coach already displays its evidence. Debriefs generated before this change keep rendering unchanged.
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 - Standardized release headings, comparison links, and contributor release instructions.
+
+### Security
+
+- Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
 
 ## 1.1.0 - 2026-07-23
 

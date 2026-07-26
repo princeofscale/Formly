@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getProgressionSuggestion } from './progression.service'
+import { getProgressionSuggestion, suggestNextSet } from './progression.service'
 import type { SetEntry } from '@/lib/types/models'
 
 function makeSet(overrides: Partial<SetEntry> = {}): SetEntry {
@@ -42,5 +42,38 @@ describe('getProgressionSuggestion', () => {
     const result = getProgressionSuggestion(sets, 'e1', 'Squat', 3, 5)
     expect(result).not.toBeNull()
     expect(result!.suggested_weight_kg).toBeCloseTo(105, 0)
+  })
+})
+
+describe('suggestNextSet — deltaKg', () => {
+  it('reports a positive delta when the weight goes up', () => {
+    const result = suggestNextSet([makeSet({ weight_kg: 80, reps: 10, rpe: 6 })])
+    expect(result).not.toBeNull()
+    expect(result!.action).toBe('increase')
+    expect(result!.weightKg).toBeCloseTo(82.5, 2)
+    expect(result!.deltaKg).toBeCloseTo(2.5, 2)
+  })
+
+  it('reports a zero delta when the weight holds', () => {
+    const result = suggestNextSet([makeSet({ weight_kg: 80, reps: 10, rpe: 9 })])
+    expect(result).not.toBeNull()
+    expect(result!.action).toBe('hold')
+    expect(result!.weightKg).toBeCloseTo(80, 2)
+    expect(result!.deltaKg).toBe(0)
+  })
+
+  it('reports a negative delta when deloading', () => {
+    const result = suggestNextSet([makeSet({ weight_kg: 80, reps: 10, rpe: 10 })])
+    expect(result).not.toBeNull()
+    expect(result!.action).toBe('deload')
+    expect(result!.weightKg).toBeCloseTo(77.5, 2)
+    expect(result!.deltaKg).toBeCloseTo(-2.5, 2)
+  })
+
+  it('keeps deltaKg consistent with weightKg minus the last weight', () => {
+    const result = suggestNextSet([makeSet({ weight_kg: 120, reps: 10, rpe: 7 })])
+    expect(result).not.toBeNull()
+    expect(result!.deltaKg).toBeCloseTo(result!.weightKg - result!.lastWeight, 2)
+    expect(result!.deltaKg).toBeCloseTo(5, 2)
   })
 })

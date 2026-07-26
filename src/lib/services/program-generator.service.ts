@@ -1,4 +1,5 @@
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 import type { Exercise } from '@/lib/types/models'
 
 export type ProgramGoal = 'strength' | 'hypertrophy' | 'general'
@@ -81,8 +82,10 @@ For each training day, pick 4-6 exercises from the library by their UUID.
 - Each day should hit complementary muscle groups; don't repeat the same primary muscle as the focus on consecutive days.
 - Prefer compound movements for the first 1-2 slots of each day, then accessories.
 - Sets/reps should match the goal: strength = 4-5 sets × 3-6 reps, hypertrophy = 3-4 sets × 8-12 reps, general = 3 sets × 8-12 reps.
-- day_label is a SHORT name (2-4 words) describing the day's focus in ${input.locale === 'ru' ? 'Russian' : 'English'}.
+- day_label is a SHORT name (2-4 words) describing the day's focus.
 ${safetyBlock}
+${aiToneBlock(input.locale)}
+
 Return ONLY valid JSON: {"days":[{"day_label":"<label>","exercises":[{"exercise_id":"<uuid>","sets":<int>,"reps":<int>}]}]}
 Exactly ${input.daysPerWeek} entries in days[]. Only use exercise_id values from the provided library.`
 

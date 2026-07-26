@@ -798,23 +798,23 @@
       "exercises": "Exercises"
     },
     "progression": {
-      "tapToApply": "Tap to apply",
+      "tapToApply": "Tap to fill in",
       "action": {
-        "increase": "Push it",
-        "hold": "Hold",
-        "deload": "Deload",
-        "firstSet": "Suggestion"
+        "increase": "+{delta} kg",
+        "hold": "Same weight",
+        "deload": "−{delta} kg",
+        "firstSet": "First set"
       },
       "reason": {
-        "easySet": "Last {lastWeight}×{lastReps} @ RPE {rpe} — easy, +{step} kg",
-        "roomToGrow": "Last {lastWeight}×{lastReps} @ RPE {rpe} — clean, +{step} kg",
-        "pushUp": "Last {lastWeight}×{lastReps} @ RPE {rpe} — solid, +{step} kg",
-        "holdReps": "Last {lastWeight}×{lastReps} @ RPE {rpe} — bank the reps first",
-        "nearMax": "Last @ RPE {rpe} — keep weight, focus form",
-        "deload": "Last hit RPE 10 — back off {step} kg",
-        "noRpeAddWeight": "Last {lastWeight}×{lastReps} — try +{step} kg",
-        "noRpeHold": "Last {lastWeight}×{lastReps} — bank more reps first",
-        "hold": "Hold weight"
+        "easySet": "Last set {lastWeight}×{lastReps} at RPE {rpe} — plenty in reserve",
+        "roomToGrow": "Last set {lastWeight}×{lastReps} at RPE {rpe} — room to grow",
+        "pushUp": "Last set {lastWeight}×{lastReps} at RPE {rpe} — done cleanly",
+        "holdReps": "Last set {lastWeight}×{lastReps} at RPE {rpe} — reps below target",
+        "nearMax": "Last set at RPE {rpe} — close to the limit",
+        "deload": "Last set at RPE 10 — limit reached",
+        "noRpeAddWeight": "Last set {lastWeight}×{lastReps} — no RPE logged",
+        "noRpeHold": "Last set {lastWeight}×{lastReps} — reps below target",
+        "hold": "Weight unchanged"
       }
     },
     "notes": {

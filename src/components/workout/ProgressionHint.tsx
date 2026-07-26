@@ -28,6 +28,12 @@ const ACTION_STYLE = {
   },
 }
 
+/** Absolute delta for display; the sign lives in the translated string. */
+export function formatDelta(deltaKg: number): string {
+  const abs = Math.abs(deltaKg)
+  return abs.toFixed(2).replace(/\.?0+$/, '')
+}
+
 export function ProgressionHint({ suggestion, onApply }: Props) {
   const t = useTranslations('workout.progression')
   const style = ACTION_STYLE[suggestion.action]
@@ -62,7 +68,7 @@ export function ProgressionHint({ suggestion, onApply }: Props) {
             className="text-[9px] font-bold uppercase tracking-widest"
             style={{ color: style.color }}
           >
-            {t(`action.${suggestion.action}`)}
+            {t(`action.${suggestion.action}`, { delta: formatDelta(suggestion.deltaKg) })}
           </span>
         </div>
         <p className="mt-0.5 text-[11px] text-white/55 leading-tight">

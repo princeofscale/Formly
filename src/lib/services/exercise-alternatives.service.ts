@@ -1,4 +1,5 @@
 import { Mistral } from '@mistralai/mistralai'
+import { aiToneBlock } from './ai-tone'
 import type { Exercise } from '@/lib/types/models'
 
 export interface AlternativeSuggestion {
@@ -43,8 +44,12 @@ export async function pickAlternatives(ctx: PickContext): Promise<AlternativeSug
 Pick up to 3 alternatives from the candidates list. Each must hit the same primary muscle as the target.
 Prefer matching the same movement pattern (compound vs isolation) and equipment when possible.
 Avoid suggesting the target exercise itself.
+Each reason must name what the alternative shares with the target — the primary muscle,
+the movement pattern, or the equipment — so the athlete can see why it was offered.
 
-Return ONLY valid JSON: {"items":[{"exercise_id":"<uuid>","reason":"<short, max 12 words, in ${ctx.locale === 'ru' ? 'Russian' : 'English'}>"}]}`
+${aiToneBlock(ctx.locale)}
+
+Return ONLY valid JSON: {"items":[{"exercise_id":"<uuid>","reason":"<short, max 12 words>"}]}`
 
   const userPrompt = JSON.stringify({
     target: ctx.target,

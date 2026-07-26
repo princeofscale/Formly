@@ -48,9 +48,6 @@ jobs:
       - name: Knip
         run: npm run knip
 
-      - name: ts-prune
-        run: npm run ts-prune
-
       - name: Test
         run: npm run test
 
