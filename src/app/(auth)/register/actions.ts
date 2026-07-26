@@ -10,18 +10,15 @@ const schema = z.object({
   password: z.string().min(8),
 })
 
-const SUPABASE_ERROR_MAP: Record<string, string> = {
-  'User already registered': 'auth.errors.default',
-  'Email not confirmed': 'auth.errors.emailNotConfirmed',
-}
+type AuthErrorKey = 'auth.errors.emailNotConfirmed' | 'auth.errors.default'
 
-function mapAuthError(message: string): string {
-  return SUPABASE_ERROR_MAP[message] ?? 'auth.errors.default'
+function mapAuthError(message: string): AuthErrorKey {
+  return message === 'Email not confirmed' ? 'auth.errors.emailNotConfirmed' : 'auth.errors.default'
 }
 
 export async function registerAction(_: unknown, formData: FormData) {
   if (formData.get('agree') !== 'on') {
-    return { errorKey: 'auth.errors.legalRequired' }
+    return { errorKey: 'auth.errors.legalRequired' } as const
   }
 
   const parsed = schema.safeParse({
@@ -30,7 +27,7 @@ export async function registerAction(_: unknown, formData: FormData) {
   })
 
   if (!parsed.success) {
-    return { errorKey: 'auth.errors.invalidCredentials' }
+    return { errorKey: 'auth.errors.invalidCredentials' } as const
   }
 
   const supabase = await createClient()

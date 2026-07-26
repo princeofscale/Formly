@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { locales, type AppLocale } from '@/i18n/config'
 
 interface Props {
   current: string
@@ -15,13 +16,13 @@ export function LocaleSwitcher({ current }: Props) {
     window.location.reload()
   }, [nextLocale])
 
-  function setLocale(locale: string) {
+  function setLocale(locale: AppLocale) {
     setNextLocale(locale)
   }
 
   return (
     <div className="flex gap-1 rounded-sm overflow-hidden border border-zinc-700">
-      {(['ru', 'en'] as const).map((loc) => (
+      {locales.map((loc) => (
         <button
           key={loc}
           onClick={() => setLocale(loc)}

@@ -124,7 +124,7 @@ export async function startFromPresetAction(formData: FormData): Promise<void> {
   if (orderedExercises.length === 0) return
 
   // Template name: "Фулбади · День A" / "Full Body · Day A"
-  const programTitle = tPresets(`${match.program.id}.title`)
+  const programTitle = tPresets(match.program.titleKey)
   const dayTitle = tPresets(match.day.titleKey)
   const templateName = `${programTitle} · ${dayTitle}`
 

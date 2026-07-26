@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { enqueueSet } from '@/lib/utils/offline-queue'
+import { weightUnit } from '@/lib/units'
 import type { SetEntry, PRResult } from '@/lib/types/models'
 import { PlateCalculator } from './PlateCalculator'
 
@@ -105,6 +106,7 @@ export function SetRow({
   onSaved,
 }: Props) {
   const t = useTranslations('workout')
+  const locale = useLocale()
   const draftKey = `setdraft:${sessionId}:${exerciseId}:${setNumber}`
 
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
@@ -226,7 +228,7 @@ export function SetRow({
           onChange={setWeight}
           step={2.5}
           min={0}
-          suffix={isBodyweight && !weight ? 'BW' : 'кг'}
+          suffix={isBodyweight && !weight ? 'BW' : weightUnit(locale)}
           optional={isBodyweight}
         />
         <Stepper label={t('repsLabel')} value={reps} onChange={setReps} step={1} min={1} />

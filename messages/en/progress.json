@@ -1,0 +1,353 @@
+{
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Your strength, workload, and recovery balance at a glance.",
+    "strengthTrend": "Strength trend",
+    "totalVolume": "Total volume",
+    "balancedMuscles": "In target range",
+    "allTime": "All completed workouts",
+    "lastFourWeeks": "Last 4 weeks",
+    "noExercise": "No exercise selected",
+    "weightProgress": "Weight progress",
+    "searchExercise": "Search exercise…",
+    "searchEmpty": "Nothing found",
+    "monthlyVolume": "Monthly Volume",
+    "volumeLandmarks": "Volume Landmarks (4 weeks)",
+    "emptyProgress": "Log at least 2 sessions to see your trend.",
+    "emptyVolume": "Complete a workout to see monthly volume.",
+    "emptyLandmarks": "Log workouts to see volume status.",
+    "setsPerWeek": "sets/wk",
+    "status": {
+      "low": "Low (MV)",
+      "optimal": "Optimal",
+      "high": "Very high"
+    }
+  },
+  "history": {
+    "pagination": "History pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {n}",
+    "eyebrow": "Workouts",
+    "totalSessions": "sessions",
+    "totalTonnage": "Tonnage",
+    "avgPerSession": "Avg",
+    "title": "History",
+    "noWorkouts": "No finished workouts yet.",
+    "volume": "Sets",
+    "minutes": "min",
+    "duration": "Duration",
+    "distance": "Distance",
+    "sessionsShort": "sess.",
+    "big": "TOP",
+    "deleteWorkout": "Delete Workout",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "deleteConfirmText": "Permanently delete this workout?",
+    "finishedBanner": "Workout complete! Great work 💪",
+    "debrief": {
+      "title": "AI debrief",
+      "loading": "Coach is analyzing..."
+    },
+    "summary": {
+      "label": "Workout complete",
+      "title": "Great work 💪",
+      "tonnage": "Tonnage",
+      "sets": "Sets",
+      "reps": "reps",
+      "duration": "Duration",
+      "vsPrev": "vs last",
+      "prsHeader": "{n} new PR",
+      "firstTime": "first time",
+      "topLifts": "Top lifts",
+      "setsShort": "sets",
+      "share": "Share",
+      "shareCardTitle": "My workout"
+    },
+    "notesLabel": "Notes",
+    "repeat": "Repeat",
+    "noExercises": "No exercises logged in this session.",
+    "table": {
+      "set": "Set",
+      "weight": "Weight",
+      "reps": "Reps",
+      "rpe": "RPE"
+    },
+    "muscleLabel": {
+      "chest": "Chest",
+      "back": "Back",
+      "biceps": "Biceps",
+      "triceps": "Triceps",
+      "forearms": "Forearms",
+      "core": "Core",
+      "quads": "Quads",
+      "hamstrings": "Hamstrings",
+      "glutes": "Glutes",
+      "calves": "Calves",
+      "traps": "Traps",
+      "lats": "Lats",
+      "rear_delts": "Rear Delts",
+      "front_delts": "Front Delts",
+      "side_delts": "Side Delts",
+      "cardio": "Cardio"
+    },
+    "muscleClickHint": "Tap a muscle",
+    "sets": "sets",
+    "detail": {
+      "tonnage": "Tonnage",
+      "duration": "Time",
+      "sets": "Sets",
+      "exercises": "Exercises",
+      "best": "best",
+      "exVolume": "volume"
+    }
+  },
+  "progress": {
+    "title": "Progress",
+    "eyebrow": "Progress",
+    "bestWeightLabel": "Top weight",
+    "exercisesLabel": "Exercises",
+    "topWeightTag": "top weight",
+    "searchExercise": "Search exercise…",
+    "searchEmpty": "Nothing found",
+    "unlocked": "unlocked",
+    "bodyweightLabel": "Bodyweight",
+    "exerciseLabel": "Exercise",
+    "majorLifts": "Major lifts",
+    "shortcuts": "Tools",
+    "periodLabel": "Period",
+    "unitWeight": "kg",
+    "weightLabel": "Body weight",
+    "heightLabel": "Height",
+    "saveMetrics": "Save",
+    "saved": "Saved",
+    "weightHistoryTitle": "Weight history",
+    "entries": "entries",
+    "noEntries": "no data",
+    "metricWeight": "Weight",
+    "metricVolume": "Volume",
+    "unitVolume": "kg",
+    "setsCount": "sets",
+    "photos": {
+      "linkTitle": "Progress photos",
+      "linkSub": "Compare yourself across dates — before/after",
+      "title": "Progress photos",
+      "back": "Back",
+      "addLabel": "New photo",
+      "addTitle": "Progress snapshot",
+      "pickFile": "Choose photo",
+      "maxSize": "up to 8 MB",
+      "weightPlaceholder": "Weight (kg)",
+      "captionPlaceholder": "Caption",
+      "save": "Save",
+      "cancel": "Cancel",
+      "uploading": "Uploading…",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "errorTooBig": "File too large (max 8 MB)",
+      "errorType": "Images only: JPG, PNG, WebP or HEIC",
+      "empty": "Upload your first photo to start tracking progress",
+      "imageMissing": "missing",
+      "count": "photos",
+      "compare": "Compare",
+      "compareCancel": "Cancel",
+      "comparePrompt": "Pick two photos to compare",
+      "compareReady": "Tap a photo — compare opens",
+      "confirmDelete": "Delete this photo?",
+      "deleteYes": "Delete",
+      "deleteNo": "Cancel",
+      "privacy": "Only you can see this — photos are stored privately",
+      "emptyTitle": "Upload your first photo",
+      "emptySub": "Same angle, same lighting — and in a month the before/after builds itself",
+      "formats": "JPG · PNG · up to 8 MB",
+      "compareTitle": "Compare",
+      "before": "Before",
+      "after": "After",
+      "compareHint": "Drag the slider to compare shots."
+    },
+    "oneRMLink": {
+      "title": "1RM calculator",
+      "sub": "Estimate one-rep max + working-set percentages"
+    },
+    "strength": {
+      "label": "Strength",
+      "title": "Big lifts vs bodyweight",
+      "noBodyweight": "Set your body weight to see strength tiers.",
+      "noData": "Log a barbell lift to see your strength ratio.",
+      "hint": "Tiers compare your best working weight to bodyweight. Standards are based on adult males.",
+      "tiers": {
+        "beginner": "Beginner",
+        "novice": "Novice",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "elite": "Elite"
+      }
+    },
+    "measurements": {
+      "linkTitle": "Body measurements",
+      "linkSub": "Waist, chest, biceps — track circumferences week by week",
+      "label": "Measurements",
+      "title": "Body measurements",
+      "formTitle": "Log measurements",
+      "back": "Back",
+      "date": "Date",
+      "notes": "Notes",
+      "notesPlaceholder": "How are you feeling, conditions of the measurement…",
+      "save": "Save",
+      "delete": "Delete",
+      "empty": "No measurements yet. Fill in the form above to start tracking.",
+      "historyTitle": "History",
+      "newEntry": "New entry",
+      "firstEntry": "First entry",
+      "moreFields": "5 more measurements",
+      "lessFields": "Hide extra fields",
+      "emptyTitle": "No measurements yet",
+      "emptySub": "Fill the form above to start — deltas and charts appear from the second entry",
+      "deltaFlat": "· no change",
+      "deltaFirst": "first",
+      "fields": {
+        "weight_kg": "Weight",
+        "body_fat_pct": "Body fat",
+        "waist_cm": "Waist",
+        "chest_cm": "Chest",
+        "hips_cm": "Hips",
+        "biceps_cm": "Biceps",
+        "thigh_cm": "Thigh",
+        "calf_cm": "Calf",
+        "neck_cm": "Neck"
+      }
+    },
+    "periods": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "1y": "1 year"
+    },
+    "bodyHistory": {
+      "title": "Weight & height",
+      "empty": "Save your weight and height below — history will appear here."
+    },
+    "libraryLink": {
+      "title": "Exercise library",
+      "sub": "Your full per-exercise history"
+    }
+  },
+  "records": {
+    "title": "Personal Records",
+    "subtitle": "All time",
+    "noRecords": "No records yet. Start lifting!",
+    "noRecordsHint": "Finish a heavy set and it'll land here.",
+    "date": "Date",
+    "totalPrs": "Total PRs",
+    "lifts": "Lifts",
+    "latestPr": "Latest PR",
+    "tabs": {
+      "all": "All lifts",
+      "recent": "Recent",
+      "muscle": "By muscle"
+    },
+    "thisWeek": "{n} PRs this week",
+    "activeSeason": "↑ Active season"
+  },
+  "tools": {
+    "oneRM": {
+      "back": "Back",
+      "label": "Calculator",
+      "title": "1RM calculator",
+      "formTitle": "Enter a working set",
+      "weight": "Weight",
+      "reps": "Reps",
+      "estimated1rm": "Estimated 1RM",
+      "percentChart": "% chart · target loads",
+      "formulaHint": "Brzycki formula for <10 reps, Epley for ≥10. Both are estimates — actual 1RM varies with technique and fatigue.",
+      "fxEmpty": "Enter weight and reps — we'll estimate your max",
+      "fxSingle": "One rep — that's already your max",
+      "zones": {
+        "endurance": "Endurance",
+        "hypertrophy": "Hypertrophy",
+        "strength": "Strength",
+        "power": "Power",
+        "max": "Max"
+      }
+    }
+  },
+  "wrapped": {
+    "back": "Back",
+    "intro": "Your year",
+    "introInProgress": "Year so far",
+    "subtitle": "A scroll-by-scroll look at the weight you moved.",
+    "subtitleInProgress": "The year isn't over — but here's where you stand.",
+    "noData": "No finished workouts logged in this year — come back after a few sessions.",
+    "footer": "Train. Track. Repeat.",
+    "slides": {
+      "eyebrow": "Formly Wrapped",
+      "hint": "scroll",
+      "tonnageEyebrow": "This year you lifted",
+      "tonnageUnit": "kilograms",
+      "tonnageElephants": "That's <b>{n, plural, one {# African elephant} other {# African elephants}}</b> — six tonnes each.",
+      "tonnageSub": "Across <b>{sets} sets</b> and {reps} reps.",
+      "favEyebrow": "Favorite exercise",
+      "favSub": "<b>{sets, plural, one {# set} other {# sets}}</b> this year — more than any other lift.",
+      "streakEyebrow": "Best streak",
+      "streakUnit": "{n, plural, one {day in a row} other {days in a row}}",
+      "streakSub": "Not a single day missed.",
+      "prEyebrow": "Personal records",
+      "prUnit": "best weight of the year",
+      "monthEyebrow": "Strongest month",
+      "monthSub": "<b>{sessions, plural, one {# workout} other {# workouts}}</b> · {tonnage} kg of tonnage.",
+      "fin1": "Train.",
+      "fin2": "Track.",
+      "fin3": "Repeat.",
+      "share": "Share your year",
+      "shareText": "My {year} on Formly: {sessions} workouts, {tonnage} kg of tonnage 💪",
+      "foot": "Formly Wrapped ’{yy}",
+      "emptyEyebrow": "Still being written",
+      "emptyCta": "Go train",
+      "close": "Close"
+    },
+    "cards": {
+      "sessions": {
+        "label": "Sessions",
+        "unit": "workouts",
+        "sub": "Including {cardio} cardio sessions"
+      },
+      "tonnage": {
+        "label": "Total tonnage",
+        "sub": "Across {count} sets · {reps} reps"
+      },
+      "duration": {
+        "label": "Time in the gym",
+        "sub": "Time you actually spent grinding"
+      },
+      "bestDay": {
+        "label": "Biggest day"
+      },
+      "streak": {
+        "label": "Longest streak",
+        "unit": "days",
+        "sub": "Back-to-back lifting days"
+      },
+      "favHour": {
+        "label": "Favorite hour",
+        "sub": "When most workouts started"
+      },
+      "topMuscle": {
+        "label": "Most-trained muscle",
+        "sub": "{sets} working sets this year"
+      },
+      "cardio": {
+        "label": "Cardio",
+        "unitSessions": "sessions",
+        "sub": "{count} sessions logged"
+      },
+      "topPRs": {
+        "label": "Records",
+        "title": "Heaviest hits of the year"
+      },
+      "monthly": {
+        "label": "Volume",
+        "title": "Tonnage by month"
+      }
+    }
+  }
+}

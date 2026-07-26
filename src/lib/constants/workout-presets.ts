@@ -3,26 +3,7 @@
  * Each day is a list of exercise slugs that exist in the `exercises` seed.
  */
 
-export interface PresetDay {
-  /** Short identifier used in URL/form, e.g. "fullbody-a" */
-  id: string
-  /** Display label key suffix: presets.<programId>.days.<dayId>.title */
-  titleKey: string
-  /** Exercise slugs from existing seed */
-  slugs: string[]
-}
-
-export interface PresetProgram {
-  id: string
-  /** i18n keys: presets.<id>.title, presets.<id>.subtitle */
-  titleKey: string
-  subtitleKey: string
-  /** Emoji icon shown on card */
-  icon: string
-  days: PresetDay[]
-}
-
-export const WORKOUT_PRESETS: PresetProgram[] = [
+export const WORKOUT_PRESETS = [
   {
     id: 'fullbody',
     titleKey: 'fullbody.title',
@@ -199,7 +180,10 @@ export const WORKOUT_PRESETS: PresetProgram[] = [
       },
     ],
   },
-]
+] as const
+
+type PresetProgram = (typeof WORKOUT_PRESETS)[number]
+type PresetDay = PresetProgram['days'][number]
 
 export function findPresetDay(dayId: string): { program: PresetProgram; day: PresetDay } | null {
   for (const program of WORKOUT_PRESETS) {

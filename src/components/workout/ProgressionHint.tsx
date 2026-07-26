@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Sparkles, TrendingUp, Minus, TrendingDown } from 'lucide-react'
 import type { NextSetSuggestion } from '@/lib/services/progression.service'
 
@@ -29,13 +29,13 @@ const ACTION_STYLE = {
 }
 
 /** Absolute delta for display; the sign lives in the translated string. */
-export function formatDelta(deltaKg: number): string {
-  const abs = Math.abs(deltaKg)
-  return abs.toFixed(2).replace(/\.?0+$/, '')
+export function formatDelta(deltaKg: number, locale = 'en'): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(Math.abs(deltaKg))
 }
 
 export function ProgressionHint({ suggestion, onApply }: Props) {
   const t = useTranslations('workout.progression')
+  const locale = useLocale()
   const style = ACTION_STYLE[suggestion.action]
   const Icon =
     suggestion.action === 'increase'
@@ -68,7 +68,9 @@ export function ProgressionHint({ suggestion, onApply }: Props) {
             className="text-[9px] font-bold uppercase tracking-widest"
             style={{ color: style.color }}
           >
-            {t(`action.${suggestion.action}`, { delta: formatDelta(suggestion.deltaKg) })}
+            {t(`action.${suggestion.action}`, {
+              delta: formatDelta(suggestion.deltaKg, locale),
+            })}
           </span>
         </div>
         <p className="mt-0.5 text-[11px] text-white/55 leading-tight">

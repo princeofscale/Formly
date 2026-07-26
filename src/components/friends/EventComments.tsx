@@ -8,6 +8,8 @@ import {
   deleteCommentAction,
   loadCommentsAction,
 } from '@/app/(app)/friends/activity-actions'
+import type { AppLocale } from '@/i18n/config'
+import { formatRelativeTime } from '@/lib/utils/relative-time'
 import type { FeedComment } from '@/lib/db/activity'
 
 interface Props {
@@ -20,24 +22,11 @@ interface Props {
 // Top-level helper so Date.now() stays out of the render path
 // (React Compiler purity rule) — same pattern used across the friends
 // components for relative-time labels (build a Map once, outside JSX).
-function buildCommentTimeLabels(comments: FeedComment[], locale: string): Map<string, string> {
+function buildCommentTimeLabels(comments: FeedComment[], locale: AppLocale): Map<string, string> {
   const now = Date.now()
   const m = new Map<string, string>()
   for (const c of comments) {
-    const minutes = Math.max(0, Math.floor((now - new Date(c.created_at).getTime()) / 60000))
-    let label: string
-    if (minutes < 1) {
-      label = locale === 'ru' ? 'сейчас' : 'now'
-    } else if (minutes < 60) {
-      label = locale === 'ru' ? `${minutes} мин назад` : `${minutes}m ago`
-    } else if (minutes < 1440) {
-      const hours = Math.floor(minutes / 60)
-      label = locale === 'ru' ? `${hours} ч назад` : `${hours}h ago`
-    } else {
-      const days = Math.floor(minutes / 1440)
-      label = locale === 'ru' ? `${days} дн назад` : `${days}d ago`
-    }
-    m.set(c.id, label)
+    m.set(c.id, formatRelativeTime(c.created_at, locale, now))
   }
   return m
 }

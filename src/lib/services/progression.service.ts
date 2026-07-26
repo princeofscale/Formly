@@ -1,4 +1,5 @@
 import type { SetEntry, ProgressionSuggestion } from '@/lib/types/models'
+import type { Messages } from 'next-intl'
 
 export function getProgressionSuggestion(
   sets: SetEntry[],
@@ -25,7 +26,8 @@ export function getProgressionSuggestion(
   }
 }
 
-export type SuggestionAction = 'increase' | 'hold' | 'deload' | 'firstSet'
+type SuggestionAction = 'increase' | 'hold' | 'deload' | 'firstSet'
+type ProgressionReasonKey = keyof Messages['workout']['progression']['reason']
 
 export interface NextSetSuggestion {
   weightKg: number
@@ -38,7 +40,7 @@ export interface NextSetSuggestion {
   deltaKg: number
   action: SuggestionAction
   /** i18n key under workout.progression.reason */
-  reasonKey: string
+  reasonKey: ProgressionReasonKey
   /** Filled placeholders for the i18n message */
   reasonParams?: Record<string, number | string>
   lastWeight: number
@@ -82,7 +84,7 @@ export function suggestNextSet(sets: SetEntry[]): NextSetSuggestion | null {
   let weightKg = last.weight_kg
   const reps = last.reps
   let action: SuggestionAction = 'hold'
-  let reasonKey = 'hold'
+  let reasonKey: ProgressionReasonKey = 'hold'
 
   if (rpe == null) {
     if (last.reps >= 8) {

@@ -19,6 +19,13 @@ import { getWorkoutLifetimeStats } from '@/lib/db/workouts'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { updateProfileAction } from './actions'
 
+const BMI_CATEGORY_KEYS = {
+  Underweight: 'bmiCat.underweight',
+  Normal: 'bmiCat.normal',
+  Overweight: 'bmiCat.overweight',
+  Obese: 'bmiCat.obese',
+} as const
+
 function formatTrainingAge(
   trainingSince: string | null | undefined,
   labels: { lessThanYear: string; yearShort: string },
@@ -233,7 +240,7 @@ export default async function ProfilePage() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  {t(`bmiCat.${bmiCat.toLowerCase()}`)}
+                  {t(BMI_CATEGORY_KEYS[bmiCat])}
                 </span>
               )}
             </div>

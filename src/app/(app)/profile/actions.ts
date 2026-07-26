@@ -4,6 +4,7 @@
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { locales } from '@/i18n/config'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 
@@ -15,7 +16,7 @@ const profileSchema = z.object({
   training_since: z.string().optional(),
   training_location: z.enum(['gym', 'home', 'both']).optional(),
   training_schedule: z.array(z.coerce.number().int().min(1).max(7)).default([]),
-  locale: z.enum(['ru', 'en']).optional(),
+  locale: z.enum(locales).optional(),
 })
 
 export async function updateProfileAction(formData: FormData): Promise<void> {

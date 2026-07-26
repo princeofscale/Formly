@@ -104,7 +104,7 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
 
     // Localized preset titles
     const tPresets = await getTranslations('presets')
-    const programTitle = tPresets(`${program.id}.title`)
+    const programTitle = tPresets(program.titleKey)
 
     for (const day of program.days) {
       const exercises: TemplateExercise[] = []

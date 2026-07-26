@@ -23,9 +23,9 @@ const MUSCLES = [
   'rear_delts',
   'front_delts',
   'side_delts',
-]
-const EQUIPMENT = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other']
-const MECHANIC = ['compound', 'isolation']
+] as const
+const EQUIPMENT = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other'] as const
+const MECHANIC = ['compound', 'isolation'] as const
 
 interface Props {
   /** Optional callback when an exercise is created (used by ExerciseSearch inline path) */
@@ -58,9 +58,9 @@ export function ExerciseForm({
 
   const [name, setName] = useState(prefilledName ?? '')
   const [nameRu, setNameRu] = useState('')
-  const [primaryMuscle, setPrimaryMuscle] = useState('chest')
-  const [equipment, setEquipment] = useState('barbell')
-  const [mechanic, setMechanic] = useState<'compound' | 'isolation'>('compound')
+  const [primaryMuscle, setPrimaryMuscle] = useState<(typeof MUSCLES)[number]>('chest')
+  const [equipment, setEquipment] = useState<(typeof EQUIPMENT)[number]>('barbell')
+  const [mechanic, setMechanic] = useState<(typeof MECHANIC)[number]>('compound')
 
   function reset() {
     setName('')
@@ -244,7 +244,7 @@ export function ExerciseForm({
                 <button
                   key={m}
                   type="button"
-                  onClick={() => setMechanic(m as 'compound' | 'isolation')}
+                  onClick={() => setMechanic(m)}
                   className="h-9 text-[11px] font-bold rounded-[6px] transition-colors"
                   style={{
                     background:

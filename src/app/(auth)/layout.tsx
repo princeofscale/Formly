@@ -1,14 +1,16 @@
 import { Dumbbell, TrendingUp, Brain } from 'lucide-react'
-import { getTranslations, getLocale } from 'next-intl/server'
+import { NextIntlClientProvider } from 'next-intl'
+import { getTranslations, getLocale, getMessages } from 'next-intl/server'
 import { LocaleSwitcher } from '@/components/auth/LocaleSwitcher'
 import { AuthBackground } from '@/components/auth/AuthBackground'
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
   const t = await getTranslations('auth')
+  const { auth } = await getMessages()
 
   return (
-    <>
+    <NextIntlClientProvider messages={{ auth }}>
       <AuthBackground />
       <div className="min-h-screen grid md:grid-cols-2 relative">
         {/* Left panel — desktop only */}
@@ -74,6 +76,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <div className="flex-1 flex items-center justify-center px-6 pb-12">{children}</div>
         </div>
       </div>
-    </>
+    </NextIntlClientProvider>
   )
 }

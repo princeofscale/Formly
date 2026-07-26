@@ -28,12 +28,12 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
-  const messages = await getMessages()
+  const { install, updateBanner } = await getMessages()
 
   return (
     <html lang={locale} className="dark">
       <body className="text-white min-h-screen" style={{ background: '#0A0A0F' }}>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={{ install, updateBanner }}>
           {children}
           <InstallPrompt />
           <UpdateBanner />

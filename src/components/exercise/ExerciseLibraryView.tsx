@@ -38,7 +38,10 @@ interface Props {
 
 function buildLastLabel(
   items: Item[],
-  t: (key: string, vars?: Record<string, string | number>) => string,
+  t: (
+    key: 'never' | 'today' | 'yesterday' | 'daysAgo' | 'weeksAgo',
+    vars?: { n: number },
+  ) => string,
 ): Map<string, string> {
   const now = Date.now()
   const m = new Map<string, string>()

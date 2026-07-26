@@ -1,0 +1,154 @@
+{
+  "install": {
+    "title": "Install Formly",
+    "subtitle": "Add to your home screen for quick access",
+    "cta": "Install",
+    "later": "Later",
+    "iosInstructions": "On iPhone: open the share menu",
+    "iosShareHint": "Share → Add to Home Screen"
+  },
+  "nav": {
+    "home": "Home",
+    "history": "History",
+    "library": "Library",
+    "analytics": "Analytics",
+    "records": "Records",
+    "profile": "Profile",
+    "workouts": "Workouts",
+    "progress": "Progress",
+    "plan": "Plan",
+    "signOut": "Sign out"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subOn": "Receiving training reminders",
+    "subOff": "Stay on top of your workouts",
+    "enable": "Enable",
+    "disable": "Disable",
+    "sendTest": "Send test notification",
+    "testSent": "Sent to {n} device(s)",
+    "testNoSubs": "No active subscriptions",
+    "unsupported": "Not supported",
+    "denied": "Blocked",
+    "deniedHint": "Notifications are blocked in browser settings. Allow them for this site to enable.",
+    "errorEnable": "Could not enable notifications",
+    "errorDisable": "Could not disable",
+    "errorTest": "Could not send test",
+    "errorNoKey": "Push not configured by server"
+  },
+  "offline": {
+    "syncing": "Syncing {n} sets…",
+    "offline": "{n} sets offline",
+    "pending": "{n} sets queued",
+    "finishQueued": "Workout finished — will sync when you're back online",
+    "pageTitle": "You're offline",
+    "pageSub": "Your data is safe: everything you logged is queued and will sync as soon as you're back online.",
+    "retry": "Retry"
+  },
+  "profile": {
+    "title": "PROFILE",
+    "overview": "Account hub",
+    "stats": {
+      "bmi": "BMI",
+      "trainingAge": "Training age",
+      "location": "Location",
+      "weightUnit": "kg",
+      "heightUnit": "cm",
+      "lessThanYear": "<1 yr",
+      "yearShort": "yr"
+    },
+    "form": {
+      "editProfile": "Edit Profile",
+      "displayName": "Name in Formly",
+      "displayNamePlaceholder": "What should we call you?",
+      "displayNameHint": "Friends and your AI coach will see this name.",
+      "weight": "Weight (kg)",
+      "height": "Height (cm)",
+      "age": "Age",
+      "trainingSince": "Training since",
+      "location": "Location",
+      "locationSelect": "Select...",
+      "locationGym": "Gym",
+      "locationHome": "Home",
+      "locationBoth": "Both",
+      "schedule": "Training days",
+      "save": "SAVE"
+    },
+    "language": "Interface language",
+    "languageSub": "App copy & coaching cues",
+    "shareActivity": "Share activity",
+    "shareActivitySub": "Friends see your workouts, PRs and streaks in the feed",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete account",
+    "deleteAccountConfirm": "Really delete?",
+    "deleteAccountCancel": "Cancel",
+    "exportCsv": "Export data",
+    "exportCsvSub": "Download all workouts as CSV",
+    "install": {
+      "title": "Install app",
+      "subtitle": "Show the install hint again"
+    },
+    "sectionIdentity": "Identity",
+    "sectionPreferences": "Preferences",
+    "sectionAccount": "Account",
+    "emailLabel": "Email · verified",
+    "streakUnit": "day streak",
+    "lifetime": {
+      "workouts": "Workouts",
+      "tonnage": "Lifetime tonnage",
+      "longest": "Longest streak"
+    },
+    "bmiCat": {
+      "underweight": "Underweight",
+      "normal": "Normal",
+      "overweight": "Overweight",
+      "obese": "Obese"
+    },
+    "locationDisplay": {
+      "gym": "Gym",
+      "home": "Home",
+      "both": "Both"
+    },
+    "days": {
+      "1": "MON",
+      "2": "TUE",
+      "3": "WED",
+      "4": "THU",
+      "5": "FRI",
+      "6": "SAT",
+      "7": "SUN"
+    },
+    "daysFull": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    }
+  },
+  "streak": {
+    "label": "in a row",
+    "best": "Best",
+    "noWorkouts": "No workouts yet",
+    "freezeTooltip": "Freeze {used}/{total} used this month — missing one scheduled day a month won't break your streak"
+  },
+  "templates": {
+    "title": "Templates",
+    "noTemplates": "No templates yet. Save your first workout.",
+    "saveAsTemplate": "Save as template",
+    "namePlaceholder": "e.g. Push day",
+    "save": "Save",
+    "saved": "Saved!",
+    "start": "Start",
+    "delete": "Delete",
+    "exercises": "{n} exercises",
+    "update": "Update \"{name}\"",
+    "saveAsNew": "Save as new"
+  },
+  "updateBanner": {
+    "available": "New version",
+    "reload": "Reload"
+  }
+}
