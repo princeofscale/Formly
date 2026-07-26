@@ -25,6 +25,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 - Standardized release headings, comparison links, and contributor release instructions.
 
+### Security
+
+- Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
+
 ## 1.1.0 - 2026-07-23
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.0.2...v1.1.0)
