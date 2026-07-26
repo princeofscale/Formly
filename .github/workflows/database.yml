@@ -82,6 +82,7 @@ jobs:
       # here rather than hidden, because fixing it properly means editing
       # migrations that are already applied.
       - name: Run the documented preflight cleanup
+        if: false
         run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f .github/database/upgrade-preflight.sql
 
       - name: Restore the current migrations
