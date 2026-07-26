@@ -19,9 +19,8 @@ import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { calculateWarmupSets } from '@/lib/services/warmup.service'
-import { emitWeightPr, maybeEmitStreakMilestone } from '@/lib/services/activity.service'
-import { getFinishedSessionDates } from '@/lib/db/streak'
-import { calculateStreak } from '@/lib/services/streak.service'
+import { emitWeightPr } from '@/lib/services/activity.service'
+import { finishWorkout } from '@/lib/services/workout-finish.service'
 import {
   validateReps,
   validateRpe,
@@ -333,28 +332,13 @@ export async function updateTemplateAction(
   await updateTemplate(supabase, user.id, templateId, exercises)
 }
 
-// Mirrors the dashboard's local freeze allowance (src/app/(app)/dashboard/page.tsx,
-// STREAK_FREEZES_PER_MONTH) so the streak computed here matches what the user sees
-// there. There's no shared export for this value — keep the two in sync manually.
-const STREAK_FREEZES_PER_MONTH = 2
-
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
   const id = validateUuid(sessionId, 'sessionId')
-  const { error } = await supabase.rpc('finish_workout', { p_session_id: id })
-  if (error) throw new Error(error.message)
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('training_schedule, time_zone')
-    .eq('id', user.id)
-    .maybeSingle()
-  const schedule: number[] = profile?.training_schedule ?? []
-  const timeZone = profile?.time_zone ?? 'UTC'
-  const dates = await getFinishedSessionDates(supabase, user.id)
-  const streak = calculateStreak(dates, schedule, new Date(), STREAK_FREEZES_PER_MONTH, timeZone)
-  await maybeEmitStreakMilestone(supabase, user.id, streak.current)
+  const { error } = await finishWorkout(supabase, user.id, id)
+  if (error) throw new Error(error.message)
 
   revalidatePath('/dashboard')
   revalidatePath('/history')

@@ -4,6 +4,15 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.1...HEAD)
+
+### Fixed
+
+- Finished the same workout the same way whether or not the phone had signal. A workout completed offline was flushed through an older path that recomputed tonnage in the browser and wrote it directly, so it produced no finished-workout event, no volume record, and no streak milestone. Both entry points now run the one atomic completion, and the streak is evaluated once behind it.
+- Stopped a permanently unsyncable offline record from blocking the queue behind it. A set belonging to a session that was already finished, deleted, or logged under a previous account on a shared device came back as a server error, which the queue reads as "try again later" and retried forever. Such failures are now reported as permanent, move to the dead-letter store, and let the rest of the queue drain.
+
 ## 1.2.1 - 2026-07-26
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.0...v1.2.1)
