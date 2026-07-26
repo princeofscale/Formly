@@ -29,9 +29,9 @@ const ACTION_STYLE = {
 }
 
 /** Absolute delta for display; the sign lives in the translated string. */
-function formatDelta(deltaKg: number): string {
+export function formatDelta(deltaKg: number): string {
   const abs = Math.abs(deltaKg)
-  return abs.toFixed(abs % 1 === 0 ? 0 : 1)
+  return abs.toFixed(2).replace(/\.?0+$/, '')
 }
 
 export function ProgressionHint({ suggestion, onApply }: Props) {
