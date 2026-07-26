@@ -3,6 +3,7 @@
 
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { hasSupabaseAuthCookie } from '@/lib/utils/auth-cookie'
 
 const PUBLIC_EXACT = new Set<string>([
   '/login',
@@ -49,6 +50,18 @@ export async function proxy(request: NextRequest) {
   // Cron routes authenticate via Bearer CRON_SECRET in the route handler.
   // The session check below would 401 them before they reach that handler.
   if (isCronRoute(path) || isPublicApiRoute(path)) return NextResponse.next({ request })
+
+  // A visitor with no session cookie has nothing to verify, and `getUser()`
+  // is a network call to Supabase Auth that blocks the first byte. On a public
+  // page it bought nothing and dominated the measured TTFB on /login.
+  //
+  // This is not an authorization shortcut: the branch is only taken for paths
+  // that isPublic() already lets through unauthenticated. Everything else,
+  // including every /api/ route, still goes through the check below, and a
+  // request that forges the cookie merely ends up in that same check.
+  if (isPublic(path) && !hasSupabaseAuthCookie(request.cookies.getAll().map(({ name }) => name))) {
+    return NextResponse.next({ request })
+  }
 
   let supabaseResponse = NextResponse.next({ request })
 

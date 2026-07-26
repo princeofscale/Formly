@@ -16,6 +16,21 @@ interface PickContext {
   >
 }
 
+/**
+ * Selection rules, kept separate from the per-request prompt so they can be
+ * asserted in tests the way the shared tone block already is.
+ */
+export const ALTERNATIVE_RULES = `You are a fitness coach. The user wants to swap one exercise for another from a fixed library.
+Pick up to 3 alternatives from the candidates list. Each must hit the same primary muscle as the target.
+Prefer matching the same movement pattern (compound vs isolation) and equipment when possible.
+When the target uses a barbell and the candidates contain a machine or cable variant of the same
+pattern, include at least one of them. Athletes swap an exercise because a rack is occupied, a
+technique is not there yet, or a joint does not tolerate free weight, and a guided variant answers
+all three.
+Avoid suggesting the target exercise itself.
+Each reason must name what the alternative shares with the target — the primary muscle,
+the movement pattern, or the equipment — so the athlete can see why it was offered.`
+
 export async function pickAlternatives(ctx: PickContext): Promise<AlternativeSuggestion[]> {
   const apiKey = process.env.MISTRAL_API_KEY
   if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
@@ -24,12 +39,7 @@ export async function pickAlternatives(ctx: PickContext): Promise<AlternativeSug
 
   const client = new Mistral({ apiKey })
 
-  const systemPrompt = `You are a fitness coach. The user wants to swap one exercise for another from a fixed library.
-Pick up to 3 alternatives from the candidates list. Each must hit the same primary muscle as the target.
-Prefer matching the same movement pattern (compound vs isolation) and equipment when possible.
-Avoid suggesting the target exercise itself.
-Each reason must name what the alternative shares with the target — the primary muscle,
-the movement pattern, or the equipment — so the athlete can see why it was offered.
+  const systemPrompt = `${ALTERNATIVE_RULES}
 
 ${aiToneBlock(ctx.locale)}
 
