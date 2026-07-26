@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Dumbbell, Trophy } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { weightUnit } from '@/lib/units'
+import { unwrapRows } from '@/lib/db/unwrap'
 
 interface SetRow {
   session_id: string
@@ -46,12 +47,15 @@ export default async function HistoryPage({
     // (is_warmup filter omitted — database.types.ts pre-dates the column and
     // typing it would need a regen. Warm-up rows still appear as faint tags
     // here; minor cosmetic issue, not worth the regen overhead for v1.)
-    const { data } = await supabase
-      .from('set_entries')
-      .select('session_id, exercises(name, name_ru)')
-      .in('session_id', sessionIds)
+    const rows = unwrapRows(
+      await supabase
+        .from('set_entries')
+        .select('session_id, exercises(name, name_ru)')
+        .in('session_id', sessionIds),
+      'history set counts',
+    )
 
-    for (const row of (data ?? []) as unknown as SetRow[]) {
+    for (const row of rows as unknown as SetRow[]) {
       setCounts.set(row.session_id, (setCounts.get(row.session_id) ?? 0) + 1)
       const ex = row.exercises
       const name = locale === 'ru' ? (ex?.name_ru ?? ex?.name) : ex?.name

@@ -28,12 +28,15 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
-  const { install, updateBanner } = await getMessages()
+  // `error` belongs here rather than in a nested layout: error.tsx sits at the
+  // root so it covers onboarding and auth too, and by the time it renders the
+  // nested providers have unmounted with the subtree that failed.
+  const { install, updateBanner, error } = await getMessages()
 
   return (
     <html lang={locale} className="dark">
       <body className="text-white min-h-screen" style={{ background: '#0A0A0F' }}>
-        <NextIntlClientProvider messages={{ install, updateBanner }}>
+        <NextIntlClientProvider messages={{ install, updateBanner, error }}>
           {children}
           <InstallPrompt />
           <UpdateBanner />
