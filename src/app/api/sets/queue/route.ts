@@ -20,6 +20,7 @@ import {
   validateWeightKg,
 } from '@/lib/utils/validators'
 import { rpcErrorStatus } from '@/lib/utils/rpc-error'
+import { nullableArg } from '@/lib/supabase/rpc-args'
 import type { SetEntry } from '@/lib/types/models'
 
 export const dynamic = 'force-dynamic'
@@ -76,8 +77,8 @@ export async function POST(request: Request) {
     p_set_number: setNumber,
     p_weight_kg: weightKg,
     p_reps: reps,
-    p_rpe: rpe ?? null,
-    p_calculated_1rm: calculated1rm,
+    p_rpe: nullableArg(rpe),
+    p_calculated_1rm: nullableArg(calculated1rm),
   })
   if (error) {
     // A permanent failure has to reach the client as 4xx, or the queue retries

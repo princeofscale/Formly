@@ -30,7 +30,10 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned, not latest. The type check compares generated output byte
+          # for byte, and a new generator reformats it — an unpinned CLI turns
+          # somebody else's release into a red build on an unrelated change.
+          version: 2.109.1
 
       - name: Start the local stack
         run: supabase start
@@ -83,7 +86,10 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned, not latest. The type check compares generated output byte
+          # for byte, and a new generator reformats it — an unpinned CLI turns
+          # somebody else's release into a red build on an unrelated change.
+          version: 2.109.1
 
       # Resolved rather than pinned: a hard-coded tag quietly starts testing an
       # upgrade nobody performs any more, while still reporting green.
