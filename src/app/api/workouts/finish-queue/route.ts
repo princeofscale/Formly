@@ -1,14 +1,16 @@
 // POST endpoint used by OfflineSyncWatcher to flush a workout finished
-// offline. Mirrors finishWorkoutAction (recompute tonnage from sets, then
-// finishSession) but is idempotent: flushing an already-finished session
-// returns ok so retries never wedge the queue.
+// offline. Runs the same completion path as the in-app button so an offline
+// workout lands identically: atomic tonnage, finished-workout and volume-PR
+// events, and the streak milestone. It stays idempotent — flushing an
+// already-finished session returns ok so retries never wedge the queue.
 
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
-import { getSession, finishSession } from '@/lib/db/workouts'
-import { getSetsForSession } from '@/lib/db/sets'
+import { getSession } from '@/lib/db/workouts'
+import { finishWorkout } from '@/lib/services/workout-finish.service'
+import { rpcErrorStatus } from '@/lib/utils/rpc-error'
 import { ValidationError, validateUuid } from '@/lib/utils/validators'
 
 export const dynamic = 'force-dynamic'
@@ -46,14 +48,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, alreadyFinished: true })
   }
 
-  // Same tonnage math as finishWorkoutAction — by flush time the queued
-  // sets have already landed (watcher drains sets before finishes).
-  const allSets = await getSetsForSession(supabase, sessionId)
-  const totalVolume = allSets
-    .filter((s) => !s.is_warmup)
-    .reduce((sum, s) => sum + s.weight_kg * s.reps, 0)
-
-  await finishSession(supabase, sessionId, totalVolume)
+  const { error } = await finishWorkout(supabase, user.id, sessionId)
+  if (error) {
+    const status = rpcErrorStatus(error.code)
+    if (status === 500) console.error('[workouts/finish-queue] finish_workout failed:', error)
+    return NextResponse.json({ error: status === 500 ? 'Sync failed' : error.message }, { status })
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/history')

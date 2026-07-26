@@ -19,6 +19,7 @@ import {
   validateUuid,
   validateWeightKg,
 } from '@/lib/utils/validators'
+import { rpcErrorStatus } from '@/lib/utils/rpc-error'
 import type { SetEntry } from '@/lib/types/models'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +79,13 @@ export async function POST(request: Request) {
     p_rpe: rpe ?? null,
     p_calculated_1rm: calculated1rm,
   })
-  if (error) throw new Error(error.message)
+  if (error) {
+    // A permanent failure has to reach the client as 4xx, or the queue retries
+    // it forever and everything behind it stalls.
+    const status = rpcErrorStatus(error.code)
+    if (status === 500) console.error('[sets/queue] save_offline_set failed:', error)
+    return NextResponse.json({ error: status === 500 ? 'Sync failed' : error.message }, { status })
+  }
 
   const result = data as unknown as { set: SetEntry; inserted: boolean }
   const set = result.set
