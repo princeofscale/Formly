@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { BottomTabBar } from '@/components/BottomTabBar'
@@ -22,15 +24,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect('/onboarding')
   }
 
-  return (
-    <div className="min-h-screen">
-      <main className="pb-24">
-        <div className="container mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
-          <PageWrapper>{children}</PageWrapper>
-        </div>
-      </main>
+  const { nav } = await getMessages()
 
-      <BottomTabBar />
-    </div>
+  return (
+    <NextIntlClientProvider messages={{ nav }}>
+      <div className="min-h-screen">
+        <main className="pb-24">
+          <div className="container mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
+            <PageWrapper>{children}</PageWrapper>
+          </div>
+        </main>
+
+        <BottomTabBar />
+      </div>
+    </NextIntlClientProvider>
   )
 }

@@ -60,21 +60,6 @@ export async function createCardioSession(
   return row as CardioSession
 }
 
-export async function getRecentCardioSessions(
-  supabase: SupabaseClient,
-  userId: string,
-  limit = 10,
-): Promise<CardioSession[]> {
-  const { data } = await supabase
-    .from('workout_sessions')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('session_type', 'cardio')
-    .order('started_at', { ascending: false })
-    .limit(limit)
-  return (data as CardioSession[]) ?? []
-}
-
 export async function deleteCardioSession(
   supabase: SupabaseClient,
   sessionId: string,

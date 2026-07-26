@@ -2,6 +2,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { locales, type AppLocale } from '@/i18n/config'
 
 interface Props {
   current: string
@@ -17,7 +18,7 @@ export function LanguageSelector({ current, label }: Props) {
     window.location.reload()
   }, [nextLocale])
 
-  function setLocale(locale: string) {
+  function setLocale(locale: AppLocale) {
     setNextLocale(locale)
   }
 
@@ -25,7 +26,7 @@ export function LanguageSelector({ current, label }: Props) {
     <div className="space-y-2">
       <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold">{label}</p>
       <div className="flex gap-2">
-        {(['ru', 'en'] as const).map((loc) => (
+        {locales.map((loc) => (
           <button
             key={loc}
             onClick={() => setLocale(loc)}

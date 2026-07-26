@@ -25,6 +25,7 @@ type NotifState = 'idle' | 'on' | 'denied' | 'unsupported' | 'no-key' | 'error'
 
 const TOTAL_STEPS = 4
 const ISO_DAYS = [1, 2, 3, 4, 5, 6, 7] as const
+type IsoDay = (typeof ISO_DAYS)[number]
 
 const BURST: Array<{ dx: string; dy: string; delay: string }> = [
   { dx: '-92px', dy: '-64px', delay: '.15s' },
@@ -42,7 +43,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
   const [step, setStep] = useState(0)
   const [goal, setGoal] = useState<Goal>('hypertrophy')
   const [location, setLocation] = useState<Location>('gym')
-  const [days, setDays] = useState<number[]>([1, 3, 5])
+  const [days, setDays] = useState<IsoDay[]>([1, 3, 5])
   const [submitting, setSubmitting] = useState(false)
   const [notifState, setNotifState] = useState<NotifState>('idle')
   const [notifDiagnostic, setNotifDiagnostic] = useState<string | null>(null)
@@ -84,7 +85,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
     setNotifDiagnostic(result.error instanceof Error ? result.error.message : String(result.error))
   }
 
-  function toggleDay(n: number) {
+  function toggleDay(n: IsoDay) {
     setDays((d) => (d.includes(n) ? d.filter((x) => x !== n) : [...d, n].sort((a, b) => a - b)))
   }
 
@@ -132,7 +133,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
             </span>
             <span className="tar-ob-chip">
               <Calendar className="i" />
-              {days.map((n) => t(`day${n}`)).join(' · ')}
+              {days.map((n) => t(`day${n}` as const)).join(' · ')}
             </span>
             {notifState === 'on' && (
               <span className="tar-ob-chip">
@@ -324,9 +325,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
               diagnostic={notifDiagnostic ? `reason: ${notifDiagnostic}` : null}
             />
           )}
-          {notifState === 'no-key' && (
-            <NotifBox text="Сервер не настроен (VAPID-ключ отсутствует) — это не твой браузер, это сайт." />
-          )}
+          {notifState === 'no-key' && <NotifBox text={t('notifNoKey')} />}
           {notifState === 'error' && (
             <div
               className="text-center space-y-1"
@@ -337,7 +336,7 @@ export function OnboardingWizard({ vapidPublicKey }: { vapidPublicKey?: string }
                 border: '1px solid rgba(239,68,68,0.20)',
               }}
             >
-              <p className="text-xs text-red-300/80">Ошибка подключения уведомлений</p>
+              <p className="text-xs text-red-300/80">{t('notifError')}</p>
               {notifDiagnostic && (
                 <p className="text-[10px] font-mono text-white/45 break-all">{notifDiagnostic}</p>
               )}

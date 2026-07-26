@@ -30,7 +30,7 @@ const PRESETS = [15, 30, 45, 60, 90]
 
 export function CardioLogForm() {
   const t = useTranslations('cardio')
-  const [activity, setActivity] = useState<string>('running')
+  const [activity, setActivity] = useState<(typeof ACTIVITIES)[number]['key']>('running')
   const [duration, setDuration] = useState<number>(30)
   const [distance, setDistance] = useState('')
   const [avgHr, setAvgHr] = useState('')

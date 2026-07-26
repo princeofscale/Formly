@@ -22,6 +22,7 @@ import {
 } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
+  userId: string
   session: WorkoutSession
   initialExercises: ExerciseWithSets[]
   allExercises: Exercise[]
@@ -35,6 +36,7 @@ interface Props {
 type ExercisePickerComponent = typeof import('./ExercisePicker').ExercisePicker
 
 export function WorkoutClient({
+  userId,
   session,
   initialExercises,
   allExercises,
@@ -63,8 +65,8 @@ export function WorkoutClient({
     ;(async () => {
       try {
         const [queuedSets, queuedFinishes] = await Promise.all([
-          getQueuedSets(),
-          getQueuedFinishes(),
+          getQueuedSets(userId),
+          getQueuedFinishes(userId),
         ])
         if (cancelled) return
         if (queuedSets.length > 0) {
@@ -222,7 +224,11 @@ export function WorkoutClient({
               <BookmarkPlus className="h-[18px] w-[18px]" />
             </button>
           )}
-          <FinishWorkoutButton sessionId={session.id} onQueued={() => setFinishQueued(true)} />
+          <FinishWorkoutButton
+            userId={userId}
+            sessionId={session.id}
+            onQueued={() => setFinishQueued(true)}
+          />
         </div>
       </header>
 
@@ -348,6 +354,7 @@ export function WorkoutClient({
         {exercises.map((ex) => (
           <div key={ex.id} className="animate-in fade-in slide-in-from-bottom-2 duration-200">
             <ExerciseBlock
+              userId={userId}
               exercise={ex}
               sessionId={session.id}
               onSetSaved={(set) => appendSet(ex.id, set)}
@@ -370,7 +377,7 @@ export function WorkoutClient({
       )}
 
       <PRCelebration pr={prCelebration} onDone={() => setPrCelebration(null)} />
-      <OfflineSyncWatcher />
+      <OfflineSyncWatcher userId={userId} />
     </div>
   )
 }

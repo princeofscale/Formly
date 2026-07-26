@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type { Exercise } from '@/lib/types/models'
 
 export type ProgramGoal = 'strength' | 'hypertrophy' | 'general'
@@ -24,23 +25,6 @@ export interface GeneratedDay {
     sets: number
     reps: number
   }>
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 function buildSafetyBlock(
@@ -113,7 +97,7 @@ Exactly ${input.daysPerWeek} entries in days[]. Only use exercise_id values from
     ],
   })
 
-  const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
   let days: GeneratedDay[]
   try {
     const parsed = JSON.parse(raw)

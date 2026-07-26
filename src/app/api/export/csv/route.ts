@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
+import { csvEscape } from '@/lib/utils/csv'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,15 +14,6 @@ interface RawRow {
   set_number: number
   session_id: string
   exercises: { name: string; name_ru: string | null } | null
-}
-
-function csvEscape(value: string | number | null): string {
-  if (value === null || value === undefined) return ''
-  const s = String(value)
-  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
-    return '"' + s.replace(/"/g, '""') + '"'
-  }
-  return s
 }
 
 export async function GET() {

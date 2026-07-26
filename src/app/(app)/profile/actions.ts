@@ -4,18 +4,21 @@
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { locales } from '@/i18n/config'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
+import { isValidTimeZone } from '@/lib/utils/time-zone'
 
 const profileSchema = z.object({
   display_name: z.string().trim().min(2).max(40).optional(),
-  weight_kg: z.coerce.number().positive().optional(),
-  height_cm: z.coerce.number().positive().optional(),
-  age: z.coerce.number().int().min(1).max(120).optional(),
-  training_since: z.string().optional(),
+  weight_kg: z.coerce.number().min(20).max(500).optional(),
+  height_cm: z.coerce.number().min(80).max(260).optional(),
+  age: z.coerce.number().int().min(13).max(119).optional(),
+  training_since: z.iso.date().optional(),
   training_location: z.enum(['gym', 'home', 'both']).optional(),
   training_schedule: z.array(z.coerce.number().int().min(1).max(7)).default([]),
-  locale: z.enum(['ru', 'en']).optional(),
+  locale: z.enum(locales).optional(),
+  time_zone: z.string().refine(isValidTimeZone).optional(),
 })
 
 export async function updateProfileAction(formData: FormData): Promise<void> {
@@ -31,14 +34,16 @@ export async function updateProfileAction(formData: FormData): Promise<void> {
     training_location: formData.get('training_location') || undefined,
     training_schedule: formData.getAll('training_schedule'),
     locale: formData.get('locale') || undefined,
+    time_zone: formData.get('time_zone') || undefined,
   }
 
   const parsed = profileSchema.parse(raw)
 
   const { locale, ...profileFields } = parsed
-  void locale
-
-  const { error } = await supabase.from('profiles').update(profileFields).eq('id', user.id)
+  const { error } = await supabase
+    .from('profiles')
+    .update({ ...profileFields, ...(locale ? { locale } : {}) })
+    .eq('id', user.id)
 
   if (error) throw new Error(error.message)
 

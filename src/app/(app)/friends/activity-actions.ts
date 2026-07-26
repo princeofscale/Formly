@@ -27,7 +27,7 @@ export async function reactAction(formData: FormData): Promise<void> {
   const { reacted, authorId } = await toggleEventReaction(supabase, eventId, emoji)
   if (reacted && authorId && authorId !== user.id) {
     const myCode = await ensureFriendCode(supabase)
-    void notifyEventReaction(supabase, { recipientUserId: authorId, reactorCode: myCode, emoji })
+    await notifyEventReaction(supabase, { recipientUserId: authorId, reactorCode: myCode, emoji })
   }
   revalidatePath('/friends')
 }
@@ -41,7 +41,7 @@ export async function commentAction(formData: FormData): Promise<void> {
   const res = await addEventComment(supabase, eventId, body)
   if (res && res.authorId !== user.id) {
     const myCode = await ensureFriendCode(supabase)
-    void notifyEventComment(supabase, { recipientUserId: res.authorId, commenterCode: myCode })
+    await notifyEventComment(supabase, { recipientUserId: res.authorId, commenterCode: myCode })
   }
   revalidatePath('/friends')
 }

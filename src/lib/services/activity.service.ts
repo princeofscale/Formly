@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { crossedMilestone } from './activity-milestones'
 
 type EventType =
@@ -9,17 +10,16 @@ type EventType =
   | 'streak_milestone'
 
 export async function emitActivityEvent(
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
+  userId: string,
   type: EventType,
   sessionId: string | null,
   payload: Record<string, unknown> = {},
 ): Promise<void> {
   try {
-    const { error } = await supabase.rpc('emit_activity_event', {
-      p_type: type,
-      p_session_id: sessionId,
-      p_payload: payload,
-    })
+    const { error } = await createAdminClient()
+      .from('activity_events')
+      .insert({ user_id: userId, type, session_id: sessionId, payload })
     if (error) console.error('emitActivityEvent failed:', error.message)
   } catch (err) {
     console.error('emitActivityEvent threw:', err)
@@ -29,6 +29,7 @@ export async function emitActivityEvent(
 export async function emitWeightPr(
   supabase: SupabaseClient,
   args: {
+    userId: string
     sessionId: string | null
     exerciseId: string
     exerciseName: string
@@ -38,7 +39,7 @@ export async function emitWeightPr(
     improvementPct: number | null
   },
 ): Promise<void> {
-  await emitActivityEvent(supabase, 'weight_pr', args.sessionId, {
+  await emitActivityEvent(supabase, args.userId, 'weight_pr', args.sessionId, {
     exercise_id: args.exerciseId,
     exercise_name: args.exerciseName,
     exercise_name_ru: args.exerciseNameRu,
@@ -50,10 +51,11 @@ export async function emitWeightPr(
 
 export async function emitWorkoutFinished(
   supabase: SupabaseClient,
+  userId: string,
   sessionId: string,
   args: { tonnageKg: number; durationMin: number; setCount: number; exerciseCount: number },
 ): Promise<void> {
-  await emitActivityEvent(supabase, 'workout_finished', sessionId, {
+  await emitActivityEvent(supabase, userId, 'workout_finished', sessionId, {
     tonnage_kg: Math.round(args.tonnageKg),
     duration_min: args.durationMin,
     set_count: args.setCount,
@@ -63,10 +65,13 @@ export async function emitWorkoutFinished(
 
 export async function emitVolumePr(
   supabase: SupabaseClient,
+  userId: string,
   sessionId: string,
   tonnageKg: number,
 ): Promise<void> {
-  await emitActivityEvent(supabase, 'volume_pr', sessionId, { tonnage_kg: Math.round(tonnageKg) })
+  await emitActivityEvent(supabase, userId, 'volume_pr', sessionId, {
+    tonnage_kg: Math.round(tonnageKg),
+  })
 }
 
 export async function maybeEmitStreakMilestone(
@@ -83,7 +88,7 @@ export async function maybeEmitStreakMilestone(
     const last = data?.last_streak_milestone ?? 0
     const { milestone, resetTo } = crossedMilestone(currentStreak, last)
     if (milestone != null) {
-      await emitActivityEvent(supabase, 'streak_milestone', null, { days: milestone })
+      await emitActivityEvent(supabase, userId, 'streak_milestone', null, { days: milestone })
       await supabase.rpc('set_last_streak_milestone', { p_value: milestone })
     } else if (resetTo != null) {
       await supabase.rpc('set_last_streak_milestone', { p_value: resetTo })

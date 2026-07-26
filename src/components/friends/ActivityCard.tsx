@@ -4,27 +4,12 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { ReactionRow } from '@/components/friends/ReactionRow'
 import { EventComments } from '@/components/friends/EventComments'
 import { weightUnit } from '@/lib/units'
+import { formatRelativeTime } from '@/lib/utils/relative-time'
 import type { FeedEvent } from '@/lib/db/activity'
 
 interface Props {
   event: FeedEvent
   myUserId: string
-}
-
-// Top-level helper so Date.now() stays out of the JSX construction —
-// mirrors the buildTimeAgoLabels/buildCommentTimeLabels pattern used by the
-// sibling friends components (server components don't need it for React
-// Compiler purity, but it keeps the render body clean and consistent).
-function relativeTime(createdAt: string, locale: string): string {
-  const minutes = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000))
-  if (minutes < 1) return locale === 'ru' ? 'сейчас' : 'now'
-  if (minutes < 60) return locale === 'ru' ? `${minutes} мин назад` : `${minutes}m ago`
-  if (minutes < 1440) {
-    const hours = Math.floor(minutes / 60)
-    return locale === 'ru' ? `${hours} ч назад` : `${hours}h ago`
-  }
-  const days = Math.floor(minutes / 1440)
-  return locale === 'ru' ? `${days} дн назад` : `${days}d ago`
 }
 
 export async function ActivityCard({ event, myUserId }: Props) {
@@ -94,7 +79,7 @@ export async function ActivityCard({ event, myUserId }: Props) {
         <span className="tar-fr-av">{initials}</span>
         <div className="who">
           <div className="name">{name}</div>
-          <div className="ago">{relativeTime(event.created_at, locale)}</div>
+          <div className="ago">{formatRelativeTime(event.created_at, locale)}</div>
         </div>
       </div>
       <div className="line">

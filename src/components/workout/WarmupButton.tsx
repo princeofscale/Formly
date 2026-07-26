@@ -6,6 +6,7 @@
 // or PR analytics.
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { Flame, Loader2 } from 'lucide-react'
 import { addWarmupSetsAction } from '@/app/(app)/workout/[id]/actions'
 import { calculateWarmupSets } from '@/lib/services/warmup.service'
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function WarmupButton({ sessionId, exerciseId, workingWeightKg, onAdded }: Props) {
+  const t = useTranslations('workout')
   const [isPending, startTransition] = useTransition()
   const [done, setDone] = useState(false)
 
@@ -67,7 +69,7 @@ export function WarmupButton({ sessionId, exerciseId, workingWeightKg, onAdded }
 
       <div className="flex-1 min-w-0 text-left">
         <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#FFC044' }}>
-          Разминка
+          {t('warmupShort')}
         </p>
         <p className="mt-0.5 text-[11px] text-white/55 leading-tight truncate">
           {plan.map((s) => `${s.weightKg}×${s.reps}`).join(' · ')}
@@ -75,7 +77,7 @@ export function WarmupButton({ sessionId, exerciseId, workingWeightKg, onAdded }
       </div>
 
       <span className="shrink-0 text-[9px] uppercase tracking-widest text-white/40">
-        {done ? '✓' : 'добавить'}
+        {done ? '✓' : t('warmupAdd')}
       </span>
     </button>
   )

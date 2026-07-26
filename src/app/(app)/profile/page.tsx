@@ -1,7 +1,6 @@
 // src/app/(app)/profile/page.tsx
 import { getLocale, getTranslations } from 'next-intl/server'
-import { ChevronRight, Download, Flame, LogOut, Mail, Ruler, Scale, UserRound } from 'lucide-react'
-import { signOutAction } from '@/app/(app)/actions'
+import { ChevronRight, Download, Flame, Mail, Ruler, Scale, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,6 +9,8 @@ import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
 import { ShareActivityToggle } from '@/components/profile/ShareActivityToggle'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { InstallAppButton } from '@/components/profile/InstallAppButton'
+import { SignOutButton } from '@/components/profile/SignOutButton'
+import { TimeZoneField } from '@/components/profile/TimeZoneField'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
@@ -18,6 +19,13 @@ import { getFinishedSessionDates } from '@/lib/db/streak'
 import { getWorkoutLifetimeStats } from '@/lib/db/workouts'
 import { calculateStreak } from '@/lib/services/streak.service'
 import { updateProfileAction } from './actions'
+
+const BMI_CATEGORY_KEYS = {
+  Underweight: 'bmiCat.underweight',
+  Normal: 'bmiCat.normal',
+  Overweight: 'bmiCat.overweight',
+  Obese: 'bmiCat.obese',
+} as const
 
 function formatTrainingAge(
   trainingSince: string | null | undefined,
@@ -57,7 +65,7 @@ export default async function ProfilePage() {
   const totalWorkouts = lifetimeStats.total_sessions
   const totalTonnage = lifetimeStats.total_tonnage_kg
   const schedule = (p?.training_schedule as number[] | null) ?? []
-  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), 2)
+  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), 2, p?.time_zone ?? 'UTC')
   const longestStreak = streakInfo.longest
 
   const bmi = p?.weight_kg && p?.height_cm ? calculateBMI(p.weight_kg, p.height_cm) : null
@@ -233,7 +241,7 @@ export default async function ProfilePage() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  {t(`bmiCat.${bmiCat.toLowerCase()}`)}
+                  {t(BMI_CATEGORY_KEYS[bmiCat])}
                 </span>
               )}
             </div>
@@ -291,6 +299,7 @@ export default async function ProfilePage() {
         )}
 
         <input type="hidden" name="locale" value={locale} />
+        <TimeZoneField current={p?.time_zone ?? 'UTC'} />
 
         <Button
           type="submit"
@@ -357,15 +366,7 @@ export default async function ProfilePage() {
         {t('sectionAccount')}
       </div>
       <div className="tar-pr-danger tar-d-rise tar-d-rise-6">
-        <form action={signOutAction}>
-          <button type="submit">
-            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <LogOut className="h-4 w-4" />
-              {t('signOut')}
-            </span>
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </form>
+        <SignOutButton />
         <DeleteAccountButton />
       </div>
     </div>

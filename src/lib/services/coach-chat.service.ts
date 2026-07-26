@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type { GrokContext } from './grok.service'
 import type { CoachMessage } from '@/lib/db/coach'
 
@@ -14,23 +15,6 @@ export interface CoachChatContext {
   conversation: readonly CoachMessage[]
   /** Компактный снимок тренировочных данных — тот же, что получает карточка коуча. */
   snapshot: GrokContext
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 /**
@@ -95,7 +79,7 @@ Return ONLY valid JSON: {"body":"<answer>","evidence":"<figure from their data, 
     ],
   })
 
-  const rawText = contentToText(response.choices[0]?.message?.content) || '{}'
+  const rawText = mistralContentToText(response.choices[0]?.message?.content) || '{}'
   try {
     return parseCoachReply(JSON.parse(rawText))
   } catch {

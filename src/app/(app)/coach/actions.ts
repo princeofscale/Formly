@@ -25,7 +25,7 @@ export async function askCoachAction(formData: FormData): Promise<AskResult> {
   if (!question || question.length > 1000) return { ok: false, reason: 'empty' }
 
   try {
-    await consumeAiQuota(supabase, user.id, 'coach_chat')
+    await consumeAiQuota(supabase, 'coach_chat')
   } catch (error) {
     if (error instanceof AiQuotaExceededError) return { ok: false, reason: 'quota' }
     throw error

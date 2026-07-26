@@ -5,7 +5,7 @@ import { getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getExercises } from '@/lib/db/exercises'
-import { createTemplate } from '@/lib/db/templates'
+import { z } from 'zod'
 import {
   generateProgram,
   type ExperienceLevel,
@@ -14,6 +14,7 @@ import {
 } from '@/lib/services/program-generator.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import type { Exercise, TemplateExercise } from '@/lib/types/models'
+import type { Json } from '@/lib/types/database.types'
 
 export interface PreviewDay {
   day_label: string
@@ -30,6 +31,32 @@ export interface GenerateProgramInput {
   daysPerWeek: number
   location: 'gym' | 'home_dumbbells' | 'home_bodyweight'
 }
+
+const generateProgramSchema = z.object({
+  goal: z.enum(['strength', 'hypertrophy', 'general']),
+  daysPerWeek: z.number().int().min(1).max(7),
+  location: z.enum(['gym', 'home_dumbbells', 'home_bodyweight']),
+})
+
+const previewDaySchema = z.object({
+  day_label: z.string().trim().min(1).max(60),
+  exercises: z
+    .array(
+      z.object({
+        exercise_id: z.uuid(),
+        name: z.string().max(200),
+        sets: z.number().int().min(1).max(8),
+        reps: z.number().int().min(1).max(30),
+      }),
+    )
+    .min(1)
+    .max(8),
+})
+
+const saveProgramSchema = z.object({
+  goal: z.enum(['strength', 'hypertrophy', 'general']),
+  days: z.array(previewDaySchema).min(1).max(7),
+})
 
 function buildLibrary(all: Exercise[], location: GenerateProgramInput['location']): Exercise[] {
   if (location === 'home_bodyweight') {
@@ -54,12 +81,13 @@ function classifyExperience(trainingSince: string | null | undefined): Experienc
 export async function previewProgramAction(input: GenerateProgramInput): Promise<{
   days: PreviewDay[]
 }> {
+  const values = generateProgramSchema.parse(input)
   const { user } = await verifySession()
   const supabase = await createClient()
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, user.id, 'program_generation')
+    await consumeAiQuota(supabase, 'program_generation')
   } catch (e) {
     // Server-action files can't export non-function values, so the UI
     // detects the literal "quota" substring in the error message
@@ -68,9 +96,9 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
     throw e
   }
 
-  const daysPerWeek = Math.min(7, Math.max(1, Math.round(input.daysPerWeek)))
+  const daysPerWeek = values.daysPerWeek
   const all = await getExercises(supabase, user.id)
-  const library = buildLibrary(all, input.location)
+  const library = buildLibrary(all, values.location)
 
   // Pull profile for age-aware safety + experience classification
   const { data: profileRaw } = await supabase
@@ -85,9 +113,9 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
 
   const generated: GeneratedDay[] = await generateProgram({
     locale,
-    goal: input.goal,
+    goal: values.goal,
     daysPerWeek,
-    location: input.location,
+    location: values.location,
     age: profile?.age ?? null,
     experience: classifyExperience(profile?.training_since),
     library,
@@ -120,34 +148,27 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
  */
 async function loadLastWeights(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
   ids: string[],
 ): Promise<Map<string, number>> {
   if (ids.length === 0) return new Map()
 
-  // One batched query: every set the user has logged for any of these
-  // exercises, newest first. We'll group + take the first in JS.
-  const { data } = await supabase
-    .from('set_entries')
-    .select('exercise_id, weight_kg, created_at')
-    .eq('user_id', userId)
-    .in('exercise_id', ids)
-    .gt('weight_kg', 0)
-    .order('created_at', { ascending: false })
-    .limit(500)
-
-  const rows = (data as unknown as Array<{ exercise_id: string; weight_kg: number }> | null) ?? []
-  const out = new Map<string, number>()
-  for (const r of rows) {
-    if (!out.has(r.exercise_id)) out.set(r.exercise_id, r.weight_kg)
-  }
-  return out
+  const { data, error } = await supabase.rpc('get_last_weights_for_exercises', {
+    p_exercise_ids: ids,
+  })
+  if (error) throw new Error(error.message)
+  return new Map(
+    ((data as Array<{ exercise_id: string; weight_kg: number }> | null) ?? []).map((row) => [
+      row.exercise_id,
+      row.weight_kg,
+    ]),
+  )
 }
 
 export async function saveProgramAsTemplatesAction(input: {
   goal: ProgramGoal
   days: PreviewDay[]
 }): Promise<{ saved: number }> {
+  const values = saveProgramSchema.parse(input)
   const { user } = await verifySession()
   const supabase = await createClient()
   const all = await getExercises(supabase, user.id)
@@ -159,17 +180,16 @@ export async function saveProgramAsTemplatesAction(input: {
       hypertrophy: 'AI Гипертрофия',
       general: 'AI Общая',
     } as const
-  )[input.goal]
+  )[values.goal]
 
   // Pre-fill default_weight_kg from the user's last logged weight per exercise
   const allExerciseIds = Array.from(
-    new Set(input.days.flatMap((d) => d.exercises.map((e) => e.exercise_id))),
+    new Set(values.days.flatMap((d) => d.exercises.map((e) => e.exercise_id))),
   )
-  const lastWeights = await loadLastWeights(supabase, user.id, allExerciseIds)
+  const lastWeights = await loadLastWeights(supabase, allExerciseIds)
 
-  let saved = 0
-  for (let i = 0; i < input.days.length; i++) {
-    const day = input.days[i]
+  const templates: Array<{ name: string; exercises: TemplateExercise[] }> = []
+  for (const day of values.days) {
     const exercises: TemplateExercise[] = day.exercises.flatMap((ex) => {
       const found = byId.get(ex.exercise_id)
       if (!found) return []
@@ -185,10 +205,14 @@ export async function saveProgramAsTemplatesAction(input: {
 
     if (exercises.length === 0) continue
     const name = `${goalPrefix} · ${day.day_label}`.slice(0, 60)
-    await createTemplate(supabase, user.id, name, exercises)
-    saved++
+    templates.push({ name, exercises })
   }
 
+  const { data: saved, error } = await supabase.rpc('save_workout_templates', {
+    p_templates: templates as unknown as Json,
+  })
+  if (error) throw new Error(error.message)
+
   revalidatePath('/workout/new')
-  return { saved }
+  return { saved: saved ?? 0 }
 }

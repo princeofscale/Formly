@@ -9,63 +9,72 @@ import {
   removeQueuedSet,
   getQueuedFinishes,
   removeQueuedFinish,
+  moveQueuedSetToDeadLetter,
+  moveQueuedFinishToDeadLetter,
   type QueuedSetRecord,
   type QueuedFinishRecord,
 } from '@/lib/utils/offline-queue'
+import { classifySyncStatus, type SyncDecision } from './offline-sync'
 
-async function flushOne(record: QueuedSetRecord): Promise<boolean> {
+async function flushOne(record: QueuedSetRecord): Promise<SyncDecision> {
   try {
     const res = await fetch('/api/sets/queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(record.payload),
+      body: JSON.stringify({ ...record.payload, clientMutationId: record.id }),
     })
-    if (!res.ok) return false
-    await removeQueuedSet(record.id)
-    return true
+    const decision = classifySyncStatus(res.status)
+    if (decision === 'success') await removeQueuedSet(record.id)
+    if (decision === 'dead-letter') {
+      await moveQueuedSetToDeadLetter(record, res.status, await res.text())
+    }
+    return decision
   } catch {
-    return false
+    return 'retry'
   }
 }
 
-async function flushFinish(record: QueuedFinishRecord): Promise<boolean> {
+async function flushFinish(record: QueuedFinishRecord): Promise<SyncDecision> {
   try {
     const res = await fetch('/api/workouts/finish-queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId: record.sessionId }),
     })
-    if (!res.ok) return false
-    await removeQueuedFinish(record.id)
-    return true
+    const decision = classifySyncStatus(res.status)
+    if (decision === 'success') await removeQueuedFinish(record.id)
+    if (decision === 'dead-letter') {
+      await moveQueuedFinishToDeadLetter(record, res.status, await res.text())
+    }
+    return decision
   } catch {
-    return false
+    return 'retry'
   }
 }
 
-async function drainQueue(): Promise<number> {
+async function drainQueue(userId: string): Promise<number> {
   let drained = 0
 
-  const queuedSets = await getQueuedSets()
+  const queuedSets = await getQueuedSets(userId)
   for (const record of queuedSets) {
-    const ok = await flushOne(record)
-    if (!ok) return drained
+    const decision = await flushOne(record)
+    if (decision === 'retry' || decision === 'auth') return drained
     drained++
   }
 
   // Finishes only after ALL sets are on the server, so the recomputed
   // tonnage sees the complete session.
-  const queuedFinishes = await getQueuedFinishes()
+  const queuedFinishes = await getQueuedFinishes(userId)
   for (const record of queuedFinishes) {
-    const ok = await flushFinish(record)
-    if (!ok) return drained
+    const decision = await flushFinish(record)
+    if (decision === 'retry' || decision === 'auth') return drained
     drained++
   }
 
   return drained
 }
 
-export function OfflineSyncWatcher() {
+export function OfflineSyncWatcher({ userId }: { userId: string }) {
   const [pendingCount, setPendingCount] = useState(0)
   const [isOnline, setIsOnline] = useState(() =>
     typeof navigator === 'undefined' ? true : navigator.onLine,
@@ -77,7 +86,10 @@ export function OfflineSyncWatcher() {
   useEffect(() => {
     async function refresh() {
       try {
-        const [sets, finishes] = await Promise.all([getQueuedSets(), getQueuedFinishes()])
+        const [sets, finishes] = await Promise.all([
+          getQueuedSets(userId),
+          getQueuedFinishes(userId),
+        ])
         setPendingCount(sets.length + finishes.length)
       } catch {
         // IDB unavailable (private mode in old Safari etc.) — silently ignore
@@ -91,8 +103,11 @@ export function OfflineSyncWatcher() {
       }
       setSyncing(true)
       try {
-        const drained = await drainQueue()
-        const [sets, finishes] = await Promise.all([getQueuedSets(), getQueuedFinishes()])
+        const drained = await drainQueue(userId)
+        const [sets, finishes] = await Promise.all([
+          getQueuedSets(userId),
+          getQueuedFinishes(userId),
+        ])
         const remainingCount = sets.length + finishes.length
         setPendingCount(remainingCount)
         if (drained > 0 && remainingCount === 0) {
@@ -125,7 +140,7 @@ export function OfflineSyncWatcher() {
       window.removeEventListener('offline', onOffline)
       window.removeEventListener('formly:set-queued', onQueued)
     }
-  }, [router])
+  }, [router, userId])
 
   if (pendingCount === 0 && isOnline) return null
 

@@ -4,13 +4,13 @@ import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { updateMoodAction } from '@/app/(app)/workout/[id]/actions'
 
-const MOODS: { value: number; emoji: string; labelKey: string }[] = [
+const MOODS = [
   { value: 1, emoji: '😣', labelKey: 'bad' },
   { value: 2, emoji: '😕', labelKey: 'meh' },
   { value: 3, emoji: '😐', labelKey: 'ok' },
   { value: 4, emoji: '🙂', labelKey: 'good' },
   { value: 5, emoji: '🔥', labelKey: 'great' },
-]
+] as const
 
 interface Props {
   sessionId: string

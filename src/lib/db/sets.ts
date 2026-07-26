@@ -133,31 +133,34 @@ export async function getLastSetsForExercise(
   return prevSets.filter((s) => s.session_id === lastSessionId) as SetEntry[]
 }
 
+export async function getLastSetsForExercises(
+  supabase: SupabaseClient,
+  currentSessionId: string,
+  exerciseIds: string[],
+): Promise<Record<string, SetEntry[]>> {
+  if (exerciseIds.length === 0) return {}
+  const { data, error } = await supabase.rpc('get_last_sets_for_exercises', {
+    p_current_session: currentSessionId,
+    p_exercise_ids: exerciseIds,
+  })
+  if (error) throw new Error(error.message)
+
+  const grouped: Record<string, SetEntry[]> = {}
+  for (const set of (data as unknown as SetEntry[]) ?? []) {
+    ;(grouped[set.exercise_id] ??= []).push(set)
+  }
+  return grouped
+}
+
 /**
  * Distinct exercises the user has actually logged sets for, most recent
  * first. Pickers use this so users aren't offered a catalog of hundreds of
  * exercises they never did.
  */
-export async function getPerformedExerciseIds(
-  supabase: SupabaseClient,
-  userId: string,
-): Promise<string[]> {
-  const { data } = await supabase
-    .from('set_entries')
-    .select('exercise_id, created_at')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(20000)
-
-  const seen = new Set<string>()
-  const ids: string[] = []
-  for (const row of data ?? []) {
-    if (!seen.has(row.exercise_id)) {
-      seen.add(row.exercise_id)
-      ids.push(row.exercise_id)
-    }
-  }
-  return ids
+export async function getPerformedExerciseIds(supabase: SupabaseClient): Promise<string[]> {
+  const { data, error } = await supabase.rpc('get_performed_exercise_ids')
+  if (error) throw new Error(error.message)
+  return ((data as Array<{ exercise_id: string }> | null) ?? []).map((row) => row.exercise_id)
 }
 
 /**

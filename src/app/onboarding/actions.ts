@@ -5,9 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import { createTemplate } from '@/lib/db/templates'
 import { WORKOUT_PRESETS } from '@/lib/constants/workout-presets'
 import type { TemplateExercise } from '@/lib/types/models'
+import type { Json } from '@/lib/types/database.types'
 
 export type OnboardingGoal = 'strength' | 'hypertrophy' | 'general'
 export type OnboardingLocation = 'gym' | 'home_dumbbells' | 'home_bodyweight'
@@ -37,7 +37,7 @@ function distributeDays(count: number): number[] {
 }
 
 export async function finishOnboardingAction(formData: FormData): Promise<void> {
-  const { user } = await verifySession()
+  await verifySession()
   const supabase = await createClient()
 
   const goalRaw = formData.get('goal')?.toString()
@@ -66,27 +66,16 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
       ? explicitSchedule.length
       : Math.max(1, Math.min(7, parseInt(daysRaw ?? '3', 10) || 3))
 
-  // 1. Update profile with the schedule. Location enum in DB is gym/home/both,
-  //    so collapse our finer-grained UI options into that.
   const schedule = explicitSchedule.length > 0 ? explicitSchedule : distributeDays(days)
   const dbLocation: 'gym' | 'home' = location === 'gym' ? 'gym' : 'home'
-  // onboarded_at column was added via 20260526150000 migration but isn't
-  // in the generated Database typings yet. Cast through any to bypass.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from('profiles') as any)
-    .update({
-      training_schedule: schedule,
-      training_location: dbLocation,
-      onboarded_at: new Date().toISOString(),
-    })
-    .eq('id', user.id)
 
-  // 2. Pick a program & seed templates from it.
+  // Pick a program and resolve its exercise rows before the atomic profile/template write.
   //    Skip for bodyweight-only users — all current presets use barbell lifts
   //    that wouldn't load. They'll start freestyle and we suggest exercises
   //    via the library instead.
   const programId = pickProgram(goal, days)
   const program = WORKOUT_PRESETS.find((p) => p.id === programId)
+  const templates: Array<{ name: string; exercises: TemplateExercise[] }> = []
 
   if (program && location !== 'home_bodyweight') {
     // Collect all exercise slugs used across all days of the program
@@ -104,7 +93,7 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
 
     // Localized preset titles
     const tPresets = await getTranslations('presets')
-    const programTitle = tPresets(`${program.id}.title`)
+    const programTitle = tPresets(program.titleKey)
 
     for (const day of program.days) {
       const exercises: TemplateExercise[] = []
@@ -117,13 +106,16 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
       if (exercises.length === 0) continue
       const dayTitle = tPresets(day.titleKey)
       const name = `${programTitle} · ${dayTitle}`
-      try {
-        await createTemplate(supabase, user.id, name, exercises)
-      } catch {
-        // Likely unique-name collision on retry — safe to ignore.
-      }
+      templates.push({ name, exercises })
     }
   }
+
+  const { error } = await supabase.rpc('complete_onboarding', {
+    p_schedule: schedule,
+    p_location: dbLocation,
+    p_templates: templates as unknown as Json,
+  })
+  if (error) throw new Error(error.message)
 
   revalidatePath('/dashboard')
   revalidatePath('/workout/new')
@@ -131,17 +123,14 @@ export async function finishOnboardingAction(formData: FormData): Promise<void> 
 }
 
 export async function skipOnboardingAction(): Promise<void> {
-  const { user } = await verifySession()
+  await verifySession()
   const supabase = await createClient()
-  // Mark schedule as "explicitly empty" + flag onboarded_at so the layout
-  // gate stops bouncing them here on every page load.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from('profiles') as any)
-    .update({
-      training_schedule: [],
-      onboarded_at: new Date().toISOString(),
-    })
-    .eq('id', user.id)
+  const { error } = await supabase.rpc('complete_onboarding', {
+    p_schedule: [],
+    p_location: null,
+    p_templates: [],
+  })
+  if (error) throw new Error(error.message)
   revalidatePath('/dashboard')
   redirect('/dashboard')
 }

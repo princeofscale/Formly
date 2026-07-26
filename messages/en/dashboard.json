@@ -1,0 +1,153 @@
+{
+  "aiInsights": {
+    "title": "AI Coach",
+    "subtitle": "Your sets and recovery, explained",
+    "empty": "Run an analysis when you're ready. It won't slow down the page and only uses your training data.",
+    "analyze": "Analyze progress",
+    "action": "Next step",
+    "updating": "AI is analyzing your training data...",
+    "updated": "updated",
+    "refresh": "Refresh",
+    "error": "Failed to load AI recommendations",
+    "retry": "Try again",
+    "types": {
+      "today": "TODAY",
+      "progression": "PROGRESSION",
+      "prediction": "FORECAST",
+      "warning": "WARNING"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Training overview",
+    "aiCoach": "Coach briefing",
+    "todayLabel": "Today",
+    "startWorkout": "WORKOUT",
+    "week": {
+      "tonnage": "Tonnage (kg)",
+      "sessions": "sessions",
+      "bestWeight": "Top weight"
+    },
+    "today": {
+      "trainingDay": "Training Day",
+      "restDay": "Rest Day",
+      "next": "Next",
+      "days": {
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat",
+        "7": "Sun"
+      },
+      "noSchedule": "No schedule set"
+    },
+    "recentTraining": "Recent Training",
+    "repeatWorkout": "Repeat this workout",
+    "noWorkouts": "No workouts yet. Start your first session!",
+    "muscleActivity": "Muscle Activity",
+    "musclePeriods": {
+      "7d": "7D",
+      "30d": "30D",
+      "90d": "90D"
+    },
+    "profileLink": "Profile",
+    "logWorkoutsHeatmap": "Log workouts to see your muscle heatmap.",
+    "recordsLink": "Records",
+    "streakDaysLabel": "DAY STREAK",
+    "bestStreakShort": "Best: {n}",
+    "freezesShort": "{left}/{total} freezes",
+    "moreInsights": "More insights",
+    "moreInsightsSub": "PRs · Friends · Muscles",
+    "streakAtRiskTitle": "Streak {n} at risk!",
+    "streakAtRiskSub": "Today is a training day — don't break the chain",
+    "deload": {
+      "label": "{cycle}-week cycle",
+      "title": "Deload week",
+      "body": "Reduce working weights or volume by 40-50% this week — your muscles and nervous system will recover, and you'll come back stronger.",
+      "dismiss": "Dismiss"
+    },
+    "weakPoints": {
+      "label": "Weak points",
+      "title": "Undertrained muscles",
+      "allCovered": "All muscles are getting enough volume",
+      "setsShort": "sets",
+      "hint": "Minimum weekly volume over the last 4 weeks. Tap to find exercises."
+    },
+    "prs": {
+      "label": "Records",
+      "title": "PRs in last {days} days",
+      "empty": "No new records yet — beat your last set!",
+      "firstRecord": "first record",
+      "hint": "Best working weight. Beating any previous best counts as a new PR."
+    },
+    "wrapped": {
+      "label": "Year so far",
+      "title": "{year} in numbers",
+      "cta": "Open →"
+    },
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Up late"
+    },
+    "ctaCard": {
+      "ready": "Ready when you are",
+      "title": "Start workout",
+      "sub": "Every set is logged automatically. Just hit go.",
+      "subActive": "Workout already in progress — jump back in.",
+      "continue": "Continue",
+      "duration": "Duration",
+      "focus": "Focus"
+    },
+    "thisWeek": "This week",
+    "weekShort": "W{n}",
+    "lastN": "Last {n}",
+    "shortcuts": "Shortcuts",
+    "history": "History",
+    "progress": "Progress",
+    "records": "Records",
+    "analyticsShortcut": "Analytics",
+    "analyticsShortcutSub": "Charts",
+    "activeSession": {
+      "label": "Workout in progress",
+      "continue": "Tap to continue →",
+      "setsLogged": "{n} sets logged"
+    },
+    "empty": {
+      "label": "Welcome",
+      "title": "Let's lift something.",
+      "subtitle": "Track every set, hit new PRs, and see your body change. The dashboard will come alive after your first workout.",
+      "primary": "Start workout",
+      "secondary": "Pick a program",
+      "quickStart": "Quick start",
+      "footer": "Your coach updates after every set",
+      "promise": {
+        "records": "Hit PRs",
+        "progress": "Watch progress",
+        "coach": "RPE coach"
+      },
+      "quick": {
+        "start": {
+          "title": "Start a freestyle workout",
+          "sub": "Just lift — pick exercises as you go"
+        },
+        "preset": {
+          "title": "Pick a preset program",
+          "sub": "Full body, PPL, Upper/Lower, 5-day split"
+        },
+        "calc": {
+          "title": "Estimate your 1RM",
+          "sub": "Try the calculator before your first set"
+        }
+      }
+    },
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "coachFooter": "Coach signals update from your latest sets"
+  }
+}

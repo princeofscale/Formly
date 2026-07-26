@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 
 export interface PushHookContext {
   locale: 'ru' | 'en'
@@ -7,23 +8,6 @@ export interface PushHookContext {
   recentExercises: Array<{ name: string; lastWeightKg: number; lastReps: number }>
   topMusclesByVolumeLast7d: Array<{ muscle: string; sets: number }>
   underworkedMuscles: string[]
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 /**
@@ -64,7 +48,7 @@ Return ONLY valid JSON: {"body":"<the sentence>"}`
       ],
     })
 
-    const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+    const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
     const parsed = JSON.parse(raw)
     const body = typeof parsed.body === 'string' ? parsed.body.trim() : ''
     if (!body) return fallback

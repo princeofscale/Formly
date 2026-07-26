@@ -10,13 +10,15 @@ const schema = z.object({
   password: z.string().min(6),
 })
 
-const SUPABASE_ERROR_MAP: Record<string, string> = {
-  'Email not confirmed': 'auth.errors.emailNotConfirmed',
-  'Invalid login credentials': 'auth.errors.invalidCredentials',
-}
+type AuthErrorKey =
+  | 'auth.errors.emailNotConfirmed'
+  | 'auth.errors.invalidCredentials'
+  | 'auth.errors.default'
 
-function mapAuthError(message: string): string {
-  return SUPABASE_ERROR_MAP[message] ?? 'auth.errors.default'
+function mapAuthError(message: string): AuthErrorKey {
+  if (message === 'Email not confirmed') return 'auth.errors.emailNotConfirmed'
+  if (message === 'Invalid login credentials') return 'auth.errors.invalidCredentials'
+  return 'auth.errors.default'
 }
 
 export async function loginAction(_: unknown, formData: FormData) {
@@ -26,7 +28,7 @@ export async function loginAction(_: unknown, formData: FormData) {
   })
 
   if (!parsed.success) {
-    return { errorKey: 'auth.errors.invalidCredentials' }
+    return { errorKey: 'auth.errors.invalidCredentials' } as const
   }
 
   const supabase = await createClient()

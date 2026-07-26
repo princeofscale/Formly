@@ -7,19 +7,39 @@ import {
 } from '@/lib/db/push-subscriptions'
 import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
+import {
+  dateKeyInTimeZone,
+  hourInTimeZone,
+  isoWeekday,
+  validTimeZoneOrUtc,
+} from '@/lib/utils/time-zone'
 
 export const dynamic = 'force-dynamic'
 
 interface ProfileRow {
   id: string
   training_schedule: number[] | null
+  locale: 'ru' | 'en'
+  time_zone: string
 }
 
 interface SessionRow {
   user_id: string
 }
 
-function pickMessage(streak: number): { title: string; body: string } {
+function pickMessage(streak: number, locale: 'ru' | 'en'): { title: string; body: string } {
+  if (locale === 'en') {
+    if (streak >= 7) {
+      return {
+        title: `Formly 🔥 ${streak}`,
+        body: `${streak} workouts in your streak. Today is a training day.`,
+      }
+    }
+    if (streak >= 3) {
+      return { title: 'Formly 💪', body: `Your streak is ${streak}. Keep it going today.` }
+    }
+    return { title: 'Formly 💪', body: 'Today is a training day.' }
+  }
   if (streak >= 7) {
     return {
       title: `Formly 🔥 ${streak}`,
@@ -38,11 +58,6 @@ function pickMessage(streak: number): { title: string; body: string } {
   }
 }
 
-function isoDayOfWeek(date: Date): number {
-  const d = date.getUTCDay()
-  return d === 0 ? 7 : d
-}
-
 export async function GET(request: Request) {
   // Auth: Vercel Cron sends Authorization: Bearer <CRON_SECRET>
   const expected = process.env.CRON_SECRET
@@ -56,35 +71,55 @@ export async function GET(request: Request) {
 
   const supabase = createAdminClient()
   const now = new Date()
-  const today = isoDayOfWeek(now)
-  const todayIso = now.toISOString().slice(0, 10)
 
-  // 1. Find profiles whose training_schedule includes today
+  // The route runs hourly; each athlete is considered at 18:00 in their own zone.
   const { data: profilesData, error: profilesError } = await supabase
     .from('profiles')
-    .select('id, training_schedule')
-    .contains('training_schedule', [today])
+    .select('id, training_schedule, locale, time_zone')
+    .not('training_schedule', 'is', null)
 
   if (profilesError) {
     return NextResponse.json({ error: profilesError.message }, { status: 500 })
   }
 
-  const candidates = (profilesData as ProfileRow[]) ?? []
+  const candidates = ((profilesData as ProfileRow[]) ?? []).filter((profile) => {
+    profile.time_zone = validTimeZoneOrUtc(profile.time_zone)
+    const localDate = dateKeyInTimeZone(now, profile.time_zone)
+    return (
+      hourInTimeZone(now, profile.time_zone) === 18 &&
+      (profile.training_schedule ?? []).includes(isoWeekday(localDate))
+    )
+  })
   if (candidates.length === 0) {
     return NextResponse.json({ scheduled: 0, sent: 0, skipped: 0 })
   }
 
   const candidateIds = candidates.map((p) => p.id)
 
-  // 2. Filter out users who already finished a workout today
-  const { data: sessionsData } = await supabase
+  const windowStart = new Date(now.getTime() - 48 * 60 * 60 * 1000)
+  const { data: sessionsData, error: sessionsError } = await supabase
     .from('workout_sessions')
-    .select('user_id')
+    .select('user_id, started_at')
     .in('user_id', candidateIds)
     .not('finished_at', 'is', null)
-    .gte('started_at', todayIso + 'T00:00:00Z')
+    .gte('started_at', windowStart.toISOString())
+  if (sessionsError) {
+    return NextResponse.json({ error: sessionsError.message }, { status: 500 })
+  }
 
-  const completedTodayIds = new Set(((sessionsData as SessionRow[]) ?? []).map((s) => s.user_id))
+  const profileByUser = new Map(candidates.map((profile) => [profile.id, profile]))
+  const completedTodayIds = new Set(
+    ((sessionsData as Array<SessionRow & { started_at: string }>) ?? [])
+      .filter((session) => {
+        const profile = profileByUser.get(session.user_id)
+        return (
+          profile &&
+          dateKeyInTimeZone(new Date(session.started_at), profile.time_zone) ===
+            dateKeyInTimeZone(now, profile.time_zone)
+        )
+      })
+      .map((session) => session.user_id),
+  )
   const remindIds = candidateIds.filter((id) => !completedTodayIds.has(id))
 
   if (remindIds.length === 0) {
@@ -96,10 +131,13 @@ export async function GET(request: Request) {
   }
 
   // 3. Get all active push subscriptions for users who need reminders
-  const { data: subsData } = await supabase
+  const { data: subsData, error: subsError } = await supabase
     .from('push_subscriptions')
     .select('*')
     .in('user_id', remindIds)
+  if (subsError) {
+    return NextResponse.json({ error: subsError.message }, { status: 500 })
+  }
 
   const subs = (subsData as PushSubscriptionRow[]) ?? []
   if (subs.length === 0) {
@@ -129,9 +167,17 @@ export async function GET(request: Request) {
   let expiredCount = 0
 
   for (const [userId, userSubs] of subsByUser) {
+    const profile = profileByUser.get(userId)
+    if (!profile) continue
     const workoutDates = await getFinishedSessionDates(supabase, userId)
-    const streak = calculateStreak(workoutDates, scheduleByUser.get(userId) ?? [])
-    const payload = { ...pickMessage(streak.current), url: '/dashboard' }
+    const streak = calculateStreak(
+      workoutDates,
+      scheduleByUser.get(userId) ?? [],
+      now,
+      0,
+      profile.time_zone,
+    )
+    const payload = { ...pickMessage(streak.current, profile.locale), url: '/dashboard' }
 
     for (const sub of userSubs) {
       const result = await sendPushToSubscription(sub, payload)

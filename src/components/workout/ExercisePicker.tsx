@@ -28,7 +28,7 @@ interface Props {
   defaultOpen?: boolean
 }
 
-const CHIP_LABEL_KEY: Record<MuscleChip, string> = {
+const CHIP_LABEL_KEY = {
   all: 'chipAll',
   chest: 'chipChest',
   back: 'chipBack',
@@ -38,7 +38,7 @@ const CHIP_LABEL_KEY: Record<MuscleChip, string> = {
   legs: 'chipLegs',
   core: 'chipCore',
   other: 'chipOther',
-}
+} as const satisfies Record<MuscleChip, string>
 
 export function ExercisePicker({
   allExercises,

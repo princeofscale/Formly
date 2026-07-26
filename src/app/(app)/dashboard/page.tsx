@@ -35,6 +35,7 @@ import { redirect } from 'next/navigation'
 import { EmptyDashboardHero } from '@/components/dashboard/EmptyDashboardHero'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { isWrappedSeason, wrappedYear } from '@/lib/services/wrapped.service'
+import { dateKeyInTimeZone, isoWeekday } from '@/lib/utils/time-zone'
 
 const DELOAD_CYCLE_WEEKS = 5
 const PR_WINDOW_DAYS = 30
@@ -50,14 +51,22 @@ export default async function DashboardPage() {
   // dashboard would still show an ActiveSessionBanner for a 16-hour-stale
   // session until the daily cron runs. RPC is scoped to auth.uid() so we
   // can only ever close our own.
-  // ESLint/TS cast: generated database.types predates this RPC.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase as any).rpc('finish_my_stale_sessions', { p_idle_hours: 4 })
+  await supabase.rpc('finish_my_stale_sessions', { p_idle_hours: 4 })
 
   const since7days = new Date()
   since7days.setDate(since7days.getDate() - 7)
   const since14days = new Date()
   since14days.setDate(since14days.getDate() - 14)
+  const profilePromise = Promise.resolve(
+    supabase
+      .from('profiles')
+      .select('training_schedule, display_name, time_zone')
+      .eq('id', user.id)
+      .single(),
+  )
+  const insightsPromise = profilePromise.then((result) =>
+    getTodayInsights(supabase, user.id, result.data?.time_zone ?? 'UTC'),
+  )
 
   // Single round-trip for the whole page. Both halves used to await separately,
   // costing one full RTT (~100-200ms on 4G) just for the page to render.
@@ -83,7 +92,7 @@ export default async function DashboardPage() {
       .not('finished_at', 'is', null)
       .order('started_at', { ascending: false })
       .limit(3),
-    supabase.from('profiles').select('training_schedule, display_name').eq('id', user.id).single(),
+    profilePromise,
     supabase
       .from('workout_sessions')
       .select('started_at, total_volume_kg')
@@ -99,7 +108,7 @@ export default async function DashboardPage() {
       .order('weight_kg', { ascending: false })
       .limit(1)
       .maybeSingle(),
-    getTodayInsights(supabase, user.id),
+    insightsPromise,
     getFinishedSessionDates(supabase, user.id),
     getRecentPRs(supabase, user.id, PR_WINDOW_DAYS),
     getFriendsWithStats(supabase, 7),
@@ -109,6 +118,7 @@ export default async function DashboardPage() {
   const sessions = sessionsResult.data ?? []
   const profileSchedule = profileResult.data?.training_schedule
   const schedule: number[] = profileSchedule ?? []
+  const timeZone = profileResult.data?.time_zone ?? 'UTC'
 
   // New user routing:
   //  • training_schedule is null  → never onboarded → push them to /onboarding
@@ -122,7 +132,13 @@ export default async function DashboardPage() {
     return <EmptyDashboardHero hasSchedule={hasSchedule} />
   }
 
-  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), STREAK_FREEZES_PER_MONTH)
+  const streakInfo = calculateStreak(
+    workoutDates,
+    schedule,
+    new Date(),
+    STREAK_FREEZES_PER_MONTH,
+    timeZone,
+  )
   const freezesPerMonth = streakInfo.freezes_per_month ?? 0
   const freezesUsed = streakInfo.freezes_used_this_month ?? 0
   const freezesLeft = Math.max(0, freezesPerMonth - freezesUsed)
@@ -131,9 +147,8 @@ export default async function DashboardPage() {
   // Streak-at-risk: today is a scheduled day, no workout yet, current streak >= 3
   const now = new Date()
   const nowMs = now.getTime()
-  const todayIso = now.toISOString().slice(0, 10)
-  const jsDay = now.getUTCDay()
-  const todayIsoDay = jsDay === 0 ? 7 : jsDay
+  const todayIso = dateKeyInTimeZone(now, timeZone)
+  const todayIsoDay = isoWeekday(todayIso)
   const scheduledToday = schedule.includes(todayIsoDay)
   const workedOutToday = workoutDates.includes(todayIso)
   const streakAtRisk = scheduledToday && !workedOutToday && streakInfo.current >= 3

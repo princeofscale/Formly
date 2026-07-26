@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { AIInsights } from '@/lib/types/models'
+import { dateKeyInTimeZone } from '@/lib/utils/time-zone'
 
 function isMissingTableError(error: { message?: string; code?: string } | null): boolean {
   return (
@@ -11,8 +12,9 @@ function isMissingTableError(error: { message?: string; code?: string } | null):
 export async function getTodayInsights(
   supabase: SupabaseClient,
   userId: string,
+  timeZone: string,
 ): Promise<AIInsights | null> {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = dateKeyInTimeZone(new Date(), timeZone)
   const { data, error } = await supabase
     .from('ai_insights')
     .select('content')
@@ -29,7 +31,12 @@ export async function saveInsights(
   userId: string,
   insights: AIInsights,
 ): Promise<void> {
-  const today = new Date().toISOString().slice(0, 10)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('time_zone')
+    .eq('id', userId)
+    .maybeSingle()
+  const today = dateKeyInTimeZone(new Date(), profile?.time_zone ?? 'UTC')
   const { error } = await supabase
     .from('ai_insights')
     .upsert(

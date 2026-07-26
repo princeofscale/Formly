@@ -52,6 +52,7 @@ Run the checks relevant to every changed area. Before release, run the full vali
 
 ## Agent workflow
 
+- Before making any edits, check GitHub for a newer version and run `git pull --ff-only` on the current branch; if it cannot fast-forward cleanly, stop and resolve the branch state before changing files.
 - Read the affected flow and its callers before editing, follow existing patterns, and make the smallest root-cause change.
 - Verify the current branch, linked external project, CI result, and deployment state instead of assuming them.
 - Never print, commit, or place secrets in client code. Redact sensitive command output and rotate any exposed credential.

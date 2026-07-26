@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { getSession } from '@/lib/db/workouts'
-import { getSetsForSession, getLastSetsForExercise } from '@/lib/db/sets'
+import { getSetsForSession, getLastSetsForExercises } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
 import { getTemplate } from '@/lib/db/templates'
 import { WorkoutClient } from '@/components/workout/WorkoutClient'
@@ -28,12 +28,13 @@ export default async function WorkoutPage({
 
   const sets = await getSetsForSession(supabase, id)
   const allExercises = await getExercises(supabase, user.id)
+  const exerciseById = new Map(allExercises.map((exercise) => [exercise.id, exercise]))
 
   // Build exercise map from existing sets
   const exerciseMap = new Map<string, ExerciseWithSets>()
   for (const set of sets) {
     if (!exerciseMap.has(set.exercise_id)) {
-      const ex = allExercises.find((e) => e.id === set.exercise_id)
+      const ex = exerciseById.get(set.exercise_id)
       if (ex) exerciseMap.set(set.exercise_id, { ...ex, sets: [] })
     }
     exerciseMap.get(set.exercise_id)?.sets.push(set)
@@ -52,7 +53,7 @@ export default async function WorkoutPage({
       sourceTemplate = { id: template.id, name: template.name }
       for (const te of template.exercises) {
         if (exerciseMap.has(te.exercise_id)) continue
-        const ex = allExercises.find((e) => e.id === te.exercise_id)
+        const ex = exerciseById.get(te.exercise_id)
         if (!ex) continue
         templateExercises.push({ ...ex, sets: [] })
         exerciseIdsInSession.push(te.exercise_id)
@@ -60,12 +61,7 @@ export default async function WorkoutPage({
     }
   }
 
-  // Parallel fetch of last sets
-  await Promise.all(
-    exerciseIdsInSession.map(async (exerciseId) => {
-      lastSetsMap[exerciseId] = await getLastSetsForExercise(supabase, user.id, exerciseId, id)
-    }),
-  )
+  Object.assign(lastSetsMap, await getLastSetsForExercises(supabase, id, exerciseIdsInSession))
 
   const initialExercises = [...exerciseMap.values(), ...templateExercises]
 
@@ -95,11 +91,12 @@ export default async function WorkoutPage({
     .slice(0, 6)
     .map(([id]) => id)
   const suggestedExercises: Exercise[] = topExerciseIds
-    .map((id) => allExercises.find((e) => e.id === id))
+    .map((id) => exerciseById.get(id))
     .filter((e): e is Exercise => e !== undefined)
 
   return (
     <WorkoutClient
+      userId={user.id}
       session={session}
       initialExercises={initialExercises}
       allExercises={allExercises}

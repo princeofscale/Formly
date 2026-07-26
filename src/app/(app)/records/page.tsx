@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Trophy } from 'lucide-react'
 import { MuscleIcon } from '@/components/workout/muscle-icon'
 import type { MuscleGroup } from '@/lib/types/models'
+import { weightUnit } from '@/lib/units'
 
 type Tab = 'all' | 'recent' | 'muscle'
 
@@ -53,6 +54,7 @@ export default async function RecordsPage({
   const t = await getTranslations('records')
   const tHistory = await getTranslations('history')
   const locale = await getLocale()
+  const kg = weightUnit(locale)
 
   const { data: rows } = await supabase
     .from('set_entries')
@@ -149,8 +151,8 @@ export default async function RecordsPage({
               <>
                 <span className="last-name">{displayName(latestPr)}</span>
                 <span className="last-date">
-                  {formatDateFull(latestPr.created_at)} · {Math.round(latestPr.weight_kg)}{' '}
-                  {locale === 'ru' ? 'кг' : 'kg'} × {latestPr.reps}
+                  {formatDateFull(latestPr.created_at)} · {Math.round(latestPr.weight_kg)} {kg} ×{' '}
+                  {latestPr.reps}
                 </span>
               </>
             ) : (
@@ -221,7 +223,7 @@ export default async function RecordsPage({
                 <div>
                   <span className="tar-rec-num">{Math.round(r.weight_kg)}</span>
                   <span className="tar-rec-unit">
-                    {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                    {kg} × {r.reps}
                   </span>
                 </div>
                 <div className="tar-rec-meta">{formatDateShort(r.created_at)}</div>
@@ -256,7 +258,7 @@ export default async function RecordsPage({
                 <div className="end">
                   <span className="tar-rec-row-wt">{Math.round(r.weight_kg)}</span>
                   <span className="tar-rec-row-unit">
-                    {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                    {kg} × {r.reps}
                   </span>
                 </div>
               </Link>
@@ -305,7 +307,7 @@ export default async function RecordsPage({
                     <div className="end">
                       <span className="tar-rec-row-wt">{Math.round(r.weight_kg)}</span>
                       <span className="tar-rec-row-unit">
-                        {locale === 'ru' ? 'кг' : 'kg'} × {r.reps}
+                        {kg} × {r.reps}
                       </span>
                     </div>
                   </Link>

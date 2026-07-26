@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type {
   MuscleVolume,
   VolumeLandmark,
@@ -20,23 +21,6 @@ export interface GrokContext {
   recent_sessions: { date: string; volume_kg: number }[]
   top_prs: { exercise: string; best_weight_kg: number }[]
   progression_opportunities: ProgressionSuggestion[]
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 const INSIGHT_TYPES = new Set<AIInsightItem['type']>([
@@ -115,7 +99,7 @@ Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanati
     ],
   })
 
-  const raw = contentToText(response.choices[0]?.message?.content) || '[]'
+  const raw = mistralContentToText(response.choices[0]?.message?.content) || '[]'
 
   let items: AIInsightItem[]
   try {

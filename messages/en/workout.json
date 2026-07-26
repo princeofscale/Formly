@@ -1,0 +1,300 @@
+{
+  "cardio": {
+    "back": "Back",
+    "startCardio": "Cardio",
+    "logTitle": "Log cardio",
+    "eyebrow": "Cardio session",
+    "heroTitle": "Move your heart",
+    "chooseActivity": "Choose activity",
+    "presets": "Quick durations",
+    "startBtn": "Save cardio — {activity} · {min} min",
+    "activityLabel": "Activity",
+    "durationLabel": "Duration",
+    "minutes": "min",
+    "distance": "Dist.",
+    "distanceUnit": "km",
+    "avgHr": "Avg HR",
+    "bpm": "bpm",
+    "calories": "Calories",
+    "kcal": "kcal",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "How it felt, pace, route...",
+    "save": "Save cardio",
+    "saving": "Saving…",
+    "activity": {
+      "running": "Run",
+      "cycling": "Bike",
+      "walking": "Walk",
+      "swimming": "Swim",
+      "rowing": "Row",
+      "elliptical": "Elliptical",
+      "hiit": "HIIT",
+      "other": "Other"
+    }
+  },
+  "exerciseForm": {
+    "triggerLabel": "Add custom",
+    "title": "Create exercise",
+    "name": "Name (English)",
+    "namePlaceholder": "e.g. Bulgarian Split Squat",
+    "nameRu": "Name (Russian)",
+    "nameRuPlaceholder": "optional",
+    "primaryMuscle": "Primary muscle",
+    "equipment": "Equipment",
+    "mechanic": "Type",
+    "mechanicOption": {
+      "compound": "Compound",
+      "isolation": "Isolation"
+    },
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "customBadge": "Custom",
+    "createCta": "Create",
+    "createCtaSub": "Adds a custom exercise to your library"
+  },
+  "exerciseLibrary": {
+    "title": "Exercise Library",
+    "subCount": "{n} exercises",
+    "searchPlaceholder": "Search exercises…",
+    "filterAll": "All",
+    "mostLogged": "Your most logged",
+    "topN": "Top {n}",
+    "compound": "Compound",
+    "isolation": "Isolation",
+    "daysAgo": "{n}d ago",
+    "weeksAgo": "{n}w ago",
+    "today": "today",
+    "yesterday": "yesterday",
+    "never": "—",
+    "prShort": "PR",
+    "bucket": {
+      "chest": "Chest",
+      "back": "Back",
+      "legs": "Legs",
+      "shoulder": "Shoulders",
+      "arms": "Arms",
+      "core": "Core"
+    },
+    "targetArea": "Target Area",
+    "custom": "Custom",
+    "noExercises": "No exercises found.",
+    "clearFilter": "Clear",
+    "equipment": {
+      "barbell": "Barbell",
+      "dumbbell": "Dumbbell",
+      "machine": "Machine",
+      "cable": "Cable",
+      "bodyweight": "Bodyweight",
+      "smith": "Smith",
+      "ez_bar": "EZ-bar",
+      "kettlebell": "Kettlebell",
+      "band": "Band",
+      "plate": "Plate",
+      "other": "Other"
+    }
+  },
+  "presets": {
+    "title": "Ready Programs",
+    "subtitle": "Pre-built workouts to start instantly",
+    "startDay": "Start",
+    "exercises": "{n} exercises",
+    "fullbody": {
+      "title": "Full Body",
+      "subtitle": "3×/week · alternate A and B",
+      "days": {
+        "a": "Day A",
+        "b": "Day B"
+      }
+    },
+    "upperlower": {
+      "title": "Upper / Lower",
+      "subtitle": "4×/week · split by half of the body",
+      "days": {
+        "upper": "Upper Body",
+        "lower": "Lower Body"
+      }
+    },
+    "ppl": {
+      "title": "Push / Pull / Legs",
+      "subtitle": "3-6×/week · classic 3-day rotation",
+      "days": {
+        "push": "Push",
+        "pull": "Pull",
+        "legs": "Legs"
+      }
+    },
+    "split5": {
+      "title": "5-Day Split",
+      "subtitle": "One muscle group per day",
+      "days": {
+        "chest": "Chest",
+        "back": "Back",
+        "shoulders": "Shoulders",
+        "arms": "Arms",
+        "legs": "Legs"
+      }
+    }
+  },
+  "workout": {
+    "title": "Workout",
+    "newTitle": "New Workout",
+    "activeSession": "Active Session",
+    "resumeWorkout": "Resume Workout",
+    "startNewWorkout": "Start New Workout",
+    "quickStart": "Quick start",
+    "emptySession": "Empty session",
+    "emptySessionSub": "Log on the fly",
+    "cardioSub": "Cardio · run · bike",
+    "createTemplateHint": "Save a session as a template — fire it off in one tap next time.",
+    "elapsed": "{minutes}m elapsed",
+    "searchPlaceholder": "Search exercises...",
+    "aiSearching": "AI is thinking…",
+    "aiDidYouMean": "Did you mean…",
+    "aiOffline": "Offline — AI suggestions unavailable",
+    "pickerExercise": "Exercise",
+    "recent": "Recent",
+    "allExercisesSection": "All exercises",
+    "added": "Added",
+    "chipAll": "All",
+    "chipChest": "Chest",
+    "chipBack": "Back",
+    "chipShoulders": "Shoulders",
+    "chipBiceps": "Biceps",
+    "chipTriceps": "Triceps",
+    "chipLegs": "Legs",
+    "chipCore": "Core",
+    "chipOther": "Other",
+    "emptyHint": "Search for an exercise above to start logging",
+    "quickAdd": "Quick add",
+    "finish": "Finish",
+    "finishing": "Finishing...",
+    "rpe": "RPE",
+    "setShort": "SET",
+    "logSet": "Log set",
+    "addExercise": "Add exercise",
+    "warmupShort": "Warmup",
+    "warmupAdd": "Add",
+    "deleteExercise": "Remove",
+    "cancel": "Cancel",
+    "confirmDeleteExercise": "Remove this exercise? All {n} logged set(s) will be deleted.",
+    "alternatives": {
+      "button": "AI: swap exercise",
+      "title": "AI alternatives",
+      "loading": "Coach is picking...",
+      "none": "No good alternatives found.",
+      "error": "Failed to load alternatives.",
+      "close": "Close"
+    },
+    "programGen": {
+      "cta": "AI generator",
+      "title": "Build today's session",
+      "subtitle": "Pulls from your history, recovery and PR cadence. Hit go — you'll have a split in 30 seconds.",
+      "days": "Days per week",
+      "generate": "Generate",
+      "generating": "Coach is designing your split...",
+      "previewIntro": "{n} training days. Will save {n} templates.",
+      "regen": "Regenerate",
+      "save": "Save templates",
+      "savedTitle": "Done — {n} templates",
+      "savedHint": "Find them below in the templates list and start any workout.",
+      "error": "Failed to generate program.",
+      "retry": "Try again",
+      "emptyResult": "AI returned an empty result. Try again.",
+      "quotaExhausted": "Daily AI generation limit reached. Try again tomorrow."
+    },
+    "lastTime": "Last",
+    "prImproved": "PR +{pct}%",
+    "restSkip": "Skip",
+    "resting": "Rest",
+    "weightLabel": "Weight",
+    "extraWeightLabel": "Added weight",
+    "repsLabel": "Reps",
+    "rpeLabel": "Effort",
+    "setLabel": "Set #{n}",
+    "rpeOutOfRange": "Effort must be between 1 and 10.",
+    "plateCalculator": {
+      "label": "Plates per side",
+      "noBar": "No bar",
+      "belowBar": "Below {bar}kg bar",
+      "barOnly": "Bar only",
+      "perSide": "{kg} kg/side",
+      "leftover": "+{kg} kg won't fit (no smaller plates)"
+    },
+    "restTimer": {
+      "notifTitle": "Rest complete",
+      "notifBody": "Time for your next set 💪",
+      "enableNotif": "Enable rest notifications"
+    },
+    "prCelebration": {
+      "label": "Personal record",
+      "title": "NEW PR!"
+    },
+    "back": "Back",
+    "liveStats": {
+      "elapsed": "Elapsed",
+      "sets": "Sets",
+      "tonnage": "Tonnage",
+      "exercises": "Exercises"
+    },
+    "progression": {
+      "tapToApply": "Tap to fill in",
+      "action": {
+        "increase": "+{delta} kg",
+        "hold": "Same weight",
+        "deload": "−{delta} kg",
+        "firstSet": "First set"
+      },
+      "reason": {
+        "easySet": "Last set {lastWeight}×{lastReps} at RPE {rpe} — plenty in reserve",
+        "roomToGrow": "Last set {lastWeight}×{lastReps} at RPE {rpe} — room to grow",
+        "pushUp": "Last set {lastWeight}×{lastReps} at RPE {rpe} — done cleanly",
+        "holdReps": "Last set {lastWeight}×{lastReps} at RPE {rpe} — reps below target",
+        "nearMax": "Last set at RPE {rpe} — close to the limit",
+        "deload": "Last set at RPE 10 — limit reached",
+        "noRpeAddWeight": "Last set {lastWeight}×{lastReps} — no RPE logged",
+        "noRpeHold": "Last set {lastWeight}×{lastReps} — reps below target",
+        "hold": "Weight unchanged"
+      }
+    },
+    "notes": {
+      "label": "Notes",
+      "add": "Add note for this workout",
+      "placeholder": "How did it feel? Any observations…",
+      "saved": "Saved"
+    },
+    "exerciseNote": {
+      "label": "Note",
+      "add": "Add a note (form cues, reminders)",
+      "placeholder": "e.g. keep elbows tucked, full ROM"
+    },
+    "video": {
+      "label": "Technique video",
+      "add": "Add YouTube link",
+      "editLabel": "Video URL",
+      "save": "Save",
+      "remove": "Remove",
+      "close": "Close",
+      "change": "Change",
+      "saved": "Saved",
+      "invalidUrl": "Couldn't recognize a YouTube URL"
+    },
+    "mood": {
+      "label": "How was the workout?",
+      "bad": "Rough",
+      "meh": "Meh",
+      "ok": "OK",
+      "good": "Good",
+      "great": "On fire"
+    },
+    "editSet": {
+      "title": "Set #{n}",
+      "save": "Save",
+      "delete": "Delete",
+      "confirmDelete": "Delete this set?",
+      "deleteYes": "Yes",
+      "deleteNo": "No"
+    }
+  }
+}

@@ -42,8 +42,7 @@ function send(payload: { message: string; stack?: string; context: string }): vo
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...payload,
-        url: location.href,
-        userAgent: navigator.userAgent,
+        url: `${location.origin}${location.pathname}`,
       }),
       keepalive: true,
     }).catch(() => {})

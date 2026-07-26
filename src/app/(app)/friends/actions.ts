@@ -43,7 +43,7 @@ export async function addFriendAction(formData: FormData): Promise<AddFriendResu
   // ensureFriendCode is idempotent and returns the caller's own code,
   // so the push body can show "Код XXXXX хочет тебя добавить".
   const myCode = await ensureFriendCode(supabase)
-  void notifyFriendRequest(supabase, {
+  await notifyFriendRequest(supabase, {
     recipientUserId: other.id,
     requesterCode: myCode,
   })
