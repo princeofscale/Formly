@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    '.gitnexus/**',
     // Claude Design handoff bundles — raw HTML prototypes, not project code.
     '.design-cache/**',
   ]),

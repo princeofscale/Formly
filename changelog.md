@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - Expanded the project agent guidance with repository boundaries, security and offline invariants, GitNexus workflows, validation rules, and release procedures; added the root `.gitnexusrc` configuration for the Formly repository.
+- Excluded the local GitNexus index from ESLint scans so generated tooling files do not fail the pre-push check.
 - Replaced the friends' PRs feed with the unified activity feed, backed by a new `activity_events` table and `SECURITY DEFINER` feed RPCs; every cross-athlete read now excludes blocked pairs.
 - Consolidated high-confidence duplicate system exercises while preserving workout history, notes, videos, goals, aliases, and localized catalog metadata.
 - Repaired saved workout templates that referenced an exercise removed by catalog deduplication.
