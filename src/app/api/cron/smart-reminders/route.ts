@@ -6,6 +6,7 @@ import {
   type PushSubscriptionRow,
 } from '@/lib/db/push-subscriptions'
 import { generatePushHook, type PushHookContext } from '@/lib/services/push-hook.service'
+import { underworkedMuscles } from '@/lib/utils/underworked-muscles'
 import {
   dateKeyInTimeZone,
   hourInTimeZone,
@@ -230,17 +231,7 @@ export async function GET(request: Request) {
       .sort((a, b) => b[1] - a[1])
       .map(([muscle, sets]) => ({ muscle, sets }))
 
-    const ALL_MUSCLES = [
-      'chest',
-      'back',
-      'quads',
-      'hamstrings',
-      'glutes',
-      'biceps',
-      'triceps',
-      'shoulders',
-    ]
-    const underworked = ALL_MUSCLES.filter((m) => (muscleSets.get(m) ?? 0) < 3)
+    const underworked = underworkedMuscles(muscleSets)
 
     return {
       locale: profile.locale,

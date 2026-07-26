@@ -30,7 +30,9 @@ from (
      'Тот же тренажёр, что и для подтягиваний, в положении для брусьев. Корпус вертикально — акцент на трицепс, наклон вперёд — на грудь.'),
 
     ('Machine Lateral Raise', 'Махи в стороны в тренажёре', 'machine-lateral-raise',
-     'side_delts', array['shoulders']::muscle_group[], 'isolation', 'machine',
+     -- `shoulders` left the muscle_group enum in 20260509000004; the delts are
+     -- tracked separately, so the secondary groups have to name them.
+     'side_delts', array['front_delts', 'traps']::muscle_group[], 'isolation', 'machine',
      array['разведения в тренажёре', 'махи в тренажёре']::text[],
      'Валики прижаты к внешней стороне предплечий, ось вращения на уровне плечевого сустава. Подъём до горизонтали без рывка корпусом.'),
 

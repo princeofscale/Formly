@@ -30,21 +30,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Every AI prompt now shares one tone contract: no slang, no imperative commands, gender-neutral phrasing, and each statement grounded in a figure from the athlete's own data. Exercise alternatives now explain what they share with the original.
 - Post-workout debriefs now show the figure behind each point on its own line, matching how the dashboard coach already displays its evidence. Debriefs generated before this change keep rendering unchanged.
 - Split English and Russian UI messages into feature-focused JSON modules, added strict locale/message-key typing and key-parity coverage, and limited client-side message payloads by application surface.
-- Required agents to fast-forward from GitHub before editing so new work starts from the latest remote version.
 - Disabled automatic Vercel deployments for branch pushes; production deploys now run only through the release-tag workflow.
 - Standardized release headings, comparison links, and contributor release instructions.
-- Moved onboarding, warm-up insertion, workout completion/activity events, body-metric logging, and generated-template saves into atomic PostgreSQL functions.
+- Moved onboarding, warm-up insertion, online workout completion/activity events, body-metric logging, and generated-template saves into atomic PostgreSQL functions. Workouts finished from the offline queue still take the older path and do not yet emit activity events.
 - Moved performed-exercise, previous-set, recent-weight, and streak-date reads into grouped database queries; large Wrapped reports now paginate instead of silently stopping at 10,000 sets.
 - Consolidated repeated Mistral content extraction into one tested adapter and completed the generated database typings needed by the new schema and RPCs.
 
 ### Security
 
 - Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
-- Stopped caching authenticated workout HTML, isolated offline records by account, and clear private browser storage on sign-out.
+- Stopped caching authenticated workout HTML, isolated offline records by account, and cleared private browser storage on sign-out.
 - Made AI quota consumption atomic and fail-closed behind an RLS-protected RPC, and revoked direct authenticated access to universal activity-event emission.
 - Removed query strings and fragments from browser error reports, redacted token-like values, bounded and rate-limited the endpoint, and rejected external post-auth redirects.
 - Removed anonymous execution from every privileged RPC, restricted global stale-session cleanup to `service_role`, and added database rate limits for messages, comments, reactions, and test pushes.
-- Restricted stored Web Push endpoints to supported browser push services and reject arbitrary outbound targets.
+- Restricted stored Web Push endpoints to supported browser push services and rejected arbitrary outbound targets.
 - Added runtime schemas and database bounds for profile/body metrics, AI program input, push subscriptions, CSV formula cells, RPC limits, photo MIME/size, captions, notes, and unique photo paths.
 
 ### Fixed
@@ -55,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Persisted locale in profiles, localized scheduled notifications, and changed daily/smart reminder calculations from UTC to each profile's time zone.
 - Preserved pre-upgrade offline queue records and added database validation plus safe cron fallback for profile time zones.
 - Eliminated workout-page previous-set N+1 reads, corrected server-action UUID validation, and made session deletion rely on its transactional cascade.
+- Stopped smart reminders from telling every athlete they had skipped shoulders. The reminder built its list from a `shoulders` muscle label that left the database enum in favour of front, side, and rear delts, so the lookup never matched a logged set. Lat work now counts towards back for the same reason.
 - Merged the catalog rows that shared a Russian name but kept an English `name`, which the earlier deduplication pass skipped by design and which showed up as visible twins in the exercise picker. Workout history decides which row survives, saved templates are remapped in the same transaction, and walking lunges are renamed rather than merged because they are a separate movement from stationary dumbbell lunges.
 
 ### Removed
