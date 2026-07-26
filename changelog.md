@@ -4,6 +4,15 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.3.0...HEAD)
+
+### Fixed
+
+- Made the failure screen reach every page and actually render. It sat inside the signed-in section, so onboarding and the sign-in pages still fell back to the browser's own error page — and it asked for wording its own section never handed to the browser, so the screen would have failed while reporting a failure. It now sits at the root with its wording alongside.
+- Stopped four more reads outside the data layer from reporting a failure as an empty result: monthly volume, the four-week volume landmarks, the history list's set counts, and the streak-milestone check.
+
 ## 1.3.0 - 2026-07-26
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.1...v1.3.0)

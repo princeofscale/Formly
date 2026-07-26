@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { crossedMilestone } from './activity-milestones'
+import { unwrap } from '@/lib/db/unwrap'
 
 type EventType =
   | 'workout_started'
@@ -80,12 +81,15 @@ export async function maybeEmitStreakMilestone(
   currentStreak: number,
 ): Promise<void> {
   try {
-    const { data } = await supabase
-      .from('profiles')
-      .select('last_streak_milestone')
-      .eq('id', userId)
-      .maybeSingle()
-    const last = data?.last_streak_milestone ?? 0
+    const profile = unwrap(
+      await supabase
+        .from('profiles')
+        .select('last_streak_milestone')
+        .eq('id', userId)
+        .maybeSingle(),
+      'last streak milestone',
+    ) as { last_streak_milestone: number } | null
+    const last = profile?.last_streak_milestone ?? 0
     const { milestone, resetTo } = crossedMilestone(currentStreak, last)
     if (milestone != null) {
       await emitActivityEvent(supabase, userId, 'streak_milestone', null, { days: milestone })

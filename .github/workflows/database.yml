@@ -113,12 +113,13 @@ jobs:
         run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f .github/database/legacy-seed.sql
 
       # Two migrations add a unique index over data that was not unique before
-      # them and do not clean up first, so an upgrade of any database that is
-      # not production stops there. The requirement is documented and executed
-      # here rather than hidden, because fixing it properly means editing
-      # migrations that are already applied.
-      - name: Run the documented preflight cleanup
-        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f .github/database/upgrade-preflight.sql
+      # them and never clean up first: progress_photos_storage_path_uniq in
+      # 20260726145000 and workout_templates_user_name_uniq in 20260726146000.
+      # A cleanup step used to run here. It is gone because the baseline is now
+      # a release that already carries both indexes, so the duplicates cannot
+      # exist to be cleaned — the defect has aged out of the supported upgrade
+      # path rather than been fixed. Restoring an older baseline means
+      # restoring the cleanup with it.
 
       - name: Restore the current migrations
         run: |
