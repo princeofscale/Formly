@@ -30,3 +30,30 @@ export async function consumeAiQuota(supabase: SupabaseClient, kind: AiKind): Pr
   }
   if (!result.allowed) throw new AiQuotaExceededError(kind, result.limit)
 }
+
+/**
+ * Spends a named athlete's allowance from a background job.
+ *
+ * A cron sweep runs as service_role with no session, so `consumeAiQuota` — which
+ * infers the athlete from `auth.uid()` — cannot charge anyone. That gap is why
+ * `push_hook` was a declared quota kind that nothing ever consumed.
+ *
+ * Returns false instead of throwing: a sweep serves many athletes, and one
+ * having spent their allowance is a reason to fall back to a written message
+ * for that person, not to abandon the run.
+ */
+export async function consumeAiQuotaFor(
+  supabase: SupabaseClient,
+  userId: string,
+  kind: AiKind,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('consume_ai_quota_for', {
+    p_user_id: userId,
+    p_kind: kind,
+  })
+  const result = data as Extract<Json, { [key: string]: Json | undefined }> | null
+
+  // Fail closed: an unreadable answer must not be treated as permission.
+  if (error || typeof result?.allowed !== 'boolean') return false
+  return result.allowed
+}

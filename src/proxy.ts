@@ -84,10 +84,15 @@ export async function proxy(request: NextRequest) {
     },
   )
 
+  // Timed because this is the one blocking network call ahead of the first
+  // byte, and guessing at its cost is how it went unnoticed for so long. The
+  // header is diagnostic only and carries no user data.
+  const authStartedAt = performance.now()
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser()
+  const authDuration = Math.round(performance.now() - authStartedAt)
 
   if (authError && authError.name !== 'AuthSessionMissingError') {
     console.error('[proxy] Supabase auth error:', authError.message)
@@ -108,6 +113,8 @@ export async function proxy(request: NextRequest) {
   if (user) {
     supabaseResponse.headers.set('Cache-Control', 'private, no-store')
   }
+
+  supabaseResponse.headers.set('Server-Timing', `supabase-auth;dur=${authDuration}`)
 
   return supabaseResponse
 }

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { WorkoutSession } from '@/lib/types/models'
+import { unwrap, unwrapRows } from './unwrap'
 
 export interface WorkoutLifetimeStats {
   total_sessions: number
@@ -32,8 +33,15 @@ export async function getSession(
   supabase: SupabaseClient,
   sessionId: string,
 ): Promise<WorkoutSession | null> {
-  const { data } = await supabase.from('workout_sessions').select('*').eq('id', sessionId).single()
-  return data as WorkoutSession | null
+  // maybeSingle, not single: callers treat null as "no such workout" and
+  // answer 404, while `single()` reports a missing row as an error, which
+  // unwrap would raise. Absence and failure have to stay distinguishable.
+  const result = await supabase
+    .from('workout_sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .maybeSingle()
+  return unwrap(result, 'workout session') as WorkoutSession | null
 }
 
 export async function getRecentSessions(
@@ -42,21 +50,21 @@ export async function getRecentSessions(
   limit = 10,
   offset = 0,
 ): Promise<WorkoutSession[]> {
-  const { data } = await supabase
+  const result = await supabase
     .from('workout_sessions')
     .select('*')
     .eq('user_id', userId)
     .not('finished_at', 'is', null)
     .order('started_at', { ascending: false })
     .range(offset, offset + limit - 1)
-  return (data as WorkoutSession[]) ?? []
+  return unwrapRows(result, 'recent sessions') as WorkoutSession[]
 }
 
 export async function getActiveSession(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<WorkoutSession | null> {
-  const { data } = await supabase
+  const result = await supabase
     .from('workout_sessions')
     .select('*')
     .eq('user_id', userId)
@@ -64,7 +72,7 @@ export async function getActiveSession(
     .order('started_at', { ascending: false })
     .limit(1)
     .maybeSingle()
-  return data as WorkoutSession | null
+  return unwrap(result, 'active session') as WorkoutSession | null
 }
 
 export async function finishSession(

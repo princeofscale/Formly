@@ -30,7 +30,10 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned, not latest. The type check compares generated output byte
+          # for byte, and a new generator reformats it — an unpinned CLI turns
+          # somebody else's release into a red build on an unrelated change.
+          version: 2.109.1
 
       - name: Start the local stack
         run: supabase start
@@ -41,6 +44,30 @@ jobs:
       # self-checking rather than merely syntactically valid.
       - name: Rebuild the schema from the migration files
         run: supabase db reset
+
+      # database.types.ts is generated, and there is no database on a developer
+      # machine to regenerate it against, so it has been extended by hand more
+      # than once. Hand-written types drift from the schema silently and the
+      # compiler cannot tell: it believes whatever the file says.
+      - name: Check the committed types match the schema
+        run: |
+          supabase gen types typescript --local > /tmp/database.types.ts
+          # Blank lines ignored on both sides: how many newlines land at the
+          # end of a file survives a checkout and an artifact round trip
+          # differently, and no real drift in generated types is ever only
+          # whitespace at EOF.
+          if ! diff -u -B src/lib/types/database.types.ts /tmp/database.types.ts; then
+            echo "::error::src/lib/types/database.types.ts is out of date. Download the generated-types artifact from this run and commit it."
+            exit 1
+          fi
+
+      - name: Publish the generated types
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-types
+          path: /tmp/database.types.ts
+          if-no-files-found: ignore
 
       - name: List what was applied
         if: always()
@@ -63,12 +90,21 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned, not latest. The type check compares generated output byte
+          # for byte, and a new generator reformats it — an unpinned CLI turns
+          # somebody else's release into a red build on an unrelated change.
+          version: 2.109.1
 
+      # Resolved rather than pinned: a hard-coded tag quietly starts testing an
+      # upgrade nobody performs any more, while still reporting green.
       - name: Roll the migration directory back to the last release
         run: |
+          RELEASE=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          test -n "$RELEASE" || { echo "no release tag found"; exit 1; }
+          echo "Upgrading from $RELEASE"
+          echo "RELEASE=$RELEASE" >> "$GITHUB_ENV"
           rm -rf supabase/migrations
-          git checkout v1.1.0 -- supabase/migrations
+          git checkout "$RELEASE" -- supabase/migrations
 
       - name: Start the stack on the released schema
         run: supabase start

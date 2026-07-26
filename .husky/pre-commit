@@ -1,1 +1,7 @@
-npx lint-staged
+# Serial, not parallel. Running eslint and prettier concurrently over a staged
+# Next.js diff was enough to get eslint killed for memory on a developer
+# machine. lint-staged then rolls the working tree back and fails the commit,
+# which reads as a lint error rather than an out-of-memory kill and passes on
+# a plain retry — the worst kind of failure, because it teaches you to retry
+# instead of to look.
+npx lint-staged --concurrent 1

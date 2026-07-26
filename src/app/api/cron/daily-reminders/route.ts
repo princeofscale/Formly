@@ -5,7 +5,7 @@ import {
   deletePushSubscriptionByEndpoint,
   type PushSubscriptionRow,
 } from '@/lib/db/push-subscriptions'
-import { getFinishedSessionDates } from '@/lib/db/streak'
+import { getFinishedSessionDatesBulk } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import {
   dateKeyInTimeZone,
@@ -168,6 +168,10 @@ export async function GET(request: Request) {
 
   let duplicateCount = 0
 
+  // One round trip for every recipient's history, rather than one per
+  // recipient inside the loop below.
+  const datesByUser = await getFinishedSessionDatesBulk(supabase, Array.from(subsByUser.keys()))
+
   // Permits older than two months answer no question anyone will ask again.
   // Pruned from this sweep because it is the one that runs every hour anyway.
   const pruneBefore = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
@@ -193,7 +197,7 @@ export async function GET(request: Request) {
       continue
     }
 
-    const workoutDates = await getFinishedSessionDates(supabase, userId)
+    const workoutDates = datesByUser.get(userId) ?? []
     const streak = calculateStreak(
       workoutDates,
       scheduleByUser.get(userId) ?? [],

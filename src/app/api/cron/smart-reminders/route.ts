@@ -7,6 +7,7 @@ import {
 } from '@/lib/db/push-subscriptions'
 import { generatePushHook, type PushHookContext } from '@/lib/services/push-hook.service'
 import { underworkedMuscles } from '@/lib/utils/underworked-muscles'
+import { consumeAiQuotaFor } from '@/lib/services/ai-quota.service'
 import {
   dateKeyInTimeZone,
   hourInTimeZone,
@@ -254,6 +255,14 @@ export async function GET(request: Request) {
           const profile = profileByUser.get(uid)
           if (!profile) throw new Error('Profile not found')
           const fallback = fallbackBody(profile.locale)
+
+          // The athlete pays for this call out of their own daily allowance.
+          // Without it the sweep was the one place an AI call ran unmetered,
+          // once per eligible athlete per run. Out of allowance means a
+          // written message rather than no message.
+          const allowed = await consumeAiQuotaFor(supabase, uid, 'push_hook')
+          if (!allowed) return [uid, fallback] as const
+
           const ctx = await buildContext(uid, profile)
           const body = await generatePushHook(ctx, fallback)
           return [uid, body] as const

@@ -37,21 +37,43 @@ values
   ('22222222-2222-2222-2222-222222222222')
 on conflict (id) do nothing;
 
--- Repeating onboarding produced templates with the same name for one athlete,
--- which nothing forbade until 20260726146000 added a unique index over
--- (user_id, name) without removing them first.
-insert into public.workout_templates (user_id, name, exercises)
-values
-  ('11111111-1111-1111-1111-111111111111', 'Push A', '[]'::jsonb),
-  ('11111111-1111-1111-1111-111111111111', 'Push A', '[]'::jsonb),
-  ('22222222-2222-2222-2222-222222222222', 'Push A', '[]'::jsonb);
+-- Repeating onboarding produced templates sharing a name, which nothing
+-- forbade until 20260726146000 added a unique index over (user_id, name)
+-- without removing the duplicates first. The same shape follows for
+-- progress_photos.storage_path in 20260726145000, from a retried upload.
+--
+-- Both are attempted rather than asserted. The baseline this job upgrades from
+-- is the newest release, so as releases move forward a baseline eventually
+-- already carries the constraint and the duplicate simply cannot be created.
+-- That is the defect ageing out of the supported upgrade path, not the seed
+-- failing, and the run should say so rather than stop.
+do $$
+begin
+  insert into public.workout_templates (user_id, name, exercises)
+  values
+    ('11111111-1111-1111-1111-111111111111', 'Push A', '[]'::jsonb),
+    ('11111111-1111-1111-1111-111111111111', 'Push A', '[]'::jsonb);
+  raise notice 'seeded duplicate template names';
+exception when unique_violation then
+  raise notice 'baseline already forbids duplicate template names; nothing to seed';
+end;
+$$;
 
--- Same shape against progress_photos.storage_path, which 20260726145000 made
--- unique. A retried upload was enough to produce this.
-insert into public.progress_photos (user_id, storage_path, taken_at)
-values
-  ('11111111-1111-1111-1111-111111111111', 'photos/legacy-duplicate.jpg', now()),
-  ('11111111-1111-1111-1111-111111111111', 'photos/legacy-duplicate.jpg', now());
+do $$
+begin
+  insert into public.progress_photos (user_id, storage_path, taken_at)
+  values
+    ('11111111-1111-1111-1111-111111111111', 'photos/legacy-duplicate.jpg', now()),
+    ('11111111-1111-1111-1111-111111111111', 'photos/legacy-duplicate.jpg', now());
+  raise notice 'seeded duplicate photo storage paths';
+exception when unique_violation then
+  raise notice 'baseline already forbids duplicate storage paths; nothing to seed';
+end;
+$$;
+
+-- One template that is always legal, so the table is not empty either way.
+insert into public.workout_templates (user_id, name, exercises)
+values ('22222222-2222-2222-2222-222222222222', 'Push A', '[]'::jsonb);
 
 -- An ordinary finished workout, so the later RPCs and aggregate reads have
 -- something real to touch rather than only empty tables.

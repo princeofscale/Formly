@@ -8,6 +8,8 @@ import { verifySession } from '@/lib/dal'
 import { WORKOUT_PRESETS } from '@/lib/constants/workout-presets'
 import type { TemplateExercise } from '@/lib/types/models'
 import type { Json } from '@/lib/types/database.types'
+import { nullableArg } from '@/lib/supabase/rpc-args'
+import type { Database } from '@/lib/types/database.types'
 
 export type OnboardingGoal = 'strength' | 'hypertrophy' | 'general'
 export type OnboardingLocation = 'gym' | 'home_dumbbells' | 'home_bodyweight'
@@ -127,7 +129,9 @@ export async function skipOnboardingAction(): Promise<void> {
   const supabase = await createClient()
   const { error } = await supabase.rpc('complete_onboarding', {
     p_schedule: [],
-    p_location: null,
+    // Null means "leave the stored location alone" — the function coalesces it
+    // back to the existing value. The generated type cannot express that.
+    p_location: nullableArg<Database['public']['Enums']['training_location']>(null),
     p_templates: [],
   })
   if (error) throw new Error(error.message)
