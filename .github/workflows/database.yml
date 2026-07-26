@@ -49,3 +49,53 @@ jobs:
       - name: Collect logs on failure
         if: failure()
         run: supabase logs db || true
+
+  upgrade-apply:
+    name: Apply new migrations over the 1.1.0 schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Roll the migration directory back to the last release
+        run: |
+          rm -rf supabase/migrations
+          git checkout v1.1.0 -- supabase/migrations
+
+      - name: Start the stack on the released schema
+        run: supabase start
+
+      - name: Seed rows the released schema allowed
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f .github/database/legacy-seed.sql
+
+      # Two migrations add a unique index over data that was not unique before
+      # them and do not clean up first, so an upgrade of any database that is
+      # not production stops there. The requirement is documented and executed
+      # here rather than hidden, because fixing it properly means editing
+      # migrations that are already applied.
+      - name: Run the documented preflight cleanup
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f .github/database/upgrade-preflight.sql
+
+      - name: Restore the current migrations
+        run: |
+          rm -rf supabase/migrations
+          git checkout HEAD -- supabase/migrations
+
+      - name: Apply everything newer
+        run: supabase migration up --local
+
+      - name: List what was applied
+        if: always()
+        run: supabase migration list --local
+
+      - name: Collect logs on failure
+        if: failure()
+        run: supabase logs db || true
