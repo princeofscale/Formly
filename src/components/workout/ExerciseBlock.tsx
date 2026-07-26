@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button'
 import type { Exercise, ExerciseWithSets, SetEntry, PRResult } from '@/lib/types/models'
 
 interface Props {
+  userId: string
   exercise: ExerciseWithSets
   sessionId: string
   onSetSaved: (set: SetEntry) => void
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export function ExerciseBlock({
+  userId,
   exercise,
   sessionId,
   onSetSaved,
@@ -268,6 +270,7 @@ export function ExerciseBlock({
           )}
 
         <SetRow
+          userId={userId}
           sessionId={sessionId}
           exerciseId={exercise.id}
           setNumber={sets.length + 1}

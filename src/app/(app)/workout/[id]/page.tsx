@@ -100,6 +100,7 @@ export default async function WorkoutPage({
 
   return (
     <WorkoutClient
+      userId={user.id}
       session={session}
       initialExercises={initialExercises}
       allExercises={allExercises}

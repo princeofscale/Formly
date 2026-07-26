@@ -41,6 +41,7 @@ function makeQueued(
 ): QueuedSetRecord {
   return {
     id,
+    ownerId: 'u1',
     queuedAt: 1789000000000,
     payload: { sessionId, exerciseId, setNumber, weightKg, reps: 5 },
   }
@@ -112,6 +113,7 @@ describe('mergeQueuedSets', () => {
 describe('hasQueuedFinish', () => {
   const rec = (sessionId: string): QueuedFinishRecord => ({
     id: 'f1',
+    ownerId: 'u1',
     sessionId,
     queuedAt: 1789000000000,
   })

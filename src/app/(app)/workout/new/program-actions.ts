@@ -59,7 +59,7 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, user.id, 'program_generation')
+    await consumeAiQuota(supabase, 'program_generation')
   } catch (e) {
     // Server-action files can't export non-function values, so the UI
     // detects the literal "quota" substring in the error message

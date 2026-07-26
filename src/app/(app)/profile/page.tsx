@@ -1,7 +1,6 @@
 // src/app/(app)/profile/page.tsx
 import { getLocale, getTranslations } from 'next-intl/server'
-import { ChevronRight, Download, Flame, LogOut, Mail, Ruler, Scale, UserRound } from 'lucide-react'
-import { signOutAction } from '@/app/(app)/actions'
+import { ChevronRight, Download, Flame, Mail, Ruler, Scale, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,6 +9,7 @@ import { NotificationsToggle } from '@/components/profile/NotificationsToggle'
 import { ShareActivityToggle } from '@/components/profile/ShareActivityToggle'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { InstallAppButton } from '@/components/profile/InstallAppButton'
+import { SignOutButton } from '@/components/profile/SignOutButton'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
@@ -364,15 +364,7 @@ export default async function ProfilePage() {
         {t('sectionAccount')}
       </div>
       <div className="tar-pr-danger tar-d-rise tar-d-rise-6">
-        <form action={signOutAction}>
-          <button type="submit">
-            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <LogOut className="h-4 w-4" />
-              {t('signOut')}
-            </span>
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </form>
+        <SignOutButton />
         <DeleteAccountButton />
       </div>
     </div>

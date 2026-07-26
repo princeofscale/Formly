@@ -80,6 +80,7 @@ function Stepper({ label, value, onChange, step = 1, min, max, suffix, optional 
 }
 
 interface Props {
+  userId: string
   sessionId: string
   exerciseId: string
   setNumber: number
@@ -95,6 +96,7 @@ interface Props {
 const QUICK_INCREMENTS = [-5, -2.5, 2.5, 5]
 
 export function SetRow({
+  userId,
   sessionId,
   exerciseId,
   setNumber,
@@ -187,7 +189,7 @@ export function SetRow({
           (typeof navigator !== 'undefined' && !navigator.onLine) ||
           (err instanceof TypeError && /fetch|network/i.test(err.message))
         if (!offlineSignal) throw err
-        const queueId = await enqueueSet(payload)
+        const queueId = await enqueueSet(payload, userId)
         const calc1rm = weightToSave > 0 ? calculate1RM(weightToSave, r) : null
         const syntheticSet: SetEntry = {
           id: `offline_${queueId}`,

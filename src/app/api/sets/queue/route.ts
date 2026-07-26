@@ -6,7 +6,7 @@
 import { NextResponse } from 'next/server'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
-import { addSet, getBestWeightForExercise } from '@/lib/db/sets'
+import { getBestWeightForExercise } from '@/lib/db/sets'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
@@ -19,10 +19,12 @@ import {
   validateUuid,
   validateWeightKg,
 } from '@/lib/utils/validators'
+import type { SetEntry } from '@/lib/types/models'
 
 export const dynamic = 'force-dynamic'
 
 interface QueuedSetBody {
+  clientMutationId: string
   sessionId: string
   exerciseId: string
   setNumber: number
@@ -43,12 +45,14 @@ export async function POST(request: Request) {
   }
 
   let sessionId: string
+  let clientMutationId: string
   let exerciseId: string
   let setNumber: number
   let weightKg: number
   let reps: number
   let rpe: number | undefined
   try {
+    clientMutationId = validateUuid(body.clientMutationId, 'clientMutationId')
     sessionId = validateUuid(body.sessionId, 'sessionId')
     exerciseId = validateUuid(body.exerciseId, 'exerciseId')
     setNumber = validateSetNumber(body.setNumber)
@@ -64,16 +68,32 @@ export async function POST(request: Request) {
 
   const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
 
-  const set = await addSet(supabase, {
-    sessionId,
-    userId: user.id,
-    exerciseId,
-    setNumber,
-    weightKg,
-    reps,
-    rpe,
-    calculated1rm,
+  const { data, error } = await supabase.rpc('save_offline_set', {
+    p_client_mutation_id: clientMutationId,
+    p_session_id: sessionId,
+    p_exercise_id: exerciseId,
+    p_set_number: setNumber,
+    p_weight_kg: weightKg,
+    p_reps: reps,
+    p_rpe: rpe ?? null,
+    p_calculated_1rm: calculated1rm,
   })
+  if (error) throw new Error(error.message)
+
+  const result = data as unknown as { set: SetEntry; inserted: boolean }
+  const set = result.set
+  if (!result.inserted) {
+    return NextResponse.json({
+      set,
+      duplicate: true,
+      prResult: {
+        is_pr: false,
+        previous_best: null,
+        current_best: weightKg,
+        improvement_pct: null,
+      },
+    })
+  }
 
   // Records go by the heaviest weight actually lifted (same rule as saveSetAction).
   const prResult =
@@ -91,22 +111,25 @@ export async function POST(request: Request) {
       .eq('id', exerciseId)
       .maybeSingle()
     const exerciseName = ex?.name_ru ?? ex?.name ?? 'Упражнение'
-    void notifyFriendsOfPR(supabase, {
-      userId: user.id,
-      exerciseName,
-      weightKg,
-      reps,
-      improvementPct: prResult.improvement_pct,
-    })
-    void emitWeightPr(supabase, {
-      sessionId,
-      exerciseId,
-      exerciseName: ex?.name ?? 'Exercise',
-      exerciseNameRu: ex?.name_ru ?? null,
-      weightKg,
-      reps,
-      improvementPct: prResult.improvement_pct,
-    })
+    await Promise.allSettled([
+      notifyFriendsOfPR(supabase, {
+        userId: user.id,
+        exerciseName,
+        weightKg,
+        reps,
+        improvementPct: prResult.improvement_pct,
+      }),
+      emitWeightPr(supabase, {
+        userId: user.id,
+        sessionId,
+        exerciseId,
+        exerciseName: ex?.name ?? 'Exercise',
+        exerciseNameRu: ex?.name_ru ?? null,
+        weightKg,
+        reps,
+        improvementPct: prResult.improvement_pct,
+      }),
+    ])
   }
 
   return NextResponse.json({ set, prResult })

@@ -32,10 +32,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Security
 
 - Updated ESLint 9, aligned `eslint-config-next` with Next.js 16.2.11, removed the redundant `ts-prune` checker, and updated compatible `brace-expansion` paths to 5.0.8. The blocking dependency audit now targets the production tree rather than unfixed development-only lint transitive dependencies.
+- Stopped caching authenticated workout HTML, isolated offline records by account, and clear private browser storage on sign-out.
+- Made AI quota consumption atomic and fail-closed behind an RLS-protected RPC, and revoked direct authenticated access to universal activity-event emission.
+- Removed query strings and fragments from browser error reports, redacted token-like values, bounded and rate-limited the endpoint, and rejected external post-auth redirects.
 
 ### Fixed
 
 - Validated the locale cookie before loading a dictionary and localized the remaining warm-up, notification, weight-unit, and relative-time UI strings.
+- Made offline set synchronization idempotent with a database mutation key and moved invalid client records to a dead-letter queue so one bad item no longer blocks later sets.
+- Awaited social push and activity side effects before server actions finish instead of leaving work behind in a terminated serverless invocation.
 
 ## 1.1.0 - 2026-07-23
 

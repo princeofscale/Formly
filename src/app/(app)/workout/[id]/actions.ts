@@ -91,22 +91,25 @@ export async function saveSetAction(data: {
       .eq('id', exerciseId)
       .maybeSingle()
     const exerciseName = ex?.name_ru ?? ex?.name ?? 'Упражнение'
-    void notifyFriendsOfPR(supabase, {
-      userId: user.id,
-      exerciseName,
-      weightKg,
-      reps,
-      improvementPct: prResult.improvement_pct,
-    })
-    void emitWeightPr(supabase, {
-      sessionId,
-      exerciseId,
-      exerciseName: ex?.name ?? 'Exercise',
-      exerciseNameRu: ex?.name_ru ?? null,
-      weightKg,
-      reps,
-      improvementPct: prResult.improvement_pct,
-    })
+    await Promise.allSettled([
+      notifyFriendsOfPR(supabase, {
+        userId: user.id,
+        exerciseName,
+        weightKg,
+        reps,
+        improvementPct: prResult.improvement_pct,
+      }),
+      emitWeightPr(supabase, {
+        userId: user.id,
+        sessionId,
+        exerciseId,
+        exerciseName: ex?.name ?? 'Exercise',
+        exerciseNameRu: ex?.name_ru ?? null,
+        weightKg,
+        reps,
+        improvementPct: prResult.improvement_pct,
+      }),
+    ])
   }
 
   return { set, prResult }
@@ -209,7 +212,7 @@ export async function suggestExerciseAlternativesAction(
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, user.id, 'exercise_swap')
+    await consumeAiQuota(supabase, 'exercise_swap')
   } catch (e) {
     if (e instanceof AiQuotaExceededError) return []
     throw e
@@ -276,7 +279,7 @@ export async function suggestExercisesAction(query: string): Promise<ExerciseSug
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, user.id, 'exercise_suggest')
+    await consumeAiQuota(supabase, 'exercise_suggest')
   } catch (e) {
     if (e instanceof AiQuotaExceededError) return []
     throw e
@@ -352,7 +355,7 @@ export async function updateTemplateAction(
 const STREAK_FREEZES_PER_MONTH = 2
 
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
-  await verifySession()
+  const { user } = await verifySession()
   const supabase = await createClient()
 
   const allSets = await getSetsForSession(supabase, sessionId)
@@ -383,7 +386,7 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
   // Best-effort activity emits. This action ends in redirect(), which aborts
   // the function (throws) right after — await (not void) so these complete
   // and flush before that happens, rather than being cut off mid-flight.
-  await emitWorkoutFinished(supabase, sessionId, {
+  await emitWorkoutFinished(supabase, user.id, sessionId, {
     tonnageKg: totalVolume,
     durationMin,
     setCount,
@@ -403,7 +406,7 @@ export async function finishWorkoutAction(sessionId: string): Promise<void> {
       .limit(1)
     const priorBest = prior?.[0]?.total_volume_kg ?? 0
     if (totalVolume > 0 && totalVolume > priorBest) {
-      await emitVolumePr(supabase, sessionId, totalVolume)
+      await emitVolumePr(supabase, user.id, sessionId, totalVolume)
     }
 
     // Streak milestone — same calculateStreak call the dashboard makes.

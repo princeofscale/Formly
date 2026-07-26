@@ -2,16 +2,15 @@
 // caching. Caching scope (spec: docs/superpowers/specs/2026-07-19-offline-
 // workout-design.md):
 //   - static assets (hashed, immutable) → cache-first
-//   - /workout/<uuid> document navigations → network-first, cache fallback
-//   - other navigations → network, /offline fallback
+//   - navigations → network, /offline fallback
 //   - RSC payloads, /api/*, POST, cross-origin → untouched
+// Authenticated HTML is never cached: Cache Storage is shared by accounts
+// using the same browser profile.
 
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v2'
 const STATIC_CACHE = `tar-static-${CACHE_VERSION}`
 const PAGES_CACHE = `tar-pages-${CACHE_VERSION}`
 const OFFLINE_URL = '/offline'
-const WORKOUT_RE = /^\/workout\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-const NETWORK_TIMEOUT_MS = 3500
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -60,26 +59,6 @@ async function cacheFirst(request) {
   return response
 }
 
-async function networkFirstWorkout(request) {
-  const cache = await caches.open(PAGES_CACHE)
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), NETWORK_TIMEOUT_MS)
-  try {
-    const response = await fetch(request, { signal: controller.signal })
-    clearTimeout(timer)
-    if (response.ok) cache.put(request, response.clone())
-    return response
-  } catch (err) {
-    clearTimeout(timer)
-    // ignoreSearch: the workout URL may carry ?template=… — same page.
-    const cached = await cache.match(request, { ignoreSearch: true })
-    if (cached) return cached
-    const offline = await cache.match(OFFLINE_URL)
-    if (offline) return offline
-    throw err
-  }
-}
-
 async function networkWithOfflineFallback(request) {
   try {
     return await fetch(request)
@@ -107,11 +86,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.mode === 'navigate') {
-    if (WORKOUT_RE.test(url.pathname)) {
-      event.respondWith(networkFirstWorkout(request))
-    } else {
-      event.respondWith(networkWithOfflineFallback(request))
-    }
+    event.respondWith(networkWithOfflineFallback(request))
   }
 })
 
@@ -177,6 +152,10 @@ self.addEventListener('message', (event) => {
     if (restTimerId !== null) clearTimeout(restTimerId)
     restTimerId = null
     restTimerToken += 1
+  }
+
+  if (data.type === 'clear-private-data') {
+    event.waitUntil(caches.delete(PAGES_CACHE))
   }
 })
 

@@ -152,7 +152,7 @@ export async function getOrGenerateSessionDebriefAction(
   const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, user.id, 'session_debrief')
+    await consumeAiQuota(supabase, 'session_debrief')
   } catch (e) {
     if (e instanceof AiQuotaExceededError) return null
     throw e

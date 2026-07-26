@@ -8,6 +8,7 @@ import { finishWorkoutAction } from '@/app/(app)/workout/[id]/actions'
 import { enqueueFinish } from '@/lib/utils/offline-queue'
 
 interface Props {
+  userId: string
   sessionId: string
   /** Called when the finish couldn't reach the server and was queued instead. */
   onQueued?: () => void
@@ -23,7 +24,7 @@ function isOfflineError(err: unknown): boolean {
   )
 }
 
-export function FinishWorkoutButton({ sessionId, onQueued }: Props) {
+export function FinishWorkoutButton({ userId, sessionId, onQueued }: Props) {
   const t = useTranslations('workout')
   const [isPending, startTransition] = useTransition()
 
@@ -33,7 +34,7 @@ export function FinishWorkoutButton({ sessionId, onQueued }: Props) {
         await finishWorkoutAction(sessionId)
       } catch (err) {
         if (!isOfflineError(err)) throw err
-        await enqueueFinish(sessionId)
+        await enqueueFinish(sessionId, userId)
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('formly:set-queued'))
         }

@@ -21,7 +21,7 @@ export async function sendMessageAction(formData: FormData): Promise<void> {
   const id = await sendDirectMessage(supabase, friendId, body)
   if (id) {
     const myCode = await ensureFriendCode(supabase)
-    void notifyDirectMessage(supabase, {
+    await notifyDirectMessage(supabase, {
       recipientUserId: friendId,
       senderId: user.id,
       senderName: myCode ?? 'Друг',

@@ -155,6 +155,7 @@ export type Database = {
       set_entries: {
         Row: {
           calculated_1rm: number | null
+          client_mutation_id: string | null
           created_at: string
           exercise_id: string
           id: string
@@ -169,6 +170,7 @@ export type Database = {
         }
         Insert: {
           calculated_1rm?: number | null
+          client_mutation_id?: string | null
           created_at?: string
           exercise_id: string
           id?: string
@@ -183,6 +185,7 @@ export type Database = {
         }
         Update: {
           calculated_1rm?: number | null
+          client_mutation_id?: string | null
           created_at?: string
           exercise_id?: string
           id?: string
@@ -283,7 +286,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_ai_quota: {
+        Args: { p_kind: string }
+        Returns: Json
+      }
+      save_offline_set: {
+        Args: {
+          p_calculated_1rm: number | null
+          p_client_mutation_id: string
+          p_exercise_id: string
+          p_reps: number
+          p_rpe: number | null
+          p_session_id: string
+          p_set_number: number
+          p_weight_kg: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       cardio_activity:

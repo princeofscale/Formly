@@ -92,6 +92,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
   }
 
+  if (user) {
+    supabaseResponse.headers.set('Cache-Control', 'private, no-store')
+  }
+
   return supabaseResponse
 }
 
