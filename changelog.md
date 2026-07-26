@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Added a continuous-integration check that applies every database migration to an empty database. The existing checks run JavaScript only, so a migration that does not parse, or that names a type the schema no longer has, passed them all and failed at deployment time instead.
 - Restored push notifications for Edge on Windows. Tightening the stored endpoints to known browser push services left out Windows Push Notification Services, which hands out per-region hosts, so every Edge registration was rejected by the database. Subdomains of the WNS domain are now accepted, and a lookalike domain still is not.
 - Sent each reminder at most once per athlete per local day. Nothing recorded what had already gone out, so the daily and smart sweeps could both reach the same person in the same hour, and re-running a sweep sent everything a second time. A sweep now claims a delivery permit before it sends and stays quiet if one already exists.
 - Kept the offline page available after signing out. Clearing private data on sign-out deleted the whole page cache, whose only occupant is the public offline screen, so the next time the athlete lost signal the browser showed its own error page instead. The cache is now re-primed straight after it is cleared.

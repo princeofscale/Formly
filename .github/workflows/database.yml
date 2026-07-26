@@ -1,0 +1,51 @@
+name: Database
+
+# The JS checks cannot see a broken migration: a SQL file that does not parse,
+# or that references a type that no longer exists, still produces a green build
+# and a green test run. That gap shipped a coverage migration whose enum value
+# had been removed from the schema months earlier — it was caught by hand when
+# the deploy was attempted, not by CI.
+#
+# This workflow applies every migration to an empty database, which is the
+# check that would have caught it.
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/database.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/database.yml'
+
+jobs:
+  clean-apply:
+    name: Apply every migration to an empty database
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start the local stack
+        run: supabase start
+
+      # `db reset` drops and rebuilds from the migration files, so it fails on
+      # a file that does not parse, contradicts an earlier one, or trips its
+      # own verification block. Every migration here is expected to be
+      # self-checking rather than merely syntactically valid.
+      - name: Rebuild the schema from the migration files
+        run: supabase db reset
+
+      - name: List what was applied
+        if: always()
+        run: supabase migration list --local
+
+      - name: Collect logs on failure
+        if: failure()
+        run: supabase logs db || true
