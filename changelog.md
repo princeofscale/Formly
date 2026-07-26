@@ -17,7 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added a thread with the AI coach: ask about your own training or about training in general, from the coach card or from a “Why this?” link under any piece of advice or debrief point. Answers drawn from your data carry the figure they rest on; general recommendations say so outright. Limited to 20 questions a day.
 - Added 1:1 direct messaging with friends: open a thread from a friend's message icon, send messages (updated by polling + push), delete your own, see "seen" receipts, and track unread counts with a badge on the friend row. Blocking severs the conversation both ways.
 - Added per-profile IANA time zones and enabled the smart-reminders cron so schedules, streaks, measurements, AI days, and localized push copy follow each athlete's local day.
-- Added CodeQL analysis for pull requests, main-branch pushes, and weekly scheduled scans.
 
 ### Changed
 
