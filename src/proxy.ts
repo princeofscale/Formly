@@ -32,7 +32,7 @@ function isAuthRoute(path: string): boolean {
   return path === '/login' || path === '/register' || path === '/forgot-password'
 }
 
-function isPublic(path: string): boolean {
+export function isPublic(path: string): boolean {
   if (PUBLIC_EXACT.has(path)) return true
   if (path.startsWith('/login/') || path.startsWith('/register/')) return true
   if (path.startsWith('/privacy/') || path.startsWith('/terms/')) return true
@@ -43,10 +43,17 @@ function isCronRoute(path: string): boolean {
   return path.startsWith('/api/cron/')
 }
 
-function isPublicApiRoute(path: string): boolean {
+export function isPublicApiRoute(path: string): boolean {
   // Client-side error reporter — errors can happen on /login or /register
   // before a session cookie exists, so we never gate it on auth.
-  return path === '/api/errors'
+  if (path === '/api/errors') return true
+
+  // Shared workout cards. The readers are link crawlers, which carry no
+  // session, so gating this on one returns 401 to every one of them — the
+  // exact failure the shared snapshot was built to fix. The route is not
+  // unguarded: it serves only a token that exists and has not been revoked,
+  // and answers an unknown and a revoked token identically.
+  return path.startsWith('/api/og/share/')
 }
 
 export async function proxy(request: NextRequest) {
