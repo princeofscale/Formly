@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added a thread with the AI coach: ask about your own training or about training in general, from the coach card or from a “Why this?” link under any piece of advice or debrief point. Answers drawn from your data carry the figure they rest on; general recommendations say so outright. Limited to 20 questions a day.
 - Added 1:1 direct messaging with friends: open a thread from a friend's message icon, send messages (updated by polling + push), delete your own, see "seen" receipts, and track unread counts with a badge on the friend row. Blocking severs the conversation both ways.
 - Added per-profile IANA time zones and enabled the smart-reminders cron so schedules, streaks, measurements, AI days, and localized push copy follow each athlete's local day.
+- Added ten gym machines the catalog had no entry for at any equipment type: assisted pull-up and dip stations, machine lateral raise, machine pullover, pendulum and belt squats, the hip thrust machine, chest-supported row, machine back extension, and machine glute kickback — each with a Russian name, search aliases, and instructions.
 
 ### Changed
 
@@ -54,6 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Persisted locale in profiles, localized scheduled notifications, and changed daily/smart reminder calculations from UTC to each profile's time zone.
 - Preserved pre-upgrade offline queue records and added database validation plus safe cron fallback for profile time zones.
 - Eliminated workout-page previous-set N+1 reads, corrected server-action UUID validation, and made session deletion rely on its transactional cascade.
+- Merged the catalog rows that shared a Russian name but kept an English `name`, which the earlier deduplication pass skipped by design and which showed up as visible twins in the exercise picker. Workout history decides which row survives, saved templates are remapped in the same transaction, and walking lunges are renamed rather than merged because they are a separate movement from stationary dumbbell lunges.
 
 ### Removed
 
