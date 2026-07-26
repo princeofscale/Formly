@@ -12,4 +12,17 @@ describe('isSupportedPushEndpoint', () => {
     expect(isSupportedPushEndpoint('https://fcm.googleapis.com.evil.test/token')).toBe(false)
     expect(isSupportedPushEndpoint('https://user@fcm.googleapis.com/token')).toBe(false)
   })
+
+  it('accepts the regional WNS hosts Edge on Windows is handed', () => {
+    // Edge subscriptions land on a per-region host, so a fixed allowlist
+    // rejected every Windows athlete's registration.
+    expect(isSupportedPushEndpoint('https://wns2-bl2p.notify.windows.com/w/?token=abc')).toBe(true)
+    expect(isSupportedPushEndpoint('https://wns2-am3p.notify.windows.com/w/?token=abc')).toBe(true)
+    expect(isSupportedPushEndpoint('https://notify.windows.com/w/?token=abc')).toBe(true)
+  })
+
+  it('rejects a lookalike of the WNS domain', () => {
+    expect(isSupportedPushEndpoint('https://evilnotify.windows.com/w/')).toBe(false)
+    expect(isSupportedPushEndpoint('https://notify.windows.com.evil.test/w/')).toBe(false)
+  })
 })
