@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
@@ -10,9 +11,46 @@ import { createTemplate } from '@/lib/db/templates'
 import { getSessionSummary } from '@/lib/services/session-summary.service'
 import { generateDebrief, type SessionDebrief } from '@/lib/services/session-debrief.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
+import { createWorkoutShare } from '@/lib/services/workout-share.service'
 import type { TemplateExercise } from '@/lib/types/models'
 import { validateUuid } from '@/lib/utils/validators'
 import type { Json } from '@/lib/types/database.types'
+
+/**
+ * Publishes a finished workout as a card anyone with the link can load.
+ *
+ * Returns the absolute URL because the caller puts it on the clipboard. The
+ * origin comes from the request rather than a constant so a preview
+ * deployment hands out its own links instead of production's.
+ */
+export async function shareWorkoutAction(sessionId: string): Promise<string | null> {
+  const id = validateUuid(sessionId, 'sessionId')
+  const { user } = await verifySession()
+  const supabase = await createClient()
+
+  const share = await createWorkoutShare(supabase, user.id, id)
+  if (!share) return null
+
+  const requestHeaders = await headers()
+  const host = requestHeaders.get('host')
+  if (!host) return null
+  const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https'
+
+  return `${protocol}://${host}/api/og/share/${share.token}`
+}
+
+export async function revokeWorkoutShareAction(sessionId: string): Promise<void> {
+  const id = validateUuid(sessionId, 'sessionId')
+  const { user } = await verifySession()
+  const supabase = await createClient()
+
+  await supabase
+    .from('workout_shares')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('session_id', id)
+    .eq('user_id', user.id)
+    .is('revoked_at', null)
+}
 
 export async function deleteSessionAction(sessionId: string) {
   const id = validateUuid(sessionId, 'sessionId')

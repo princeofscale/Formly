@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.1...HEAD)
 
+### Added
+
+- Added a shareable link for a finished workout. The card could previously only be fetched by its owner, so a link pasted into a chat was crawled by a bot with no session and never rendered. A share is now its own record with its own random token, carrying a snapshot of what the card showed rather than a pointer to live data — editing or deleting the workout afterwards cannot change or leak anything through a link already sent. Sharing the same workout twice returns the same link, and it can be revoked.
+
 ### Fixed
 
 - Added a continuous-integration check that applies every database migration to an empty database. The existing checks run JavaScript only, so a migration that does not parse, or that names a type the schema no longer has, passed them all and failed at deployment time instead.

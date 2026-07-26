@@ -290,11 +290,54 @@ export type Database = {
           },
         ]
       }
+      workout_shares: {
+        Row: {
+          created_at: string
+          revoked_at: string | null
+          session_id: string
+          snapshot: Json
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          revoked_at?: string | null
+          session_id: string
+          snapshot: Json
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          revoked_at?: string | null
+          session_id?: string
+          snapshot?: Json
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_shares_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_shared_workout: {
+        Args: { p_token: string }
+        Returns: Json
+      }
+      claim_reminder_delivery: {
+        Args: { p_user_id: string; p_kind: string; p_local_date: string }
+        Returns: boolean
+      }
       consume_ai_quota: {
         Args: { p_kind: string }
         Returns: Json

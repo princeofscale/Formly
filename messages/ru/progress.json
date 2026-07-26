@@ -62,7 +62,12 @@
       "topLifts": "Топ упражнения",
       "setsShort": "сетов",
       "share": "Поделиться",
-      "shareCardTitle": "Моя тренировка"
+      "shareCardTitle": "Моя тренировка",
+      "copyLink": "Скопировать ссылку",
+      "linkCopied": "Ссылка скопирована",
+      "linkFailed": "Не удалось создать ссылку",
+      "revokeLink": "Отозвать",
+      "linkRevoked": "Ссылка отозвана"
     },
     "notesLabel": "Заметки",
     "repeat": "Повторить",
