@@ -52,7 +52,11 @@ jobs:
       - name: Check the committed types match the schema
         run: |
           supabase gen types typescript --local > /tmp/database.types.ts
-          if ! diff -u src/lib/types/database.types.ts /tmp/database.types.ts; then
+          # Blank lines ignored on both sides: how many newlines land at the
+          # end of a file survives a checkout and an artifact round trip
+          # differently, and no real drift in generated types is ever only
+          # whitespace at EOF.
+          if ! diff -u -B src/lib/types/database.types.ts /tmp/database.types.ts; then
             echo "::error::src/lib/types/database.types.ts is out of date. Download the generated-types artifact from this run and commit it."
             exit 1
           fi
