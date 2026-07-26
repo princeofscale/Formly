@@ -62,7 +62,12 @@
       "topLifts": "Top lifts",
       "setsShort": "sets",
       "share": "Share",
-      "shareCardTitle": "My workout"
+      "shareCardTitle": "My workout",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "linkFailed": "Could not create the link",
+      "revokeLink": "Revoke",
+      "linkRevoked": "Link revoked"
     },
     "notesLabel": "Notes",
     "repeat": "Repeat",

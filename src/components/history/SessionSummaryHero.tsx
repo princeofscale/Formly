@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Trophy, Timer, Layers, Zap, Share2 } from 'lucide-react'
+import { Trophy, Timer, Layers, Zap, Share2, Link2, Link2Off } from 'lucide-react'
+import { shareWorkoutAction, revokeWorkoutShareAction } from '@/app/(app)/history/actions'
 import type { SessionSummary } from '@/lib/services/session-summary.service'
 import { formatWeight, weightUnit } from '@/lib/units'
 
@@ -33,6 +35,39 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
   const t = useTranslations('history.summary')
   const locale = useLocale()
   const kg = weightUnit(locale)
+  const [linkState, setLinkState] = useState<'idle' | 'working' | 'copied' | 'failed' | 'revoked'>(
+    'idle',
+  )
+
+  // The card behind this link is a snapshot taken now, not a window onto the
+  // workout, so a link already sent keeps showing what it showed.
+  //
+  // Asking again for a workout that is already shared returns the same link
+  // rather than a second one, which is what makes "copy, then revoke" a
+  // complete way to withdraw a link shared at any point in the past.
+  async function copyLink() {
+    setLinkState('working')
+    try {
+      const url = await shareWorkoutAction(sessionId)
+      if (!url) throw new Error('no share url')
+      await navigator.clipboard.writeText(url)
+      setLinkState('copied')
+    } catch {
+      setLinkState('failed')
+      setTimeout(() => setLinkState('idle'), 2500)
+    }
+  }
+
+  async function revokeLink() {
+    setLinkState('working')
+    try {
+      await revokeWorkoutShareAction(sessionId)
+      setLinkState('revoked')
+    } catch {
+      setLinkState('failed')
+    }
+    setTimeout(() => setLinkState('idle'), 2500)
+  }
 
   const dt = summary.comparison?.deltaTonnagePct ?? null
   const deltaColor =
@@ -80,6 +115,32 @@ export function SessionSummaryHero({ summary, sessionId }: Props) {
           <Share2 className="h-3.5 w-3.5" />
           {t('share')}
         </button>
+        <button
+          type="button"
+          onClick={copyLink}
+          disabled={linkState === 'working'}
+          aria-label={t('copyLink')}
+          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold uppercase tracking-wider transition active:scale-95 disabled:opacity-50 bg-white/[0.06] text-white/70 ring-1 ring-white/10"
+        >
+          <Link2 className="h-3.5 w-3.5" />
+          {linkState === 'copied'
+            ? t('linkCopied')
+            : linkState === 'failed'
+              ? t('linkFailed')
+              : linkState === 'revoked'
+                ? t('linkRevoked')
+                : t('copyLink')}
+        </button>
+        {linkState === 'copied' && (
+          <button
+            type="button"
+            onClick={revokeLink}
+            className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold uppercase tracking-wider transition active:scale-95 bg-white/[0.06] text-white/55 ring-1 ring-white/10"
+          >
+            <Link2Off className="h-3.5 w-3.5" />
+            {t('revokeLink')}
+          </button>
+        )}
       </div>
 
       {/* Big stats row */}
