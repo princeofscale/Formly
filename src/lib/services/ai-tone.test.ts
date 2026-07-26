@@ -22,5 +22,13 @@ describe('aiToneBlock', () => {
 
   it('requires gender-neutral phrasing', () => {
     expect(aiToneBlock('ru')).toMatch(/gender-neutral/i)
+    expect(aiToneBlock('ru')).toContain('результат вырос')
+  })
+
+  it('grounds claims in the kind of evidence supplied by the task', () => {
+    const block = aiToneBlock('en')
+    expect(block).toMatch(/factual claims/i)
+    expect(block).toMatch(/categorical attributes/i)
+    expect(block).not.toMatch(/every statement in a number/i)
   })
 })

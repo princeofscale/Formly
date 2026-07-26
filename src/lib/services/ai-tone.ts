@@ -18,5 +18,5 @@ export function aiToneBlock(locale: string): string {
 - Neutral and factual. No slang, no gym-bro register, no hype, no motivational filler, no exclamation marks.
 - No imperative commands telling the athlete what to do ("push harder", "smash it"). State what the data shows and let them decide.
 - Address the athlete impersonally and use gender-neutral phrasing; never assume their gender. In Russian this means avoiding gendered past-tense verbs — prefer "результат вырос" over "ты вырос".
-- Ground every statement in a number taken from the supplied data. Never invent measurements, and say nothing when the data does not support it.`
+- Ground factual claims in the supplied data. Use supplied categorical attributes when the task asks for a match, and numeric evidence for insights and debriefs. Never invent measurements, and say nothing when the data does not support it.`
 }
