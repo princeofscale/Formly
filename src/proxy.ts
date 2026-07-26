@@ -13,6 +13,11 @@ const PUBLIC_EXACT = new Set<string>([
   '/auth/confirm',
   '/privacy',
   '/terms',
+  // The service worker caches this at install time, before anyone has signed
+  // in. Gating it sent that fetch to /login, and the Cache API refuses to
+  // store a redirected response — so the offline fallback was never cached at
+  // all, and the failure was swallowed by the install handler's catch.
+  '/offline',
   '/manifest.webmanifest',
   '/icon',
   '/apple-icon',

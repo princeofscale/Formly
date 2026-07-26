@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Restored the offline fallback, which had never worked. The service worker caches that page when it installs — before anyone has signed in — but the page required a session, so the fetch was redirected to the sign-in page and the browser refused to store a redirected response. The install handler swallowed the refusal, leaving no fallback to serve and nothing to notice.
 - Made the failure screen reach every page and actually render. It sat inside the signed-in section, so onboarding and the sign-in pages still fell back to the browser's own error page — and it asked for wording its own section never handed to the browser, so the screen would have failed while reporting a failure. It now sits at the root with its wording alongside.
 - Stopped four more reads outside the data layer from reporting a failure as an empty result: monthly volume, the four-week volume landmarks, the history list's set counts, and the streak-milestone check.
 
