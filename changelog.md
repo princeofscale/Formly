@@ -4,6 +4,14 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.1 - 2026-07-26
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.2.0...v1.2.1)
+
+### Fixed
+
+- Moved the hourly daily-reminder and smart-reminder sweeps off Vercel cron and onto a GitHub Actions schedule. A Hobby account rejects any cron that runs more than once a day, so the 1.2.0 production deployment failed on the configuration before any code was built. The sweeps have to run hourly to reach each athlete in their own local hour, so shortening them to once a day would have removed the point of the per-profile time zones shipped in the same release. The endpoints authorize on `CRON_SECRET` rather than on the caller, so the schedule can live outside Vercel unchanged. The nightly session auto-finish stays on Vercel cron, which is within the Hobby limit.
+
 ## 1.2.0 - 2026-07-26
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...v1.2.0)

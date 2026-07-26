@@ -1,0 +1,54 @@
+name: Reminders
+
+# Vercel Hobby accounts reject any cron that runs more than once a day, so the
+# two hourly reminder sweeps live here instead of in vercel.json. The routes
+# authorize on a Bearer CRON_SECRET rather than on the caller's identity, so an
+# external scheduler is equivalent to Vercel's own.
+#
+# GitHub's scheduler is best-effort and can fire several minutes late. Both
+# sweeps already pick recipients by their local hour and skip anyone outside
+# it, so a late run reaches the same people; it does not shift anybody's
+# reminder into the wrong hour.
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+    - cron: '15 * * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which sweep to run
+        required: true
+        default: both
+        type: choice
+        options: [both, daily, smart]
+
+concurrency:
+  group: reminders
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Daily reminders
+        if: github.event.schedule == '0 * * * *' || contains(fromJSON('["both","daily"]'), inputs.target)
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$BASE_URL" || { echo "PRODUCTION_URL variable is not set"; exit 1; }
+          curl --fail-with-body --silent --show-error --max-time 300 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/cron/daily-reminders"
+
+      - name: Smart reminders
+        if: github.event.schedule == '15 * * * *' || contains(fromJSON('["both","smart"]'), inputs.target)
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$BASE_URL" || { echo "PRODUCTION_URL variable is not set"; exit 1; }
+          curl --fail-with-body --silent --show-error --max-time 300 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/cron/smart-reminders"
