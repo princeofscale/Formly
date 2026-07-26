@@ -54,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Persisted locale in profiles, localized scheduled notifications, and changed daily/smart reminder calculations from UTC to each profile's time zone.
 - Preserved pre-upgrade offline queue records and added database validation plus safe cron fallback for profile time zones.
 - Eliminated workout-page previous-set N+1 reads, corrected server-action UUID validation, and made session deletion rely on its transactional cascade.
+- Stopped verifying the session on public pages for visitors who carry no session cookie. Every request, including a first visit to the sign-in page, waited on a network call to Supabase Auth before any HTML was sent. Private routes are unaffected and still verify on every request.
 - Stopped smart reminders from telling every athlete they had skipped shoulders. The reminder built its list from a `shoulders` muscle label that left the database enum in favour of front, side, and rear delts, so the lookup never matched a logged set. Lat work now counts towards back for the same reason.
 - Merged the catalog rows that shared a Russian name but kept an English `name`, which the earlier deduplication pass skipped by design and which showed up as visible twins in the exercise picker. Workout history decides which row survives, saved templates are remapped in the same transaction, and walking lunges are renamed rather than merged because they are a separate movement from stationary dumbbell lunges.
 
