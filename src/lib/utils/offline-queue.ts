@@ -19,7 +19,7 @@ export interface QueuedSetPayload {
 
 export interface QueuedSetRecord {
   id: string
-  ownerId: string
+  ownerId?: string
   payload: QueuedSetPayload
   queuedAt: number
 }
@@ -71,7 +71,9 @@ export async function getQueuedSets(ownerId: string): Promise<QueuedSetRecord[]>
     const req = tx.objectStore(STORE).getAll()
     req.onsuccess = () =>
       resolve(
-        ((req.result as QueuedSetRecord[]) ?? []).filter((record) => record.ownerId === ownerId),
+        ((req.result as QueuedSetRecord[]) ?? []).filter((record) =>
+          isRecordForOwner(record, ownerId),
+        ),
       )
     req.onerror = () => reject(req.error)
   })
@@ -91,7 +93,7 @@ export async function removeQueuedSet(id: string): Promise<void> {
 
 export interface QueuedFinishRecord {
   id: string
-  ownerId: string
+  ownerId?: string
   sessionId: string
   queuedAt: number
 }
@@ -101,6 +103,14 @@ export function hasQueuedFinish(records: QueuedFinishRecord[], sessionId: string
   return records.some((r) => r.sessionId === sessionId)
 }
 
+/** Records created before v3 have no owner; the server verifies their session ownership. */
+export function isRecordForOwner(
+  record: Pick<QueuedSetRecord | QueuedFinishRecord, 'ownerId'>,
+  ownerId: string,
+): boolean {
+  return record.ownerId === undefined || record.ownerId === ownerId
+}
+
 export async function getQueuedFinishes(ownerId: string): Promise<QueuedFinishRecord[]> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
@@ -108,7 +118,9 @@ export async function getQueuedFinishes(ownerId: string): Promise<QueuedFinishRe
     const req = tx.objectStore(FINISH_STORE).getAll()
     req.onsuccess = () =>
       resolve(
-        ((req.result as QueuedFinishRecord[]) ?? []).filter((record) => record.ownerId === ownerId),
+        ((req.result as QueuedFinishRecord[]) ?? []).filter((record) =>
+          isRecordForOwner(record, ownerId),
+        ),
       )
     req.onerror = () => reject(req.error)
   })

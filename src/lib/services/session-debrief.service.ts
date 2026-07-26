@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type { SessionSummary } from './session-summary.service'
 
 /** One debrief bullet: the observation plus the figure it rests on. */
@@ -51,23 +52,6 @@ interface DebriefContext {
   locale: 'ru' | 'en'
   summary: SessionSummary
   rpe: { avg: number | null; max: number | null; samples: number }
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 export async function generateDebrief(ctx: DebriefContext): Promise<SessionDebrief> {
@@ -129,7 +113,7 @@ Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}
     ],
   })
 
-  const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
   let items: DebriefPoint[]
   try {
     const parsed = JSON.parse(raw)

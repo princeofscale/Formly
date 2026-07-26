@@ -1,5 +1,6 @@
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type { Exercise } from '@/lib/types/models'
 
 export interface AlternativeSuggestion {
@@ -13,23 +14,6 @@ interface PickContext {
   candidates: Array<
     Pick<Exercise, 'id' | 'name' | 'name_ru' | 'primary_muscle' | 'equipment' | 'mechanic'>
   >
-}
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
 }
 
 export async function pickAlternatives(ctx: PickContext): Promise<AlternativeSuggestion[]> {
@@ -73,7 +57,7 @@ Return ONLY valid JSON: {"items":[{"exercise_id":"<uuid>","reason":"<short, max 
     ],
   })
 
-  const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
   let items: AlternativeSuggestion[]
   try {
     const parsed = JSON.parse(raw)

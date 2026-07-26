@@ -44,6 +44,7 @@ export interface Profile {
   training_location: TrainingLocation | null
   training_schedule: number[]
   locale: string | null
+  time_zone: string
   share_activity: boolean
   created_at: string
 }

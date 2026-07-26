@@ -20,6 +20,7 @@ import { getStrengthRatios } from '@/lib/services/strength-standards.service'
 import { weightUnit } from '@/lib/units'
 import Link from 'next/link'
 import { Camera, Dumbbell, Ruler, Sigma, TrendingUp } from 'lucide-react'
+import { dateKeyInTimeZone } from '@/lib/utils/time-zone'
 
 const PERIOD_DAYS: Record<string, number> = {
   '7d': 7,
@@ -49,8 +50,8 @@ export default async function ProgressPage({
   // Single round-trip for the heavy reads.
   const [exercises, performedIds, profileResult, bestSetResult, measurements] = await Promise.all([
     getExercises(supabase, user.id),
-    getPerformedExerciseIds(supabase, user.id),
-    supabase.from('profiles').select('weight_kg, height_cm').eq('id', user.id).single(),
+    getPerformedExerciseIds(supabase),
+    supabase.from('profiles').select('weight_kg, height_cm, time_zone').eq('id', user.id).single(),
     supabase
       .from('set_entries')
       .select('weight_kg, reps, exercise_id, exercises(name, name_ru)')
@@ -84,7 +85,7 @@ export default async function ProgressPage({
   const days = PERIOD_DAYS[periodKey] ?? 30
   const since = new Date()
   since.setDate(since.getDate() - days)
-  const sinceIso = since.toISOString().slice(0, 10)
+  const sinceIso = dateKeyInTimeZone(since, profileResult.data?.time_zone ?? 'UTC')
   const periodHistory = fullHistory.filter((p) => p.date >= sinceIso)
   const periodVolume = fullVolume.filter((p) => p.date >= sinceIso)
 

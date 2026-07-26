@@ -6,6 +6,12 @@ import {
   type PushSubscriptionRow,
 } from '@/lib/db/push-subscriptions'
 import { generatePushHook, type PushHookContext } from '@/lib/services/push-hook.service'
+import {
+  dateKeyInTimeZone,
+  hourInTimeZone,
+  isoWeekday,
+  validTimeZoneOrUtc,
+} from '@/lib/utils/time-zone'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,9 +20,10 @@ interface SessionRow {
   started_at: string
 }
 
-function isoDayOfWeek(date: Date): number {
-  const d = date.getUTCDay()
-  return d === 0 ? 7 : d
+interface ProfileRow {
+  id: string
+  locale: 'ru' | 'en'
+  time_zone: string
 }
 
 /**
@@ -24,8 +31,8 @@ function isoDayOfWeek(date: Date): number {
  *
  * Heuristic:
  * - Look at the last 8 weeks of finished sessions per user.
- * - For each ISO weekday, take the median hour (UTC) of the first set started.
- * - If current UTC hour matches that weekday's median, send a push.
+ * - For each ISO weekday, take the median local hour of the session start.
+ * - If the current local hour matches that weekday's median, send a push.
  * - Require >= 3 sessions on this weekday in the window (avoid one-offs).
  * - Skip users who already started a session today.
  */
@@ -41,40 +48,59 @@ export async function GET(request: Request) {
 
   const supabase = createAdminClient()
   const now = new Date()
-  const todayWeekday = isoDayOfWeek(now)
-  const currentHour = now.getUTCHours()
-  const todayIso = now.toISOString().slice(0, 10)
 
   // Window: last 8 weeks (56 days)
   const windowStart = new Date(now)
   windowStart.setUTCDate(now.getUTCDate() - 56)
 
   // Fetch sessions for everyone with a push subscription
-  const { data: subsData } = await supabase.from('push_subscriptions').select('*')
+  const { data: subsData, error: subsError } = await supabase.from('push_subscriptions').select('*')
+  if (subsError) {
+    return NextResponse.json({ error: subsError.message }, { status: 500 })
+  }
 
   const allSubs = (subsData as PushSubscriptionRow[]) ?? []
   if (allSubs.length === 0) {
     return NextResponse.json({ candidates: 0, sent: 0 })
   }
   const userIds = Array.from(new Set(allSubs.map((s) => s.user_id)))
+  const { data: profilesData, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, locale, time_zone')
+    .in('id', userIds)
+  if (profilesError) {
+    return NextResponse.json({ error: profilesError.message }, { status: 500 })
+  }
+  const profileByUser = new Map(
+    ((profilesData as ProfileRow[]) ?? []).map((profile) => [
+      profile.id,
+      { ...profile, time_zone: validTimeZoneOrUtc(profile.time_zone) },
+    ]),
+  )
 
   // Pull recent sessions in one query
-  const { data: sessionsData } = await supabase
+  const { data: sessionsData, error: sessionsError } = await supabase
     .from('workout_sessions')
     .select('user_id, started_at')
     .in('user_id', userIds)
     .not('finished_at', 'is', null)
     .gte('started_at', windowStart.toISOString())
+  if (sessionsError) {
+    return NextResponse.json({ error: sessionsError.message }, { status: 500 })
+  }
 
   const sessions = (sessionsData as SessionRow[]) ?? []
 
   // Group hours per (user, weekday)
   const hoursByUserDow = new Map<string, number[]>()
   for (const s of sessions) {
+    const profile = profileByUser.get(s.user_id)
+    if (!profile) continue
     const d = new Date(s.started_at)
-    const dow = isoDayOfWeek(d)
-    if (dow !== todayWeekday) continue
-    const hour = d.getUTCHours()
+    const sessionDate = dateKeyInTimeZone(d, profile.time_zone)
+    const todayDate = dateKeyInTimeZone(now, profile.time_zone)
+    if (isoWeekday(sessionDate) !== isoWeekday(todayDate)) continue
+    const hour = hourInTimeZone(d, profile.time_zone)
     const key = s.user_id
     const list = hoursByUserDow.get(key) ?? []
     list.push(hour)
@@ -89,8 +115,10 @@ export async function GET(request: Request) {
   // Eligible users: median UTC hour for today == currentHour, >=3 samples
   const eligibleUsers: string[] = []
   for (const [userId, hours] of hoursByUserDow) {
+    const profile = profileByUser.get(userId)
+    if (!profile) continue
     if (hours.length < 3) continue
-    if (medianHour(hours) !== currentHour) continue
+    if (medianHour(hours) !== hourInTimeZone(now, profile.time_zone)) continue
     eligibleUsers.push(userId)
   }
 
@@ -103,14 +131,26 @@ export async function GET(request: Request) {
   }
 
   // Skip users who already started a session today
-  const { data: todaySessions } = await supabase
+  const { data: todaySessions, error: todaySessionsError } = await supabase
     .from('workout_sessions')
-    .select('user_id')
+    .select('user_id, started_at')
     .in('user_id', eligibleUsers)
-    .gte('started_at', todayIso + 'T00:00:00Z')
+    .gte('started_at', new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString())
+  if (todaySessionsError) {
+    return NextResponse.json({ error: todaySessionsError.message }, { status: 500 })
+  }
 
   const startedToday = new Set(
-    ((todaySessions as { user_id: string }[]) ?? []).map((r) => r.user_id),
+    ((todaySessions as SessionRow[]) ?? [])
+      .filter((session) => {
+        const profile = profileByUser.get(session.user_id)
+        return (
+          profile &&
+          dateKeyInTimeZone(new Date(session.started_at), profile.time_zone) ===
+            dateKeyInTimeZone(now, profile.time_zone)
+        )
+      })
+      .map((session) => session.user_id),
   )
   const toNotify = eligibleUsers.filter((id) => !startedToday.has(id))
 
@@ -134,9 +174,12 @@ export async function GET(request: Request) {
   // Build personalized hook per user from their recent training data.
   // Falls back to a generic string if the AI call fails for any reason —
   // we never want to skip a notification because of an LLM hiccup.
-  const FALLBACK_BODY = 'Привычное время тренировки. Готов начать?'
+  const fallbackBody = (locale: 'ru' | 'en') =>
+    locale === 'ru'
+      ? 'Привычное время тренировки. Готов начать?'
+      : 'It is your usual training time. Ready to start?'
 
-  async function buildContext(userId: string): Promise<PushHookContext> {
+  async function buildContext(userId: string, profile: ProfileRow): Promise<PushHookContext> {
     const sevenDaysAgo = new Date(now)
     sevenDaysAgo.setUTCDate(now.getUTCDate() - 7)
 
@@ -176,7 +219,7 @@ export async function GET(request: Request) {
     for (const r of recent) {
       const ex = r.exercises
       if (!ex) continue
-      const name = ex.name_ru ?? ex.name
+      const name = profile.locale === 'ru' ? (ex.name_ru ?? ex.name) : ex.name
       if (!seenExercises.has(name)) {
         seenExercises.set(name, { name, lastWeightKg: r.weight_kg, lastReps: r.reps })
       }
@@ -200,7 +243,7 @@ export async function GET(request: Request) {
     const underworked = ALL_MUSCLES.filter((m) => (muscleSets.get(m) ?? 0) < 3)
 
     return {
-      locale: 'ru',
+      locale: profile.locale,
       lastSessionDaysAgo,
       recentExercises: Array.from(seenExercises.values()).slice(0, 5),
       topMusclesByVolumeLast7d: topMuscles,
@@ -217,11 +260,15 @@ export async function GET(request: Request) {
     const results = await Promise.all(
       batch.map(async (uid) => {
         try {
-          const ctx = await buildContext(uid)
-          const body = await generatePushHook(ctx, FALLBACK_BODY)
+          const profile = profileByUser.get(uid)
+          if (!profile) throw new Error('Profile not found')
+          const fallback = fallbackBody(profile.locale)
+          const ctx = await buildContext(uid, profile)
+          const body = await generatePushHook(ctx, fallback)
           return [uid, body] as const
         } catch {
-          return [uid, FALLBACK_BODY] as const
+          const locale = profileByUser.get(uid)?.locale ?? 'ru'
+          return [uid, fallbackBody(locale)] as const
         }
       }),
     )
@@ -234,7 +281,7 @@ export async function GET(request: Request) {
   for (const [userId, userSubs] of subsByUser) {
     const payload = {
       title: 'Formly ⏰',
-      body: bodyByUser.get(userId) ?? FALLBACK_BODY,
+      body: bodyByUser.get(userId) ?? fallbackBody(profileByUser.get(userId)?.locale ?? 'ru'),
       url: '/workout/new',
     }
     for (const sub of userSubs) {

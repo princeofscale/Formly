@@ -1,4 +1,5 @@
 import type { StreakInfo } from '@/lib/types/models'
+import { dateKeyInTimeZone } from '@/lib/utils/time-zone'
 
 function isoDayOfWeek(date: Date): number {
   const d = date.getUTCDay()
@@ -34,6 +35,7 @@ export function calculateStreak(
   trainingSchedule: number[],
   now: Date = new Date(),
   maxFreezesPerMonth = 0,
+  timeZone = 'UTC',
 ): StreakInfo {
   const workoutSet = new Set(workoutDates)
   const lastWorkoutDate = workoutDates[0] ?? null
@@ -49,11 +51,10 @@ export function calculateStreak(
   }
 
   const scheduleSet = new Set(trainingSchedule)
-  const todayIso = toIso(now)
+  const todayIso = dateKeyInTimeZone(now, timeZone)
 
   const scheduledDays: { iso: string; completed: boolean; isToday: boolean }[] = []
-  const cursor = new Date(now)
-  cursor.setUTCHours(0, 0, 0, 0)
+  const cursor = new Date(`${todayIso}T12:00:00Z`)
   for (let i = 0; i < 730; i++) {
     const dow = isoDayOfWeek(cursor)
     if (scheduleSet.has(dow)) {

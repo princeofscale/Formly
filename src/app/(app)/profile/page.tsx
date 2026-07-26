@@ -10,6 +10,7 @@ import { ShareActivityToggle } from '@/components/profile/ShareActivityToggle'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { InstallAppButton } from '@/components/profile/InstallAppButton'
 import { SignOutButton } from '@/components/profile/SignOutButton'
+import { TimeZoneField } from '@/components/profile/TimeZoneField'
 import { verifySession } from '@/lib/dal'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types/models'
@@ -64,7 +65,7 @@ export default async function ProfilePage() {
   const totalWorkouts = lifetimeStats.total_sessions
   const totalTonnage = lifetimeStats.total_tonnage_kg
   const schedule = (p?.training_schedule as number[] | null) ?? []
-  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), 2)
+  const streakInfo = calculateStreak(workoutDates, schedule, new Date(), 2, p?.time_zone ?? 'UTC')
   const longestStreak = streakInfo.longest
 
   const bmi = p?.weight_kg && p?.height_cm ? calculateBMI(p.weight_kg, p.height_cm) : null
@@ -298,6 +299,7 @@ export default async function ProfilePage() {
         )}
 
         <input type="hidden" name="locale" value={locale} />
+        <TimeZoneField current={p?.time_zone ?? 'UTC'} />
 
         <Button
           type="submit"

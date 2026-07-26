@@ -7,13 +7,19 @@ import { MeasurementHistory } from '@/components/progress/MeasurementHistory'
 import { MeasurementSparks } from '@/components/progress/MeasurementSparks'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import { dateKeyInTimeZone } from '@/lib/utils/time-zone'
 
 export default async function MeasurementsPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
   const t = await getTranslations('progress.measurements')
 
-  const today = new Date().toISOString().slice(0, 10)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('time_zone')
+    .eq('id', user.id)
+    .maybeSingle()
+  const today = dateKeyInTimeZone(new Date(), profile?.time_zone ?? 'UTC')
   const [todayEntry, history] = await Promise.all([
     getMeasurementForDate(supabase, user.id, today),
     getRecentMeasurements(supabase, user.id, 30),

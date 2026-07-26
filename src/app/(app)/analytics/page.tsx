@@ -28,7 +28,7 @@ export default async function AnalyticsPage({
 
   const [exercises, performedIds, tonnage, muscleVolumes] = await Promise.all([
     getExercises(supabase, user.id),
-    getPerformedExerciseIds(supabase, user.id),
+    getPerformedExerciseIds(supabase),
     getMonthlyTonnage(supabase, user.id),
     getWeeklyMuscleVolume(supabase, user.id, 4),
   ])

@@ -3,6 +3,7 @@
 // impossible by construction — invalid indices are simply dropped.
 import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
+import { mistralContentToText } from './mistral-content'
 import type { Exercise } from '@/lib/types/models'
 
 export interface SuggestPick {
@@ -13,23 +14,6 @@ export interface SuggestPick {
 export type CatalogEntry = Pick<Exercise, 'name' | 'name_ru' | 'primary_muscle' | 'equipment'>
 
 const REQUEST_TIMEOUT_MS = 10_000
-
-function contentToText(content: unknown): string {
-  if (typeof content === 'string') return content
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (typeof part === 'string') return part
-        if (part && typeof part === 'object' && 'text' in part) {
-          const text = (part as { text?: unknown }).text
-          return typeof text === 'string' ? text : ''
-        }
-        return ''
-      })
-      .join('')
-  }
-  return ''
-}
 
 export function serializeCatalog(catalog: CatalogEntry[]): string {
   const clean = (s: string) => s.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim()
@@ -108,7 +92,7 @@ Return ONLY valid JSON: {"items":[{"index":<number>,"reason":"<why this matches>
       { fetchOptions: { signal: controller.signal } },
     )
 
-    const raw = contentToText(response.choices[0]?.message?.content) || '{}'
+    const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
     return parseSuggestions(raw, ctx.catalog.length)
   } finally {
     clearTimeout(timeout)

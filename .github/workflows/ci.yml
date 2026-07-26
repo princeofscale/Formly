@@ -48,6 +48,9 @@ jobs:
       - name: Knip
         run: npm run knip
 
+      - name: Production dependency audit
+        run: npm run audit
+
       - name: Test
         run: npm run test
 

@@ -4,14 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
-import {
-  addSet,
-  getSetsForSession,
-  getBestWeightForExercise,
-  updateSet,
-  deleteSet,
-} from '@/lib/db/sets'
-import { finishSession, updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
+import { addSet, getBestWeightForExercise, updateSet, deleteSet } from '@/lib/db/sets'
+import { updateSessionNotes, updateSessionMood } from '@/lib/db/workouts'
 import { getExercises } from '@/lib/db/exercises'
 import { pickAlternatives } from '@/lib/services/exercise-alternatives.service'
 import { suggestFromCatalog } from '@/lib/services/exercise-suggest.service'
@@ -25,12 +19,7 @@ import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { detectPRFromHistory } from '@/lib/services/pr.service'
 import { notifyFriendsOfPR } from '@/lib/services/pr-notifications.service'
 import { calculateWarmupSets } from '@/lib/services/warmup.service'
-import {
-  emitWeightPr,
-  emitWorkoutFinished,
-  emitVolumePr,
-  maybeEmitStreakMilestone,
-} from '@/lib/services/activity.service'
+import { emitWeightPr, maybeEmitStreakMilestone } from '@/lib/services/activity.service'
 import { getFinishedSessionDates } from '@/lib/db/streak'
 import { calculateStreak } from '@/lib/services/streak.service'
 import {
@@ -41,6 +30,7 @@ import {
   validateWeightKg,
 } from '@/lib/utils/validators'
 import type { Exercise, SetEntry, PRResult, TemplateExercise } from '@/lib/types/models'
+import type { Json } from '@/lib/types/database.types'
 
 export async function saveSetAction(data: {
   sessionId: string
@@ -121,7 +111,7 @@ export async function addWarmupSetsAction(data: {
   workingWeightKg: number
   startingSetNumber: number
 }): Promise<{ sets: SetEntry[] }> {
-  const { user } = await verifySession()
+  await verifySession()
   const supabase = await createClient()
 
   const sessionId = validateUuid(data.sessionId, 'sessionId')
@@ -133,23 +123,17 @@ export async function addWarmupSetsAction(data: {
   if (plan.length === 0) return { sets: [] }
 
   // Insert sequentially so set_number ordering matches the ramp order.
-  const inserted: SetEntry[] = []
-  for (let i = 0; i < plan.length; i++) {
-    const p = plan[i]
-    const set = await addSet(supabase, {
-      sessionId,
-      userId: user.id,
-      exerciseId,
-      setNumber: startingSetNumber + i,
-      weightKg: p.weightKg,
-      reps: p.reps,
-      calculated1rm: null, // warmups don't count toward PR
-      isWarmup: true,
-    })
-    inserted.push(set)
-  }
-
-  return { sets: inserted }
+  const { data: inserted, error } = await supabase.rpc('add_warmup_sets', {
+    p_session_id: sessionId,
+    p_exercise_id: exerciseId,
+    p_starting_set_number: startingSetNumber,
+    p_sets: plan.map(({ weightKg, reps: warmupReps }) => ({
+      weight_kg: weightKg,
+      reps: warmupReps,
+    })) as Json,
+  })
+  if (error) throw new Error(error.message)
+  return { sets: (inserted as unknown as SetEntry[]) ?? [] }
 }
 
 export async function updateSetAction(data: {
@@ -357,69 +341,20 @@ const STREAK_FREEZES_PER_MONTH = 2
 export async function finishWorkoutAction(sessionId: string): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
+  const id = validateUuid(sessionId, 'sessionId')
+  const { error } = await supabase.rpc('finish_workout', { p_session_id: id })
+  if (error) throw new Error(error.message)
 
-  const allSets = await getSetsForSession(supabase, sessionId)
-  const totalVolume = allSets
-    .filter((s) => !s.is_warmup)
-    .reduce((sum, s) => sum + s.weight_kg * s.reps, 0)
-
-  await finishSession(supabase, sessionId, totalVolume)
-
-  const workingSets = allSets.filter((s) => !s.is_warmup)
-  const setCount = workingSets.length
-  const exerciseCount = new Set(workingSets.map((s) => s.exercise_id)).size
-  const { data: sess } = await supabase
-    .from('workout_sessions')
-    .select('started_at, finished_at, user_id')
-    .eq('id', sessionId)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('training_schedule, time_zone')
+    .eq('id', user.id)
     .maybeSingle()
-  const durationMin =
-    sess?.started_at && sess?.finished_at
-      ? Math.max(
-          0,
-          Math.round(
-            (new Date(sess.finished_at).getTime() - new Date(sess.started_at).getTime()) / 60000,
-          ),
-        )
-      : 0
-
-  // Best-effort activity emits. This action ends in redirect(), which aborts
-  // the function (throws) right after — await (not void) so these complete
-  // and flush before that happens, rather than being cut off mid-flight.
-  await emitWorkoutFinished(supabase, user.id, sessionId, {
-    tonnageKg: totalVolume,
-    durationMin,
-    setCount,
-    exerciseCount,
-  })
-
-  if (sess?.user_id) {
-    // Volume PR: this session's tonnage beats every prior finished strength session.
-    const { data: prior } = await supabase
-      .from('workout_sessions')
-      .select('total_volume_kg')
-      .eq('user_id', sess.user_id)
-      .not('finished_at', 'is', null)
-      .neq('session_type', 'cardio')
-      .neq('id', sessionId)
-      .order('total_volume_kg', { ascending: false })
-      .limit(1)
-    const priorBest = prior?.[0]?.total_volume_kg ?? 0
-    if (totalVolume > 0 && totalVolume > priorBest) {
-      await emitVolumePr(supabase, user.id, sessionId, totalVolume)
-    }
-
-    // Streak milestone — same calculateStreak call the dashboard makes.
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('training_schedule')
-      .eq('id', sess.user_id)
-      .maybeSingle()
-    const schedule: number[] = profile?.training_schedule ?? []
-    const dates = await getFinishedSessionDates(supabase, sess.user_id)
-    const streak = calculateStreak(dates, schedule, new Date(), STREAK_FREEZES_PER_MONTH)
-    await maybeEmitStreakMilestone(supabase, sess.user_id, streak.current)
-  }
+  const schedule: number[] = profile?.training_schedule ?? []
+  const timeZone = profile?.time_zone ?? 'UTC'
+  const dates = await getFinishedSessionDates(supabase, user.id)
+  const streak = calculateStreak(dates, schedule, new Date(), STREAK_FREEZES_PER_MONTH, timeZone)
+  await maybeEmitStreakMilestone(supabase, user.id, streak.current)
 
   revalidatePath('/dashboard')
   revalidatePath('/history')

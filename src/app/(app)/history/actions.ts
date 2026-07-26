@@ -11,23 +11,30 @@ import { getSessionSummary } from '@/lib/services/session-summary.service'
 import { generateDebrief, type SessionDebrief } from '@/lib/services/session-debrief.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
 import type { TemplateExercise } from '@/lib/types/models'
+import { validateUuid } from '@/lib/utils/validators'
+import type { Json } from '@/lib/types/database.types'
 
 export async function deleteSessionAction(sessionId: string) {
+  const id = validateUuid(sessionId, 'sessionId')
   const { user } = await verifySession()
   const supabase = await createClient()
 
   const { data: session } = await supabase
     .from('workout_sessions')
     .select('user_id')
-    .eq('id', sessionId)
+    .eq('id', id)
     .single()
 
   if (!session || session.user_id !== user.id) {
     throw new Error('Not found')
   }
 
-  await supabase.from('set_entries').delete().eq('session_id', sessionId)
-  await supabase.from('workout_sessions').delete().eq('id', sessionId)
+  const { error } = await supabase
+    .from('workout_sessions')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+  if (error) throw new Error(error.message)
 
   revalidatePath('/history')
   redirect('/history')
@@ -42,6 +49,7 @@ interface SetRow {
 }
 
 export async function repeatWorkoutAction(sourceSessionId: string): Promise<void> {
+  const sourceId = validateUuid(sourceSessionId, 'sourceSessionId')
   const { user } = await verifySession()
   const supabase = await createClient()
 
@@ -49,7 +57,7 @@ export async function repeatWorkoutAction(sourceSessionId: string): Promise<void
   const { data: source } = await supabase
     .from('workout_sessions')
     .select('user_id, started_at')
-    .eq('id', sourceSessionId)
+    .eq('id', sourceId)
     .single()
   if (!source || source.user_id !== user.id) {
     throw new Error('Source session not found')
@@ -59,7 +67,7 @@ export async function repeatWorkoutAction(sourceSessionId: string): Promise<void
   const { data: setsData } = await supabase
     .from('set_entries')
     .select('exercise_id, set_number, weight_kg, reps, exercises(id, name, name_ru)')
-    .eq('session_id', sourceSessionId)
+    .eq('session_id', sourceId)
     .order('created_at', { ascending: true })
 
   const rows = (setsData ?? []) as unknown as SetRow[]
@@ -105,6 +113,7 @@ export async function repeatWorkoutAction(sourceSessionId: string): Promise<void
 export async function getOrGenerateSessionDebriefAction(
   sessionId: string,
 ): Promise<SessionDebrief | null> {
+  const id = validateUuid(sessionId, 'sessionId')
   const { user } = await verifySession()
   const supabase = await createClient()
 
@@ -113,7 +122,7 @@ export async function getOrGenerateSessionDebriefAction(
     // ai_debrief column was added via migration but isn't in the generated
     // Database types yet — cast through unknown to keep TS happy.
     .select('user_id, finished_at, ai_debrief')
-    .eq('id', sessionId)
+    .eq('id', id)
     .single()
 
   const session = sessionRaw as unknown as {
@@ -131,7 +140,7 @@ export async function getOrGenerateSessionDebriefAction(
     if (Array.isArray(cached.items) && cached.items.length > 0) return cached
   }
 
-  const summary = await getSessionSummary(supabase, user.id, sessionId)
+  const summary = await getSessionSummary(supabase, user.id, id)
   if (!summary || summary.totalSets === 0) return null
 
   // RPE stats from this session
@@ -139,7 +148,7 @@ export async function getOrGenerateSessionDebriefAction(
     .from('set_entries')
     .select('rpe')
     .eq('user_id', user.id)
-    .eq('session_id', sessionId)
+    .eq('session_id', id)
     .not('rpe', 'is', null)
 
   const rpeValues = ((rpeRows ?? []) as { rpe: number }[]).map((r) => r.rpe)
@@ -167,12 +176,10 @@ export async function getOrGenerateSessionDebriefAction(
 
   if (debrief.items.length === 0) return null
 
-  // Cache for future loads. Bypass generated types since ai_debrief is a
-  // newly-added column not yet reflected in Database typings.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from('workout_sessions') as any)
-    .update({ ai_debrief: debrief })
-    .eq('id', sessionId)
+  await supabase
+    .from('workout_sessions')
+    .update({ ai_debrief: debrief as unknown as Json })
+    .eq('id', id)
     .eq('user_id', user.id)
 
   return debrief

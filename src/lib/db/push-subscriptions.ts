@@ -55,14 +55,3 @@ export async function getUserSubscriptions(
   const { data } = await supabase.from('push_subscriptions').select('*').eq('user_id', userId)
   return (data as PushSubscriptionRow[]) ?? []
 }
-
-export async function hasPushSubscription(
-  supabase: SupabaseClient,
-  userId: string,
-): Promise<boolean> {
-  const { count } = await supabase
-    .from('push_subscriptions')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-  return (count ?? 0) > 0
-}

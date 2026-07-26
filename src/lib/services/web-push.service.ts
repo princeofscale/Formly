@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import type { PushSubscriptionRow } from '@/lib/db/push-subscriptions'
+import { isSupportedPushEndpoint } from '@/lib/utils/push-endpoint'
 
 let configured = false
 
@@ -37,6 +38,10 @@ export async function sendPushToSubscription(
   payload: PushPayload,
 ): Promise<SendResult> {
   configure()
+
+  if (!isSupportedPushEndpoint(sub.endpoint)) {
+    return { endpoint: sub.endpoint, ok: false, expired: true, error: 'Unsupported push endpoint' }
+  }
 
   try {
     await webpush.sendNotification(

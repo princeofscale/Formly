@@ -1,19 +1,4 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ExerciseNote } from '@/lib/types/models'
-
-export async function getExerciseNote(
-  supabase: SupabaseClient,
-  userId: string,
-  exerciseId: string,
-): Promise<ExerciseNote | null> {
-  const { data } = await supabase
-    .from('exercise_notes')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('exercise_id', exerciseId)
-    .maybeSingle()
-  return (data as ExerciseNote | null) ?? null
-}
 
 export async function getExerciseNotesForExercises(
   supabase: SupabaseClient,

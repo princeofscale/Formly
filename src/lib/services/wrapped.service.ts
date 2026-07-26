@@ -174,17 +174,23 @@ export async function getWrappedReport(
   >()
 
   if (sessionIds.length > 0) {
-    // Pull sets in chunks if very large (Supabase row limit ~1000 by default — bump to 10k explicitly)
-    const { data: setRows } = await supabase
-      .from('set_entries')
-      .select(
-        'exercise_id, reps, weight_kg, is_warmup, created_at, exercises(name, name_ru, primary_muscle)',
-      )
-      .eq('user_id', userId)
-      .in('session_id', sessionIds)
-      .limit(10000)
+    const setRows: unknown[] = []
+    const pageSize = 1000
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await supabase
+        .from('set_entries')
+        .select(
+          'exercise_id, reps, weight_kg, is_warmup, created_at, exercises(name, name_ru, primary_muscle)',
+        )
+        .eq('user_id', userId)
+        .in('session_id', sessionIds)
+        .range(offset, offset + pageSize - 1)
+      if (error) throw new Error(error.message)
+      setRows.push(...(data ?? []))
+      if (!data || data.length < pageSize) break
+    }
 
-    const rows = (setRows ?? []) as unknown as Array<{
+    const rows = setRows as Array<{
       exercise_id: string
       reps: number
       weight_kg: number

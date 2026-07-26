@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Json } from '@/lib/types/database.types'
 
 export type AiKind =
   | 'exercise_swap'
@@ -21,12 +22,11 @@ export class AiQuotaExceededError extends Error {
 }
 
 export async function consumeAiQuota(supabase: SupabaseClient, kind: AiKind): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const client = supabase as any
-  const { data, error } = await client.rpc('consume_ai_quota', { p_kind: kind })
+  const { data, error } = await supabase.rpc('consume_ai_quota', { p_kind: kind })
+  const result = data as Extract<Json, { [key: string]: Json | undefined }> | null
 
-  if (error || typeof data?.allowed !== 'boolean' || typeof data?.limit !== 'number') {
+  if (error || typeof result?.allowed !== 'boolean' || typeof result?.limit !== 'number') {
     throw new Error('AI quota check failed')
   }
-  if (!data.allowed) throw new AiQuotaExceededError(kind, data.limit)
+  if (!result.allowed) throw new AiQuotaExceededError(kind, result.limit)
 }

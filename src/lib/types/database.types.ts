@@ -107,12 +107,14 @@ export type Database = {
           height_cm: number | null
           id: string
           last_streak_milestone: number
+          locale: string
           share_activity: boolean
           training_location:
             | Database["public"]["Enums"]["training_location"]
             | null
           training_schedule: number[] | null
           training_since: string | null
+          time_zone: string
           unit_system: string
           weight_kg: number | null
         }
@@ -124,12 +126,14 @@ export type Database = {
           height_cm?: number | null
           id: string
           last_streak_milestone?: number
+          locale?: string
           share_activity?: boolean
           training_location?:
             | Database["public"]["Enums"]["training_location"]
             | null
           training_schedule?: number[] | null
           training_since?: string | null
+          time_zone?: string
           unit_system?: string
           weight_kg?: number | null
         }
@@ -141,12 +145,14 @@ export type Database = {
           height_cm?: number | null
           id?: string
           last_streak_milestone?: number
+          locale?: string
           share_activity?: boolean
           training_location?:
             | Database["public"]["Enums"]["training_location"]
             | null
           training_schedule?: number[] | null
           training_since?: string | null
+          time_zone?: string
           unit_system?: string
           weight_kg?: number | null
         }
@@ -224,6 +230,7 @@ export type Database = {
       }
       workout_sessions: {
         Row: {
+          ai_debrief: Json | null
           cardio_activity: Database["public"]["Enums"]["cardio_activity"] | null
           cardio_avg_hr: number | null
           cardio_calories: number | null
@@ -240,6 +247,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_debrief?: Json | null
           cardio_activity?: Database["public"]["Enums"]["cardio_activity"] | null
           cardio_avg_hr?: number | null
           cardio_calories?: number | null
@@ -256,6 +264,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_debrief?: Json | null
           cardio_activity?: Database["public"]["Enums"]["cardio_activity"] | null
           cardio_avg_hr?: number | null
           cardio_calories?: number | null
@@ -290,6 +299,58 @@ export type Database = {
         Args: { p_kind: string }
         Returns: Json
       }
+      claim_test_push: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      complete_onboarding: {
+        Args: {
+          p_location: Database["public"]["Enums"]["training_location"] | null
+          p_schedule: number[]
+          p_templates: Json
+        }
+        Returns: undefined
+      }
+      add_warmup_sets: {
+        Args: {
+          p_exercise_id: string
+          p_session_id: string
+          p_sets: Json
+          p_starting_set_number: number
+        }
+        Returns: Database["public"]["Tables"]["set_entries"]["Row"][]
+      }
+      finish_workout: {
+        Args: { p_session_id: string }
+        Returns: Json
+      }
+      finish_my_stale_sessions: {
+        Args: { p_idle_hours?: number }
+        Returns: number
+      }
+      get_last_sets_for_exercises: {
+        Args: {
+          p_current_session: string
+          p_exercise_ids: string[]
+        }
+        Returns: Database["public"]["Tables"]["set_entries"]["Row"][]
+      }
+      get_performed_exercise_ids: {
+        Args: Record<PropertyKey, never>
+        Returns: Array<{ exercise_id: string; last_performed_at: string }>
+      }
+      get_last_weights_for_exercises: {
+        Args: { p_exercise_ids: string[] }
+        Returns: Array<{ exercise_id: string; weight_kg: number }>
+      }
+      get_finished_session_dates: {
+        Args: { p_user_id: string }
+        Returns: Array<{ date: string }>
+      }
+      save_workout_templates: {
+        Args: { p_templates: Json }
+        Returns: number
+      }
       save_offline_set: {
         Args: {
           p_calculated_1rm: number | null
@@ -302,6 +363,13 @@ export type Database = {
           p_weight_kg: number
         }
         Returns: Json
+      }
+      save_body_metrics: {
+        Args: {
+          p_height_cm: number
+          p_weight_kg: number
+        }
+        Returns: undefined
       }
     }
     Enums: {
