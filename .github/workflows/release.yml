@@ -24,6 +24,19 @@ jobs:
     steps:
       - name: Checkout release
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # A tag matching v*.*.* is the deploy trigger, and until now any such tag
+      # would do — including one pushed from a branch that never reached main.
+      # Production only ever ships reviewed history.
+      - name: Refuse a tag that is not on main
+        run: |
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at a commit that is not on main"
+            exit 1
+          fi
 
       - name: Deploy with Vercel production environment
         run: npx vercel@53.3.1 deploy --yes --prod --token=${{ secrets.VERCEL_TOKEN }}
