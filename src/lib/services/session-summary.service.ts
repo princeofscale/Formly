@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { dropWarmupSets } from './warmup.service'
 
 export interface SessionPR {
   exerciseId: string
@@ -11,7 +12,10 @@ export interface SessionPR {
 
 export interface SessionSummary {
   durationMinutes: number | null
+  /** Everything logged, warm-ups included — this is what the athlete sees. */
   totalSets: number
+  /** Warm-ups and hand-logged ramps removed. What the AI coach judges. */
+  workingSets: number
   totalReps: number
   totalVolumeKg: number
   topExercises: Array<{
@@ -19,6 +23,7 @@ export interface SessionSummary {
     name: string
     nameRu: string | null
     volume: number
+    /** Working sets only, for the same reason as `workingSets`. */
     sets: number
   }>
   prs: SessionPR[]
@@ -52,15 +57,19 @@ export async function getSessionSummary(
   // All sets of this session, joined with exercise names
   const { data: setRows } = await supabase
     .from('set_entries')
-    .select('exercise_id, weight_kg, reps, is_warmup, exercises(name, name_ru)')
+    .select(
+      'exercise_id, session_id, weight_kg, reps, is_warmup, created_at, exercises(name, name_ru)',
+    )
     .eq('user_id', userId)
     .eq('session_id', sessionId)
 
   const sets = (setRows ?? []) as unknown as Array<{
     exercise_id: string
+    session_id: string
     weight_kg: number
     reps: number
     is_warmup: boolean | null
+    created_at: string
     exercises:
       | { name: string; name_ru: string | null }
       | { name: string; name_ru: string | null }[]
@@ -72,7 +81,7 @@ export async function getSessionSummary(
   let totalVolumeKg = 0
   const perExercise = new Map<
     string,
-    { name: string; nameRu: string | null; volume: number; sets: number; bestWeight: number }
+    { name: string; nameRu: string | null; volume: number; bestWeight: number }
   >()
 
   for (const s of sets) {
@@ -84,13 +93,19 @@ export async function getSessionSummary(
       name: ex?.name ?? '',
       nameRu: ex?.name_ru ?? null,
       volume: 0,
-      sets: 0,
       bestWeight: 0,
     }
     entry.volume += s.weight_kg * s.reps
-    entry.sets += 1
     if (!s.is_warmup && s.weight_kg > entry.bestWeight) entry.bestWeight = s.weight_kg
     perExercise.set(s.exercise_id, entry)
+  }
+
+  // Set counts the coach reads must be working sets: a 3-step ramp before
+  // 5 real sets otherwise reads as 8 hard sets and gets called overtraining.
+  const workingSets = dropWarmupSets(sets)
+  const workingSetsByExercise = new Map<string, number>()
+  for (const s of workingSets) {
+    workingSetsByExercise.set(s.exercise_id, (workingSetsByExercise.get(s.exercise_id) ?? 0) + 1)
   }
 
   const topExercises = Array.from(perExercise.entries())
@@ -99,7 +114,7 @@ export async function getSessionSummary(
       name: v.name,
       nameRu: v.nameRu,
       volume: Math.round(v.volume),
-      sets: v.sets,
+      sets: workingSetsByExercise.get(exerciseId) ?? 0,
     }))
     .sort((a, b) => b.volume - a.volume)
     .slice(0, 3)
@@ -187,6 +202,7 @@ export async function getSessionSummary(
   return {
     durationMinutes,
     totalSets,
+    workingSets: workingSets.length,
     totalReps,
     totalVolumeKg: Math.round(totalVolumeKg),
     topExercises,

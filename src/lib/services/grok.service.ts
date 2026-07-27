@@ -75,6 +75,11 @@ Each object must have:
 
 Return 4-5 useful items: exactly one "today", one or two "progression", one "prediction", optionally one "warning" only when the data supports it.
 
+Every set count in the data is a working set — warm-ups are already excluded.
+Volume landmark status means: "mv" = below maintenance, "optimal" = productive range,
+"mrv" = at the recoverable ceiling. Raise an overtraining "warning" only for a muscle
+whose status is "mrv"; a high set count on its own is not overtraining.
+
 ${aiToneBlock(ctx.locale)}
 
 Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanation.`

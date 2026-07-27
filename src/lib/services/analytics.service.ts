@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { MuscleVolume, VolumeLandmark, MuscleGroup } from '@/lib/types/models'
 import { calculateSessionVolume } from '@/lib/utils/muscle-volume'
+import { dropWarmupSets, type LoggedSetShape } from './warmup.service'
 import { unwrapRows } from '@/lib/db/unwrap'
 
 export interface TonnageByMonth {
@@ -8,7 +9,7 @@ export interface TonnageByMonth {
   total_kg: number
 }
 
-interface ExerciseMuscleRow {
+interface ExerciseMuscleRow extends LoggedSetShape {
   exercise_id: string
   exercises: {
     primary_muscle: MuscleGroup
@@ -61,7 +62,9 @@ export async function getMuscleVolumeForDays(
   const data = unwrapRows(
     await supabase
       .from('set_entries')
-      .select('exercise_id, exercises(primary_muscle, secondary_muscles)')
+      .select(
+        'exercise_id, session_id, weight_kg, created_at, exercises(primary_muscle, secondary_muscles)',
+      )
       .eq('user_id', userId)
       .eq('is_warmup', false)
       .gte('created_at', since.toISOString()),
@@ -74,7 +77,10 @@ export async function getMuscleVolumeForDays(
     { primary_muscle: MuscleGroup; secondary_muscles: MuscleGroup[]; setCount: number }
   >()
 
-  for (const row of data as unknown as ExerciseMuscleRow[]) {
+  // Weekly set counts drive the MRV/overtraining landmarks. A hand-logged
+  // warm-up ramp carries no `is_warmup` flag, so without this it inflates
+  // every muscle's weekly volume by the size of the ramp.
+  for (const row of dropWarmupSets(data as unknown as ExerciseMuscleRow[])) {
     const ex = row.exercises
     if (!ex) continue
     const existing = exerciseMap.get(row.exercise_id)

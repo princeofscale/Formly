@@ -70,6 +70,9 @@ Cover whatever is most informative from the data given:
 - Specific exercise that stood out (highest volume)
 - A SINGLE practical observation for next session
 
+Set counts are working sets: warm-ups are already excluded. Never call a single
+session too much volume or overtraining — one workout is not evidence of that.
+
 Split each bullet in two: "text" is the observation, "evidence" is the bare figure it
 rests on — the weight, the volume, the RPE, the session count. Keep "evidence" to a few
 characters ("82.5 kg × 8", "RPE 7.8", "+12% volume"), with no sentence around it. An
@@ -82,7 +85,7 @@ Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}
 
   const userPrompt = JSON.stringify({
     summary: {
-      total_sets: ctx.summary.totalSets,
+      total_sets: ctx.summary.workingSets,
       total_reps: ctx.summary.totalReps,
       total_volume_kg: ctx.summary.totalVolumeKg,
       duration_minutes: ctx.summary.durationMinutes,

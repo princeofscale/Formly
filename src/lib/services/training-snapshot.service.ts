@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getWeeklyMuscleVolume, getVolumeLandmarks } from './analytics.service'
 import { getProgressionSuggestion } from './progression.service'
+import { dropWarmupSets } from './warmup.service'
 import type { GrokContext } from './grok.service'
 import type { ProgressionSuggestion, SetEntry } from '@/lib/types/models'
 
@@ -24,6 +25,7 @@ interface RecentSetRow {
   rest_seconds: number | null
   user_id: string
   created_at: string
+  is_warmup: boolean | null
   exercises: { name: string; name_ru: string | null } | null
 }
 
@@ -35,7 +37,9 @@ function buildProgressionOpportunities(
   const byExercise = new Map<string, RecentSetRow[]>()
   const latestSessionPerExercise = new Map<string, string>()
 
-  for (const row of rows) {
+  // A ramp of 8/5/3 reps at half the working weight makes every exercise look
+  // like it stalled, so the coach never suggests adding weight.
+  for (const row of dropWarmupSets(rows)) {
     const prevSession = latestSessionPerExercise.get(row.exercise_id)
     if (!prevSession) {
       latestSessionPerExercise.set(row.exercise_id, row.session_id)
@@ -105,7 +109,7 @@ export async function buildTrainingSnapshot(
       supabase
         .from('set_entries')
         .select(
-          'id, session_id, exercise_id, set_number, weight_kg, reps, rpe, calculated_1rm, rest_seconds, user_id, created_at, exercises(name, name_ru)',
+          'id, session_id, exercise_id, set_number, weight_kg, reps, rpe, calculated_1rm, rest_seconds, user_id, created_at, is_warmup, exercises(name, name_ru)',
         )
         .eq('user_id', userId)
         .gte('created_at', since14days.toISOString())
