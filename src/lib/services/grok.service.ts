@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type {
   MuscleVolume,
   VolumeLandmark,
@@ -58,11 +57,6 @@ export function parseInsightsResponse(raw: string): AIInsightItem[] {
 }
 
 export async function generateInsights(ctx: GrokContext): Promise<AIInsights> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
-  const client = new Mistral({ apiKey })
-
   const systemPrompt = `You are a personal fitness coach AI for a workout tracking app.
 Analyze the user's training data and return a JSON object with an "items" array.
 
@@ -93,18 +87,16 @@ Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanati
     progression_opportunities: ctx.progression_opportunities,
   })
 
-  const response = await client.chat.complete({
-    model: 'mistral-large-latest',
-    temperature: 0.3,
-    maxTokens: 800,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-  })
-
-  const raw = mistralContentToText(response.choices[0]?.message?.content) || '[]'
+  // The coach card runs on Grok 4.5 through the CheapVibeCode gateway. The file
+  // is still called grok.service.ts because it always was — it predates the
+  // spell in production that had it on Mistral.
+  const raw =
+    (await cvcChat({
+      system: systemPrompt,
+      user: userPrompt,
+      temperature: 0.3,
+      maxTokens: 800,
+    })) || '[]'
 
   let items: AIInsightItem[]
   try {
