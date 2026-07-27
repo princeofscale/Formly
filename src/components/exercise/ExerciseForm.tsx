@@ -6,24 +6,9 @@ import { useTranslations } from 'next-intl'
 import { Plus, X, Check, Loader2 } from 'lucide-react'
 import { createExerciseAction } from '@/app/(app)/exercise-library/actions'
 import type { Exercise } from '@/lib/types/models'
+import { MUSCLE_VALUES } from '@/lib/utils/muscle-groups'
 
-const MUSCLES = [
-  'chest',
-  'back',
-  'biceps',
-  'triceps',
-  'forearms',
-  'core',
-  'quads',
-  'hamstrings',
-  'glutes',
-  'calves',
-  'traps',
-  'lats',
-  'rear_delts',
-  'front_delts',
-  'side_delts',
-] as const
+const MUSCLES = MUSCLE_VALUES
 const EQUIPMENT = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'other'] as const
 const MECHANIC = ['compound', 'isolation'] as const
 

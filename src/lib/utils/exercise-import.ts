@@ -45,7 +45,7 @@ const MUSCLE_MAP: Record<string, MuscleGroup> = {
   glutes: 'glutes',
   hamstrings: 'hamstrings',
   lats: 'lats',
-  'lower back': 'back',
+  'lower back': 'lower_back',
   'middle back': 'back',
   neck: 'traps',
   quadriceps: 'quads',

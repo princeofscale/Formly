@@ -9,8 +9,8 @@
  * untrained to every athlete on every run.
  */
 const MUSCLE_SOURCES: Readonly<Record<string, readonly string[]>> = {
-  chest: ['chest'],
-  back: ['back', 'lats'],
+  chest: ['chest', 'chest_upper', 'chest_lower'],
+  back: ['back', 'lats', 'lower_back'],
   quads: ['quads'],
   hamstrings: ['hamstrings'],
   glutes: ['glutes'],

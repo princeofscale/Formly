@@ -6,24 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { verifySession } from '@/lib/dal'
 import { deleteExercise } from '@/lib/db/exercises'
 import type { MuscleGroup, Exercise } from '@/lib/types/models'
-
-const MUSCLE_VALUES = [
-  'chest',
-  'back',
-  'biceps',
-  'triceps',
-  'forearms',
-  'core',
-  'quads',
-  'hamstrings',
-  'glutes',
-  'calves',
-  'traps',
-  'lats',
-  'rear_delts',
-  'front_delts',
-  'side_delts',
-] as const
+import { MUSCLE_VALUES } from '@/lib/utils/muscle-groups'
 
 const exerciseSchema = z.object({
   name: z.string().min(2).max(100),

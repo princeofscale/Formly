@@ -214,11 +214,19 @@ export async function getOrGenerateSessionDebriefAction(
 
   if (debrief.items.length === 0) return null
 
+  // ai_title is denormalized out of the debrief so the dashboard and history
+  // lists can name a workout with one column instead of parsing every JSON blob.
   await supabase
     .from('workout_sessions')
-    .update({ ai_debrief: debrief as unknown as Json })
+    .update({
+      ai_debrief: debrief as unknown as Json,
+      ...(debrief.title ? { ai_title: debrief.title } : {}),
+    })
     .eq('id', id)
     .eq('user_id', user.id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/history')
 
   return debrief
 }

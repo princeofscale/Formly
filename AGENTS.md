@@ -301,9 +301,24 @@ Never claim a command passed unless it was run successfully. Report skipped or f
 - `Unreleased` compares the latest tag with `HEAD`.
 - Normal development does not change the version or create a tag.
 - Patch releases are the default. Use a minor release only for a substantial feature set or product milestone.
-- Release tags use `vX.Y.Z` and are the only production deployment trigger.
+- Release tags use `vX.Y.Z`. Publishing a GitHub Release on such a tag is the only production deployment trigger — pushing the tag alone deploys nothing.
+- Every version that has a heading in `changelog.md` must have a matching published GitHub Release.
 - Do not create a version, tag, GitHub Release, or production deployment unless explicitly requested.
 - During a release, align `package.json`, `package-lock.json`, the README version badge, and `changelog.md`.
+
+## Privacy policy and terms of service
+
+`src/app/privacy/page.tsx` and `src/app/terms/page.tsx` describe what the product actually does with the athlete's data. They are part of the change, not documentation of it.
+
+Update the affected page in the same change whenever the work:
+
+- collects, stores, or derives a new kind of data (a new column, table, measurement, upload, or log);
+- sends data to a third party or adds one (AI provider, hosting, analytics, push service);
+- changes retention, deletion, export, or account removal;
+- adds or alters a paid, shared, or public surface (sharing links, friends, leaderboards, messaging);
+- changes what a user may or may not do with the service, or what the operator is liable for.
+
+Bump `LEGAL_LAST_UPDATED` in `src/lib/legal.ts` whenever either page changes materially, and note the change in `changelog.md`.
 
 Do not commit `.env*`, `.vercel/`, build output, local indexes, credentials, or ignored workspace files.
 

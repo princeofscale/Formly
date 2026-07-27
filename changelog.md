@@ -4,7 +4,32 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.5.2 - 2026-07-27
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.2...HEAD)
+
+### Added
+
+- The catalog now distinguishes the regions of a muscle that answer to different work: upper, middle and lower chest, the lower back inside "back", the obliques inside "core" and the soleus inside "calves". Analytics reports the week's sets per region while judging under- and over-training on the muscle as a whole, so an athlete who only ever presses flat can finally see it. Existing exercises are re-tagged from what their names already say — an incline press is upper chest — and exercises you created yourself keep the muscle you gave them.
+- A finished workout is now named by the coach: "Chest and triceps" instead of "Barbell Bench Press · Crunches". The name is written in the same reply as the post-workout debrief, so it costs no extra request and no extra AI allowance, and it appears on the dashboard, in history and on the workout itself. Workouts finished before this, and any where the coach could not be reached, keep the exercise list as their name.
+- Height now has a history chart of its own on the Progress screen. Weight and height share the card and swap by tapping either stat; they never share an axis, because a centimetre and a kilogram on one scale draw a body change that did not happen.
+- Notes written against an exercise during a workout now stay with that workout, and appear under the exercise on its page in history. Starting the same exercise in a later session gives you an empty note instead of a remark about a seat height from three weeks ago. Existing notes are kept and attached to the most recent workout that contained the exercise.
+
+### Changed
+
+- Production now deploys only when a GitHub Release is published. Pushing a `vX.Y.Z` tag no longer deploys anything on its own: a tag is bookkeeping, a release is a decision, and until now the two were the same gesture. The release workflow additionally refuses a release whose tag is not `vX.Y.Z` or does not sit on `main`.
+- Published the missing GitHub Releases for 1.5.0, 1.5.1 and 1.5.2, which existed as tags and as changelog entries but not as releases.
+- Rewrote the privacy policy and the terms of service. Both were carrying `prose prose-invert` without the Tailwind typography plugin installed, so every heading, list and paragraph in them rendered at browser defaults; both now have a document layout with a contents list, numbered sections and a legal-body stylesheet. The Russian text moves from second-person informal to the register these documents are supposed to be written in, and both documents now describe the friends feed, reactions and comments, direct messages, shareable workout links, the AI coach thread and the daily AI allowance — all of which shipped in 1.5.0 and none of which the policy mentioned.
+- Added a rule to `AGENTS.md`: a change that touches what data is collected, where it goes, who can see it, or what the operator answers for must update the privacy policy or the terms in the same change.
+
+### Fixed
+
+- A friend is no longer shown as "in the gym" hours after leaving it. Presence was "has an unfinished session started in the last six hours", which is a description of a closed tab as much as of a workout; it is now the athlete's last logged set, and the dot goes out after 45 minutes of nothing.
+- The AI program generator now says what went wrong. Every failure inside it reached the browser as Next.js's own paragraph — "An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included…" — which the screen printed at the athlete verbatim, under a heading saying the program could not be generated and with no indication of whether to wait, retry or change anything. The allowance being spent, the model returning nothing usable, and everything else are now three written messages, and the cause is recorded in the server log where that digest was pointing all along. The route also declares its own function timeout rather than inheriting a platform default, since a seven-day program is the longest single model call in the application.
+- A day the program generator filled entirely with exercises that are not in your library no longer renders as a blank card.
+- Removed the scrollbars from the app. On Profile a lifetime tonnage in the millions pushed the stats card wider than the phone, which put a second scrollbar along the bottom of the page; the number now gives way instead, and the scrollbar chrome is gone throughout. Scrolling by wheel, key and touch is unchanged.
+- Translated the last English fragments on the Progress screen — "kg", "hold" and "30d" on the major-lift cards — and the "TOP" badge in history.
+- The smart reminder no longer reports chest or back as untrained when the week's work went into a region of them.
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.1...v1.5.2)
 

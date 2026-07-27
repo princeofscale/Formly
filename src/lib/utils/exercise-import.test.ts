@@ -29,7 +29,8 @@ describe('mapMuscle', () => {
   it('maps known source muscles to our enum', () => {
     expect(mapMuscle('abdominals')).toBe('core')
     expect(mapMuscle('quadriceps')).toBe('quads')
-    expect(mapMuscle('lower back')).toBe('back')
+    expect(mapMuscle('lower back')).toBe('lower_back')
+    expect(mapMuscle('middle back')).toBe('back')
     expect(mapMuscle('shoulders')).toBe('side_delts')
   })
 
@@ -117,9 +118,9 @@ describe('toImportedRow', () => {
   })
 
   it('deduplicates secondary muscles that map to the same value', () => {
-    const row = toImportedRow(src({ secondaryMuscles: ['lower back', 'middle back'] }), {
+    const row = toImportedRow(src({ secondaryMuscles: ['abductors', 'glutes'] }), {
       name_ru: 'Жим',
     })
-    expect(row.secondary_muscles).toEqual(['back'])
+    expect(row.secondary_muscles).toEqual(['glutes'])
   })
 })

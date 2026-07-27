@@ -1,14 +1,16 @@
-import Link from 'next/link'
 import { getLocale } from 'next-intl/server'
-import { ChevronLeft } from 'lucide-react'
+import { LegalDocument, type LegalSection } from '@/components/legal/LegalDocument'
 import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
-//   This is a STARTER privacy policy template tailored to Formly's actual
-//   data flow (Supabase auth + DB, Vercel hosting, Mistral AI, Web Push).
-//   It is NOT legal advice. Before shipping to app stores or to users in
-//   regulated regions (EU, UK, California, Russia), have a lawyer review.
-//   You MUST fill in: contact email, your legal name/handle, jurisdiction.
+//   This policy is written against Formly's actual data flow (Supabase auth,
+//   database and storage; Vercel hosting; Mistral AI; Web Push). It is not
+//   legal advice. Before distribution through an app store, or to users in a
+//   regulated region, have it reviewed by a lawyer.
+//
+//   AGENTS.md § "Privacy policy and terms of service": any change that touches
+//   what data is collected, where it goes, or who can see it must be reflected
+//   here in the same change.
 
 export const metadata = {
   title: 'Privacy Policy — Formly',
@@ -19,315 +21,655 @@ export default async function PrivacyPage() {
   const locale = await getLocale()
   const ru = locale === 'ru'
 
-  return (
-    <div className="min-h-screen bg-[#050510] text-white">
-      <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-100"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {ru ? 'Назад' : 'Back'}
-        </Link>
+  const contact = LEGAL_CONTACT
+  const operator = LEGAL_OPERATOR
+  const mailto = (
+    <a href={`mailto:${contact}`} className="break-all">
+      {contact}
+    </a>
+  )
 
-        <article className="prose prose-invert mt-6 max-w-none">
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            {ru ? 'Политика конфиденциальности' : 'Privacy Policy'}
-          </h1>
-          <p className="text-xs uppercase tracking-widest text-white/40">
-            {ru ? 'Обновлено' : 'Last updated'}: {LEGAL_LAST_UPDATED}
+  const sections: LegalSection[] = ru ? privacyRu(mailto, operator) : privacyEn(mailto, operator)
+
+  return (
+    <LegalDocument
+      eyebrow={ru ? 'Правовые документы' : 'Legal'}
+      title={ru ? 'Политика конфиденциальности' : 'Privacy Policy'}
+      backLabel={ru ? 'На главную' : 'Home'}
+      contentsLabel={ru ? 'Содержание' : 'Contents'}
+      meta={[
+        { label: ru ? 'Редакция от' : 'Last updated', value: LEGAL_LAST_UPDATED },
+        { label: ru ? 'Оператор' : 'Operator', value: operator },
+        { label: ru ? 'Контакт' : 'Contact', value: contact },
+      ]}
+      intro={
+        ru ? (
+          <>
+            <p>
+              Настоящая Политика конфиденциальности определяет порядок обработки персональных данных
+              и данных о состоянии здоровья пользователей сервиса Formly (далее — «Сервис»).
+              Оператором обработки выступает {operator} (далее — «Оператор»).
+            </p>
+            <p>
+              Используя Сервис, пользователь подтверждает, что ознакомлен с настоящей Политикой.
+              Термины, не определённые в тексте, применяются в значении, установленном применимым
+              законодательством о защите персональных данных.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              This Privacy Policy sets out how personal data and health-related data of users of the
+              Formly service (the &quot;Service&quot;) are processed. Processing is carried out by{' '}
+              {operator} (the &quot;Operator&quot;).
+            </p>
+            <p>
+              By using the Service the user confirms that they have read this Policy. Terms not
+              defined here carry the meaning given to them by applicable data protection law.
+            </p>
+          </>
+        )
+      }
+      sections={sections}
+      sibling={{
+        href: '/terms',
+        label: ru ? 'Пользовательское соглашение →' : 'Terms of Service →',
+      }}
+    />
+  )
+}
+
+function privacyRu(mailto: React.ReactNode, operator: string): LegalSection[] {
+  return [
+    {
+      id: 'data',
+      title: 'Категории обрабатываемых данных',
+      body: (
+        <>
+          <p>Оператор обрабатывает следующие категории данных:</p>
+          <ul>
+            <li>
+              <strong>Учётные данные</strong> — адрес электронной почты и хеш пароля. Пароль в
+              открытом виде Оператору недоступен.
+            </li>
+            <li>
+              <strong>Данные профиля</strong> — отображаемое имя, масса тела, рост, возраст, дата
+              начала тренировок, расписание, место тренировок, часовой пояс, язык интерфейса.
+            </li>
+            <li>
+              <strong>Тренировочные данные</strong> — сессии, подходы (вес, повторения, RPE, признак
+              разминочного подхода), упражнения, шаблоны, программы, заметки к тренировке и к
+              отдельным упражнениям, оценка самочувствия.
+            </li>
+            <li>
+              <strong>Данные о теле</strong> — вносимые пользователем по собственному усмотрению
+              масса и рост, обхваты, а также загружаемые фотографии прогресса.
+            </li>
+            <li>
+              <strong>Данные кардио-тренировок</strong> — продолжительность, дистанция, пульс и
+              расход энергии, если они внесены пользователем.
+            </li>
+            <li>
+              <strong>Социальные данные</strong> — код друга, список друзей и заявок, реакции и
+              комментарии к событиям ленты активности, личные сообщения между друзьями, факт
+              блокировки пользователя.
+            </li>
+            <li>
+              <strong>Данные подписки на уведомления</strong> — непрозрачный адрес (endpoint),
+              выдаваемый браузером при включении push-уведомлений, и связанные с ним ключи. Номер
+              телефона и идентификаторы устройства не обрабатываются.
+            </li>
+            <li>
+              <strong>Технические журналы</strong> — IP-адрес и user-agent запроса, сохраняемые
+              хостинг-провайдером в целях безопасности и противодействия злоупотреблениям, а также
+              отчёты об ошибках интерфейса с удалёнными параметрами запроса и замаскированными
+              токенами.
+            </li>
+          </ul>
+          <p>
+            Оператор <strong>не обрабатывает</strong>: данные геолокации, списки контактов,
+            календарь, записи микрофона и камеры (за исключением фотографий, загружаемых
+            пользователем самостоятельно), историю просмотров и рекламные идентификаторы.
           </p>
-
-          {ru ? (
-            <PrivacyRu contact={LEGAL_CONTACT} operator={LEGAL_OPERATOR} />
-          ) : (
-            <PrivacyEn contact={LEGAL_CONTACT} operator={LEGAL_OPERATOR} />
-          )}
-
-          <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/40">
-            <Link href="/terms" className="underline hover:text-white/70">
-              {ru ? 'Правила использования' : 'Terms of Service'}
-            </Link>
+        </>
+      ),
+    },
+    {
+      id: 'purposes',
+      title: 'Цели и правовые основания обработки',
+      body: (
+        <>
+          <div className="legal-scroll">
+            <table className="legal-table">
+              <thead>
+                <tr>
+                  <th>Цель</th>
+                  <th>Основание</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Предоставление функций учёта тренировок и анализа прогресса</td>
+                  <td>Исполнение договора (ст. 6(1)(b) GDPR)</td>
+                </tr>
+                <tr>
+                  <td>Обеспечение безопасности, предотвращение злоупотреблений</td>
+                  <td>Законный интерес (ст. 6(1)(f) GDPR)</td>
+                </tr>
+                <tr>
+                  <td>Push-уведомления, AI-рекомендации, публикация активности друзьям</td>
+                  <td>Согласие пользователя (ст. 6(1)(a) GDPR)</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </article>
-      </div>
-    </div>
-  )
+          <p>
+            Данные о состоянии здоровья относятся к специальной категории и обрабатываются
+            исключительно на основании явного согласия пользователя, выраженного внесением таких
+            данных в Сервис (ст. 9(2)(a) GDPR).
+          </p>
+          <p>
+            Оператор не осуществляет продажу персональных данных, не передаёт их рекламным сетям и
+            не размещает рекламу в Сервисе.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'processors',
+      title: 'Место хранения и привлекаемые обработчики',
+      body: (
+        <>
+          <ul>
+            <li>
+              <strong>Supabase</strong> (PostgreSQL и объектное хранилище, регион ЕС) — учётные,
+              тренировочные, телесные и социальные данные. Разграничение доступа обеспечивается
+              механизмом row-level security на уровне базы данных.
+            </li>
+            <li>
+              <strong>Vercel</strong> — размещение веб-приложения и технические журналы запросов.
+            </li>
+            <li>
+              <strong>Mistral AI</strong> — формирование разборов тренировок, рекомендаций,
+              программ, названий тренировок и ответов тренера. Передаётся минимально необходимый
+              обезличенный контекст: сводные показатели тренировок и, при использовании чата,
+              заданный пользователем вопрос. Адрес электронной почты, фотографии и личные сообщения
+              не передаются.
+            </li>
+            <li>
+              <strong>Push-сервисы браузеров</strong> (Apple, Google, Mozilla, Microsoft) — доставка
+              уведомлений по протоколу Web Push с использованием VAPID.
+            </li>
+          </ul>
+          <p>
+            Фотографии прогресса размещаются в закрытом бакете и выдаются по ссылкам с ограниченным
+            сроком действия. Доступ к ним имеет только владелец учётной записи.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'sharing',
+      title: 'Данные, доступные другим пользователям',
+      body: (
+        <>
+          <p>
+            Часть данных становится видимой другим лицам исключительно по инициативе пользователя:
+          </p>
+          <ul>
+            <li>
+              <strong>Друзья</strong> видят отображаемое имя, факт и время завершения тренировок,
+              недельный тоннаж, рекорды, серии тренировок и признак текущего нахождения на
+              тренировке. Публикация отключается переключателем «Делиться активностью» в профиле.
+            </li>
+            <li>
+              <strong>Личные сообщения</strong> доступны отправителю и получателю. Блокировка
+              пользователя прекращает переписку в обе стороны.
+            </li>
+            <li>
+              <strong>Ссылка на тренировку</strong>, созданная пользователем, открывает снимок
+              карточки тренировки любому, кто располагает ссылкой, без авторизации. Ссылка содержит
+              случайный токен и может быть отозвана владельцем в любой момент; отзыв прекращает
+              доступ, но не отменяет ранее сделанные получателем копии.
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      id: 'retention',
+      title: 'Сроки хранения',
+      body: (
+        <ul>
+          <li>Данные учётной записи и тренировок хранятся до удаления учётной записи.</li>
+          <li>Технические журналы хостинг-провайдера хранятся около 30 дней.</li>
+          <li>
+            Резервные копии баз данных ротируются в течение 30 дней после удаления исходных записей.
+          </li>
+          <li>
+            Записи офлайн-очереди, не поддающиеся синхронизации, перемещаются в служебное хранилище
+            и удаляются вместе с учётной записью.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: 'rights',
+      title: 'Права пользователя',
+      body: (
+        <>
+          <ul>
+            <li>
+              <strong>Доступ и переносимость</strong> — выгрузка тренировочных данных в формате CSV
+              из раздела «Профиль»; фотографии загружаются из галереи.
+            </li>
+            <li>
+              <strong>Уточнение и исправление</strong> — редактирование любых записей, подходов и
+              измерений в интерфейсе Сервиса.
+            </li>
+            <li>
+              <strong>Удаление</strong> — удаление отдельных записей в интерфейсе либо полное
+              удаление учётной записи в порядке раздела 7.
+            </li>
+            <li>
+              <strong>Отзыв согласия</strong> — отключение push-уведомлений в настройках браузера,
+              отключение публикации активности в профиле. Отзыв согласия не влияет на законность
+              обработки, осуществлённой до его получения.
+            </li>
+            <li>
+              <strong>Обжалование</strong> — обращение в надзорный орган по месту жительства, если
+              пользователь считает, что обработка нарушает его права.
+            </li>
+          </ul>
+          <p>
+            Запросы направляются на {mailto} с адреса, привязанного к учётной записи. Ответ
+            предоставляется в срок не более 30 календарных дней.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'deletion',
+      title: 'Удаление учётной записи',
+      body: (
+        <p>
+          Для полного удаления учётной записи следует направить письмо на {mailto} с адреса,
+          привязанного к записи, указав в теме «Удалить мой аккаунт». Учётная запись и все связанные
+          записи — тренировки, подходы, измерения, фотографии, заметки, сообщения и социальные связи
+          — удаляются каскадно в срок до 14 календарных дней. Резервные копии перестают содержать
+          данные в течение последующих 30 дней.
+        </p>
+      ),
+    },
+    {
+      id: 'security',
+      title: 'Меры безопасности',
+      body: (
+        <>
+          <ul>
+            <li>Пароли хранятся в виде хешей, вычисляемых средствами Supabase Auth.</li>
+            <li>Весь трафик передаётся по протоколу HTTPS.</li>
+            <li>
+              Разграничение доступа к строкам реализовано в PostgreSQL: чтение и запись данных
+              другого пользователя невозможны на уровне базы данных, а не только на уровне
+              приложения.
+            </li>
+            <li>
+              Привилегированные процедуры базы данных исполняются от имени служебной роли и
+              недоступны анонимным клиентам.
+            </li>
+            <li>Зависимости приложения проходят регулярный аудит уязвимостей.</li>
+          </ul>
+          <p>
+            Сообщения о выявленных уязвимостях просьба направлять на {mailto} в порядке
+            ответственного раскрытия. Оператор не преследует исследователей, действующих
+            добросовестно.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'health',
+      title: 'Оговорка о медицинских данных',
+      body: (
+        <div className="legal-callout">
+          <p>
+            Сервис является <strong>средством учёта</strong> и не оказывает медицинских услуг.
+            Расчётный одноповторный максимум, рекомендации по прогрессии, категории силовых
+            нормативов и материалы, формируемые системой искусственного интеллекта, носят
+            информационный характер и не являются медицинским заключением или назначением. Перед
+            началом тренировочной программы, в особенности при наличии травм, беременности или
+            сердечно-сосудистых заболеваний, необходима консультация квалифицированного специалиста.
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: 'minors',
+      title: 'Несовершеннолетние пользователи',
+      body: (
+        <p>
+          Сервис не предназначен для лиц младше 13 лет; данные таких лиц Оператором сознательно не
+          обрабатываются. Лица в возрасте от 13 до 18 лет вправе использовать Сервис с согласия
+          родителей или иных законных представителей. При получении сведений о регистрации лица
+          младше 13 лет соответствующая учётная запись удаляется. Обращения принимаются по адресу{' '}
+          {mailto}.
+        </p>
+      ),
+    },
+    {
+      id: 'changes',
+      title: 'Изменение Политики',
+      body: (
+        <p>
+          Оператор вправе вносить изменения в настоящую Политику. При существенных изменениях
+          уведомление размещается в интерфейсе Сервиса до вступления изменений в силу. Дата
+          последней редакции указана в начале документа.
+        </p>
+      ),
+    },
+    {
+      id: 'contact',
+      title: 'Контактные данные',
+      body: (
+        <p>
+          Вопросы, запросы на реализацию прав и жалобы направляются Оператору ({operator}) по адресу
+          электронной почты {mailto}.
+        </p>
+      ),
+    },
+  ]
 }
 
-function PrivacyEn({ contact, operator }: { contact: string; operator: string }) {
-  return (
-    <>
-      <p className="text-white/70">
-        This policy explains what data <strong>Formly</strong> collects, why, where it lives, and
-        what you can do about it. We try to keep it short and honest. The service is operated by{' '}
-        {operator} (the &quot;Operator&quot;).
-      </p>
-
-      <h2>1. Data we collect</h2>
-      <ul>
-        <li>
-          <strong>Account data</strong>: email, hashed password (we never see your raw password),
-          optional profile info (name, body weight, height, training schedule).
-        </li>
-        <li>
-          <strong>Workout data</strong>: sessions, sets (weight, reps, RPE), exercises, templates,
-          notes you write.
-        </li>
-        <li>
-          <strong>Body data you choose to log</strong>: weight and height, body measurements (waist,
-          biceps, etc.), progress photos you upload, mood ratings.
-        </li>
-        <li>
-          <strong>Cardio data</strong>: duration, distance, heart rate if you enter it.
-        </li>
-        <li>
-          <strong>Push subscription</strong>: an opaque endpoint provided by your browser if you
-          enable rest-timer or daily-reminder notifications. No phone number, no IMEI.
-        </li>
-        <li>
-          <strong>Technical logs</strong>: request IP and user-agent stored by our hosting provider
-          (Vercel) for security and abuse prevention, retained ~30 days.
-        </li>
-      </ul>
-      <p>
-        We do <strong>not</strong> collect: location, contacts, calendar, microphone, camera (other
-        than the photo you explicitly upload), browsing history, advertising IDs.
-      </p>
-
-      <h2>2. Where it&apos;s stored</h2>
-      <p>
-        Account, workout, and body data lives in <strong>Supabase</strong> (PostgreSQL + Storage),
-        hosted in the EU. Progress photos are stored in a private Supabase Storage bucket with
-        row-level security — only your own session can read them, served via signed URLs that
-        expire. The site itself runs on <strong>Vercel</strong>. Push notifications are sent via{' '}
-        <strong>Web Push (VAPID)</strong> directly to your browser&apos;s push service
-        (Apple/Google/Mozilla). AI insights are computed by <strong>Mistral AI</strong> — we send
-        the minimum context (recent stats) and never your raw email or photos.
-      </p>
-
-      <h2>3. Why we collect it</h2>
-      <p>
-        The legal basis is <em>your contract with us</em> to provide the workout-tracking service
-        (GDPR Art. 6(1)(b)), and your <em>explicit consent</em> for optional features (push
-        notifications, AI insights). We do not sell your data, ever. We do not show ads.
-      </p>
-
-      <h2>4. Your rights</h2>
-      <ul>
-        <li>
-          <strong>Access</strong>: export all your workouts via the in-app CSV export.
-        </li>
-        <li>
-          <strong>Correction</strong>: edit any session, set, or measurement at any time.
-        </li>
-        <li>
-          <strong>Deletion</strong>: delete individual entries in the app, or request full account
-          deletion (see §7) — your account and all linked rows in workout_sessions, set_entries,
-          sleep_logs, progress_photos, body_measurements, user_goals are cascaded.
-        </li>
-        <li>
-          <strong>Portability</strong>: CSV export covers the structured data; raw photos can be
-          downloaded from the gallery.
-        </li>
-        <li>
-          <strong>Withdraw consent</strong>: turn off push notifications in browser settings; turn
-          off AI insights in profile settings.
-        </li>
-      </ul>
-
-      <h2>5. Health & medical disclaimer</h2>
-      <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-        Formly is a <strong>logging tool</strong>, not a doctor. The 1RM estimates, RPE-based
-        progression suggestions, &quot;strength tier&quot; labels, and AI insights are calculated
-        from formulas and your inputs — they are educational, not medical advice. Consult a
-        qualified professional before starting any training program, especially if you have
-        injuries, are pregnant, or have cardiovascular conditions. Lift at your own risk. The
-        Operator is not liable for any injury or loss arising from use of the service.
-      </p>
-
-      <h2>6. Children</h2>
-      <p>
-        The service is not directed at users under 13. If you are between 13 and 18, use it only
-        with parental permission. We do not knowingly collect data from users under 13; if you are a
-        parent and believe your child has registered, contact us and we will delete the account.
-      </p>
-
-      <h2>7. Account deletion</h2>
-      <p>
-        Email{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>{' '}
-        from the address linked to your account with subject <em>&quot;Delete my account&quot;</em>.
-        We will erase your account and all linked data within 14 days. Backups in our hosting
-        providers are rotated within 30 days.
-      </p>
-
-      <h2>8. Security</h2>
-      <p>
-        Passwords are hashed by Supabase using industry-standard algorithms (bcrypt/argon2). All
-        traffic is HTTPS. Row-level security in PostgreSQL ensures one user cannot read another
-        user&apos;s rows. We patch dependencies regularly. No system is perfect — if you spot a
-        vulnerability, please disclose responsibly to{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-
-      <h2>9. Changes</h2>
-      <p>
-        If this policy changes materially, we will surface a notice in the app before the changes
-        take effect.
-      </p>
-
-      <h2>10. Contact</h2>
-      <p>
-        Questions, requests, or complaints — write to{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-    </>
-  )
-}
-
-function PrivacyRu({ contact, operator }: { contact: string; operator: string }) {
-  return (
-    <>
-      <p className="text-white/70">
-        Эта политика описывает какие данные собирает <strong>Formly</strong>, зачем, где они
-        хранятся и что ты можешь с ними сделать. Мы стараемся писать коротко и честно. Сервис
-        эксплуатируется {operator} (далее «Оператор»).
-      </p>
-
-      <h2>1. Какие данные собираем</h2>
-      <ul>
-        <li>
-          <strong>Учётные</strong>: email, хешированный пароль (исходный пароль мы не видим),
-          опциональные поля профиля (имя, вес тела, рост, расписание).
-        </li>
-        <li>
-          <strong>Тренировочные</strong>: сессии, подходы (вес, повторы, RPE), упражнения, шаблоны,
-          заметки.
-        </li>
-        <li>
-          <strong>Тело</strong> (по твоему выбору): вес и рост, замеры (талия, бицепс и т.п.), фото
-          прогресса, настроение.
-        </li>
-        <li>
-          <strong>Кардио</strong>: продолжительность, дистанция, пульс — если ты вбил.
-        </li>
-        <li>
-          <strong>Подписка на push</strong>: непрозрачный endpoint от твоего браузера, если ты
-          включил уведомления таймера отдыха или ежедневные напоминания. Никаких телефонов и IMEI.
-        </li>
-        <li>
-          <strong>Технические логи</strong>: IP запроса и user-agent хранятся хостингом (Vercel) для
-          безопасности ~30 дней.
-        </li>
-      </ul>
-      <p>
-        Мы <strong>не</strong> собираем: геолокацию, контакты, календарь, микрофон, камеру (кроме
-        фото которые ты сам загрузил), историю браузера, рекламные ID.
-      </p>
-
-      <h2>2. Где данные лежат</h2>
-      <p>
-        Учётные, тренировочные и телесные данные хранятся в <strong>Supabase</strong> (PostgreSQL +
-        Storage), хостинг в ЕС. Фото прогресса — в приватном Storage-бакете Supabase с row-level
-        security: их видишь только ты, выдаются через signed URL с истечением. Сайт работает на{' '}
-        <strong>Vercel</strong>. Push-уведомления идут через <strong>Web Push (VAPID)</strong>{' '}
-        напрямую в push-сервис твоего браузера (Apple/Google/Mozilla). AI-инсайты считает{' '}
-        <strong>Mistral AI</strong> — мы отправляем минимум контекста (сводные стат-ки), без email и
-        фото.
-      </p>
-
-      <h2>3. Зачем собираем</h2>
-      <p>
-        Правовая основа — <em>исполнение договора</em> между тобой и сервисом для предоставления
-        функционала трекинга (GDPR ст. 6(1)(b)) и твоё <em>явное согласие</em> на опциональные
-        функции (push, AI). Мы не продаём данные, никогда. Рекламы у нас нет.
-      </p>
-
-      <h2>4. Твои права</h2>
-      <ul>
-        <li>
-          <strong>Доступ</strong>: экспортируй все тренировки в CSV из приложения.
-        </li>
-        <li>
-          <strong>Исправление</strong>: редактируй любые сессии, сеты, замеры в любой момент.
-        </li>
-        <li>
-          <strong>Удаление</strong>: удали отдельные записи в приложении или попроси полное удаление
-          аккаунта (см. §7) — все связанные строки в workout_sessions, set_entries, sleep_logs,
-          progress_photos, body_measurements, user_goals каскадно удаляются.
-        </li>
-        <li>
-          <strong>Перенос</strong>: CSV-экспорт покрывает структурированные данные; фото можно
-          скачать из галереи.
-        </li>
-        <li>
-          <strong>Отзыв согласия</strong>: отключи push в настройках браузера; отключи AI-инсайты в
-          настройках профиля.
-        </li>
-      </ul>
-
-      <h2>5. Медицинский дисклеймер</h2>
-      <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-        Formly — это <strong>инструмент учёта</strong>, не врач. Расчётный 1ПМ, RPE-подсказки
-        прогрессии, «тиры силы» и AI-инсайты считаются по формулам и твоим данным — это обучающая
-        информация, не медицинский совет. Перед началом любой тренировочной программы посоветуйся со
-        специалистом, особенно если есть травмы, беременность или проблемы с сердцем. Тренируешься
-        на свой риск. Оператор не несёт ответственности за травмы или ущерб от использования
-        сервиса.
-      </p>
-
-      <h2>6. Дети</h2>
-      <p>
-        Сервис не предназначен для пользователей младше 13 лет. Если тебе от 13 до 18 — используй
-        только с разрешения родителей. Мы сознательно не собираем данные от детей до 13. Если ты
-        родитель и думаешь что ребёнок зарегистрировался — напиши нам, удалим аккаунт.
-      </p>
-
-      <h2>7. Удаление аккаунта</h2>
-      <p>
-        Напиши на{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>{' '}
-        с адреса, привязанного к аккаунту, тема: <em>«Удалить мой аккаунт»</em>. Удалим аккаунт и
-        связанные данные в течение 14 дней. Бэкапы у хостинга ротируются за 30 дней.
-      </p>
-
-      <h2>8. Безопасность</h2>
-      <p>
-        Пароли хешируются Supabase индустриальными алгоритмами (bcrypt/argon2). Весь трафик HTTPS.
-        Row-level security в PostgreSQL гарантирует что один пользователь не прочтёт строки другого.
-        Зависимости патчим регулярно. Идеальных систем нет — нашёл уязвимость, ответственно раскрой
-        её на{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-
-      <h2>9. Изменения</h2>
-      <p>
-        Если эта политика существенно изменится — покажем уведомление в приложении до вступления
-        изменений в силу.
-      </p>
-
-      <h2>10. Связь</h2>
-      <p>
-        Вопросы, запросы, жалобы — пиши на{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-    </>
-  )
+function privacyEn(mailto: React.ReactNode, operator: string): LegalSection[] {
+  return [
+    {
+      id: 'data',
+      title: 'Categories of data processed',
+      body: (
+        <>
+          <p>The Operator processes the following categories of data:</p>
+          <ul>
+            <li>
+              <strong>Account data</strong> — email address and a password hash. The Operator has no
+              access to the password itself.
+            </li>
+            <li>
+              <strong>Profile data</strong> — display name, body weight, height, age, training start
+              date, weekly schedule, training location, time zone and interface language.
+            </li>
+            <li>
+              <strong>Training data</strong> — sessions, sets (weight, repetitions, RPE, warm-up
+              flag), exercises, templates, programs, session and per-exercise notes, and mood
+              ratings.
+            </li>
+            <li>
+              <strong>Body data</strong> — weight, height and circumference measurements entered at
+              the user&apos;s discretion, together with progress photographs the user uploads.
+            </li>
+            <li>
+              <strong>Cardio data</strong> — duration, distance, heart rate and energy expenditure
+              where entered by the user.
+            </li>
+            <li>
+              <strong>Social data</strong> — friend code, friends and pending requests, reactions
+              and comments on activity events, direct messages between friends, and blocking
+              records.
+            </li>
+            <li>
+              <strong>Notification subscription data</strong> — the opaque endpoint issued by the
+              browser when push notifications are enabled, and its associated keys. No telephone
+              number and no device identifier is processed.
+            </li>
+            <li>
+              <strong>Technical logs</strong> — request IP address and user agent retained by the
+              hosting provider for security and abuse prevention, and interface error reports from
+              which query strings are removed and token-like values redacted.
+            </li>
+          </ul>
+          <p>
+            The Operator does <strong>not</strong> process location data, contact lists, calendars,
+            microphone or camera input (other than photographs the user uploads deliberately),
+            browsing history or advertising identifiers.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'purposes',
+      title: 'Purposes and legal bases',
+      body: (
+        <>
+          <div className="legal-scroll">
+            <table className="legal-table">
+              <thead>
+                <tr>
+                  <th>Purpose</th>
+                  <th>Legal basis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Providing workout logging and progress analysis</td>
+                  <td>Performance of a contract (GDPR Art. 6(1)(b))</td>
+                </tr>
+                <tr>
+                  <td>Security and abuse prevention</td>
+                  <td>Legitimate interest (GDPR Art. 6(1)(f))</td>
+                </tr>
+                <tr>
+                  <td>Push notifications, AI features, sharing activity with friends</td>
+                  <td>Consent (GDPR Art. 6(1)(a))</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Health-related data is a special category and is processed solely on the basis of the
+            user&apos;s explicit consent, given by entering that data into the Service (GDPR Art.
+            9(2)(a)).
+          </p>
+          <p>
+            The Operator does not sell personal data, does not disclose it to advertising networks
+            and does not display advertising in the Service.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'processors',
+      title: 'Storage location and processors engaged',
+      body: (
+        <>
+          <ul>
+            <li>
+              <strong>Supabase</strong> (PostgreSQL and object storage, EU region) — account,
+              training, body and social data. Access is segregated by row-level security in the
+              database itself.
+            </li>
+            <li>
+              <strong>Vercel</strong> — application hosting and request logs.
+            </li>
+            <li>
+              <strong>Mistral AI</strong> — generation of session debriefs, recommendations,
+              programs, session titles and coach replies. Only the minimum pseudonymised context is
+              transmitted: aggregate training figures and, for the chat, the question the user
+              asked. Email addresses, photographs and direct messages are never transmitted.
+            </li>
+            <li>
+              <strong>Browser push services</strong> (Apple, Google, Mozilla, Microsoft) — delivery
+              of notifications over Web Push using VAPID.
+            </li>
+          </ul>
+          <p>
+            Progress photographs are held in a private bucket and served through URLs that expire.
+            Only the account owner can read them.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'sharing',
+      title: 'Data visible to other users',
+      body: (
+        <>
+          <p>Certain data becomes visible to others only on the user&apos;s own initiative:</p>
+          <ul>
+            <li>
+              <strong>Friends</strong> see the display name, the fact and time of finished workouts,
+              weekly tonnage, records, training streaks and whether the athlete is currently
+              training. Publication is switched off with the &quot;Share activity&quot; toggle in
+              the profile.
+            </li>
+            <li>
+              <strong>Direct messages</strong> are available to sender and recipient. Blocking a
+              user terminates the conversation in both directions.
+            </li>
+            <li>
+              <strong>A workout link</strong> created by the user opens a snapshot of the workout
+              card to anyone holding the link, without authentication. The link carries a random
+              token and may be revoked by its owner at any time; revocation ends access but cannot
+              retract copies a recipient has already made.
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      id: 'retention',
+      title: 'Retention periods',
+      body: (
+        <ul>
+          <li>Account and training data is retained until the account is deleted.</li>
+          <li>Hosting provider technical logs are retained for approximately 30 days.</li>
+          <li>Database backups rotate within 30 days of the source records being deleted.</li>
+          <li>
+            Offline queue records that cannot be synchronised are moved to a dead-letter store and
+            removed with the account.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: 'rights',
+      title: 'User rights',
+      body: (
+        <>
+          <ul>
+            <li>
+              <strong>Access and portability</strong> — export of training data as CSV from the
+              Profile screen; photographs can be downloaded from the gallery.
+            </li>
+            <li>
+              <strong>Rectification</strong> — any session, set or measurement can be edited in the
+              Service.
+            </li>
+            <li>
+              <strong>Erasure</strong> — individual records can be deleted in the Service, or the
+              whole account under section 7.
+            </li>
+            <li>
+              <strong>Withdrawal of consent</strong> — push notifications can be disabled in browser
+              settings and activity sharing in the profile. Withdrawal does not affect the
+              lawfulness of processing carried out beforehand.
+            </li>
+            <li>
+              <strong>Complaint</strong> — a complaint may be lodged with the supervisory authority
+              of the user&apos;s place of residence.
+            </li>
+          </ul>
+          <p>
+            Requests should be sent to {mailto} from the address linked to the account. A response
+            is provided within 30 calendar days.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'deletion',
+      title: 'Account deletion',
+      body: (
+        <p>
+          To delete an account, write to {mailto} from the address linked to it with the subject
+          &quot;Delete my account&quot;. The account and all linked records — sessions, sets,
+          measurements, photographs, notes, messages and social connections — are deleted by cascade
+          within 14 calendar days. Backups cease to contain the data within a further 30 days.
+        </p>
+      ),
+    },
+    {
+      id: 'security',
+      title: 'Security measures',
+      body: (
+        <>
+          <ul>
+            <li>Passwords are stored as hashes computed by Supabase Auth.</li>
+            <li>All traffic is carried over HTTPS.</li>
+            <li>
+              Row-level security in PostgreSQL makes reading or writing another user&apos;s rows
+              impossible at the database layer, not only in the application.
+            </li>
+            <li>
+              Privileged database procedures run under a service role and are unavailable to
+              anonymous clients.
+            </li>
+            <li>Application dependencies are audited for known vulnerabilities on a schedule.</li>
+          </ul>
+          <p>
+            Vulnerability reports are welcome at {mailto} under responsible disclosure. The Operator
+            will not pursue researchers acting in good faith.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'health',
+      title: 'Health and medical notice',
+      body: (
+        <div className="legal-callout">
+          <p>
+            The Service is a <strong>logging tool</strong> and does not provide medical services.
+            Estimated one-repetition maxima, progression suggestions, strength-standard categories
+            and material generated by the artificial intelligence features are informational and do
+            not constitute a medical opinion or prescription. Consult a qualified professional
+            before beginning a training program, particularly in the presence of injury, pregnancy
+            or cardiovascular conditions.
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: 'minors',
+      title: 'Minors',
+      body: (
+        <p>
+          The Service is not directed at persons under 13 and their data is not knowingly processed.
+          Persons aged 13 to 18 may use the Service with the consent of a parent or legal guardian.
+          On learning that a person under 13 has registered, the Operator deletes the account.
+          Notifications may be sent to {mailto}.
+        </p>
+      ),
+    },
+    {
+      id: 'changes',
+      title: 'Amendments',
+      body: (
+        <p>
+          The Operator may amend this Policy. Material amendments are announced in the interface of
+          the Service before they take effect. The date of the current revision is shown at the head
+          of this document.
+        </p>
+      ),
+    },
+    {
+      id: 'contact',
+      title: 'Contact',
+      body: (
+        <p>
+          Questions, requests to exercise rights and complaints should be addressed to the Operator
+          ({operator}) at {mailto}.
+        </p>
+      ),
+    },
+  ]
 }

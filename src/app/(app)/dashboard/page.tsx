@@ -86,7 +86,7 @@ export default async function DashboardPage() {
     supabase
       .from('workout_sessions')
       .select(
-        'id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km',
+        'id, started_at, total_volume_kg, finished_at, mood_score, session_type, cardio_activity, cardio_duration_seconds, cardio_distance_km, ai_title',
       )
       .eq('user_id', user.id)
       .not('finished_at', 'is', null)
@@ -424,11 +424,12 @@ export default async function DashboardPage() {
               const whenLabel = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                 weekday: 'short',
               })
+              // The coach names the session when it writes the debrief. Until
+              // it has, the first two exercises stand in for a name.
               const title = isCardio
                 ? (s.cardio_activity ?? 'Cardio')
-                : tags[0]
-                  ? tags.slice(0, 2).join(' · ')
-                  : t('recentTraining')
+                : s.ai_title?.trim() ||
+                  (tags[0] ? tags.slice(0, 2).join(' · ') : t('recentTraining'))
               const subParts = isCardio
                 ? [
                     cardioMin != null ? `${cardioMin} мин` : null,

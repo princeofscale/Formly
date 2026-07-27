@@ -1,5 +1,10 @@
 import type { VolumeLandmark } from '@/lib/types/models'
 
+/** Indirect work counts half a set, so totals arrive with a .5 on them. */
+function round(sets: number): string {
+  return Number.isInteger(sets) ? String(sets) : sets.toFixed(1)
+}
+
 const STATUS_CONFIG = {
   mv: {
     color: '#FFD64A',
@@ -52,46 +57,76 @@ export function VolumeLandmarks({
         return (
           <div
             key={l.muscle}
-            className="flex items-center justify-between"
             style={{
               padding: '10px 0',
               borderTop: i > 0 ? '1px solid var(--tar-line)' : undefined,
             }}
           >
-            <span
-              style={{
-                font: '600 13px/1 var(--tar-text)',
-                color: 'var(--tar-ink)',
-              }}
-            >
-              {labels.muscles[l.muscle] ?? l.muscle.replace('_', ' ')}
-            </span>
-            <div className="flex items-center gap-3">
-              <span
-                className="tabular-nums"
-                style={{
-                  font: '500 11px/1 var(--tar-mono)',
-                  letterSpacing: '0.06em',
-                  color: 'var(--tar-ink-mute)',
-                }}
-              >
-                {l.weekly_sets} {labels.setsPerWeek}
-              </span>
+            <div className="flex items-center justify-between">
               <span
                 style={{
-                  font: '700 9px/1 var(--tar-mono)',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  padding: '4px 8px',
-                  borderRadius: 6,
-                  color: config.color,
-                  background: config.bg,
-                  border: `1px solid ${config.border}`,
+                  font: '600 13px/1 var(--tar-text)',
+                  color: 'var(--tar-ink)',
                 }}
               >
-                {labels.status[l.status]}
+                {labels.muscles[l.muscle] ?? l.muscle.replace('_', ' ')}
               </span>
+              <div className="flex items-center gap-3">
+                <span
+                  className="tabular-nums"
+                  style={{
+                    font: '500 11px/1 var(--tar-mono)',
+                    letterSpacing: '0.06em',
+                    color: 'var(--tar-ink-mute)',
+                  }}
+                >
+                  {round(l.weekly_sets)} {labels.setsPerWeek}
+                </span>
+                <span
+                  style={{
+                    font: '700 9px/1 var(--tar-mono)',
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    padding: '4px 8px',
+                    borderRadius: 6,
+                    color: config.color,
+                    background: config.bg,
+                    border: `1px solid ${config.border}`,
+                  }}
+                >
+                  {labels.status[l.status]}
+                </span>
+              </div>
             </div>
+
+            {/* Which angles the week's sets actually came from. The verdict
+                above is the group's; these are the parts of it. */}
+            {l.regions && l.regions.length > 0 && (
+              <div className="mt-2 flex flex-col gap-1 pl-3">
+                {l.regions.map((r) => (
+                  <div key={r.muscle} className="flex items-center justify-between">
+                    <span
+                      style={{
+                        font: '500 11px/1 var(--tar-text)',
+                        color: 'var(--tar-ink-mute)',
+                      }}
+                    >
+                      {labels.muscles[r.muscle] ?? r.muscle.replace('_', ' ')}
+                    </span>
+                    <span
+                      className="tabular-nums"
+                      style={{
+                        font: '500 11px/1 var(--tar-mono)',
+                        letterSpacing: '0.06em',
+                        color: 'var(--tar-ink-mute)',
+                      }}
+                    >
+                      {round(r.weekly_sets)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )
       })}

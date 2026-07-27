@@ -6,6 +6,7 @@ import { Trophy } from 'lucide-react'
 import { MuscleIcon } from '@/components/workout/muscle-icon'
 import type { MuscleGroup } from '@/lib/types/models'
 import { weightUnit } from '@/lib/units'
+import { muscleBucket } from '@/lib/utils/muscle-groups'
 
 type Tab = 'all' | 'recent' | 'muscle'
 
@@ -20,16 +21,6 @@ interface RecordRow {
     name_ru?: string | null
     primary_muscle: MuscleGroup
   } | null
-}
-
-// Group MuscleGroup → broad bucket for grouping in the "By muscle" tab
-function muscleBucket(m: MuscleGroup): 'chest' | 'back' | 'legs' | 'shoulder' | 'arms' | 'core' {
-  if (m === 'chest') return 'chest'
-  if (m === 'back' || m === 'lats' || m === 'traps' || m === 'rear_delts') return 'back'
-  if (m === 'quads' || m === 'hamstrings' || m === 'glutes' || m === 'calves') return 'legs'
-  if (m === 'front_delts' || m === 'side_delts') return 'shoulder'
-  if (m === 'biceps' || m === 'triceps' || m === 'forearms') return 'arms'
-  return 'core'
 }
 
 const BUCKET_ORDER: Array<{ key: 'back' | 'chest' | 'legs' | 'shoulder' | 'arms' | 'core' }> = [

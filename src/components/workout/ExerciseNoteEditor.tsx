@@ -6,6 +6,7 @@ import { StickyNote, Check } from 'lucide-react'
 import { updateExerciseNoteAction } from '@/app/(app)/workout/[id]/actions'
 
 interface Props {
+  sessionId: string
   exerciseId: string
   initialNote: string
 }
@@ -13,7 +14,7 @@ interface Props {
 const SAVE_DEBOUNCE_MS = 800
 const MAX_LENGTH = 1000
 
-export function ExerciseNoteEditor({ exerciseId, initialNote }: Props) {
+export function ExerciseNoteEditor({ sessionId, exerciseId, initialNote }: Props) {
   const t = useTranslations('workout.exerciseNote')
   const [value, setValue] = useState(initialNote)
   const [open, setOpen] = useState(initialNote.trim().length > 0)
@@ -26,7 +27,7 @@ export function ExerciseNoteEditor({ exerciseId, initialNote }: Props) {
     timerRef.current = setTimeout(async () => {
       if (next === lastSavedRef.current) return
       try {
-        await updateExerciseNoteAction(exerciseId, next)
+        await updateExerciseNoteAction(sessionId, exerciseId, next)
         lastSavedRef.current = next
         setSavedTick(true)
         setTimeout(() => setSavedTick(false), 1200)

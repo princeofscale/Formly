@@ -14,13 +14,13 @@ export type MuscleChip =
   | 'other'
 
 export const CHIP_MUSCLES: Record<Exclude<MuscleChip, 'all'>, MuscleGroup[]> = {
-  chest: ['chest'],
-  back: ['back', 'lats', 'traps'],
+  chest: ['chest', 'chest_upper', 'chest_lower'],
+  back: ['back', 'lats', 'traps', 'lower_back'],
   shoulders: ['front_delts', 'side_delts', 'rear_delts'],
   biceps: ['biceps'],
   triceps: ['triceps'],
-  legs: ['quads', 'hamstrings', 'glutes', 'calves'],
-  core: ['core'],
+  legs: ['quads', 'hamstrings', 'glutes', 'calves', 'soleus'],
+  core: ['core', 'obliques'],
   other: ['forearms', 'cardio'],
 }
 

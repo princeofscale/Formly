@@ -249,7 +249,11 @@ export function ExerciseBlock({
           ))}
 
         <ExerciseVideo exerciseId={exercise.id} initialUrl={initialVideoUrl} />
-        <ExerciseNoteEditor exerciseId={exercise.id} initialNote={initialNote} />
+        <ExerciseNoteEditor
+          sessionId={sessionId}
+          exerciseId={exercise.id}
+          initialNote={initialNote}
+        />
 
         {suggestion && (
           <ProgressionHint

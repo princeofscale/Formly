@@ -107,73 +107,104 @@ function classifyExperience(trainingSince: string | null | undefined): Experienc
   return 'advanced'
 }
 
+/**
+ * `quota` — the day's allowance is spent. `empty` — the model answered with
+ * nothing this library can build a program out of. `ai` — anything else.
+ *
+ * These are returned rather than thrown because an error thrown out of a server
+ * action reaches the browser as Next.js's own text: "An error occurred in the
+ * Server Components render. The specific message is omitted in production
+ * builds…". The generator printed that paragraph at the athlete, under a
+ * heading saying the program could not be generated, with no indication of
+ * whether to wait, retry or change anything. Nothing in here throws now; the
+ * cause goes to the server log, where that digest was pointing all along.
+ */
+export type ProgramFailure = 'quota' | 'ai' | 'empty'
+
+function failed(stage: string, e: unknown): { days: PreviewDay[]; error: ProgramFailure } {
+  // The message only. The prompt carries the athlete's own remarks and the
+  // reply carries their training history; neither belongs in a log line.
+  console.error(`[programGen] ${stage} failed:`, e instanceof Error ? e.message : e)
+  return { days: [], error: 'ai' }
+}
+
 export async function previewProgramAction(input: GenerateProgramInput): Promise<{
   days: PreviewDay[]
+  error?: ProgramFailure
 }> {
-  const values = generateProgramSchema.parse(input)
+  // Outside the guard on purpose: verifySession redirects an expired session by
+  // throwing, and swallowing that would strand the athlete on this screen.
   const { user } = await verifySession()
   const supabase = await createClient()
-  const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
 
   try {
-    await consumeAiQuota(supabase, 'program_generation')
+    const values = generateProgramSchema.parse(input)
+    const locale = (await getLocale()) === 'ru' ? 'ru' : 'en'
+
+    try {
+      await consumeAiQuota(supabase, 'program_generation')
+    } catch (e) {
+      if (e instanceof AiQuotaExceededError) return { days: [], error: 'quota' }
+      throw e
+    }
+
+    const daysPerWeek = values.daysPerWeek
+    const all = await getExercises(supabase, user.id)
+    const library = buildLibrary(all, values.location)
+
+    // Profile for age-aware safety + experience; snapshot so the split answers
+    // to what the athlete has actually been training, not just the three inputs.
+    const [{ data: profileRaw }, snapshot] = await Promise.all([
+      supabase.from('profiles').select('age, training_since').eq('id', user.id).maybeSingle(),
+      buildTrainingSnapshot(supabase, user.id, locale, values.goal),
+    ])
+    const profile = profileRaw as unknown as {
+      age: number | null
+      training_since: string | null
+    } | null
+
+    const generated: GeneratedDay[] = await generateProgram({
+      locale,
+      goal: values.goal,
+      daysPerWeek,
+      location: values.location,
+      age: profile?.age ?? null,
+      experience: classifyExperience(profile?.training_since),
+      notes: values.notes,
+      history: {
+        weekly_volumes: snapshot.weekly_volumes,
+        volume_landmarks: snapshot.volume_landmarks,
+        top_prs: snapshot.top_prs,
+      },
+      library,
+    })
+
+    const byId = new Map(all.map((e) => [e.id, e]))
+    const days: PreviewDay[] = generated
+      .map((d) => ({
+        day_label: d.day_label,
+        exercises: d.exercises
+          .map((ex) => {
+            const found = byId.get(ex.exercise_id)
+            if (!found) return null
+            return {
+              exercise_id: ex.exercise_id,
+              name: locale === 'ru' ? (found.name_ru ?? found.name) : found.name,
+              sets: ex.sets,
+              reps: ex.reps,
+            }
+          })
+          .filter((x): x is PreviewDay['exercises'][number] => x !== null),
+      }))
+      // A day the model filled entirely with exercise ids that are not in the
+      // library survives as an empty day and renders as a blank card.
+      .filter((d) => d.exercises.length > 0)
+
+    if (days.length === 0) return { days: [], error: 'empty' }
+    return { days }
   } catch (e) {
-    // Server-action files can't export non-function values, so the UI
-    // detects the literal "quota" substring in the error message
-    // instead of getting a typed sentinel back.
-    if (e instanceof AiQuotaExceededError) throw new Error('AI quota exhausted')
-    throw e
+    return failed('generation', e)
   }
-
-  const daysPerWeek = values.daysPerWeek
-  const all = await getExercises(supabase, user.id)
-  const library = buildLibrary(all, values.location)
-
-  // Profile for age-aware safety + experience; snapshot so the split answers
-  // to what the athlete has actually been training, not just the three inputs.
-  const [{ data: profileRaw }, snapshot] = await Promise.all([
-    supabase.from('profiles').select('age, training_since').eq('id', user.id).maybeSingle(),
-    buildTrainingSnapshot(supabase, user.id, locale, values.goal),
-  ])
-  const profile = profileRaw as unknown as {
-    age: number | null
-    training_since: string | null
-  } | null
-
-  const generated: GeneratedDay[] = await generateProgram({
-    locale,
-    goal: values.goal,
-    daysPerWeek,
-    location: values.location,
-    age: profile?.age ?? null,
-    experience: classifyExperience(profile?.training_since),
-    notes: values.notes,
-    history: {
-      weekly_volumes: snapshot.weekly_volumes,
-      volume_landmarks: snapshot.volume_landmarks,
-      top_prs: snapshot.top_prs,
-    },
-    library,
-  })
-
-  const byId = new Map(all.map((e) => [e.id, e]))
-  const days: PreviewDay[] = generated.map((d) => ({
-    day_label: d.day_label,
-    exercises: d.exercises
-      .map((ex) => {
-        const found = byId.get(ex.exercise_id)
-        if (!found) return null
-        return {
-          exercise_id: ex.exercise_id,
-          name: locale === 'ru' ? (found.name_ru ?? found.name) : found.name,
-          sets: ex.sets,
-          reps: ex.reps,
-        }
-      })
-      .filter((x): x is PreviewDay['exercises'][number] => x !== null),
-  }))
-
-  return { days }
 }
 
 /**
