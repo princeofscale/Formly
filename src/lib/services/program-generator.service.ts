@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type { GrokContext } from './grok.service'
 import type { Exercise } from '@/lib/types/models'
 
@@ -61,11 +60,6 @@ SAFETY CONSTRAINTS — ${reasons.join('; ')}:
 }
 
 export async function generateProgram(input: ProgramGenInput): Promise<GeneratedDay[]> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
-  const client = new Mistral({ apiKey })
-
   const safetyBlock = buildSafetyBlock(input.age, input.experience)
 
   const systemPrompt = `You are a strength coach designing a training split.
@@ -109,22 +103,16 @@ Exactly ${input.daysPerWeek} entries in days[]. Only use exercise_id values from
     athlete_notes: notes || undefined,
   })
 
-  // mistral-medium is 3-5× faster than -large with comparable quality for
-  // structured JSON tasks like this. We're not asking for creative prose.
-  // 7 days × 6 exercises of UUID-sized JSON runs past 1500 tokens, and a
-  // program cut off mid-object came back as "AI returned invalid JSON".
-  const response = await client.chat.complete({
-    model: 'mistral-medium-latest',
-    temperature: 0.4,
-    maxTokens: 4000,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-  })
-
-  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
+  // Grok 4.5 through the CheapVibeCode gateway. 7 days × 6 exercises of
+  // UUID-sized JSON runs past 1500 tokens, and a program cut off mid-object
+  // came back as "AI returned invalid JSON", so the ceiling stays at 4000.
+  const raw =
+    (await cvcChat({
+      system: systemPrompt,
+      user: userPrompt,
+      temperature: 0.4,
+      maxTokens: 4000,
+    })) || '{}'
   let days: GeneratedDay[]
   try {
     const parsed = JSON.parse(raw)
