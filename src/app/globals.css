@@ -5107,6 +5107,16 @@
   align-items: center;
   gap: 6px;
   font-variant-numeric: tabular-nums;
+  /* Long weekday names (ПОНЕДЕЛЬНИК) used to spill out of the 1fr column and
+     land on top of the buttons in the third one. */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tar-w-subtitle > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tar-w-stats {
   display: grid;

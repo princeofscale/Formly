@@ -2,12 +2,31 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 
 export default async function WorkoutLayout({ children }: { children: React.ReactNode }) {
-  const { exerciseForm, history, offline, onboarding, presets, templates, workout } =
-    await getMessages()
+  // exerciseLibrary: ExerciseForm labels its equipment picker from that
+  // namespace, and the form opens inside an active workout too.
+  const {
+    exerciseForm,
+    exerciseLibrary,
+    history,
+    offline,
+    onboarding,
+    presets,
+    templates,
+    workout,
+  } = await getMessages()
 
   return (
     <NextIntlClientProvider
-      messages={{ exerciseForm, history, offline, onboarding, presets, templates, workout }}
+      messages={{
+        exerciseForm,
+        exerciseLibrary,
+        history,
+        offline,
+        onboarding,
+        presets,
+        templates,
+        workout,
+      }}
     >
       {children}
     </NextIntlClientProvider>

@@ -62,6 +62,13 @@ describe('dropWarmupSets', () => {
     expect(dropWarmupSets(sets)).toHaveLength(1)
   })
 
+  it('stops guessing once the athlete flagged a warm-up for that exercise', () => {
+    minute = 0
+    // A deliberately light opener the athlete did NOT mark: it is work.
+    const sets = [set(40, { is_warmup: true }), set(60), set(100)]
+    expect(dropWarmupSets(sets).map((s) => s.weight_kg)).toEqual([60, 100])
+  })
+
   it('keeps back-off sets logged after the top set', () => {
     minute = 0
     const sets = [set(100), set(100), set(50)]

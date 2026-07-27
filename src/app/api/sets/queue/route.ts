@@ -33,6 +33,7 @@ interface QueuedSetBody {
   weightKg: number
   reps: number
   rpe?: number
+  isWarmup?: boolean
 }
 
 export async function POST(request: Request) {
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
     throw err
   }
 
+  const isWarmup = body.isWarmup === true
   const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
 
   const { data, error } = await supabase.rpc('save_offline_set', {
@@ -79,6 +81,10 @@ export async function POST(request: Request) {
     p_reps: reps,
     p_rpe: nullableArg(rpe),
     p_calculated_1rm: nullableArg(calculated1rm),
+    // Sent only when set: PostgREST resolves the function by the argument names
+    // it gets, so a database that has not run the migration yet still syncs
+    // ordinary sets instead of rejecting every one of them.
+    ...(isWarmup ? { p_is_warmup: true } : {}),
   })
   if (error) {
     // A permanent failure has to reach the client as 4xx, or the queue retries
@@ -103,9 +109,10 @@ export async function POST(request: Request) {
     })
   }
 
-  // Records go by the heaviest weight actually lifted (same rule as saveSetAction).
+  // Records go by the heaviest weight actually lifted, ramp sets excluded
+  // (same rule as saveSetAction).
   const prResult =
-    weightKg > 0
+    weightKg > 0 && !isWarmup
       ? detectPRFromHistory(
           weightKg,
           await getBestWeightForExercise(supabase, user.id, exerciseId, set.id),

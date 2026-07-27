@@ -15,6 +15,7 @@ export interface QueuedSetPayload {
   weightKg: number
   reps: number
   rpe?: number
+  isWarmup?: boolean
 }
 
 export interface QueuedSetRecord {

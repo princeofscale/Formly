@@ -108,7 +108,9 @@ Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}
   const response = await client.chat.complete({
     model: 'mistral-large-latest',
     temperature: 0.5,
-    maxTokens: 400,
+    // Russian tokenizes ~2× heavier than English: four bullets fit in 400
+    // tokens most days and get cut mid-JSON on the others.
+    maxTokens: 700,
     responseFormat: { type: 'json_object' },
     messages: [
       { role: 'system', content: systemPrompt },

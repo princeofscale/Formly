@@ -1246,6 +1246,7 @@ export type Database = {
           p_calculated_1rm: number
           p_client_mutation_id: string
           p_exercise_id: string
+          p_is_warmup?: boolean
           p_reps: number
           p_rpe: number
           p_session_id: string
