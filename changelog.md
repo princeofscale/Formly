@@ -4,6 +4,21 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.0...HEAD)
+
+### Added
+
+- The AI program generator now accepts a note in your own words — "shoulder hurts, skip overhead pressing", "more leg work", "keep it under an hour" — and builds the split around it. Leave it empty and nothing changes for you.
+- A generated program now rests on what you have actually been training: weekly working sets per muscle, volume landmarks, and top lifts over the last fourteen days. It previously saw only your goal, your days per week, and where you train, though the screen said otherwise.
+
+### Fixed
+
+- Warm-up sets typed in by hand no longer count as working sets for the AI coach. Only warm-ups added through the warm-up button carried a flag, so a hand-logged ramp turned five working sets into eight, inflated every muscle's weekly volume, and had the coach warning about overtraining that was not happening. A ramp is now recognised by its shape — under 70% of the day's top weight and logged before it — so back-off and drop sets, which come after the top set, still count in full. What the session screen shows you is unchanged: it still counts every set you logged.
+- The coach no longer calls a high set count overtraining on its own; the warning is now tied to a muscle actually sitting at its recoverable ceiling, and a single workout is never grounds for it.
+- Progression suggestions no longer stall on warm-up reps. A three-step ramp made every exercise look like it had missed its rep target, so the coach rarely proposed adding weight.
+
 ## 1.5.0 - 2026-07-26
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.1.0...v1.5.0)

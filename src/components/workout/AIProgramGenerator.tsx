@@ -31,13 +31,19 @@ export function AIProgramGenerator({ defaultLocation }: Props) {
   const [goal, setGoal] = useState<Goal>('hypertrophy')
   const [days, setDays] = useState(3)
   const [location, setLocation] = useState<Location>(defaultLocation)
+  const [notes, setNotes] = useState('')
   const [state, setState] = useState<State>({ kind: 'form' })
   const [, startSave] = useTransition()
 
   async function handleGenerate() {
     setState({ kind: 'loading' })
     try {
-      const input: GenerateProgramInput = { goal, daysPerWeek: days, location }
+      const input: GenerateProgramInput = {
+        goal,
+        daysPerWeek: days,
+        location,
+        notes: notes.trim() || undefined,
+      }
       const { days: previewDays } = await previewProgramAction(input)
       if (previewDays.length === 0) {
         setState({ kind: 'error', message: t('emptyResult') })
@@ -194,6 +200,25 @@ export function AIProgramGenerator({ defaultLocation }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="program-notes"
+              className="text-[10px] uppercase tracking-widest text-white/40 font-bold block"
+            >
+              {t('notesLabel')}
+            </label>
+            <textarea
+              id="program-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder={t('notesPlaceholder')}
+              className="w-full rounded-lg bg-white/[0.04] border border-white/[0.06] p-2.5 text-[12px] leading-snug text-white outline-none focus:border-[#FFC044]/40 placeholder:text-white/30 resize-none"
+            />
+            <p className="text-[10px] text-white/35">{t('notesHint')}</p>
           </div>
 
           <button
