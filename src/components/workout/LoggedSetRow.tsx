@@ -306,20 +306,24 @@ export function LoggedSetRow({ set, isLast, isBodyweight = false, onUpdated, onD
 
   return (
     <div className="relative overflow-hidden">
-      {/* delete affordance under the row */}
-      <div className="absolute inset-y-0 right-0 flex items-center pr-3" style={{ width: 96 }}>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={isBusy}
-          className="ml-auto h-9 px-3 rounded-[8px] flex items-center gap-1.5 text-[11px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-          style={{ background: 'var(--tar-w-danger)' }}
-          aria-label={tEdit('delete')}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          {tEdit('delete')}
-        </button>
-      </div>
+      {/* Delete affordance under the row. Only rendered while the row is swiped
+          aside — the row's own background is near-transparent, so a button left
+          sitting there shows through the RPE cell. */}
+      {swipeX < 0 && (
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3" style={{ width: 96 }}>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isBusy}
+            className="ml-auto h-9 px-3 rounded-[8px] flex items-center gap-1.5 text-[11px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ background: 'var(--tar-w-danger)' }}
+            aria-label={tEdit('delete')}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {tEdit('delete')}
+          </button>
+        </div>
+      )}
 
       {/* swipeable foreground — tar-w-set grid */}
       <div

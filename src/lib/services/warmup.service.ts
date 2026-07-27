@@ -44,26 +44,38 @@ const WARMUP_WEIGHT_RATIO = 0.7
 /**
  * Drops warm-up sets before the numbers reach analytics or the AI coach.
  *
- * Rows flagged `is_warmup` always go. The rest are judged per session and
- * exercise: anything under 70% of that day's top weight *and* logged before
- * the top set is a ramp. Most warm-ups never carry the flag — they get typed
- * in by hand like any other set, and counting them turns 5 working sets into
- * 8, which is what makes the coach cry overtraining.
+ * Rows flagged `is_warmup` always go. Where the athlete marked warm-ups by
+ * hand, that verdict is final for the exercise — every unflagged set counts as
+ * work, however light. Only the exercises with no flag at all fall back to a
+ * guess: under 70% of that day's top weight *and* logged before the top set is
+ * a ramp. That guess exists for the history logged before the warm-up toggle,
+ * where counting ramps turned 5 working sets into 8 and made the coach cry
+ * overtraining.
  *
  * Back-off and drop sets are logged *after* the top set, so they survive.
  */
 export function dropWarmupSets<T extends LoggedSetShape>(sets: readonly T[]): T[] {
   const byExerciseAndSession = new Map<string, T[]>()
+  const marked = new Set<string>()
   for (const set of sets) {
-    if (set.is_warmup) continue
     const key = `${set.session_id}|${set.exercise_id}`
+    if (set.is_warmup) {
+      marked.add(key)
+      continue
+    }
     const group = byExerciseAndSession.get(key)
     if (group) group.push(set)
     else byExerciseAndSession.set(key, [set])
   }
 
   const working = new Set<T>()
-  for (const group of byExerciseAndSession.values()) {
+  for (const [key, group] of byExerciseAndSession) {
+    // The athlete already said which sets were ramps here — don't second-guess.
+    if (marked.has(key)) {
+      for (const set of group) working.add(set)
+      continue
+    }
+
     const top = Math.max(...group.map((s) => s.weight_kg))
 
     // Bodyweight work logs 0 kg: there is no ramp to detect, so keep it all.

@@ -111,10 +111,12 @@ Exactly ${input.daysPerWeek} entries in days[]. Only use exercise_id values from
 
   // mistral-medium is 3-5× faster than -large with comparable quality for
   // structured JSON tasks like this. We're not asking for creative prose.
+  // 7 days × 6 exercises of UUID-sized JSON runs past 1500 tokens, and a
+  // program cut off mid-object came back as "AI returned invalid JSON".
   const response = await client.chat.complete({
     model: 'mistral-medium-latest',
     temperature: 0.4,
-    maxTokens: 1500,
+    maxTokens: 4000,
     responseFormat: { type: 'json_object' },
     messages: [
       { role: 'system', content: systemPrompt },

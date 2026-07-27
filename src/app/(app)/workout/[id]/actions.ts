@@ -38,6 +38,7 @@ export async function saveSetAction(data: {
   weightKg: number
   reps: number
   rpe?: number
+  isWarmup?: boolean
 }): Promise<{ set: SetEntry; prResult: PRResult }> {
   const { user } = await verifySession()
   const supabase = await createClient()
@@ -48,6 +49,7 @@ export async function saveSetAction(data: {
   const weightKg = validateWeightKg(data.weightKg)
   const reps = validateReps(data.reps)
   const rpe = validateRpe(data.rpe)
+  const isWarmup = data.isWarmup === true
 
   // 1RM is only meaningful for loaded sets. For pure bodyweight (weight=0) we skip it.
   const calculated1rm = weightKg > 0 ? calculate1RM(weightKg, reps) : null
@@ -61,12 +63,14 @@ export async function saveSetAction(data: {
     reps,
     rpe,
     calculated1rm,
+    isWarmup,
   })
 
   // Records are tracked by the heaviest weight actually lifted, not by
   // an estimated 1RM — estimates mislead, real kilograms don't.
+  // A ramp set never sets a record, however heavy the athlete typed it.
   const prResult =
-    weightKg > 0
+    weightKg > 0 && !isWarmup
       ? detectPRFromHistory(
           weightKg,
           await getBestWeightForExercise(supabase, user.id, exerciseId, set.id),

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { Flame } from 'lucide-react'
 import { saveSetAction } from '@/app/(app)/workout/[id]/actions'
 import { calculate1RM } from '@/lib/utils/one-rep-max'
 import { enqueueSet } from '@/lib/utils/offline-queue'
@@ -114,6 +115,7 @@ export function SetRow({
   const [weight, setWeight] = useState(defaultWeight ? String(defaultWeight) : '')
   const [reps, setReps] = useState(String(defaultReps))
   const [rpe, setRpe] = useState('')
+  const [isWarmup, setIsWarmup] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [isPending, startTransition] = useTransition()
   const suggestionNonce = appliedSuggestion?.nonce
@@ -179,10 +181,12 @@ export function SetRow({
         weightKg: weightToSave,
         reps: r,
         rpe: rpeVal,
+        isWarmup,
       }
       try {
         const { set, prResult } = await saveSetAction(payload)
         if (typeof window !== 'undefined') window.localStorage.removeItem(draftKey)
+        setIsWarmup(false)
         onSaved(set, prResult)
       } catch (err) {
         const offlineSignal =
@@ -203,11 +207,13 @@ export function SetRow({
           calculated_1rm: calc1rm,
           rest_seconds: null,
           created_at: new Date().toISOString(),
+          is_warmup: isWarmup,
         }
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem(draftKey)
           window.dispatchEvent(new CustomEvent('formly:set-queued'))
         }
+        setIsWarmup(false)
         onSaved(syntheticSet, {
           is_pr: false,
           previous_best: null,
@@ -220,9 +226,35 @@ export function SetRow({
 
   return (
     <div className="space-y-2">
-      <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">
-        {t('setLabel', { n: setNumber })}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[9px] font-mono uppercase tracking-widest text-zinc-600">
+          {t('setLabel', { n: setNumber })}
+        </p>
+        {/* Marks the set as a ramp: it stays in the log but is left out of
+            volume, PRs and everything the AI coach reads. */}
+        <button
+          type="button"
+          onClick={() => setIsWarmup((v) => !v)}
+          aria-pressed={isWarmup}
+          className="flex items-center gap-1.5 h-7 px-2.5 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-colors"
+          style={
+            isWarmup
+              ? {
+                  background: 'rgba(94, 234, 212, 0.14)',
+                  border: '1px solid rgba(94, 234, 212, 0.45)',
+                  color: '#5EEAD4',
+                }
+              : {
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  color: 'rgba(255, 255, 255, 0.45)',
+                }
+          }
+        >
+          <Flame className="h-3 w-3" />
+          {t('warmupShort')}
+        </button>
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <Stepper
           label={isBodyweight ? t('extraWeightLabel') : t('weightLabel')}

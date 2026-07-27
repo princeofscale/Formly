@@ -62,14 +62,39 @@ const saveProgramSchema = z.object({
   days: z.array(previewDaySchema).min(1).max(7),
 })
 
+/**
+ * The catalog runs to several hundred exercises. Shipping all of them makes the
+ * prompt slow and expensive without making the split any better — nobody needs
+ * forty chest variants to pick three. Compounds and the athlete's own exercises
+ * get the seats.
+ */
+const MAX_PER_MUSCLE = 12
+
+function pickRank(e: Exercise): number {
+  return (e.is_custom ? 0 : 1) + (e.mechanic === 'compound' ? 0 : 2)
+}
+
+function capLibrary(list: Exercise[]): Exercise[] {
+  const taken = new Map<string, number>()
+  return list
+    .slice()
+    .sort((a, b) => pickRank(a) - pickRank(b))
+    .filter((e) => {
+      const n = taken.get(e.primary_muscle) ?? 0
+      if (n >= MAX_PER_MUSCLE) return false
+      taken.set(e.primary_muscle, n + 1)
+      return true
+    })
+}
+
 function buildLibrary(all: Exercise[], location: GenerateProgramInput['location']): Exercise[] {
   if (location === 'home_bodyweight') {
-    return all.filter((e) => e.equipment === 'bodyweight')
+    return capLibrary(all.filter((e) => e.equipment === 'bodyweight'))
   }
   if (location === 'home_dumbbells') {
-    return all.filter((e) => e.equipment === 'dumbbell' || e.equipment === 'bodyweight')
+    return capLibrary(all.filter((e) => e.equipment === 'dumbbell' || e.equipment === 'bodyweight'))
   }
-  return all
+  return capLibrary(all)
 }
 
 function classifyExperience(trainingSince: string | null | undefined): ExperienceLevel {

@@ -4,6 +4,20 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- A "Warmup" switch on the set you are about to log. Flip it and the set is still written down, but it stays out of volume, records and everything the AI coach reads. Where you mark warm-ups by hand, the automatic guess for that exercise steps aside entirely — a deliberately light working set counts as work again. Marking one while offline survives the sync.
+
+### Fixed
+
+- The equipment picker in "Add your own exercise" showed `exerciseLibrary.equipment…` in every cell instead of Barbell, Dumbbells and the rest, whenever the form was opened from inside a workout. The screen was not given that part of the translations.
+- The AI program generator no longer fails on longer splits. The reply was capped at a length a 6–7 day program overruns, and a program cut off mid-object came back as "AI returned invalid JSON". The post-workout debrief had the same ceiling in Russian, where the same text costs about twice the tokens.
+- The AI program generator no longer ships the entire exercise catalog to the model on every generation — around 700 exercises, most of them variants of each other. It now takes up to twelve per muscle, compounds and your own exercises first, which makes generation several times faster and cheaper.
+- The weekday in the workout header no longer runs over the save-as-template button on a phone.
+- The red "Delete" button no longer shows through the "Effort" cell of a logged set. It is drawn only once the row is swiped aside.
+
 ## 1.5.1 - 2026-07-27
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.0...v1.5.1)
