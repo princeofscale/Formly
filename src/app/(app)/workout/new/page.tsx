@@ -9,6 +9,14 @@ import Link from 'next/link'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { Trash2, Bike, Play, Clock, Plus, Repeat } from 'lucide-react'
 
+/**
+ * The program generator runs as a server action on this route and waits on a
+ * model writing up to 4000 tokens of JSON — the longest single call in the app.
+ * Stated explicitly so it does not inherit whatever the platform default
+ * happens to be; 60s is the ceiling on the current plan.
+ */
+export const maxDuration = 60
+
 export default async function NewWorkoutPage() {
   const { user } = await verifySession()
   const supabase = await createClient()
