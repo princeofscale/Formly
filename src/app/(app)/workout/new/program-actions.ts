@@ -13,6 +13,7 @@ import {
   type ProgramGoal,
 } from '@/lib/services/program-generator.service'
 import { consumeAiQuota, AiQuotaExceededError } from '@/lib/services/ai-quota.service'
+import { buildTrainingSnapshot } from '@/lib/services/training-snapshot.service'
 import type { Exercise, TemplateExercise } from '@/lib/types/models'
 import type { Json } from '@/lib/types/database.types'
 
@@ -30,12 +31,15 @@ export interface GenerateProgramInput {
   goal: ProgramGoal
   daysPerWeek: number
   location: 'gym' | 'home_dumbbells' | 'home_bodyweight'
+  /** Optional remarks for the coach. Left out, the plan rests on history alone. */
+  notes?: string
 }
 
 const generateProgramSchema = z.object({
   goal: z.enum(['strength', 'hypertrophy', 'general']),
   daysPerWeek: z.number().int().min(1).max(7),
   location: z.enum(['gym', 'home_dumbbells', 'home_bodyweight']),
+  notes: z.string().trim().max(500).optional(),
 })
 
 const previewDaySchema = z.object({
@@ -100,12 +104,12 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
   const all = await getExercises(supabase, user.id)
   const library = buildLibrary(all, values.location)
 
-  // Pull profile for age-aware safety + experience classification
-  const { data: profileRaw } = await supabase
-    .from('profiles')
-    .select('age, training_since')
-    .eq('id', user.id)
-    .maybeSingle()
+  // Profile for age-aware safety + experience; snapshot so the split answers
+  // to what the athlete has actually been training, not just the three inputs.
+  const [{ data: profileRaw }, snapshot] = await Promise.all([
+    supabase.from('profiles').select('age, training_since').eq('id', user.id).maybeSingle(),
+    buildTrainingSnapshot(supabase, user.id, locale, values.goal),
+  ])
   const profile = profileRaw as unknown as {
     age: number | null
     training_since: string | null
@@ -118,6 +122,12 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
     location: values.location,
     age: profile?.age ?? null,
     experience: classifyExperience(profile?.training_since),
+    notes: values.notes,
+    history: {
+      weekly_volumes: snapshot.weekly_volumes,
+      volume_landmarks: snapshot.volume_landmarks,
+      top_prs: snapshot.top_prs,
+    },
     library,
   })
 
