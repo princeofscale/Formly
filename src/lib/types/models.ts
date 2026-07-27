@@ -1,6 +1,14 @@
 export type MuscleGroup =
+  // `chest`, `back`, `core` and `calves` are the middle chest, the upper and
+  // middle back, the rectus abdominis and the gastrocnemius. The regions beside
+  // them are listed in src/lib/utils/muscle-groups.ts with their parent group.
   | 'chest'
+  | 'chest_upper'
+  | 'chest_lower'
   | 'back'
+  | 'lower_back'
+  | 'obliques'
+  | 'soleus'
   | 'biceps'
   | 'triceps'
   | 'forearms'
@@ -84,6 +92,8 @@ export interface WorkoutSession {
   notes: string | null
   mood_score: number | null
   total_volume_kg: number
+  /** Short name written by the coach with the debrief. Null until it runs. */
+  ai_title?: string | null
   session_type?: 'strength' | 'cardio'
   cardio_activity?: CardioActivity | null
   cardio_duration_seconds?: number | null
@@ -153,6 +163,8 @@ export interface VolumeLandmark {
   muscle: MuscleGroup
   weekly_sets: number
   status: 'mv' | 'optimal' | 'mrv'
+  /** Present when the week's sets came from regions of this group. */
+  regions?: Array<{ muscle: MuscleGroup; weekly_sets: number }>
 }
 
 export interface AIInsightItem {

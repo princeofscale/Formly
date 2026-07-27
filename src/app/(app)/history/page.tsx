@@ -155,7 +155,7 @@ export default async function HistoryPage({
               })
               const title = isCardio
                 ? (s.cardio_activity ?? 'Cardio')
-                : tags.slice(0, 2).join(' · ') || t('totalSessions')
+                : s.ai_title?.trim() || tags.slice(0, 2).join(' · ') || t('totalSessions')
               const tonnage = Math.round(s.total_volume_kg ?? 0)
               // PR is a stretch — we don't have per-session PR info loaded here.
               // Mark sessions with >2000kg tonnage as visually elevated for now.

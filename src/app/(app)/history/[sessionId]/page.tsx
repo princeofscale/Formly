@@ -4,26 +4,19 @@ import { verifySession } from '@/lib/dal'
 import { getSession } from '@/lib/db/workouts'
 import { getSetsForSession } from '@/lib/db/sets'
 import { getExercises } from '@/lib/db/exercises'
+import { getExerciseNotesForExercises } from '@/lib/db/exercise-notes'
 import { getTranslations, getLocale } from 'next-intl/server'
-import type { ExerciseWithSets, MuscleGroup } from '@/lib/types/models'
+import type { ExerciseWithSets } from '@/lib/types/models'
 import { DeleteWorkoutButton } from './DeleteWorkoutButton'
 import { repeatWorkoutAction } from '../actions'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, StickyNote } from 'lucide-react'
 import { MOOD_EMOJIS } from '@/components/workout/MoodSelector'
 import { MuscleIcon } from '@/components/workout/muscle-icon'
 import { SessionSummaryHero } from '@/components/history/SessionSummaryHero'
 import { SessionAIDebrief } from '@/components/history/SessionAIDebrief'
 import { getSessionSummary } from '@/lib/services/session-summary.service'
 import { weightUnit } from '@/lib/units'
-
-function muscleBucket(m: MuscleGroup): 'chest' | 'back' | 'legs' | 'shoulder' | 'arms' | 'core' {
-  if (m === 'chest') return 'chest'
-  if (m === 'back' || m === 'lats' || m === 'traps' || m === 'rear_delts') return 'back'
-  if (m === 'quads' || m === 'hamstrings' || m === 'glutes' || m === 'calves') return 'legs'
-  if (m === 'front_delts' || m === 'side_delts') return 'shoulder'
-  if (m === 'biceps' || m === 'triceps' || m === 'forearms') return 'arms'
-  return 'core'
-}
+import { muscleBucket } from '@/lib/utils/muscle-groups'
 
 export default async function SessionDetailPage({
   params,
@@ -48,6 +41,14 @@ export default async function SessionDetailPage({
     getExercises(supabase, user.id),
     finished === '1' ? getSessionSummary(supabase, user.id, sessionId) : Promise.resolve(null),
   ])
+
+  // Notes written during this workout stay with it — this is where they end up.
+  const exerciseNotes = await getExerciseNotesForExercises(
+    supabase,
+    user.id,
+    sessionId,
+    Array.from(new Set(sets.map((s) => s.exercise_id))),
+  )
 
   const exerciseMap = new Map<string, ExerciseWithSets>()
   for (const set of sets) {
@@ -91,7 +92,7 @@ export default async function SessionDetailPage({
 
       {/* Header */}
       <div className="tar-d-rise tar-d-rise-1" style={{ padding: '4px 2px 0' }}>
-        <div className="tar-d-eyebrow">{t('eyebrow')}</div>
+        <div className="tar-d-eyebrow">{session.ai_title?.trim() || t('eyebrow')}</div>
         <div className="flex items-start justify-between gap-3">
           <h1 className="tar-d-hello-name capitalize" style={{ fontSize: 26, marginTop: 4 }}>
             {dateStr}
@@ -239,6 +240,21 @@ export default async function SessionDetailPage({
                 )
               })}
             </div>
+
+            {exerciseNotes[ex.id] && (
+              <div
+                className="mt-2 flex gap-2 rounded-xl p-2.5"
+                style={{
+                  background: 'rgba(255,59,71,0.04)',
+                  border: '1px solid rgba(255,59,71,0.18)',
+                }}
+              >
+                <StickyNote className="mt-0.5 h-3 w-3 shrink-0" style={{ color: '#FF3B47' }} />
+                <p className="whitespace-pre-wrap text-xs leading-snug text-white/80">
+                  {exerciseNotes[ex.id]}
+                </p>
+              </div>
+            )}
           </div>
         )
       })}

@@ -58,10 +58,14 @@ export default async function AnalyticsPage({
   const totalTonnage = tonnage.reduce((sum, month) => sum + month.total_kg, 0)
   const balancedMuscles = landmarks.filter((landmark) => landmark.status === 'optimal').length
 
-  // Translated muscle names for the landmarks list (quads → Квадрицепс etc.)
+  // Translated muscle names for the landmarks list (quads → Квадрицепс etc.),
+  // groups and the regions listed under them alike.
   const muscleLabels: Record<string, string> = {}
   for (const landmark of landmarks) {
     muscleLabels[landmark.muscle] = tMuscles(landmark.muscle)
+    for (const region of landmark.regions ?? []) {
+      muscleLabels[region.muscle] = tMuscles(region.muscle)
+    }
   }
 
   const pulse = [

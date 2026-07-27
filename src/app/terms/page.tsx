@@ -1,313 +1,525 @@
-import Link from 'next/link'
 import { getLocale } from 'next-intl/server'
-import { ChevronLeft } from 'lucide-react'
+import { LegalDocument, type LegalSection } from '@/components/legal/LegalDocument'
 import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
-//   Starter Terms of Service template. NOT legal advice. Adjust contact info,
-//   jurisdiction, and any monetization clauses (subscriptions/IAP) before
-//   shipping to app stores. Apple/Google additionally require their own
-//   Standard EULA acceptance — link from your store listing.
+//   Terms of service written against what Formly actually does. Not legal
+//   advice. Distribution through an app store additionally requires acceptance
+//   of the platform's own EULA — link it from the store listing. Any
+//   monetisation added later needs a payment, refund and renewal section here.
+//
+//   AGENTS.md § "Privacy policy and terms of service": a change to what a user
+//   may do with the Service, or to what the Operator answers for, belongs in
+//   this document in the same change.
 
 export const metadata = {
   title: 'Terms of Service — Formly',
-  description: 'Rules of using Formly.',
+  description: 'The terms on which Formly is provided.',
 }
 
-const JURISDICTION_EN = 'Russian Federation' // ← поменяй на свою юрисдикцию если нужно
+const JURISDICTION_EN = 'Russian Federation'
 const JURISDICTION_RU = 'Российской Федерации'
 
 export default async function TermsPage() {
   const locale = await getLocale()
   const ru = locale === 'ru'
 
-  return (
-    <div className="min-h-screen bg-[#050510] text-white">
-      <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-100"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {ru ? 'Назад' : 'Back'}
-        </Link>
+  const contact = LEGAL_CONTACT
+  const operator = LEGAL_OPERATOR
+  const mailto = (
+    <a href={`mailto:${contact}`} className="break-all">
+      {contact}
+    </a>
+  )
 
-        <article className="prose prose-invert mt-6 max-w-none">
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            {ru ? 'Правила использования' : 'Terms of Service'}
-          </h1>
-          <p className="text-xs uppercase tracking-widest text-white/40">
-            {ru ? 'Обновлено' : 'Last updated'}: {LEGAL_LAST_UPDATED}
+  const sections = ru
+    ? termsRu(mailto, operator, JURISDICTION_RU)
+    : termsEn(mailto, operator, JURISDICTION_EN)
+
+  return (
+    <LegalDocument
+      eyebrow={ru ? 'Правовые документы' : 'Legal'}
+      title={ru ? 'Пользовательское соглашение' : 'Terms of Service'}
+      backLabel={ru ? 'На главную' : 'Home'}
+      contentsLabel={ru ? 'Содержание' : 'Contents'}
+      meta={[
+        { label: ru ? 'Редакция от' : 'Last updated', value: LEGAL_LAST_UPDATED },
+        { label: ru ? 'Оператор' : 'Operator', value: operator },
+        { label: ru ? 'Применимое право' : 'Governing law', value: ru ? 'Россия' : 'Russia' },
+      ]}
+      intro={
+        ru ? (
+          <>
+            <p>
+              Настоящее Соглашение регулирует использование сервиса Formly (далее — «Сервис»),
+              предоставляемого {operator} (далее — «Оператор»). Соглашение является публичной
+              офертой.
+            </p>
+            <p>
+              Регистрация в Сервисе или его использование означает полное и безоговорочное принятие
+              условий настоящего Соглашения. Лицо, не согласное с его условиями, обязано прекратить
+              использование Сервиса.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              These Terms govern use of the Formly service (the &quot;Service&quot;) provided by{' '}
+              {operator} (the &quot;Operator&quot;).
+            </p>
+            <p>
+              Registering for or using the Service constitutes full acceptance of these Terms. A
+              person who does not accept them must stop using the Service.
+            </p>
+          </>
+        )
+      }
+      sections={sections}
+      sibling={{
+        href: '/privacy',
+        label: ru ? 'Политика конфиденциальности →' : 'Privacy Policy →',
+      }}
+    />
+  )
+}
+
+function termsRu(mailto: React.ReactNode, operator: string, jurisdiction: string): LegalSection[] {
+  return [
+    {
+      id: 'subject',
+      title: 'Предмет Соглашения',
+      body: (
+        <>
+          <p>
+            Оператор предоставляет пользователю право безвозмездного использования Сервиса в личных
+            некоммерческих целях: ведения журнала тренировок, учёта показателей тела, анализа
+            прогресса и получения формируемых автоматически рекомендаций.
           </p>
-
-          {ru ? (
-            <TermsRu
-              contact={LEGAL_CONTACT}
-              operator={LEGAL_OPERATOR}
-              jurisdiction={JURISDICTION_RU}
-            />
-          ) : (
-            <TermsEn
-              contact={LEGAL_CONTACT}
-              operator={LEGAL_OPERATOR}
-              jurisdiction={JURISDICTION_EN}
-            />
-          )}
-
-          <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/40">
-            <Link href="/privacy" className="underline hover:text-white/70">
-              {ru ? 'Политика конфиденциальности' : 'Privacy Policy'}
-            </Link>
-          </div>
-        </article>
-      </div>
-    </div>
-  )
+          <p>
+            Сервис предоставляется без взимания платы и без размещения рекламы. Оператор не
+            принимает на себя обязательств по достижению пользователем каких-либо тренировочных
+            результатов.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'eligibility',
+      title: 'Требования к пользователю',
+      body: (
+        <p>
+          Пользователем может быть лицо, достигшее 13 лет либо возраста цифрового согласия,
+          установленного законодательством страны его проживания, если он выше. Лицо в возрасте от
+          13 до 18 лет подтверждает наличие согласия родителей или иных законных представителей на
+          регистрацию и использование Сервиса.
+        </p>
+      ),
+    },
+    {
+      id: 'account',
+      title: 'Учётная запись',
+      body: (
+        <ul>
+          <li>
+            Пользователь самостоятельно обеспечивает сохранность пароля и несёт ответственность за
+            все действия, совершённые с использованием его учётной записи.
+          </li>
+          <li>
+            Пользователь обязуется предоставлять достоверные сведения и не выдавать себя за иное
+            лицо.
+          </li>
+          <li>
+            Допускается создание одной учётной записи на одно физическое лицо. Массовая регистрация
+            запрещена.
+          </li>
+          <li>
+            Оператор вправе приостановить или прекратить доступ к учётной записи при нарушении
+            настоящего Соглашения.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: 'health',
+      title: 'Здоровье и безопасность',
+      body: (
+        <div className="legal-callout">
+          <p>
+            <strong>Сервис носит информационный характер и не является медицинским.</strong>{' '}
+            Расчётный одноповторный максимум, рекомендации по прогрессии, силовые нормативы,
+            результаты калькулятора блинов, интервалы отдыха и материалы, формируемые системой
+            искусственного интеллекта, представляют собой ориентиры, а не назначения, и вычисляются
+            по общедоступным формулам на основании данных, внесённых пользователем.
+          </p>
+          <p>
+            Занятия с отягощениями сопряжены с риском травмы. Пользователь принимает этот риск на
+            себя. Перед началом тренировочной программы необходима консультация квалифицированного
+            специалиста, в особенности при наличии заболеваний, травм, беременности или в период
+            восстановления после болезни.
+          </p>
+          <p>
+            Сервис не располагает сведениями о технике выполнения упражнений, утомлении, качестве
+            сна, питании и принимаемых препаратах. Рекомендация, противоречащая самочувствию
+            пользователя, подлежит игнорированию.
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: 'content',
+      title: 'Содержимое пользователя',
+      body: (
+        <p>
+          Все данные, вносимые пользователем — тренировки, фотографии, заметки, измерения, —
+          остаются его собственностью. Пользователь предоставляет Оператору неисключительную
+          безвозмездную лицензию в объёме, минимально необходимом для хранения таких данных и
+          отображения их пользователю и тем лицам, которым он сам открыл доступ. Оператор не
+          передаёт эти данные третьим лицам для их собственных целей и не использует их для обучения
+          моделей искусственного интеллекта.
+        </p>
+      ),
+    },
+    {
+      id: 'conduct',
+      title: 'Допустимое использование',
+      body: (
+        <>
+          <p>Пользователю запрещается:</p>
+          <ul>
+            <li>
+              использовать Сервис для преследования, причинения вреда или введения в заблуждение
+              других лиц, в том числе через ленту активности, комментарии и личные сообщения;
+            </li>
+            <li>
+              размещать противоправные материалы, материалы, содержащие сцены сексуального насилия
+              над детьми, вредоносное программное обеспечение, а также материалы, нарушающие права
+              третьих лиц;
+            </li>
+            <li>
+              осуществлять сканирование, автоматизированный сбор данных, обратную разработку и
+              нагрузочное тестирование Сервиса без письменного разрешения Оператора;
+            </li>
+            <li>перепродавать Сервис или использовать его в коммерческих целях.</li>
+          </ul>
+          <p>
+            Сообщения о нарушениях со стороны других пользователей направляются на {mailto}. В
+            Сервисе доступна функция блокировки, прекращающая взаимодействие с выбранным
+            пользователем в обе стороны.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'social',
+      title: 'Социальные функции и публикация данных',
+      body: (
+        <>
+          <ul>
+            <li>
+              Добавление друга по коду делает видимыми ему сведения о завершённых тренировках,
+              недельном объёме, рекордах и сериях. Публикация отключается переключателем «Делиться
+              активностью» в профиле.
+            </li>
+            <li>
+              Ссылка на тренировку, созданная пользователем, открывает снимок карточки тренировки
+              любому лицу, располагающему ссылкой, без авторизации. Ответственность за
+              распространение ссылки несёт создавший её пользователь; ссылка может быть отозвана в
+              любой момент.
+            </li>
+            <li>
+              Оператор не модерирует переписку между пользователями в постоянном режиме и
+              рассматривает обращения по мере поступления.
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      id: 'ai',
+      title: 'Функции искусственного интеллекта',
+      body: (
+        <p>
+          Отдельные материалы Сервиса — разборы тренировок, рекомендации, программы, названия
+          тренировок и ответы тренера — формируются сторонней большой языковой моделью (Mistral AI).
+          Такие модели допускают фактические ошибки, в связи с чем полученные материалы следует
+          рассматривать как предположение, подлежащее самостоятельной проверке. Модели передаются
+          только обезличенные сводные показатели тренировок; адрес электронной почты, фотографии и
+          личные сообщения не передаются. Количество обращений к функциям искусственного интеллекта
+          ограничено суточной квотой.
+        </p>
+      ),
+    },
+    {
+      id: 'availability',
+      title: 'Доступность Сервиса и его изменение',
+      body: (
+        <p>
+          Сервис предоставляется на условиях «как есть» (as is) без гарантий бесперебойной работы,
+          отсутствия ошибок и пригодности для конкретных целей. Оператор вправе изменять,
+          ограничивать или прекращать отдельные функции. При существенных изменениях, затрагивающих
+          данные пользователя, уведомление размещается в интерфейсе Сервиса. Пользователю
+          рекомендуется сохранять резервную копию данных средствами выгрузки в формате CSV.
+        </p>
+      ),
+    },
+    {
+      id: 'liability',
+      title: 'Ограничение ответственности',
+      body: (
+        <p>
+          В максимальной степени, допускаемой применимым правом, Оператор не несёт ответственности
+          за косвенные, случайные, специальные или последующие убытки, включая вред здоровью, утрату
+          прогресса, утрату данных и упущенную выгоду, возникшие в связи с использованием Сервиса.
+          Единственным средством правовой защиты пользователя, не удовлетворённого Сервисом,
+          является прекращение его использования. Настоящий раздел не ограничивает ответственность,
+          которая не может быть ограничена по закону.
+        </p>
+      ),
+    },
+    {
+      id: 'termination',
+      title: 'Прекращение использования',
+      body: (
+        <p>
+          Пользователь вправе в любой момент прекратить использование Сервиса и удалить учётную
+          запись в порядке, установленном разделом 7 Политики конфиденциальности. Оператор вправе
+          прекратить доступ при нарушении настоящего Соглашения с предварительным уведомлением, а
+          при грубых нарушениях — незамедлительно.
+        </p>
+      ),
+    },
+    {
+      id: 'law',
+      title: 'Применимое право и изменение Соглашения',
+      body: (
+        <p>
+          К настоящему Соглашению применяется право {jurisdiction} без учёта коллизионных норм.
+          Оператор вправе вносить в Соглашение изменения; при существенных изменениях уведомление
+          размещается в интерфейсе Сервиса до вступления их в силу. Продолжение использования
+          Сервиса после вступления изменений в силу означает согласие с ними. Дата редакции указана
+          в начале документа.
+        </p>
+      ),
+    },
+    {
+      id: 'contact',
+      title: 'Контактные данные',
+      body: (
+        <p>
+          Вопросы и обращения по настоящему Соглашению направляются Оператору ({operator}) по адресу
+          электронной почты {mailto}.
+        </p>
+      ),
+    },
+  ]
 }
 
-function TermsEn({
-  contact,
-  operator,
-  jurisdiction,
-}: {
-  contact: string
-  operator: string
-  jurisdiction: string
-}) {
-  return (
-    <>
-      <p className="text-white/70">
-        By using <strong>Formly</strong> (the &quot;Service&quot;) you agree to these terms. The
-        Service is provided by {operator} (the &quot;Operator&quot;). If you don&apos;t agree,
-        please don&apos;t use it.
-      </p>
-
-      <h2>1. The deal in one paragraph</h2>
-      <p>
-        We give you a place to log your workouts, body data, and personal records — free of charge,
-        with no ads. You promise to use it for yourself only, not break it, not abuse it, and to
-        take full responsibility for what you do with the suggestions and numbers we show.
-      </p>
-
-      <h2>2. Eligibility</h2>
-      <p>
-        You must be at least 13 years old (or the minimum age of digital consent in your country,
-        whichever is higher). If you are between 13 and 18, you confirm you have parental permission
-        to register.
-      </p>
-
-      <h2>3. Your account</h2>
-      <ul>
-        <li>You are responsible for your password. Don&apos;t share your account.</li>
-        <li>Provide truthful information. Don&apos;t impersonate.</li>
-        <li>One human, one account. No bulk-registration.</li>
-        <li>We may suspend or terminate accounts that abuse the service or violate these terms.</li>
-      </ul>
-
-      <h2>4. Health & safety — this is critical</h2>
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+function termsEn(mailto: React.ReactNode, operator: string, jurisdiction: string): LegalSection[] {
+  return [
+    {
+      id: 'subject',
+      title: 'Subject of these Terms',
+      body: (
+        <>
+          <p>
+            The Operator grants the user a right to use the Service free of charge for personal,
+            non-commercial purposes: keeping a training log, recording body metrics, analysing
+            progress and receiving automatically generated recommendations.
+          </p>
+          <p>
+            The Service carries no charge and no advertising. The Operator gives no undertaking that
+            any particular training result will be achieved.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'eligibility',
+      title: 'Eligibility',
+      body: (
         <p>
-          <strong>The Service is informational, not medical.</strong> The 1RM estimates, RPE-based
-          progression suggestions, strength tiers, plate calculator output, rest-timer durations,
-          and AI insights are <strong>guidance, not prescriptions</strong>. They are based on common
-          formulas and your own inputs.
+          A user must be at least 13 years old, or the age of digital consent in their country of
+          residence if that is higher. A user aged between 13 and 18 confirms that a parent or legal
+          guardian has consented to their registration and use of the Service.
         </p>
+      ),
+    },
+    {
+      id: 'account',
+      title: 'Accounts',
+      body: (
+        <ul>
+          <li>
+            The user is responsible for keeping their password secure and for all activity carried
+            out through their account.
+          </li>
+          <li>
+            The user undertakes to provide truthful information and not to impersonate anyone.
+          </li>
+          <li>One account per person. Bulk registration is prohibited.</li>
+          <li>The Operator may suspend or terminate an account that breaches these Terms.</li>
+        </ul>
+      ),
+    },
+    {
+      id: 'health',
+      title: 'Health and safety',
+      body: (
+        <div className="legal-callout">
+          <p>
+            <strong>The Service is informational and is not medical.</strong> Estimated
+            one-repetition maxima, progression suggestions, strength standards, plate calculator
+            output, rest intervals and material generated by the artificial intelligence features
+            are guidance, not prescriptions; they are computed from published formulas and the
+            user&apos;s own entries.
+          </p>
+          <p>
+            Resistance training carries an inherent risk of injury, which the user assumes. Consult
+            a qualified professional before beginning a training program, particularly in the
+            presence of a medical condition, injury or pregnancy, or while recovering from illness.
+          </p>
+          <p>
+            The Service has no knowledge of the user&apos;s technique, fatigue, sleep, nutrition or
+            medication. A suggestion that conflicts with how the user feels should be disregarded.
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: 'content',
+      title: 'User content',
+      body: (
         <p>
-          Lifting weights carries inherent risk of injury. <strong>You assume that risk.</strong>{' '}
-          Consult a qualified medical professional before starting any training program, especially
-          if you have pre-existing conditions, injuries, are pregnant, or are recovering from
-          illness.
+          Everything the user records — workouts, photographs, notes, measurements — remains theirs.
+          The user grants the Operator a non-exclusive, royalty-free licence limited to what is
+          needed to store that content and display it back to the user and to anyone the user has
+          granted access. The Operator does not license this content to third parties for their own
+          purposes and does not use it to train artificial intelligence models.
         </p>
+      ),
+    },
+    {
+      id: 'conduct',
+      title: 'Acceptable use',
+      body: (
+        <>
+          <p>The user must not:</p>
+          <ul>
+            <li>
+              use the Service to harass, harm or deceive others, including through the activity
+              feed, comments and direct messages;
+            </li>
+            <li>
+              upload unlawful content, child sexual abuse material, malware, or content that
+              infringes the rights of others;
+            </li>
+            <li>
+              probe, scrape, reverse-engineer or run automated load against the Service without the
+              Operator&apos;s written permission;
+            </li>
+            <li>resell the Service or use it for commercial purposes.</li>
+          </ul>
+          <p>
+            Reports of abuse by other users may be sent to {mailto}. The Service also provides a
+            block function, which ends interaction with the chosen user in both directions.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 'social',
+      title: 'Social features and publication',
+      body: (
+        <ul>
+          <li>
+            Adding a friend by code makes finished workouts, weekly volume, records and streaks
+            visible to that friend. Publication is switched off with the &quot;Share activity&quot;
+            toggle in the profile.
+          </li>
+          <li>
+            A workout link created by the user opens a snapshot of the workout card to anyone
+            holding the link, without authentication. Responsibility for distributing the link rests
+            with the user who created it; the link may be revoked at any time.
+          </li>
+          <li>
+            The Operator does not continuously moderate conversations between users and acts on
+            reports as they are received.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: 'ai',
+      title: 'Artificial intelligence features',
+      body: (
         <p>
-          If a suggestion the app makes feels wrong for your body, <strong>ignore it</strong>. The
-          app does not see your form, your fatigue, your sleep, your nutrition, your medication. You
-          do.
+          Certain material — session debriefs, recommendations, programs, session titles and coach
+          replies — is generated by a third-party large language model (Mistral AI). Such models
+          produce factual errors, so their output should be treated as a suggestion to be verified
+          rather than as fact. Only pseudonymised aggregate training figures are transmitted; email
+          addresses, photographs and direct messages are not. Use of the artificial intelligence
+          features is subject to a daily quota.
         </p>
-      </div>
-
-      <h2>5. Your content</h2>
-      <p>
-        You own everything you log: workouts, photos, notes, measurements. You grant the Operator
-        the minimal licence needed to store it and show it back to you. We never license it to third
-        parties. We never train AI models on your data.
-      </p>
-
-      <h2>6. Acceptable use</h2>
-      <p>You agree not to:</p>
-      <ul>
-        <li>Use the Service to harass, harm, or deceive others.</li>
-        <li>
-          Upload illegal content, child sexual abuse material, malware, or content that infringes
-          someone else&apos;s rights.
-        </li>
-        <li>Probe, scrape, reverse-engineer, or run automated load against the Service.</li>
-        <li>Resell or commercially redistribute the Service.</li>
-      </ul>
-
-      <h2>7. AI features</h2>
-      <p>
-        Some insights are generated by a third-party large language model (Mistral). LLMs
-        hallucinate. Treat their output as a starting point, not gospel. We do not send your raw
-        email or photos to the LLM — only aggregated workout numbers.
-      </p>
-
-      <h2>8. Availability and changes</h2>
-      <p>
-        We try to keep the Service up, but it is provided <strong>&quot;as is&quot;</strong> without
-        warranties. We may change, restrict, or discontinue features at any time. For material
-        changes affecting your data, we&apos;ll give in-app notice.
-      </p>
-
-      <h2>9. Limitation of liability</h2>
-      <p>
-        To the maximum extent permitted by law, the Operator is not liable for any indirect,
-        incidental, special, or consequential damages, including injury, lost progress, lost data,
-        or revenue loss arising from use of the Service. Your sole remedy if you&apos;re unhappy
-        with the Service is to stop using it.
-      </p>
-
-      <h2>10. Termination</h2>
-      <p>
-        You may stop using the Service and delete your account at any time (see Privacy Policy §7).
-        The Operator may terminate accounts violating these terms with reasonable notice (immediate
-        for egregious abuse).
-      </p>
-
-      <h2>11. Governing law</h2>
-      <p>
-        These terms are governed by the laws of the {jurisdiction}, without regard to
-        conflict-of-law principles.
-      </p>
-
-      <h2>12. Contact</h2>
-      <p>
-        Questions or complaints — write to{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-    </>
-  )
-}
-
-function TermsRu({
-  contact,
-  operator,
-  jurisdiction,
-}: {
-  contact: string
-  operator: string
-  jurisdiction: string
-}) {
-  return (
-    <>
-      <p className="text-white/70">
-        Используя <strong>Formly</strong> («Сервис»), ты соглашаешься с этими правилами. Сервис
-        предоставляется {operator} («Оператор»). Не согласен — не пользуйся.
-      </p>
-
-      <h2>1. Сделка в одном абзаце</h2>
-      <p>
-        Мы даём тебе место чтобы вести тренировки, замеры и рекорды — бесплатно, без рекламы. Ты
-        обещаешь использовать его только для себя, не ломать, не злоупотреблять, и полностью
-        отвечать за свои действия с подсказками и цифрами которые мы показываем.
-      </p>
-
-      <h2>2. Кто может пользоваться</h2>
-      <p>
-        Тебе должно быть минимум 13 лет (или возраст цифрового согласия в твоей стране, если он
-        выше). От 13 до 18 — подтверждаешь что есть разрешение родителей.
-      </p>
-
-      <h2>3. Твой аккаунт</h2>
-      <ul>
-        <li>Ты отвечаешь за свой пароль. Не давай его другим.</li>
-        <li>Указывай правдивые данные. Не выдавай себя за других.</li>
-        <li>Один человек — один аккаунт. Никакой массовой регистрации.</li>
-        <li>Мы можем приостановить или удалить аккаунты, нарушающие эти правила.</li>
-      </ul>
-
-      <h2>4. Здоровье и безопасность — это критично</h2>
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+      ),
+    },
+    {
+      id: 'availability',
+      title: 'Availability and changes',
+      body: (
         <p>
-          <strong>Сервис — информационный, не медицинский.</strong> Расчётный 1ПМ, RPE-подсказки
-          прогрессии, тиры силы, калькулятор блинов, таймер отдыха и AI-инсайты — это{' '}
-          <strong>ориентир, не рецепт</strong>. Они основаны на общих формулах и твоих данных.
+          The Service is provided <strong>&quot;as is&quot;</strong>, without warranty of
+          uninterrupted operation, freedom from defects or fitness for a particular purpose. The
+          Operator may change, restrict or discontinue features. Material changes affecting user
+          data are announced in the interface of the Service. Users are advised to keep their own
+          copy of their data through the CSV export.
         </p>
+      ),
+    },
+    {
+      id: 'liability',
+      title: 'Limitation of liability',
+      body: (
         <p>
-          Тренировки с весом имеют риск травм. <strong>Этот риск ты принимаешь на себя.</strong>{' '}
-          Проконсультируйся со специалистом перед любой программой, особенно при хронических
-          болезнях, травмах, беременности, восстановлении после болезни.
+          To the maximum extent permitted by applicable law, the Operator is not liable for
+          indirect, incidental, special or consequential damages, including personal injury, lost
+          progress, lost data or lost revenue arising from use of the Service. The user&apos;s sole
+          remedy if dissatisfied with the Service is to stop using it. Nothing in this section
+          limits liability that cannot be limited by law.
         </p>
+      ),
+    },
+    {
+      id: 'termination',
+      title: 'Termination',
+      body: (
         <p>
-          Если подсказка кажется тебе неуместной — <strong>игнорируй её</strong>. Приложение не
-          видит твою технику, усталость, сон, питание, лекарства. Ты видишь.
+          The user may stop using the Service and delete their account at any time, as described in
+          section 7 of the Privacy Policy. The Operator may terminate access for breach of these
+          Terms on reasonable notice, and immediately in cases of serious abuse.
         </p>
-      </div>
-
-      <h2>5. Твой контент</h2>
-      <p>
-        Всё что ты логируешь — тренировки, фото, заметки, замеры — твоё. Ты даёшь Оператору
-        минимальную лицензию необходимую чтобы хранить и показывать тебе обратно. Третьим лицам мы
-        это никогда не передаём и на твоих данных AI-модели не обучаем.
-      </p>
-
-      <h2>6. Допустимое использование</h2>
-      <p>Ты соглашаешься НЕ:</p>
-      <ul>
-        <li>Использовать Сервис чтобы преследовать, вредить, обманывать других.</li>
-        <li>
-          Загружать запрещённый контент, материалы сексуального характера с участием детей,
-          вредоносный код, нарушать чужие права.
-        </li>
-        <li>Зондировать, скрейпить, реверсить, нагружать Сервис автоматизированными запросами.</li>
-        <li>Перепродавать или коммерчески распространять Сервис.</li>
-      </ul>
-
-      <h2>7. AI-функции</h2>
-      <p>
-        Часть инсайтов генерирует сторонняя языковая модель (Mistral). LLM иногда галлюцинируют.
-        Воспринимай их вывод как точку старта, не догму. Мы не отправляем модели твой email или фото
-        — только агрегированные числа.
-      </p>
-
-      <h2>8. Доступность и изменения</h2>
-      <p>
-        Стараемся держать Сервис рабочим, но он предоставляется <strong>«как есть»</strong>, без
-        гарантий. Мы можем менять, ограничивать или отключать функции в любой момент. О существенных
-        изменениях затрагивающих твои данные — предупредим в приложении.
-      </p>
-
-      <h2>9. Ограничение ответственности</h2>
-      <p>
-        В максимальной степени, разрешённой законом, Оператор не несёт ответственности за косвенные,
-        случайные, особые или последующие убытки, включая травмы, потерю прогресса, данных или
-        дохода, возникшие из-за использования Сервиса. Единственное средство защиты если Сервис тебе
-        не нравится — прекратить им пользоваться.
-      </p>
-
-      <h2>10. Прекращение</h2>
-      <p>
-        Ты можешь прекратить пользоваться Сервисом и удалить аккаунт в любой момент (см. §7 Политики
-        конфиденциальности). Оператор может прекратить аккаунты, нарушающие эти правила, с разумным
-        уведомлением (немедленно при серьёзных нарушениях).
-      </p>
-
-      <h2>11. Применимое право</h2>
-      <p>
-        Эти правила регулируются законодательством {jurisdiction}, без учёта норм коллизионного
-        права.
-      </p>
-
-      <h2>12. Связь</h2>
-      <p>
-        Вопросы или жалобы — пиши на{' '}
-        <a href={`mailto:${contact}`} className="underline">
-          {contact}
-        </a>
-        .
-      </p>
-    </>
-  )
+      ),
+    },
+    {
+      id: 'law',
+      title: 'Governing law and amendments',
+      body: (
+        <p>
+          These Terms are governed by the laws of the {jurisdiction}, without regard to
+          conflict-of-law principles. The Operator may amend these Terms; material amendments are
+          announced in the interface of the Service before they take effect, and continued use after
+          that point constitutes acceptance. The date of the current revision is shown at the head
+          of this document.
+        </p>
+      ),
+    },
+    {
+      id: 'contact',
+      title: 'Contact',
+      body: (
+        <p>
+          Questions about these Terms should be addressed to the Operator ({operator}) at {mailto}.
+        </p>
+      ),
+    },
+  ]
 }

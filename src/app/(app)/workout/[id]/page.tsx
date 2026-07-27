@@ -68,7 +68,7 @@ export default async function WorkoutPage({
   // Fetch exercise notes + videos for all exercises in this session
   const exerciseIds = initialExercises.map((e) => e.id)
   const [exerciseNotesMap, exerciseVideosMap] = await Promise.all([
-    getExerciseNotesForExercises(supabase, user.id, exerciseIds),
+    getExerciseNotesForExercises(supabase, user.id, id, exerciseIds),
     getExerciseVideosForExercises(supabase, user.id, exerciseIds),
   ])
 

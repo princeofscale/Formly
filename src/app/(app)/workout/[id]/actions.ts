@@ -297,10 +297,22 @@ export async function updateMoodAction(sessionId: string, mood: number | null): 
   await updateSessionMood(supabase, sessionId, user.id, mood)
 }
 
-export async function updateExerciseNoteAction(exerciseId: string, note: string): Promise<void> {
+export async function updateExerciseNoteAction(
+  sessionId: string,
+  exerciseId: string,
+  note: string,
+): Promise<void> {
   const { user } = await verifySession()
   const supabase = await createClient()
-  await upsertExerciseNote(supabase, user.id, exerciseId, note)
+  // The session id arrives from the browser; the row-level policy on
+  // exercise_notes is what refuses one that belongs to somebody else.
+  await upsertExerciseNote(
+    supabase,
+    user.id,
+    validateUuid(sessionId, 'sessionId'),
+    exerciseId,
+    note,
+  )
 }
 
 export async function updateExerciseVideoAction(exerciseId: string, url: string): Promise<void> {

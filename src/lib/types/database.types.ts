@@ -356,18 +356,21 @@ export type Database = {
         Row: {
           exercise_id: string
           note: string
+          session_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           exercise_id: string
           note: string
+          session_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
           exercise_id?: string
           note?: string
+          session_id?: string
           updated_at?: string
           user_id?: string
         }
@@ -377,6 +380,13 @@ export type Database = {
             columns: ["exercise_id"]
             isOneToOne: false
             referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_notes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
             referencedColumns: ["id"]
           },
           {
@@ -875,6 +885,7 @@ export type Database = {
       workout_sessions: {
         Row: {
           ai_debrief: Json | null
+          ai_title: string | null
           cardio_activity: Database["public"]["Enums"]["cardio_activity"] | null
           cardio_avg_hr: number | null
           cardio_calories: number | null
@@ -892,6 +903,7 @@ export type Database = {
         }
         Insert: {
           ai_debrief?: Json | null
+          ai_title?: string | null
           cardio_activity?:
             | Database["public"]["Enums"]["cardio_activity"]
             | null
@@ -911,6 +923,7 @@ export type Database = {
         }
         Update: {
           ai_debrief?: Json | null
+          ai_title?: string | null
           cardio_activity?:
             | Database["public"]["Enums"]["cardio_activity"]
             | null
@@ -1341,6 +1354,11 @@ export type Database = {
         | "front_delts"
         | "side_delts"
         | "cardio"
+        | "chest_upper"
+        | "chest_lower"
+        | "lower_back"
+        | "obliques"
+        | "soleus"
       training_location: "gym" | "home" | "both"
     }
     CompositeTypes: {
@@ -1512,6 +1530,11 @@ export const Constants = {
         "front_delts",
         "side_delts",
         "cardio",
+        "chest_upper",
+        "chest_lower",
+        "lower_back",
+        "obliques",
+        "soleus",
       ],
       training_location: ["gym", "home", "both"],
     },

@@ -39,7 +39,7 @@
     "duration": "Время",
     "distance": "Дистанция",
     "sessionsShort": "сесс.",
-    "big": "TOP",
+    "big": "ОБЪЁМ",
     "deleteWorkout": "Удалить тренировку",
     "deleteConfirm": "Удалить",
     "deleteCancel": "Отмена",
@@ -79,8 +79,8 @@
       "rpe": "Усилие"
     },
     "muscleLabel": {
-      "chest": "Грудь",
-      "back": "Спина",
+      "chest": "Середина груди",
+      "back": "Верх спины",
       "biceps": "Бицепс",
       "triceps": "Трицепс",
       "forearms": "Предплечья",
@@ -88,13 +88,18 @@
       "quads": "Квадрицепс",
       "hamstrings": "Бицепс бедра",
       "glutes": "Ягодицы",
-      "calves": "Икры",
+      "calves": "Икроножная",
       "traps": "Трапеции",
       "lats": "Широчайшие",
       "rear_delts": "Задние дельты",
       "front_delts": "Передние дельты",
       "side_delts": "Средние дельты",
-      "cardio": "Кардио"
+      "cardio": "Кардио",
+      "chest_upper": "Верх груди",
+      "chest_lower": "Низ груди",
+      "lower_back": "Поясница",
+      "obliques": "Косые мышцы",
+      "soleus": "Камбаловидная"
     },
     "muscleClickHint": "Нажми на мышцу",
     "sets": "подх.",
@@ -235,7 +240,8 @@
     "libraryLink": {
       "title": "База упражнений",
       "sub": "Вся история по упражнениям"
-    }
+    },
+    "noChange": "без изменений"
   },
   "records": {
     "title": "Личные рекорды",

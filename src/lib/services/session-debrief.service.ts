@@ -19,6 +19,8 @@ export type CachedDebriefItem = string | { text?: unknown; evidence?: unknown }
 export interface SessionDebrief {
   items: CachedDebriefItem[]
   generated_at: string
+  /** Short name for the session. Absent on debriefs cached before titles existed. */
+  title?: string
 }
 
 /**
@@ -79,9 +81,13 @@ characters ("82.5 kg × 8", "RPE 7.8", "+12% volume"), with no sentence around i
 observation the data cannot support is not worth writing; omit it entirely.
 No preamble like "Great workout!". Use the athlete's name only if the data has it.
 
+Also name the session in "title": 2-4 words for what was trained that day, taken from
+the exercises actually in it ("Chest and triceps", "Heavy legs", "Full body"). It is a
+label, not a sentence — no verbs, no punctuation, no praise, no numbers.
+
 ${aiToneBlock(ctx.locale)}
 
-Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}]}`
+Return ONLY valid JSON: {"title":"<label>","items":[{"text":"<observation>","evidence":"<figure>"}]}`
 
   const userPrompt = JSON.stringify({
     summary: {
@@ -120,11 +126,13 @@ Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}
 
   const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
   let items: DebriefPoint[]
+  let title = ''
   try {
     const parsed = JSON.parse(raw)
     // normalizeDebriefItems also tolerates a model that ignored the schema and
     // returned bare strings, so a malformed reply degrades instead of throwing.
     items = Array.isArray(parsed.items) ? normalizeDebriefItems(parsed.items) : []
+    title = typeof parsed.title === 'string' ? parsed.title.trim().slice(0, 60) : ''
   } catch {
     throw new Error(`AI returned invalid JSON: ${raw.slice(0, 200)}`)
   }
@@ -132,5 +140,6 @@ Return ONLY valid JSON: {"items":[{"text":"<observation>","evidence":"<figure>"}
   return {
     items: items.slice(0, 4),
     generated_at: new Date().toISOString(),
+    ...(title ? { title } : {}),
   }
 }

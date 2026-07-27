@@ -271,7 +271,10 @@ export default async function ProgressPage({
             <span className="counter">{t('topWeightTag')}</span>
           </div>
           <div className="tar-d-rise tar-d-rise-3">
-            <MajorLiftsGrid lifts={majorLifts} />
+            <MajorLiftsGrid
+              lifts={majorLifts}
+              labels={{ unit: kg, noChange: t('noChange'), window: t('periods.30d') }}
+            />
           </div>
         </>
       )}

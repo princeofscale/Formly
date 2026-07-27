@@ -79,22 +79,27 @@
       "rpe": "RPE"
     },
     "muscleLabel": {
-      "chest": "Chest",
-      "back": "Back",
+      "chest": "Mid chest",
+      "back": "Upper back",
       "biceps": "Biceps",
       "triceps": "Triceps",
       "forearms": "Forearms",
-      "core": "Core",
+      "core": "Abs",
       "quads": "Quads",
       "hamstrings": "Hamstrings",
       "glutes": "Glutes",
-      "calves": "Calves",
+      "calves": "Calves (gastroc)",
       "traps": "Traps",
       "lats": "Lats",
       "rear_delts": "Rear Delts",
       "front_delts": "Front Delts",
       "side_delts": "Side Delts",
-      "cardio": "Cardio"
+      "cardio": "Cardio",
+      "chest_upper": "Upper chest",
+      "chest_lower": "Lower chest",
+      "lower_back": "Lower back",
+      "obliques": "Obliques",
+      "soleus": "Soleus"
     },
     "muscleClickHint": "Tap a muscle",
     "sets": "sets",
@@ -235,7 +240,8 @@
     "libraryLink": {
       "title": "Exercise library",
       "sub": "Your full per-exercise history"
-    }
+    },
+    "noChange": "no change"
   },
   "records": {
     "title": "Personal Records",

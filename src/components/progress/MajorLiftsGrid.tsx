@@ -18,6 +18,8 @@ export interface MajorLift {
 
 interface Props {
   lifts: MajorLift[]
+  /** Weight unit, the "no change" wording and the name of the 30-day window. */
+  labels: { unit: string; noChange: string; window: string }
 }
 
 function buildPath(history: Point[], w: number, h: number, pad = 2): string | null {
@@ -46,7 +48,7 @@ function buildArea(line: string, h: number): string {
   return `${line} L${lastX},${h} L0,${h} Z`
 }
 
-export function MajorLiftsGrid({ lifts }: Props) {
+export function MajorLiftsGrid({ lifts, labels }: Props) {
   const W = 160
   const H = 36
   return (
@@ -82,14 +84,17 @@ export function MajorLiftsGrid({ lifts }: Props) {
             </div>
             <div className="v">
               <span className="num">{latest != null ? Math.round(latest) : '—'}</span>
-              <span className="u">kg</span>
+              <span className="u">{labels.unit}</span>
             </div>
             {delta != null && deltaDir !== 'flat' ? (
               <span className={`d ${deltaDir}`}>
-                {deltaDir === 'up' ? '↑' : '↓'} {Math.abs(delta).toFixed(1)} kg · 30d
+                {deltaDir === 'up' ? '↑' : '↓'} {Math.abs(delta).toFixed(1)} {labels.unit} ·{' '}
+                {labels.window}
               </span>
             ) : (
-              <span className="d flat">— hold · 30d</span>
+              <span className="d flat">
+                — {labels.noChange} · {labels.window}
+              </span>
             )}
             {linePath && (
               <svg

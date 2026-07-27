@@ -7,8 +7,9 @@ import { Search, Flame } from 'lucide-react'
 import type { MuscleGroup, Equipment, Mechanic } from '@/lib/types/models'
 import { MuscleIcon } from '@/components/workout/muscle-icon'
 import { weightUnit } from '@/lib/units'
+import { muscleBucket, type MuscleBucket } from '@/lib/utils/muscle-groups'
 
-export type Bucket = 'chest' | 'back' | 'legs' | 'shoulder' | 'arms' | 'core'
+export type Bucket = MuscleBucket
 
 // Normalize ё→е and lowercase so "лежа" matches "Жим лёжа".
 // Server-side search uses the same rule (see src/lib/db/exercises.ts).
@@ -64,15 +65,6 @@ function buildRecentSet(items: Item[]): Set<string> {
   const s = new Set<string>()
   for (const i of items) if (i.lastAt && new Date(i.lastAt).getTime() >= cutoff) s.add(i.id)
   return s
-}
-
-function muscleBucket(m: MuscleGroup): Bucket {
-  if (m === 'chest') return 'chest'
-  if (m === 'back' || m === 'lats' || m === 'traps' || m === 'rear_delts') return 'back'
-  if (m === 'quads' || m === 'hamstrings' || m === 'glutes' || m === 'calves') return 'legs'
-  if (m === 'front_delts' || m === 'side_delts') return 'shoulder'
-  if (m === 'biceps' || m === 'triceps' || m === 'forearms') return 'arms'
-  return 'core'
 }
 
 const BUCKETS: Bucket[] = ['chest', 'back', 'legs', 'shoulder', 'arms', 'core']

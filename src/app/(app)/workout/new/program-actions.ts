@@ -107,8 +107,18 @@ function classifyExperience(trainingSince: string | null | undefined): Experienc
   return 'advanced'
 }
 
+/**
+ * Why this returns a failure instead of throwing it: an error thrown out of a
+ * server action reaches the browser as Next.js's generic "unexpected response"
+ * string with the real cause stripped, and the generator printed that string
+ * verbatim at the athlete. Everything the athlete can act on — allowance spent,
+ * model unavailable, model returned nothing usable — comes back named.
+ */
+export type ProgramFailure = 'quota' | 'ai' | 'empty'
+
 export async function previewProgramAction(input: GenerateProgramInput): Promise<{
   days: PreviewDay[]
+  error?: ProgramFailure
 }> {
   const values = generateProgramSchema.parse(input)
   const { user } = await verifySession()
@@ -118,10 +128,7 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
   try {
     await consumeAiQuota(supabase, 'program_generation')
   } catch (e) {
-    // Server-action files can't export non-function values, so the UI
-    // detects the literal "quota" substring in the error message
-    // instead of getting a typed sentinel back.
-    if (e instanceof AiQuotaExceededError) throw new Error('AI quota exhausted')
+    if (e instanceof AiQuotaExceededError) return { days: [], error: 'quota' }
     throw e
   }
 
@@ -140,39 +147,52 @@ export async function previewProgramAction(input: GenerateProgramInput): Promise
     training_since: string | null
   } | null
 
-  const generated: GeneratedDay[] = await generateProgram({
-    locale,
-    goal: values.goal,
-    daysPerWeek,
-    location: values.location,
-    age: profile?.age ?? null,
-    experience: classifyExperience(profile?.training_since),
-    notes: values.notes,
-    history: {
-      weekly_volumes: snapshot.weekly_volumes,
-      volume_landmarks: snapshot.volume_landmarks,
-      top_prs: snapshot.top_prs,
-    },
-    library,
-  })
+  let generated: GeneratedDay[]
+  try {
+    generated = await generateProgram({
+      locale,
+      goal: values.goal,
+      daysPerWeek,
+      location: values.location,
+      age: profile?.age ?? null,
+      experience: classifyExperience(profile?.training_since),
+      notes: values.notes,
+      history: {
+        weekly_volumes: snapshot.weekly_volumes,
+        volume_landmarks: snapshot.volume_landmarks,
+        top_prs: snapshot.top_prs,
+      },
+      library,
+    })
+  } catch (e) {
+    // The real cause is masked on its way to the browser, so it is recorded
+    // here. The message only — the prompt carries the athlete's own remarks.
+    console.error('[programGen] generation failed:', e instanceof Error ? e.message : e)
+    return { days: [], error: 'ai' }
+  }
 
   const byId = new Map(all.map((e) => [e.id, e]))
-  const days: PreviewDay[] = generated.map((d) => ({
-    day_label: d.day_label,
-    exercises: d.exercises
-      .map((ex) => {
-        const found = byId.get(ex.exercise_id)
-        if (!found) return null
-        return {
-          exercise_id: ex.exercise_id,
-          name: locale === 'ru' ? (found.name_ru ?? found.name) : found.name,
-          sets: ex.sets,
-          reps: ex.reps,
-        }
-      })
-      .filter((x): x is PreviewDay['exercises'][number] => x !== null),
-  }))
+  const days: PreviewDay[] = generated
+    .map((d) => ({
+      day_label: d.day_label,
+      exercises: d.exercises
+        .map((ex) => {
+          const found = byId.get(ex.exercise_id)
+          if (!found) return null
+          return {
+            exercise_id: ex.exercise_id,
+            name: locale === 'ru' ? (found.name_ru ?? found.name) : found.name,
+            sets: ex.sets,
+            reps: ex.reps,
+          }
+        })
+        .filter((x): x is PreviewDay['exercises'][number] => x !== null),
+    }))
+    // A day the model filled entirely with exercise ids that are not in the
+    // library survives as an empty day and renders as a blank card.
+    .filter((d) => d.exercises.length > 0)
 
+  if (days.length === 0) return { days: [], error: 'empty' }
   return { days }
 }
 

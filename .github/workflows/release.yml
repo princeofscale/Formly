@@ -1,9 +1,11 @@
 name: Release to Vercel
 
+# Publishing a GitHub Release is the one thing that ships production. Pushing
+# a tag no longer does: a tag is bookkeeping, a release is a decision, and the
+# two used to be the same gesture.
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types: [published]
 
 concurrency:
   group: production-release
@@ -27,14 +29,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      # A tag matching v*.*.* is the deploy trigger, and until now any such tag
-      # would do — including one pushed from a branch that never reached main.
-      # Production only ever ships reviewed history.
-      - name: Refuse a tag that is not on main
+      # The event filter no longer carries the version pattern, so the shape of
+      # the tag is checked here instead. A release cut from a draft branch, or
+      # named anything other than vX.Y.Z, is not a production release.
+      - name: Refuse a release that is not a version tag on main
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not a vX.Y.Z release tag"
+            exit 1
+          fi
           git fetch --quiet origin main
           if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::$GITHUB_REF_NAME points at a commit that is not on main"
+            echo "::error::$TAG points at a commit that is not on main"
             exit 1
           fi
 

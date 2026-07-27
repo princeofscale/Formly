@@ -134,6 +134,22 @@
   html {
     @apply font-sans;
   }
+
+  /* This is a phone-shaped app. Scrollbars are desktop furniture: they take a
+     column out of every page and, on the pages that overflow a few pixels, put
+     a second bar along the bottom. Scrolling by wheel, key and touch is
+     untouched — only the chrome is gone.
+     `clip` rather than `hidden`: `hidden` would make the root a scroll
+     container and break every `position: sticky` header in the app. */
+  html,
+  body {
+    overflow-x: clip;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Surface card — semi-transparent on deep dark bg */
@@ -3155,6 +3171,10 @@
   padding: 6px 12px;
   position: relative;
   text-align: center;
+  /* A grid track is `min-width: auto` by default, so a lifetime tonnage of
+     "1 234 567" pushed the whole card — and the page with it — wider than the
+     phone. The number gives way instead. */
+  min-width: 0;
 }
 .tar-pr-stat + .tar-pr-stat::before {
   content: '';
@@ -3166,9 +3186,12 @@
   background: var(--tar-line);
 }
 .tar-pr-stat .v {
-  font: 800 22px/1 var(--tar-tight);
+  font: 800 clamp(15px, 5.2vw, 22px) / 1 var(--tar-tight);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .tar-pr-stat .v.gold {
   background: var(--tar-brand-grad);
@@ -7705,4 +7728,86 @@
 }
 .tar-coach-why:active {
   color: var(--tar-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   Legal documents (/privacy, /terms)
+   These pages carried `prose prose-invert` for months without the Tailwind
+   typography plugin installed, so every paragraph and list rendered at browser
+   defaults. The rhythm lives here instead.
+--------------------------------------------------------------------------- */
+.legal-body {
+  font: 400 15px/1.7 var(--tar-text);
+  color: rgba(255, 255, 255, 0.7);
+}
+.legal-body > * + * {
+  margin-top: 12px;
+}
+.legal-body strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+.legal-body em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+}
+.legal-body a {
+  color: var(--tar-brand-2, #ffb627);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-body ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 0;
+  list-style: none;
+}
+.legal-body li {
+  position: relative;
+  padding-left: 18px;
+}
+.legal-body li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+.legal-body h3 {
+  margin-top: 20px;
+  font: 600 13px/1.4 var(--tar-text);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+}
+.legal-callout {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 182, 39, 0.28);
+  background: rgba(255, 182, 39, 0.06);
+  padding: 14px 16px;
+}
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.legal-table th,
+.legal-table td {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 9px 10px 9px 0;
+  text-align: left;
+  vertical-align: top;
+}
+.legal-table th {
+  font: 500 9px/1.4 var(--tar-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  border-top: 0;
+}
+.legal-scroll {
+  overflow-x: auto;
 }

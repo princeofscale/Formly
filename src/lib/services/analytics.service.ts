@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { MuscleVolume, VolumeLandmark, MuscleGroup } from '@/lib/types/models'
 import { calculateSessionVolume } from '@/lib/utils/muscle-volume'
+import { parentMuscle } from '@/lib/utils/muscle-groups'
 import { dropWarmupSets, type LoggedSetShape } from './warmup.service'
 import { unwrapRows } from '@/lib/db/unwrap'
 
@@ -121,13 +122,43 @@ export async function getMuscleVolumeForDays(
   return calculateSessionVolume(fakeExercises)
 }
 
+/**
+ * Weekly volume per muscle, with the regions it was trained through listed
+ * underneath it.
+ *
+ * The verdict is taken on the group, not the region: recovery is a property of
+ * the muscle, so six sets of incline press is not an under-trained chest when
+ * flat and decline bring the week to eighteen. The regions are still reported,
+ * because "all eighteen were flat" is the thing worth seeing.
+ */
 export function getVolumeLandmarks(muscleVolumes: MuscleVolume[]): VolumeLandmark[] {
-  return muscleVolumes.map((mv) => {
+  const byParent = new Map<MuscleGroup, { total: number; regions: MuscleVolume[] }>()
+  for (const mv of muscleVolumes) {
+    const parent = parentMuscle(mv.muscle)
+    const entry = byParent.get(parent) ?? { total: 0, regions: [] }
+    entry.total += mv.total_sets
+    entry.regions.push(mv)
+    byParent.set(parent, entry)
+  }
+
+  return Array.from(byParent.entries()).map(([muscle, { total, regions }]) => {
     let status: VolumeLandmark['status']
-    if (mv.total_sets < 6) status = 'mv'
-    else if (mv.total_sets >= 25) status = 'mrv'
+    if (total < 6) status = 'mv'
+    else if (total >= 25) status = 'mrv'
     else status = 'optimal'
 
-    return { muscle: mv.muscle, weekly_sets: mv.total_sets, status }
+    const isSplit = regions.length > 1 || regions[0].muscle !== muscle
+    return {
+      muscle,
+      weekly_sets: total,
+      status,
+      ...(isSplit
+        ? {
+            regions: regions
+              .map((r) => ({ muscle: r.muscle, weekly_sets: r.total_sets }))
+              .sort((a, b) => b.weekly_sets - a.weekly_sets),
+          }
+        : {}),
+    }
   })
 }

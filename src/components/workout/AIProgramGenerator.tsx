@@ -44,16 +44,16 @@ export function AIProgramGenerator({ defaultLocation }: Props) {
         location,
         notes: notes.trim() || undefined,
       }
-      const { days: previewDays } = await previewProgramAction(input)
-      if (previewDays.length === 0) {
-        setState({ kind: 'error', message: t('emptyResult') })
-        return
+      const { days: previewDays, error } = await previewProgramAction(input)
+      if (error === 'quota') return setState({ kind: 'error', message: t('quotaExhausted') })
+      if (error === 'ai') return setState({ kind: 'error', message: t('aiUnavailable') })
+      if (error || previewDays.length === 0) {
+        return setState({ kind: 'error', message: t('emptyResult') })
       }
       setState({ kind: 'preview', days: previewDays })
     } catch (e) {
-      const raw = e instanceof Error ? e.message : String(e)
-      const isQuota = raw.toLowerCase().includes('quota')
-      setState({ kind: 'error', message: isQuota ? t('quotaExhausted') : raw })
+      // Only a request that never reached the action lands here now.
+      setState({ kind: 'error', message: e instanceof Error ? e.message : String(e) })
     }
   }
 
