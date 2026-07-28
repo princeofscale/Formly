@@ -1,5 +1,5 @@
 /**
- * Shared tone contract for every Mistral prompt in the app.
+ * Shared tone contract for every AI prompt in the app.
  *
  * Before this existed each service wrote its own register, and two of them
  * explicitly asked for slang ("casual gym-bro register", "sound like a gym

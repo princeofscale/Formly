@@ -64,7 +64,7 @@ Follow existing boundaries. Do not move database access into UI components or cr
 
 ### Supabase and security
 
-- Never expose `SUPABASE_SERVICE_ROLE_KEY`, `MISTRAL_API_KEY`, VAPID private keys, Vercel tokens, or other server credentials.
+- Never expose `SUPABASE_SERVICE_ROLE_KEY`, `CVC_API_KEY`, VAPID private keys, Vercel tokens, or other server credentials.
 - Treat all client input, route parameters, cookies, headers, and database values as untrusted.
 - Preserve Row Level Security and authenticated user scoping in every query.
 - Never use the service-role client as a shortcut around missing RLS or incorrect user-scoped queries.

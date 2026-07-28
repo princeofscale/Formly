@@ -29,7 +29,7 @@ Formly — мобильный фитнес-трекер для ведения т
 - Ведение силовых и кардио-тренировок: подходы, вес, повторы, RPE и таймер отдыха.
 - История, объём, 1RM, рекорды, серии тренировок и прогресс по упражнениям.
 - Шаблоны, готовые программы, разминка и подсказки по прогрессии.
-- AI-разбор тренировок и рекомендации на базе Mistral AI.
+- AI-разбор тренировок, план тренера, генератор программ и подсказки поиска на базе Grok 4.5.
 - Каталог упражнений с русскими названиями, алиасами и fuzzy-поиском.
 - Офлайн-режим, PWA-установка и push-уведомления.
 - Русский и английский интерфейс, адаптированный под телефон.
@@ -40,7 +40,7 @@ Formly — мобильный фитнес-трекер для ведения т
 | ------------- | ------------------------------------------------------ |
 | Web           | Next.js 16, React 19, TypeScript, Tailwind CSS 4       |
 | Backend       | Supabase, PostgreSQL, Row Level Security               |
-| AI            | Mistral AI                                             |
+| AI            | Grok 4.5 через шлюз CheapVibeCode                      |
 | UX            | PWA, next-intl, native SVG charts, shadcn/ui           |
 | Наблюдаемость | Vercel Analytics, Speed Insights, client error reports |
 | Качество      | Vitest, ESLint, Prettier, Knip, CodeQL, gitleaks       |
@@ -65,8 +65,10 @@ npm run dev
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-MISTRAL_API_KEY=
+CVC_API_KEY=
 ```
+
+`CVC_API_KEY` — ключ шлюза [CheapVibeCode](https://cheapvibecode.ru/portal/docs), через который работают все AI-функции. Без него приложение запускается, но AI-поверхности сообщают о недоступности. Необязательный `CVC_BASE_URL` переопределяет адрес шлюза.
 
 Push-уведомления дополнительно используют `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` и `VAPID_CONTACT_EMAIL`. Полный шаблон находится в `.env.local.example`.
 

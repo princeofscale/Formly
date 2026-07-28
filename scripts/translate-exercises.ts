@@ -1,12 +1,10 @@
-import { Mistral } from '@mistralai/mistralai'
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
+import { cvcChat } from '../src/lib/services/cvc.client'
 
 dotenv.config({ path: '.env.local' })
 
 const BATCH_SIZE = 50
-
-const mistral = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! })
 
 interface ExerciseRow {
   id: string
@@ -16,23 +14,22 @@ interface ExerciseRow {
 async function translateBatch(exercises: ExerciseRow[]): Promise<Record<string, string>> {
   const list = exercises.map((e, i) => `${i + 1}. ${e.name}`).join('\n')
 
-  const response = await mistral.chat.complete({
-    model: 'mistral-medium-3-5',
-    maxTokens: 2048,
-    messages: [
-      {
-        role: 'user',
-        content: `Переведи названия упражнений с английского на русский, используя стандартную терминологию фитнеса/спортзала.
+  const text = (
+    await cvcChat({
+      system: 'Ты переводчик спортивной терминологии. Возвращай только JSON.',
+      maxTokens: 2048,
+      temperature: 0.2,
+      // A batch of 50 names is a long reply from a reasoning model; the default
+      // ceiling is for a web request, and this is a catalog backfill.
+      timeoutMs: 180_000,
+      user: `Переведи названия упражнений с английского на русский, используя стандартную терминологию фитнеса/спортзала.
 Примеры: "Bench Press"→"Жим лёжа", "Squat"→"Приседания", "Deadlift"→"Становая тяга", "Pull-Up"→"Подтягивания", "Curl"→"Сгибание", "Extension"→"Разгибание", "Row"→"Тяга", "Press"→"Жим", "Raise"→"Подъём", "Fly"→"Разводка", "Lunge"→"Выпад", "Plank"→"Планка", "Crunch"→"Скручивание".
 
 Верни ТОЛЬКО JSON без markdown и пояснений: {"1": "Жим лёжа", "2": "Приседания", ...}
 
 ${list}`,
-      },
-    ],
-  })
-
-  const text = ((response.choices?.[0]?.message?.content as string) ?? '').trim()
+    })
+  ).trim()
   const json = text
     .replace(/^```json?\s*/i, '')
     .replace(/\s*```$/i, '')

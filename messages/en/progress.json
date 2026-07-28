@@ -17,6 +17,7 @@
     "emptyVolume": "Complete a workout to see monthly volume.",
     "emptyLandmarks": "Log workouts to see volume status.",
     "setsPerWeek": "sets/wk",
+    "regionUnspecified": "unspecified",
     "status": {
       "low": "Low (MV)",
       "optimal": "Optimal",
@@ -79,16 +80,16 @@
       "rpe": "RPE"
     },
     "muscleLabel": {
-      "chest": "Mid chest",
-      "back": "Upper back",
+      "chest": "Chest",
+      "back": "Back",
       "biceps": "Biceps",
       "triceps": "Triceps",
       "forearms": "Forearms",
-      "core": "Abs",
+      "core": "Core",
       "quads": "Quads",
       "hamstrings": "Hamstrings",
       "glutes": "Glutes",
-      "calves": "Calves (gastroc)",
+      "calves": "Calves",
       "traps": "Traps",
       "lats": "Lats",
       "rear_delts": "Rear Delts",

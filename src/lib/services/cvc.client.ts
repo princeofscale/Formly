@@ -5,9 +5,9 @@
  * and a response shape rather than a dependency: the whole surface Formly uses
  * is one POST with a system prompt, a user prompt and `json_object` mode.
  *
- * Only the two surfaces the athlete asked for run through here — the dashboard
- * coach card and the program generator. Debriefs, coach chat, exercise swaps and
- * suggestions stay on Mistral.
+ * Every AI surface in Formly runs through here — the dashboard coach card, the
+ * program generator, post-workout debriefs, the coach thread, exercise swaps,
+ * search suggestions and the push hook.
  */
 
 /** Grok 4.5 by way of the gateway. Reasoning model: expect seconds, not milliseconds. */
@@ -15,9 +15,20 @@ export const CVC_MODEL = 'grok-4.5'
 
 const DEFAULT_BASE_URL = 'https://cheapvibecode.ru/v1'
 
+/** A turn in an ongoing exchange. The system prompt is not one of these. */
+export interface CvcMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export interface CvcChatOptions {
   system: string
   user: string
+  /**
+   * Turns to append after `user`, for the one surface that is a conversation
+   * rather than a single question. Omitted everywhere else.
+   */
+  messages?: readonly CvcMessage[]
   /** Ceiling on the visible reply. Reasoning tokens are not counted here. */
   maxTokens: number
   temperature: number
@@ -68,6 +79,7 @@ export async function cvcChat(options: CvcChatOptions): Promise<string> {
       messages: [
         { role: 'system', content: options.system },
         { role: 'user', content: options.user },
+        ...(options.messages ?? []),
       ],
     }),
     signal: AbortSignal.timeout(options.timeoutMs ?? 55_000),

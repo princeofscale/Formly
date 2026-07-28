@@ -143,6 +143,7 @@ export default async function AnalyticsPage({
             empty: t('emptyLandmarks'),
             setsPerWeek: t('setsPerWeek'),
             muscles: muscleLabels,
+            regionUnspecified: t('regionUnspecified'),
             status: {
               mv: t('status.low'),
               optimal: t('status.optimal'),
