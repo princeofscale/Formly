@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Translated the last English fragments on the Progress screen — "kg", "hold" and "30d" on the major-lift cards — and the "TOP" badge in history.
 - The smart reminder no longer reports chest or back as untrained when the week's work went into a region of them.
 
+## 1.5.2 - 2026-07-27
+
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.1...v1.5.2)
 
 ### Added
