@@ -277,8 +277,8 @@ export async function suggestExercisesAction(query: string): Promise<ExerciseSug
     const picks = await suggestFromCatalog({ locale, query: q, catalog })
     return picks.map((p) => ({ exercise: catalog[p.index - 1], reason: p.reason }))
   } catch (e) {
-    // Mistral down / bad JSON — degrade to "nothing found"; the client then
-    // shows the create-custom CTA.
+    // Gateway down, timed out or bad JSON — degrade to "nothing found"; the
+    // client then shows the create-custom CTA.
     console.error('suggestExercisesAction:', e)
     return []
   }

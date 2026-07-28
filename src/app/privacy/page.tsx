@@ -4,7 +4,8 @@ import { LEGAL_CONTACT, LEGAL_LAST_UPDATED, LEGAL_OPERATOR } from '@/lib/legal'
 
 // NOTE for the developer:
 //   This policy is written against Formly's actual data flow (Supabase auth,
-//   database and storage; Vercel hosting; Mistral AI; Web Push). It is not
+//   database and storage; Vercel hosting; the CheapVibeCode AI gateway; Web
+//   Push). It is not
 //   legal advice. Before distribution through an app store, or to users in a
 //   regulated region, have it reviewed by a lawyer.
 //
@@ -190,8 +191,9 @@ function privacyRu(mailto: React.ReactNode, operator: string): LegalSection[] {
               <strong>Vercel</strong> — размещение веб-приложения и технические журналы запросов.
             </li>
             <li>
-              <strong>Mistral AI</strong> — формирование разборов тренировок, рекомендаций,
-              программ, названий тренировок и ответов тренера. Передаётся минимально необходимый
+              <strong>CheapVibeCode</strong> (шлюз к языковой модели Grok 4.5, разработанной xAI) —
+              формирование разборов тренировок, рекомендаций, программ, названий тренировок, ответов
+              тренера, подсказок поиска и текстов уведомлений. Передаётся минимально необходимый
               обезличенный контекст: сводные показатели тренировок и, при использовании чата,
               заданный пользователем вопрос. Адрес электронной почты, фотографии и личные сообщения
               не передаются.
@@ -491,10 +493,12 @@ function privacyEn(mailto: React.ReactNode, operator: string): LegalSection[] {
               <strong>Vercel</strong> — application hosting and request logs.
             </li>
             <li>
-              <strong>Mistral AI</strong> — generation of session debriefs, recommendations,
-              programs, session titles and coach replies. Only the minimum pseudonymised context is
-              transmitted: aggregate training figures and, for the chat, the question the user
-              asked. Email addresses, photographs and direct messages are never transmitted.
+              <strong>CheapVibeCode</strong> (a gateway to the Grok 4.5 language model developed by
+              xAI) — generation of session debriefs, recommendations, programs, session titles,
+              coach replies, search suggestions and notification copy. Only the minimum
+              pseudonymised context is transmitted: aggregate training figures and, for the chat,
+              the question the user asked. Email addresses, photographs and direct messages are
+              never transmitted.
             </li>
             <li>
               <strong>Browser push services</strong> (Apple, Google, Mozilla, Microsoft) — delivery

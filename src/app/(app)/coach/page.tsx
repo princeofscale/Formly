@@ -6,6 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getCoachThread } from '@/lib/db/coach'
 import { CoachThread } from '@/components/coach/CoachThread'
 
+/** Every reply in the thread is a server action waiting on the model. */
+export const maxDuration = 60
+
 export default async function CoachPage({
   searchParams,
 }: {

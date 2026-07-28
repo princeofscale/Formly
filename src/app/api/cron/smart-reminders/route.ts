@@ -17,6 +17,13 @@ import {
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * The sweep writes one personalized line per athlete, and the model behind it
+ * is a reasoning one that takes tens of seconds per call. Batches run back to
+ * back, so the whole run needs the ceiling rather than the platform default.
+ */
+export const maxDuration = 60
+
 interface SessionRow {
   user_id: string
   started_at: string
@@ -243,10 +250,13 @@ export async function GET(request: Request) {
     }
   }
 
-  // Generate hooks in parallel, capped at 5 concurrent to avoid Mistral rate limits.
+  // Generate hooks in parallel, capped to stay under the gateway's rate limit.
+  // Batches run one after another and a single hook takes tens of seconds, so
+  // the cap is also what decides how many athletes a run can reach before the
+  // function's time is up. Anyone past that gets the written fallback line.
   const usersToHook = Array.from(subsByUser.keys())
   const bodyByUser = new Map<string, string>()
-  const concurrency = 5
+  const concurrency = 10
   for (let i = 0; i < usersToHook.length; i += concurrency) {
     const batch = usersToHook.slice(i, i + concurrency)
     const results = await Promise.all(

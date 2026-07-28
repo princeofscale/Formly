@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type { GrokContext } from './grok.service'
 import type { CoachMessage } from '@/lib/db/coach'
 
@@ -41,11 +40,6 @@ const SAFETY_BLOCK = `SAFETY:
 - Never recommend one-rep-max attempts when the data says nothing about their technique.`
 
 export async function askCoach(ctx: CoachChatContext): Promise<CoachReply | null> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
-  const client = new Mistral({ apiKey })
-
   const systemPrompt = `You are the training assistant of a workout tracking app, answering one athlete's question.
 
 You may answer two kinds of question:
@@ -66,20 +60,14 @@ Return ONLY valid JSON: {"body":"<answer>","evidence":"<figure from their data, 
     content: m.body,
   }))
 
-  const response = await client.chat.complete({
-    model: 'mistral-large-latest',
-    temperature: 0.3,
-    maxTokens: 500,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `training data:\n${JSON.stringify(ctx.snapshot)}` },
-      ...history,
-      { role: 'user', content: ctx.question },
-    ],
-  })
-
-  const rawText = mistralContentToText(response.choices[0]?.message?.content) || '{}'
+  const rawText =
+    (await cvcChat({
+      system: systemPrompt,
+      user: `training data:\n${JSON.stringify(ctx.snapshot)}`,
+      messages: [...history, { role: 'user', content: ctx.question }],
+      temperature: 0.3,
+      maxTokens: 500,
+    })) || '{}'
   try {
     return parseCoachReply(JSON.parse(rawText))
   } catch {

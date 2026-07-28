@@ -1,12 +1,10 @@
-import { Mistral } from '@mistralai/mistralai'
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
+import { cvcChat } from '../src/lib/services/cvc.client'
 
 dotenv.config({ path: '.env.local' })
 
 const BATCH_SIZE = 5
-
-const mistral = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! })
 
 interface ExerciseRow {
   id: string
@@ -16,22 +14,21 @@ interface ExerciseRow {
 async function translateBatch(exercises: ExerciseRow[]): Promise<Record<string, string>> {
   const parts = exercises.map((e, i) => `### ${i + 1}\n${e.instructions_en}`).join('\n\n')
 
-  const response = await mistral.chat.complete({
-    model: 'mistral-medium-3-5',
-    maxTokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: `Переведи инструкции к упражнениям с английского на русский. Сохраняй повелительное наклонение и спортивную терминологию. Переводи точно, без добавлений.
+  const text = (
+    await cvcChat({
+      system: 'Ты переводчик спортивной терминологии. Возвращай только JSON.',
+      maxTokens: 4096,
+      temperature: 0.2,
+      // Catalog backfill, not a web request: the default ceiling is far too low
+      // for a reasoning model writing five sets of instructions.
+      timeoutMs: 180_000,
+      user: `Переведи инструкции к упражнениям с английского на русский. Сохраняй повелительное наклонение и спортивную терминологию. Переводи точно, без добавлений.
 
 Верни ТОЛЬКО JSON без markdown: {"1": "перевод первого", "2": "перевод второго", ...}
 
 ${parts}`,
-      },
-    ],
-  })
-
-  const text = ((response.choices?.[0]?.message?.content as string) ?? '').trim()
+    })
+  ).trim()
   const json = text
     .replace(/^```json?\s*/i, '')
     .replace(/\s*```$/i, '')

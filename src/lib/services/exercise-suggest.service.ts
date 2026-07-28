@@ -1,9 +1,8 @@
 // «Возможно, вы имели в виду…»: the model picks up to 3 entries from a
 // numbered catalog. Index-based responses make hallucinated exercises
 // impossible by construction — invalid indices are simply dropped.
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type { Exercise } from '@/lib/types/models'
 
 export interface SuggestPick {
@@ -13,7 +12,7 @@ export interface SuggestPick {
 
 export type CatalogEntry = Pick<Exercise, 'name' | 'name_ru' | 'primary_muscle' | 'equipment'>
 
-const REQUEST_TIMEOUT_MS = 10_000
+const REQUEST_TIMEOUT_MS = 25_000
 
 export function serializeCatalog(catalog: CatalogEntry[]): string {
   const clean = (s: string) => s.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim()
@@ -55,11 +54,6 @@ export async function suggestFromCatalog(ctx: {
 }): Promise<SuggestPick[]> {
   if (ctx.catalog.length === 0) return []
 
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
-  const client = new Mistral({ apiKey })
-
   const systemPrompt = `You are the search assistant of a gym workout tracker.
 The user's search query matched nothing. It may be Russian gym slang, a machine
 description, a misspelling, or mixed RU/EN.
@@ -71,30 +65,13 @@ ${aiToneBlock(ctx.locale)}
 
 Return ONLY valid JSON: {"items":[{"index":<number>,"reason":"<why this matches>"}]}`
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-
-  try {
-    const response = await client.chat.complete(
-      {
-        model: 'mistral-large-latest',
-        temperature: 0.2,
-        maxTokens: 300,
-        responseFormat: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: `query: ${ctx.query}\n\ncatalog:\n${serializeCatalog(ctx.catalog)}`,
-          },
-        ],
-      },
-      { fetchOptions: { signal: controller.signal } },
-    )
-
-    const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
-    return parseSuggestions(raw, ctx.catalog.length)
-  } finally {
-    clearTimeout(timeout)
-  }
+  const raw =
+    (await cvcChat({
+      system: systemPrompt,
+      user: `query: ${ctx.query}\n\ncatalog:\n${serializeCatalog(ctx.catalog)}`,
+      temperature: 0.2,
+      maxTokens: 300,
+      timeoutMs: REQUEST_TIMEOUT_MS,
+    })) || '{}'
+  return parseSuggestions(raw, ctx.catalog.length)
 }

@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 
 export interface PushHookContext {
   locale: 'ru' | 'en'
@@ -15,12 +14,7 @@ export interface PushHookContext {
  * Falls back to a generic string if anything fails — never blocks the cron.
  */
 export async function generatePushHook(ctx: PushHookContext, fallback: string): Promise<string> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) return fallback
-
   try {
-    const client = new Mistral({ apiKey })
-
     const systemPrompt = `You write SHORT personalized push notification bodies for a workout app.
 Output a SINGLE sentence, max 90 characters, no quotes, no emoji.
 Reference one specific thing from their data (an exercise, an undertrained muscle, days since last session).
@@ -37,18 +31,15 @@ Return ONLY valid JSON: {"body":"<the sentence>"}`
       undertrained_muscles: ctx.underworkedMuscles.slice(0, 3),
     })
 
-    const response = await client.chat.complete({
-      model: 'mistral-large-latest',
-      temperature: 0.7,
-      maxTokens: 150,
-      responseFormat: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-    })
-
-    const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
+    // No key, a gateway error or a timeout all land in the catch below and the
+    // cron sends the generic line instead. A push is not worth failing over.
+    const raw =
+      (await cvcChat({
+        system: systemPrompt,
+        user: userPrompt,
+        temperature: 0.7,
+        maxTokens: 150,
+      })) || '{}'
     const parsed = JSON.parse(raw)
     const body = typeof parsed.body === 'string' ? parsed.body.trim() : ''
     if (!body) return fallback

@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type { Exercise } from '@/lib/types/models'
 
 export interface AlternativeSuggestion {
@@ -32,12 +31,7 @@ Each reason must name what the alternative shares with the target — the primar
 the movement pattern, or the equipment — so the athlete can see why it was offered.`
 
 export async function pickAlternatives(ctx: PickContext): Promise<AlternativeSuggestion[]> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
   if (ctx.candidates.length === 0) return []
-
-  const client = new Mistral({ apiKey })
 
   const systemPrompt = `${ALTERNATIVE_RULES}
 
@@ -56,18 +50,13 @@ Return ONLY valid JSON: {"items":[{"exercise_id":"<uuid>","reason":"<short, max 
     })),
   })
 
-  const response = await client.chat.complete({
-    model: 'mistral-large-latest',
-    temperature: 0.4,
-    maxTokens: 400,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-  })
-
-  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
+  const raw =
+    (await cvcChat({
+      system: systemPrompt,
+      user: userPrompt,
+      temperature: 0.4,
+      maxTokens: 400,
+    })) || '{}'
   let items: AlternativeSuggestion[]
   try {
     const parsed = JSON.parse(raw)

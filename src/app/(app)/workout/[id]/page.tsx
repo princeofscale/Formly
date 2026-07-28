@@ -10,6 +10,13 @@ import { getExerciseNotesForExercises } from '@/lib/db/exercise-notes'
 import { getExerciseVideosForExercises } from '@/lib/db/exercise-videos'
 import type { Exercise, ExerciseWithSets, SetEntry } from '@/lib/types/models'
 
+/**
+ * Exercise swaps and the "did you mean" search fallback are server actions on
+ * this route, and both wait on a reasoning model — tens of seconds, not the
+ * couple this took before. Stated rather than inherited from the platform.
+ */
+export const maxDuration = 60
+
 export default async function WorkoutPage({
   params,
   searchParams,

@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Mistral } from '@mistralai/mistralai'
 import {
   parseSuggestions,
   serializeCatalog,
@@ -7,18 +6,13 @@ import {
   type CatalogEntry,
 } from './exercise-suggest.service'
 
-const { completeMock } = vi.hoisted(() => ({ completeMock: vi.fn() }))
+const { cvcChatMock } = vi.hoisted(() => ({ cvcChatMock: vi.fn() }))
 
-vi.mock('@mistralai/mistralai', () => ({
-  Mistral: vi.fn(function () {
-    return { chat: { complete: completeMock } }
-  }),
-}))
+vi.mock('./cvc.client', () => ({ cvcChat: cvcChatMock }))
 
 afterEach(() => {
   vi.clearAllMocks()
   vi.unstubAllEnvs()
-  vi.useRealTimers()
 })
 
 const catalog: CatalogEntry[] = [
@@ -81,34 +75,31 @@ describe('parseSuggestions', () => {
 })
 
 describe('suggestFromCatalog', () => {
-  it('returns an empty result without configuring or calling Mistral for an empty catalog', async () => {
-    vi.stubEnv('MISTRAL_API_KEY', '')
-
+  it('returns an empty result without reaching the gateway for an empty catalog', async () => {
     await expect(
       suggestFromCatalog({ locale: 'en', query: 'bench', catalog: [] }),
     ).resolves.toEqual([])
-    expect(Mistral).not.toHaveBeenCalled()
-    expect(completeMock).not.toHaveBeenCalled()
+    expect(cvcChatMock).not.toHaveBeenCalled()
   })
 
-  it('throws when MISTRAL_API_KEY is missing', async () => {
-    vi.stubEnv('MISTRAL_API_KEY', '')
+  it('sends the query and catalog under the search timeout', async () => {
+    cvcChatMock.mockResolvedValue('{"items":[{"index":1,"reason":"matches bench"}]}')
 
-    await expect(suggestFromCatalog({ locale: 'en', query: 'bench', catalog })).rejects.toThrow(
-      'MISTRAL_API_KEY is not configured',
-    )
-    expect(Mistral).not.toHaveBeenCalled()
+    await expect(suggestFromCatalog({ locale: 'en', query: 'bench', catalog })).resolves.toEqual([
+      { index: 1, reason: 'matches bench' },
+    ])
+
+    const options = cvcChatMock.mock.calls[0][0]
+    expect(options.user).toContain('query: bench')
+    expect(options.user).toContain('1|Barbell Bench Press')
+    // Search suggestions are typed at, not waited on: this budget is what keeps
+    // a slow gateway from holding the box open behind the athlete.
+    expect(options.timeoutMs).toBe(25_000)
   })
 
-  it('passes a request signal and clears its timeout after completion', async () => {
-    vi.useFakeTimers()
-    vi.stubEnv('MISTRAL_API_KEY', 'test-key')
-    completeMock.mockResolvedValue({ choices: [{ message: { content: '{"items":[]}' } }] })
+  it('returns no picks when the gateway answers with nothing usable', async () => {
+    cvcChatMock.mockResolvedValue('')
 
     await expect(suggestFromCatalog({ locale: 'en', query: 'bench', catalog })).resolves.toEqual([])
-    expect(completeMock).toHaveBeenCalledWith(expect.any(Object), {
-      fetchOptions: { signal: expect.any(AbortSignal) },
-    })
-    expect(vi.getTimerCount()).toBe(0)
   })
 })

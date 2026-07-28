@@ -1,6 +1,5 @@
-import { Mistral } from '@mistralai/mistralai'
 import { aiToneBlock } from './ai-tone'
-import { mistralContentToText } from './mistral-content'
+import { cvcChat } from './cvc.client'
 import type { SessionSummary } from './session-summary.service'
 
 /** One debrief bullet: the observation plus the figure it rests on. */
@@ -57,11 +56,6 @@ interface DebriefContext {
 }
 
 export async function generateDebrief(ctx: DebriefContext): Promise<SessionDebrief> {
-  const apiKey = process.env.MISTRAL_API_KEY
-  if (!apiKey) throw new Error('MISTRAL_API_KEY is not configured')
-
-  const client = new Mistral({ apiKey })
-
   const systemPrompt = `You are a strength coach reviewing a single workout the user just finished.
 Write a SHORT post-workout debrief: 2-4 bullet points, each one sentence (max 20 words).
 
@@ -111,20 +105,15 @@ Return ONLY valid JSON: {"title":"<label>","items":[{"text":"<observation>","evi
     rpe: ctx.rpe,
   })
 
-  const response = await client.chat.complete({
-    model: 'mistral-large-latest',
-    temperature: 0.5,
-    // Russian tokenizes ~2× heavier than English: four bullets fit in 400
-    // tokens most days and get cut mid-JSON on the others.
-    maxTokens: 700,
-    responseFormat: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-  })
-
-  const raw = mistralContentToText(response.choices[0]?.message?.content) || '{}'
+  const raw =
+    (await cvcChat({
+      system: systemPrompt,
+      user: userPrompt,
+      temperature: 0.5,
+      // Russian tokenizes ~2× heavier than English: four bullets fit in 400
+      // tokens most days and get cut mid-JSON on the others.
+      maxTokens: 700,
+    })) || '{}'
   let items: DebriefPoint[]
   let title = ''
   try {

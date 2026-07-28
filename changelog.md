@@ -4,6 +4,23 @@ All notable changes to Formly are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+[Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.3...HEAD)
+
+### Changed
+
+- Every AI surface now runs on Grok 4.5 through the CheapVibeCode gateway. The dashboard coach card and the program generator moved in 1.5.3; post-workout debriefs, the coach thread, exercise swaps, search suggestions and the push notification copy followed. Formly now has one AI provider, one key and one kind of failure to reason about instead of two, and `@mistralai/mistralai` is no longer a dependency. `MISTRAL_API_KEY` is no longer read anywhere and can be removed from the deployment.
+- Every route that hosts an AI call now states its own function timeout instead of inheriting whatever the platform defaults to. The new model is a reasoning one and answers in tens of seconds where the old one took a few — measured at 19s for an exercise swap, 21s for a search suggestion, 24s for a debrief and 42s for a push line — which is comfortably past the default ceiling a serverless function gets. Without this the work would have been killed mid-flight on the dashboard, the workout screen, the workout history, the coach thread and the reminder sweep.
+- The reminder sweep generates ten notification bodies at a time rather than five. Batches run one after another and each one now takes tens of seconds, so the old width would have reached five athletes per run before the function's time was up.
+- The two catalog translation scripts under `scripts/` moved to the same gateway, with a timeout appropriate to a backfill rather than a web request.
+- The privacy policy and the terms of service name the new provider and the surfaces it now writes: search suggestions and notification copy joined debriefs, recommendations, programs, session titles and coach replies.
+- `README.md` described the AI as Mistral and listed `MISTRAL_API_KEY` among the required environment variables, neither of which had been true since 1.5.3. It now documents `CVC_API_KEY` and what happens without it.
+
+### Fixed
+
+- Volume landmarks no longer put a region's name on work that never said which region it was. Splitting the chest gave plain `chest` two meanings — the middle of it, and every set whose region is simply unknown, which is what a secondary contribution and a self-created exercise both carry — and the screen was calling all of it "Mid chest". The muscle keeps its own name, and the unspecified remainder says so.
+
 ## 1.5.3 - 2026-07-27
 
 [Compare changes](https://github.com/princeofscale/Formly/compare/v1.5.2...v1.5.3)

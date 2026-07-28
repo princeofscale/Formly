@@ -33,6 +33,8 @@ export function VolumeLandmarks({
     setsPerWeek: string
     /** Localized muscle names keyed by the raw muscle id (quads, triceps, …). */
     muscles: Record<string, string>
+    /** Stands in for a region row that carries the group's own id — see below. */
+    regionUnspecified: string
     status: Record<VolumeLandmark['status'], string>
   }
 }) {
@@ -100,7 +102,13 @@ export function VolumeLandmarks({
             </div>
 
             {/* Which angles the week's sets actually came from. The verdict
-                above is the group's; these are the parts of it. */}
+                above is the group's; these are the parts of it.
+
+                A region row carrying the group's own id is not a region: it is
+                the work that never said which one — a secondary contribution,
+                or an exercise the athlete tagged "chest" and left at that. It
+                says so rather than borrowing the name of a region it may not
+                have trained. */}
             {l.regions && l.regions.length > 0 && (
               <div className="mt-2 flex flex-col gap-1 pl-3">
                 {l.regions.map((r) => (
@@ -111,7 +119,9 @@ export function VolumeLandmarks({
                         color: 'var(--tar-ink-mute)',
                       }}
                     >
-                      {labels.muscles[r.muscle] ?? r.muscle.replace('_', ' ')}
+                      {r.muscle === l.muscle
+                        ? labels.regionUnspecified
+                        : (labels.muscles[r.muscle] ?? r.muscle.replace('_', ' '))}
                     </span>
                     <span
                       className="tabular-nums"
