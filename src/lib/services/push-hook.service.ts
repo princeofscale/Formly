@@ -1,5 +1,5 @@
 import { aiToneBlock } from './ai-tone'
-import { cvcChat } from './cvc.client'
+import { cvcChat, CVC_FAST_MODEL } from './cvc.client'
 
 export interface PushHookContext {
   locale: 'ru' | 'en'
@@ -35,6 +35,11 @@ Return ONLY valid JSON: {"body":"<the sentence>"}`
     // cron sends the generic line instead. A push is not worth failing over.
     const raw =
       (await cvcChat({
+        surface: 'push_hook',
+        // One sentence about a muscle the athlete has not trained. The reasoning
+        // model spent up to 48s and 6947 output tokens on that and picked the
+        // duller fact — it restated the last set instead of naming the gap.
+        model: CVC_FAST_MODEL,
         system: systemPrompt,
         user: userPrompt,
         temperature: 0.7,

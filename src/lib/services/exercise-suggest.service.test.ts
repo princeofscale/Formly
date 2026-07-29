@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { CVC_FAST_MODEL } from './cvc.client'
 import {
   parseSuggestions,
   serializeCatalog,
@@ -8,7 +9,12 @@ import {
 
 const { cvcChatMock } = vi.hoisted(() => ({ cvcChatMock: vi.fn() }))
 
-vi.mock('./cvc.client', () => ({ cvcChat: cvcChatMock }))
+// Only the network call is stubbed: CVC_FAST_MODEL stays the real constant, so
+// the assertion below breaks if the service and the client disagree on it.
+vi.mock('./cvc.client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./cvc.client')>()),
+  cvcChat: cvcChatMock,
+}))
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -82,7 +88,7 @@ describe('suggestFromCatalog', () => {
     expect(cvcChatMock).not.toHaveBeenCalled()
   })
 
-  it('sends the query and catalog under the search timeout', async () => {
+  it('sends the query and catalog to the fast model under the search timeout', async () => {
     cvcChatMock.mockResolvedValue('{"items":[{"index":1,"reason":"matches bench"}]}')
 
     await expect(suggestFromCatalog({ locale: 'en', query: 'bench', catalog })).resolves.toEqual([
@@ -92,9 +98,11 @@ describe('suggestFromCatalog', () => {
     const options = cvcChatMock.mock.calls[0][0]
     expect(options.user).toContain('query: bench')
     expect(options.user).toContain('1|Barbell Bench Press')
-    // Search suggestions are typed at, not waited on: this budget is what keeps
-    // a slow gateway from holding the box open behind the athlete.
-    expect(options.timeoutMs).toBe(25_000)
+    // Search suggestions are typed at, not waited on. The budget and the model
+    // are one decision: 15s is headroom for a model measured at 3.5-4.5s here,
+    // and far too little for the reasoning model that took 16-27s.
+    expect(options.model).toBe(CVC_FAST_MODEL)
+    expect(options.timeoutMs).toBe(15_000)
   })
 
   it('returns no picks when the gateway answers with nothing usable', async () => {

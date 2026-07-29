@@ -47,4 +47,60 @@ jobs:
           fi
 
       - name: Deploy with Vercel production environment
-        run: npx vercel@53.3.1 deploy --yes --prod --token=${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: |
+          set -o pipefail
+          # Logged through tee so a failing deploy still fails on its own error
+          # rather than on the URL being missing afterwards.
+          npx vercel@53.3.1 deploy --yes --prod --token=${{ secrets.VERCEL_TOKEN }} \
+            | tee "$RUNNER_TEMP/deploy.log"
+          url=$(grep -Eo 'https://[^[:space:]]+' "$RUNNER_TEMP/deploy.log" | tail -n1 || true)
+          if [ -z "$url" ]; then
+            echo "::error::the deploy printed no URL to smoke-check"
+            exit 1
+          fi
+          printf 'url=%s\n' "$url" >> "$GITHUB_OUTPUT"
+
+      # Vercel calls a deployment ready when the build finishes. Nothing up to
+      # here has asked the running app for an actual page, so a release that
+      # builds and then 500s on every request looked exactly like a good one.
+      #
+      # This checks the deployment URL rather than the domain: it is the build
+      # just published, with no alias or cache in between. It cannot roll back —
+      # a red job is the signal, and the previous deployment stays one promote
+      # away in the Vercel dashboard.
+      - name: Smoke-check the deployment
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -o pipefail
+          failed=0
+          # Three fields: the path, where it must end up, and a marker only that
+          # page renders. The landing check is the one that matters — middleware
+          # sends any unknown path to /login with a 200, so "200 and the word
+          # Formly" passes even for a page that no longer exists.
+          #
+          # Markers are class names rather than visible copy: the pages are
+          # translated, and a smoke test must not fail over a locale.
+          for spec in \
+            "/|/login|Formly" \
+            "/login|/login|Formly" \
+            "/privacy|/privacy|legal-body" \
+            "/terms|/terms|legal-body"; do
+            IFS='|' read -r path expected marker <<<"$spec"
+            read -r code landed < <(curl -sS -L --max-time 30 --retry 3 --retry-delay 5 \
+              -o "$RUNNER_TEMP/page.html" -w '%{http_code} %{url_effective}' "$URL$path"; echo)
+            if [ "$code" != "200" ]; then
+              echo "::error::$path answered $code"
+              failed=1
+            elif [ "$landed" != "$URL$expected" ]; then
+              echo "::error::$path landed on $landed, expected $URL$expected"
+              failed=1
+            elif ! grep -q "$marker" "$RUNNER_TEMP/page.html"; then
+              echo "::error::$path rendered without $marker"
+              failed=1
+            else
+              echo "$path OK"
+            fi
+          done
+          exit "$failed"

@@ -62,6 +62,7 @@ Return ONLY valid JSON: {"body":"<answer>","evidence":"<figure from their data, 
 
   const rawText =
     (await cvcChat({
+      surface: 'coach_chat',
       system: systemPrompt,
       user: `training data:\n${JSON.stringify(ctx.snapshot)}`,
       messages: [...history, { role: 'user', content: ctx.question }],
