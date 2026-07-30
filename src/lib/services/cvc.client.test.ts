@@ -160,6 +160,18 @@ describe('cvcChat', () => {
     expect(line).toContain('failed=TimeoutError')
   })
 
+  it('leaves a line behind when a 200 is not JSON', async () => {
+    // The gateway sitting behind a proxy that answers 200 with an HTML error
+    // page is the failure that looks like success everywhere else.
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<html>502</html>')))
+
+    await expect(cvcChat({ ...base, surface: 'coach_chat' })).rejects.toThrow()
+
+    const line = vi.mocked(console.warn).mock.calls[0][0] as string
+    expect(line).toContain('coach_chat')
+    expect(line).toContain('failed=')
+  })
+
   it('honours an overridden base url without doubling the slash', async () => {
     process.env.CVC_BASE_URL = 'https://gateway.example/v1/'
     const fetchMock = vi

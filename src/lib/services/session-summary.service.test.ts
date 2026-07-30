@@ -8,11 +8,17 @@ import { getSessionSummary } from './session-summary.service'
  * it asks for them, which survives the two queries it skips — history when the
  * session logged nothing, and the comparison on a cardio day.
  */
-function fakeSupabase(queues: Record<string, unknown[]>): SupabaseClient {
-  const chain = (data: unknown) => {
+function fakeSupabase(queues: Record<string, unknown[]>, filters: string[] = []): SupabaseClient {
+  const chain = (table: string, data: unknown) => {
     const self: Record<string, unknown> = {}
-    for (const method of ['select', 'eq', 'in', 'gt', 'neq', 'not', 'lt', 'order', 'limit']) {
+    for (const method of ['select', 'in', 'gt', 'neq', 'not', 'lt', 'order', 'limit']) {
       self[method] = () => self
+    }
+    // `eq` is recorded rather than ignored: the fake answers whatever it is
+    // asked, so a null result proves nothing on its own about who asked.
+    self.eq = (column: string, value: unknown) => {
+      filters.push(`${table}.${column}=${String(value)}`)
+      return self
     }
     self.single = async () => ({ data })
     // Every other query is awaited on the builder itself, so it has to be thenable.
@@ -22,7 +28,7 @@ function fakeSupabase(queues: Record<string, unknown[]>): SupabaseClient {
   }
 
   return {
-    from: (table: string) => chain(queues[table]?.shift() ?? null),
+    from: (table: string) => chain(table, queues[table]?.shift() ?? null),
   } as unknown as SupabaseClient
 }
 
@@ -48,17 +54,23 @@ function loggedSet(over: Record<string, unknown> = {}) {
 }
 
 /** Queues a whole run, so a test only states the rows it cares about. */
-function run(over: {
-  session?: unknown
-  sets?: unknown[]
-  history?: unknown[]
-  previous?: unknown[]
-}) {
+function run(
+  over: {
+    session?: unknown
+    sets?: unknown[]
+    history?: unknown[]
+    previous?: unknown[]
+  },
+  filters?: string[],
+) {
   return getSessionSummary(
-    fakeSupabase({
-      workout_sessions: ['session' in over ? over.session : SESSION, over.previous ?? []],
-      set_entries: [over.sets ?? [], over.history ?? []],
-    }),
+    fakeSupabase(
+      {
+        workout_sessions: ['session' in over ? over.session : SESSION, over.previous ?? []],
+        set_entries: [over.sets ?? [], over.history ?? []],
+      },
+      filters,
+    ),
     'U1',
     'S1',
   )
@@ -68,7 +80,21 @@ describe('getSessionSummary', () => {
   it('reports nothing for a session that is not the athlete’s', async () => {
     // Both id and user_id are filtered in the query, so a miss means either a
     // bad id or someone else's session. Neither may return numbers.
-    await expect(run({ session: null })).resolves.toBeNull()
+    const filters: string[] = []
+    await expect(run({ session: null }, filters)).resolves.toBeNull()
+
+    // The scoping is the assertion. RLS is the real gate, but this query is the
+    // one that decides whether the rest of the summary runs at all.
+    expect(filters).toContain('workout_sessions.id=S1')
+    expect(filters).toContain('workout_sessions.user_id=U1')
+  })
+
+  it('scopes the sets it adds up to the athlete and the session', async () => {
+    const filters: string[] = []
+    await run({ sets: [loggedSet()] }, filters)
+
+    expect(filters).toContain('set_entries.user_id=U1')
+    expect(filters).toContain('set_entries.session_id=S1')
   })
 
   it('counts every set logged but only working sets for the coach', async () => {

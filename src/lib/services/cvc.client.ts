@@ -113,6 +113,12 @@ export async function cvcChat(options: CvcChatOptions): Promise<string> {
   // actually costs; a one-sentence push line measured at 6947 of them.
   const log = (outcome: string) =>
     `[cvc] ${options.surface} model=${model} ${Date.now() - startedAt}ms ${outcome}`
+  // Reads `.name` rather than testing `instanceof Error`: AbortSignal.timeout
+  // throws a DOMException, and instanceof does not survive a realm boundary.
+  const failed = (e: unknown) => {
+    console.warn(log(`failed=${(e as Error | null)?.name ?? 'unknown'}`))
+    return e
+  }
 
   let response: Response
   try {
@@ -138,10 +144,7 @@ export async function cvcChat(options: CvcChatOptions): Promise<string> {
   } catch (e) {
     // A timeout reaches the caller as a generic failure. This line is the only
     // place it is visible as a timeout, which is the failure worth seeing.
-    // Read `.name` rather than testing `instanceof Error`: AbortSignal.timeout
-    // throws a DOMException, and instanceof does not survive a realm boundary.
-    console.warn(log(`failed=${(e as Error | null)?.name ?? 'unknown'}`))
-    throw e
+    throw failed(e)
   }
 
   if (!response.ok) {
@@ -151,7 +154,15 @@ export async function cvcChat(options: CvcChatOptions): Promise<string> {
     throw new Error(`CVC gateway returned ${response.status}`)
   }
 
-  const body = (await response.json()) as ChatCompletionResponse
+  let body: ChatCompletionResponse
+  try {
+    body = (await response.json()) as ChatCompletionResponse
+  } catch (e) {
+    // A 200 carrying something that is not JSON is still a failed call, and it
+    // was the only failure that left no line behind.
+    throw failed(e)
+  }
+
   console.info(
     log(`in=${body.usage?.prompt_tokens ?? '?'} out=${body.usage?.completion_tokens ?? '?'}`),
   )
