@@ -2,7 +2,7 @@
 // numbered catalog. Index-based responses make hallucinated exercises
 // impossible by construction — invalid indices are simply dropped.
 import { aiToneBlock } from './ai-tone'
-import { cvcChat } from './cvc.client'
+import { cvcChat, CVC_FAST_MODEL } from './cvc.client'
 import type { Exercise } from '@/lib/types/models'
 
 export interface SuggestPick {
@@ -12,7 +12,10 @@ export interface SuggestPick {
 
 export type CatalogEntry = Pick<Exercise, 'name' | 'name_ru' | 'primary_muscle' | 'equipment'>
 
-const REQUEST_TIMEOUT_MS = 25_000
+// Paired with CVC_FAST_MODEL below: measured at 3.5-4.5s against the full
+// 736-entry catalog, so this is headroom rather than a budget. Raise it if this
+// surface ever moves back to a reasoning model, which needed 16-27s.
+const REQUEST_TIMEOUT_MS = 15_000
 
 export function serializeCatalog(catalog: CatalogEntry[]): string {
   const clean = (s: string) => s.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim()
@@ -67,6 +70,10 @@ Return ONLY valid JSON: {"items":[{"index":<number>,"reason":"<why this matches>
 
   const raw =
     (await cvcChat({
+      surface: 'exercise_suggest',
+      // Picking rows out of a numbered list is matching, not reasoning: on the
+      // same queries the fast model returned the same exercises 5x sooner.
+      model: CVC_FAST_MODEL,
       system: systemPrompt,
       user: `query: ${ctx.query}\n\ncatalog:\n${serializeCatalog(ctx.catalog)}`,
       temperature: 0.2,

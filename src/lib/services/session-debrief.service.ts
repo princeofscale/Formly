@@ -107,6 +107,7 @@ Return ONLY valid JSON: {"title":"<label>","items":[{"text":"<observation>","evi
 
   const raw =
     (await cvcChat({
+      surface: 'session_debrief',
       system: systemPrompt,
       user: userPrompt,
       temperature: 0.5,

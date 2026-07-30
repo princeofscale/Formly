@@ -16,6 +16,7 @@ async function translateBatch(exercises: ExerciseRow[]): Promise<Record<string, 
 
   const text = (
     await cvcChat({
+      surface: 'translate-instructions',
       system: 'Ты переводчик спортивной терминологии. Возвращай только JSON.',
       maxTokens: 4096,
       temperature: 0.2,

@@ -108,6 +108,7 @@ Exactly ${input.daysPerWeek} entries in days[]. Only use exercise_id values from
   // came back as "AI returned invalid JSON", so the ceiling stays at 4000.
   const raw =
     (await cvcChat({
+      surface: 'program_generation',
       system: systemPrompt,
       user: userPrompt,
       temperature: 0.4,

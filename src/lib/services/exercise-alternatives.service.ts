@@ -52,6 +52,7 @@ Return ONLY valid JSON: {"items":[{"exercise_id":"<uuid>","reason":"<short, max 
 
   const raw =
     (await cvcChat({
+      surface: 'exercise_swap',
       system: systemPrompt,
       user: userPrompt,
       temperature: 0.4,

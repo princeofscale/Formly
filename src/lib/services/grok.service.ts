@@ -92,6 +92,7 @@ Return ONLY valid JSON shaped as {"items":[...]}. No markdown or extra explanati
   // spell in production that had it on Mistral.
   const raw =
     (await cvcChat({
+      surface: 'insights_refresh',
       system: systemPrompt,
       user: userPrompt,
       temperature: 0.3,
